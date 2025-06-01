@@ -6,7 +6,7 @@ const store = configureStore({
     reducer: {
         user: userSlice,
         listStudentParent: listStudentParentSlice,
-        userProfile: userProfileSlice,
+        userProfile: userProfileSlice,    
     },
 
 });
