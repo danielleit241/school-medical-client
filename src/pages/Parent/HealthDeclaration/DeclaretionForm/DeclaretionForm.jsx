@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
   Form,
   Input,
@@ -22,7 +22,8 @@ const DeclaretionForm = () => {
   const students =
     useSelector((state) => state.listStudentParent.listStudentParent) || [];
   const student = students.find((s) => s.studentId === studentId);
-  console.log(student);
+  // console.log(student);
+  const [healthDeclaration, setHealthDeclaration] = useState(null);
   const [showVaccine, setShowVaccine] = useState(false);
   const [vaccineData, setVaccineData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -101,6 +102,41 @@ const DeclaretionForm = () => {
     });
   };
 
+  useEffect(() => {
+    const fetchHealthDeclaration = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/api/students/${studentId}/health-declarations`
+        );
+        // console.log(response.data.healthDeclaration);
+        setHealthDeclaration(response.data.healthDeclaration);
+      } catch (error) {
+        console.error("Error fetching health declaration:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch health declaration data.",
+        });
+      }
+    };
+    fetchHealthDeclaration();
+  }, [studentId]);
+
+  useEffect(() => {
+    if (healthDeclaration) {
+      form.setFieldsValue({
+        fullName: student?.fullName || "",
+        declarationDate: healthDeclaration.declarationDate
+          ? dayjs(healthDeclaration.declarationDate)
+          : dayjs(),
+        chronicDiseases: healthDeclaration.chronicDiseases || "",
+        drugAllergies: healthDeclaration.drugAllergies || "",
+        foodAllergies: healthDeclaration.foodAllergies || "",
+        notes: healthDeclaration.notes || "",
+      });
+    }
+  }, [healthDeclaration, form, student]);
+
   const onFinish = (values) => {
     const healthDeclaration = {
       studentId: studentId,
@@ -115,7 +151,7 @@ const DeclaretionForm = () => {
       vaccinations: showVaccine
         ? vaccineData.map((vaccine) => ({
             vaccineName: vaccine.vaccineName,
-            batchNumber: vaccine.batchNumber,
+            doseNumber: vaccine.doseNumber,
             vaccinatedDate: vaccine.vaccinatedDate
               ? vaccine.vaccinatedDate.format("YYYY-MM-DD")
               : null,
@@ -236,7 +272,7 @@ const DeclaretionForm = () => {
                   <b>Name:</b> {vaccine.vaccineName}
                 </div>
                 <div>
-                  <b>Batch:</b> {vaccine.batchNumber}
+                  <b>Dose:</b> {vaccine.doseNumber}
                 </div>
                 <div>
                   <b>Date:</b>{" "}
@@ -297,9 +333,9 @@ const DeclaretionForm = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            label="Batch Number"
-            name="batchNumber"
-            rules={[{required: true, message: "Please enter batch number"}]}
+            label="Dose Number"
+            name="doseNumber"
+            rules={[{required: true, message: "Please enter dose number"}]}
           >
             <Input />
           </Form.Item>

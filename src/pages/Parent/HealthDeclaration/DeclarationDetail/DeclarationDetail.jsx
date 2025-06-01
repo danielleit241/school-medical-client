@@ -1,4 +1,4 @@
-import React, {use, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Button, Card, Descriptions, Divider, List} from "antd";
 import axiosInstance from "../../../../api/axios";
@@ -22,7 +22,6 @@ const DeclarationDetail = () => {
           `/api/parents/${parentId}/students/${studentId}`
         );
         setStudent(response.data);
-        console.log("Student data fetched successfully:", response.data);
       } catch (error) {
         console.error("Error fetching student data:", error);
         setStudent(null);
@@ -39,6 +38,7 @@ const DeclarationDetail = () => {
         );
         setHealthDeclaration(response.data.healthDeclaration);
         setVaccinations(response.data.vaccinations || []);
+        // console.log("Health Declaration Data:", response.data);
       } catch (error) {
         console.error("Error fetching health declaration:", error);
         setHealthDeclaration(null);
@@ -49,14 +49,15 @@ const DeclarationDetail = () => {
           text: "Please try again or select another student.",
           confirmButtonText: "Back",
         }).then(() => {
-          navigate(-1);
+          navigate("/parent/health-declaration/my-children");
         });
       } finally {
         setLoading(false);
       }
     };
     if (studentId) fetchApi();
-  }, [studentId, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentId]); // <-- chỉ để studentId
 
   if (loading) {
     return <div>Loading...</div>;
@@ -80,16 +81,16 @@ const DeclarationDetail = () => {
       <Card title="Your Children's Health Detail" style={{width: "100%"}}>
         <Descriptions column={1} labelStyle={{width: 400}} bordered>
           <Descriptions.Item label="Student Code">
-            {student.studentCode}
+            {student?.studentCode || ""}
           </Descriptions.Item>
           <Descriptions.Item label="Full Name">
-            {student.fullName}
+            {student?.fullName || ""}
           </Descriptions.Item>
           <Descriptions.Item label="Date of Birth">
-            {student.dayOfBirth}
+            {student?.dayOfBirth || ""}
           </Descriptions.Item>
           <Descriptions.Item label="Class">
-            {student.grade && student.grade.trim()}
+            {student?.grade?.trim() || ""}
           </Descriptions.Item>
           <Descriptions.Item label="Declaration Date">
             {healthDeclaration.declarationDate}
@@ -121,8 +122,8 @@ const DeclarationDetail = () => {
                 <Descriptions.Item label="Vaccine Name">
                   {item.vaccineName}
                 </Descriptions.Item>
-                <Descriptions.Item label="Batch Number">
-                  {item.batchNumber}
+                <Descriptions.Item label="Dose Number">
+                  {item.doseNumber}
                 </Descriptions.Item>
                 <Descriptions.Item label="Vaccinated Date">
                   {item.vaccinatedDate}
@@ -136,17 +137,6 @@ const DeclarationDetail = () => {
         />
 
         <div style={{display: "flex", gap: 20, marginTop: 24}}>
-          {/* <Button
-            type="primary"
-            style={{backgroundColor: "#355383"}}
-            onClick={() =>
-              navigate(`/parent/health-declaration/declaration-form`, {
-                state: {studentId: healthDeclaration.studentId},
-              })
-            }
-          >
-            Declare
-          </Button> */}
           <Button type="default" onClick={() => navigate(-1)}>
             Back
           </Button>
