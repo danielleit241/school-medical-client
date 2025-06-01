@@ -139,7 +139,7 @@ const DetailMedicalRes = () => {
           style={{backgroundColor: "#355383"}}
           onClick={() => navigate(-1)}
         >
-          Quay lại
+          Go Back
         </Button>
       </div>
     </Card>

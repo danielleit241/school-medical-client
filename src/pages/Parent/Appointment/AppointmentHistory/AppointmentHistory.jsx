@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../../../api/axios';
 import { useSelector } from 'react-redux';
-import { Card, List, Spin, Empty, Button, Tag } from 'antd';
+import { Card, List, Spin, Empty, Button, Tag, Descriptions, Divider } from 'antd';
 import './index.scss';
 
 const AppointmentHistory = () => {
@@ -99,14 +99,43 @@ const AppointmentHistory = () => {
           detailLoading || !selectedAppointment ? (
             <Spin />
           ) : (
-            <div className="appointment-history-detail">
-              <div><b>Student Name:</b> {selectedAppointment.student.fullName || "..." }</div>
-              <div><b>Date:</b> {selectedAppointment.appointmentDate}</div>
-              <div><b>Time:</b> {selectedAppointment.appointmentStartTime?.slice(0,5)} - {selectedAppointment.appointmentEndTime?.slice(0,5)}</div>
-              <div><b>Topic:</b> {selectedAppointment.topic}</div>
-              <div><b>Reason:</b> {selectedAppointment.appointmentReason}</div>
-              <div><b>Nurse:</b> { selectedAppointment.staffNurse.fullName || "..." }</div>
-              <div><b>Status:</b> <Tag color={getStatus(selectedAppointment).color}>{getStatus(selectedAppointment).text}</Tag></div>
+            <div>
+              <Descriptions
+                column={1}
+                bordered
+                labelStyle={{ width: 220, fontWeight: 600 }}
+                contentStyle={{ fontWeight: 400 }}
+                size="middle"
+              >
+                <Descriptions.Item label="Student Name">
+                  {selectedAppointment.student.fullName || "..."}
+                </Descriptions.Item>
+                <Descriptions.Item label="Date">
+                  {selectedAppointment.appointmentDate}
+                </Descriptions.Item>
+                <Descriptions.Item label="Time">
+                  {selectedAppointment.appointmentStartTime?.slice(0,5)} - {selectedAppointment.appointmentEndTime?.slice(0,5)}
+                </Descriptions.Item>
+                <Descriptions.Item label="Topic">
+                  {selectedAppointment.topic}
+                </Descriptions.Item>
+                <Descriptions.Item label="Reason">
+                  {selectedAppointment.appointmentReason}
+                </Descriptions.Item>
+                <Descriptions.Item label="Nurse">
+                  {selectedAppointment.staffNurse.fullName || "..."}
+                </Descriptions.Item>
+                <Descriptions.Item label="Status">
+                  <Tag color={getStatus(selectedAppointment).color}>
+                    {getStatus(selectedAppointment).text}
+                  </Tag>
+                </Descriptions.Item>
+              </Descriptions>
+              <div style={{ display: "flex", gap: 20, marginTop: 24 }}>
+                <Button type="default" onClick={() => setStep(1)}>
+                  Back
+                </Button>
+              </div>
             </div>
           )
         )}

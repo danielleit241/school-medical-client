@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../../api/axios";
-import { Card, Button, Spin, Empty, Tag, DatePicker, Input } from "antd";
+import { Card, Button, Spin, Empty, Tag, DatePicker, Input, Descriptions } from "antd";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 
@@ -101,7 +101,7 @@ const AppointmentList = () => {
           {loading ? (
             <Spin />
           ) : appointments.length === 0 ? (
-            <Empty description="Không có lịch hẹn" />
+            <Empty description="No appointments found" />
           ) : (
             appointments.map(item => {
               const statusObj = getStatus(item);
@@ -139,14 +139,36 @@ const AppointmentList = () => {
         detailLoading || !selectedAppointment ? (
           <Spin />
         ) : (
-          <div style={{ fontSize: 16 }}>
-            <div><b>Student:</b> {selectedAppointment.student?.fullName || "..."}</div>
-            <div><b>Date:</b> {selectedAppointment.appointmentDate}</div>
-            <div><b>Time:</b> {selectedAppointment.appointmentStartTime?.slice(0,5)} - {selectedAppointment.appointmentEndTime?.slice(0,5)}</div>
-            <div><b>Topic:</b> {selectedAppointment.topic}</div>
-            <div><b>Reason:</b> {selectedAppointment.appointmentReason}</div>
-            <div><b>Status:</b> <Tag color={getStatus(selectedAppointment).color}>{getStatus(selectedAppointment).text}</Tag></div>
-            <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
+          <div>
+            <Descriptions
+              column={1}
+              bordered
+              labelStyle={{ width: 220, fontWeight: 600 }}
+              contentStyle={{ fontWeight: 400 }}
+              size="middle"
+            >
+              <Descriptions.Item label="Student">
+                {selectedAppointment.student?.fullName || "..."}
+              </Descriptions.Item>
+              <Descriptions.Item label="Date">
+                {selectedAppointment.appointmentDate}
+              </Descriptions.Item>
+              <Descriptions.Item label="Time">
+                {selectedAppointment.appointmentStartTime?.slice(0,5)} - {selectedAppointment.appointmentEndTime?.slice(0,5)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Topic">
+                {selectedAppointment.topic}
+              </Descriptions.Item>
+              <Descriptions.Item label="Reason">
+                {selectedAppointment.appointmentReason}
+              </Descriptions.Item>
+              <Descriptions.Item label="Status">
+                <Tag color={getStatus(selectedAppointment).color}>
+                  {getStatus(selectedAppointment).text}
+                </Tag>
+              </Descriptions.Item>
+            </Descriptions>
+            <div style={{ marginTop: 24, display: "flex", gap: 12 }}>
               {!selectedAppointment.confirmationStatus && (
                 <Button
                   type="primary"

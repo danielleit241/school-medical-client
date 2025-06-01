@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../../api/axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setListStudentParent } from "../../../../redux/feature/listStudentParent";
-import { Card, Button, Form, Input, Select, Radio, message, Alert } from "antd";
+import { Card, Button, Form, Input, Select, Radio, message, Alert, Spin, Empty } from "antd";
 import "./index.scss";
 
 const { Option } = Select;
@@ -86,7 +86,7 @@ const AppointmentList = () => {
             }
             try {
                 const res = await axiosInstance.get(`/api/nurses/${selectedNurse.staffNurseId}/appointments`, {
-                    params: { dateRequest, PageSize: 100, PageIndex: 1 }
+                    params: { dateRequest, PageSize: 10, PageIndex: 1 }
                 });
                 const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
                 const slots = data.map(item => ({
@@ -248,46 +248,55 @@ const AppointmentList = () => {
                 }
                 style={{ maxWidth: 900, margin: "0 auto", borderRadius: 12, minHeight: 600 }}
             >
-                
                 {step === 1 && (
                     <>
                         <h3 style={{ marginBottom: 16 }}>Nurses List</h3>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-                            {nurse.map((n) => (
-                                <div
-                                    key={n.staffNurseId || n.id}
-                                    style={{
-                                        width: "100%",
-                                        background: "#fff",
-                                        borderRadius: 12,
-                                        boxShadow: "0 2px 8px #f0f1f2",
-                                        padding: 24,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        marginBottom: 0,
-                                    }}
-                                >
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 8 }}>
-                                            Nurse: {n.fullName}
+                        {nurse === null || nurse === undefined ? (
+                            <div style={{ background: "#fff", borderRadius: 12, padding: 32 }}>
+                                <Spin />
+                            </div>
+                        ) : nurse.length === 0 ? (
+                            <div style={{ background: "#fff", borderRadius: 12, padding: 32 }}>
+                                <Empty description="No Nurse found" />
+                            </div>
+                        ) : (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                                {nurse.map((n) => (
+                                    <div
+                                        key={n.staffNurseId || n.id}
+                                        style={{
+                                            width: "100%",
+                                            background: "#fff",
+                                            borderRadius: 12,
+                                            boxShadow: "0 2px 8px #f0f1f2",
+                                            padding: 24,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            marginBottom: 0,
+                                        }}
+                                    >
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 8 }}>
+                                                Nurse: {n.fullName}
+                                            </div>
+                                            <div>
+                                                <b>Phone:</b> {n.phoneNumber}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <b>Phone:</b> {n.phoneNumber}
+                                        <div style={{ display: "flex", gap: 12 }}>
+                                            <Button
+                                                type="primary"
+                                                onClick={() => handleSelect(n)}
+                                                style={{ minWidth: 100, borderRadius: 8 }}
+                                            >
+                                                Select
+                                            </Button>
                                         </div>
                                     </div>
-                                    <div style={{ display: "flex", gap: 12 }}>
-                                        <Button
-                                            type="primary"
-                                            onClick={() => handleSelect(n)}
-                                            style={{ minWidth: 100, borderRadius: 8 }}
-                                        >
-                                            Select
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </>
                 )}
                 {step === 2 && selectedNurse && (
