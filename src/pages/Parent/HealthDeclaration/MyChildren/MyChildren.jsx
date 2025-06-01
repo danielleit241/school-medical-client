@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
+import {useSelector, useDispatch} from "react-redux";
 import axiosInstance from "../../../../api/axios";
-
-import {useDispatch} from "react-redux";
 import {setListStudentParent} from "../../../../redux/feature/listStudentParent";
+import {Card, Button, Row, Col} from "antd";
+import {useNavigate} from "react-router-dom";
 
 const MyChildren = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const parentId = useSelector((state) => state.user?.userId);
   const [data, setData] = useState([]);
-  console.log("Parent ID:", parentId);
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -27,15 +27,62 @@ const MyChildren = () => {
     fetchApi();
   }, [parentId, dispatch]);
   console.log(data);
-
   return (
-    <div>
+    <div
+      style={{
+        padding: "30px",
+        background: "#ffffff",
+        height: "100%",
+        borderRadius: "20px",
+        boxShadow: "0 0px 15px rgba(0, 0, 0, 0.1)",
+      }}
+    >
       <h1>My Children</h1>
-      <ul>
+      <Row gutter={[16, 16]}>
         {data.map((item) => (
-          <li key={item.id}>{item.fullName}</li>
+          <Col xs={24} sm={12} md={8} lg={6} key={item.studentId}>
+            <Card title={item.fullName} style={{minHeight: 220}}>
+              <p>
+                <b>Mã HS:</b> {item.studentCode}
+              </p>
+              <p>
+                <b>Ngày sinh:</b> {item.dayOfBirth}
+              </p>
+              <p>
+                <b>Lớp:</b> {item.grade.trim()}
+              </p>
+              <div style={{display: "flex", gap: 8, marginTop: 16}}>
+                <Button
+                  type="primary"
+                  style={{background: "#355383"}}
+                  onClick={() => {
+                    navigate(`/parent/health-declaration/declaration-form`, {
+                      state: {
+                        studentId: item.studentId,
+                        fullName: item.fullName,
+                      },
+                    });
+                  }}
+                >
+                  Declare
+                </Button>
+                <Button
+                  onClick={() => {
+                    navigate(`/parent/health-declaration/detail`, {
+                      state: {
+                        studentId: item.studentId,
+                        fullName: item.fullName,
+                      },
+                    });
+                  }}
+                >
+                  Details
+                </Button>
+              </div>
+            </Card>
+          </Col>
         ))}
-      </ul>
+      </Row>
     </div>
   );
 };

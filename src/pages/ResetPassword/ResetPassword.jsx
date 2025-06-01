@@ -2,15 +2,20 @@ import React, {useState} from "react";
 import {Eye, EyeOff} from "lucide-react";
 import axiosInstance from "../../api/axios";
 import "./index.scss";
+import {useSelector} from "react-redux";
+import Swal from "sweetalert2";
+import {useNavigate} from "react-router-dom";
 
 const ResetPassword = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const phoneNumber = useSelector((state) => state.userProfile.phoneNumber);
   const handleReset = async (e) => {
     e.preventDefault();
     setError("");
@@ -24,28 +29,40 @@ const ResetPassword = () => {
       setError("New password must be different from old password.");
       return;
     }
-
+    const data = {
+      phoneNumber,
+      oldPassword,
+      newPassword,
+      confirmNewPassword,
+    };
+    console.log("Data gửi đi:", data);
     try {
-      const response = await axiosInstance.post("/auth/change-password", {
-        phoneNumber,
-        oldPassword,
-        newPassword,
-        confirmNewPassword,
-      });
-      console.log(response);
-      setSuccess(
-        response.data.message || "Mat khau da duoc cap nhat thanh cong"
+      const response = await axiosInstance.post(
+        "/api/auth/change-password",
+        data
       );
-      setPhoneNumber("");
+
+      setSuccess(response.data.message || "Password changed successfully.");
       setOldPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: response.data.message || "Password changed successfully.",
+        timer: 2000,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate(-1); // Quay lại trang trước đó
+      });
     } catch (err) {
       setError(
         err.response?.data?.message || "Phone number or password is incorrect."
       );
       return;
     }
+    console.log(phoneNumber);
   };
   return (
     <>
@@ -88,7 +105,7 @@ const ResetPassword = () => {
                 )}
               </div>
               <div className="reset_form__input">
-                <label> Current Password:</label>
+                <label> Old Password:</label>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={oldPassword}

@@ -246,22 +246,10 @@ const Sidebar = () => {
         icon: <FileTextOutlined />,
         dropdown: [
           {
-            label: "Declaration Form",
-            key: "/parent/health-declaration",
-            link: "/parent/health-declaration",
-            icon: <FormOutlined />,
-          },
-          {
             label: "My Children",
             key: "/parent/health-declaration/my-children",
             link: "/parent/health-declaration/my-children",
             icon: <TeamOutlined />,
-          },
-          {
-            label: "Declaration Detail",
-            key: "/parent/health-declaration/detail",
-            link: "/parent/health-declaration/detail",
-            icon: <FileSearchOutlined />,
           },
         ],
       },
