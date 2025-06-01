@@ -227,22 +227,10 @@ const Sidebar = () => {
             icon: <FileTextOutlined />,
           },
           {
-            label: "Appointment Form",
-            key: "/parent/appointment-form",
-            link: "/parent/appointment-form",
-            icon: <FormOutlined />,
-          },
-          {
             label: "Appointment History",
             key: "/parent/appointment-history",
             link: "/parent/appointment-history",
             icon: <FileDoneOutlined />,
-          },
-          {
-            label: "Calendar Appointment",
-            key: "/parent/calender-appointment",
-            link: "/parent/calender-appointment",
-            icon: <CalendarOutlined />,
           },
         ],
       },
