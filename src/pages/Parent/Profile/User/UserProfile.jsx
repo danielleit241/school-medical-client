@@ -25,7 +25,7 @@ const UserProfile = () => {
       try {
         const response = await axiosInstance.get(`/api/user-profile/${userId}`);
         setUser(response.data);
-        console.log("User profile fetched successfully:", response.data);
+        // console.log("User profile fetched successfully:", response.data);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }

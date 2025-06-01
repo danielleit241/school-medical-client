@@ -108,7 +108,7 @@ function App() {
               element={<ParentCalenderAppointment />}
             />
             <Route
-              path="health-declaration"
+              path="health-declaration/declaration-form"
               element={<ParentHealthDeclaration />}
             />
             <Route

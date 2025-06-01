@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import Carousel from "../../components/Carousel/Carousel";
 import "./index.scss";
 import slide1 from "../../assets/images/healt1.svg";
@@ -12,8 +12,28 @@ import {MdHealthAndSafety, MdBloodtype} from "react-icons/md";
 import {GoDotFill} from "react-icons/go";
 import {CiHeart} from "react-icons/ci";
 import {IoEyeOutline} from "react-icons/io5";
+import {useDispatch, useSelector} from "react-redux";
+import {UserProfile} from "../../services/User";
+import {setUserProfile} from "../../redux/feature/userProfileSlice";
 
 function HomePage() {
+  const dispatch = useDispatch();
+  const userId = useSelector((state) => state.user.userId);
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await UserProfile.getUserProfile(userId);
+        console.log(response.phoneNumber);
+        dispatch(setUserProfile({phoneNumber: response.phoneNumber}));
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    if (userId) {
+      fetchUserProfile();
+    }
+  }, [userId, dispatch]);
   return (
     <>
       <div className="">
