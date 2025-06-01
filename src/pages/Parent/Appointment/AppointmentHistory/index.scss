@@ -1,0 +1,104 @@
+.appointment-history-fullscreen {
+  min-height: 100vh;
+  width: 100vw;
+  background: #f7f9fb;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  .ant-card {
+    margin: 0 auto;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px #e0e2e6;
+    background: #fff;
+    min-height: 600px;
+    max-width: 900px; // Giảm max-width cho vừa mắt hơn
+    width: 100%;
+    padding: 24px 24px; // Giảm padding ngang
+    font-family: inherit;
+    margin-left: 550px;
+    margin-top:30px;
+  }
+}
+
+.appointment-history-card {
+  width: 100%;
+  max-width: 900px; // Giảm max-width cho đồng bộ
+  margin: 32px auto 0 auto;
+  border-radius: 16px;
+  min-height: 600px;
+  background: #fff;
+  box-shadow: 0 4px 24px #e0e2e6;
+  padding: 24px 24px; // Giảm padding ngang
+  font-family: inherit;
+}
+
+.appointment-history-row {
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #f0f1f2;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s;
+  font-family: inherit;
+
+  &:hover {
+    box-shadow: 0 4px 16px #e6e6e6;
+  }
+}
+
+.appointment-history-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  font-size: 16px;
+  font-family: inherit;
+
+  b {
+    font-weight: 600;
+    font-size: 16px;
+  }
+}
+
+.appointment-history-row-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+
+  .ant-btn {
+    border-radius: 6px;
+    min-width: 80px;
+    font-weight: 500;
+    font-size: 15px;
+    font-family: inherit;
+    background: #1677ff;
+    color: #fff;
+    border: none;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #4096ff;
+      color: #fff;
+    }
+  }
+}
+
+.appointment-history-detail {
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0;
+  font-family: inherit;
+}
