@@ -38,6 +38,8 @@ import NurseHistoryCampaign from "./pages/Nurse/Campaign/HistoryCampaign/History
 import RecordForm from "./pages/Nurse/Campaign/RecordForm/RecordForm";
 import CreateMedicalEvent from "./pages/Nurse/MediacalEvent/CreateMedicalEvent/CreateMedicalEvent";
 import MedicalEventList from "./pages/Nurse/MediacalEvent/MedicalEventList/MedicalEventList";
+import MedicalReceivedList from "./pages/Nurse/MedicalReceived/MedicalReceived/MedicalReceived";
+import MedicalReceivedDetail from "./pages/Nurse/MedicalReceived/MedicalReceivedDetail/MedicalReceivedDetail";
 import UserProfileNurse from "./pages/Nurse/Profile/User/UserProfile";
 import UpdateUserProfileNurse from "./pages/Nurse/Profile/Edit/UpdateUserProfile";
 
@@ -228,6 +230,14 @@ function App() {
           <Route
             path="medical-event/create-medical-event"
             element={<CreateMedicalEvent />}
+          />
+          <Route
+            path="medical-received/medical-received-list"
+            element={<MedicalReceivedList />}
+          />
+          <Route
+            path="medical-received/medical-received-detail"
+            element={<MedicalReceivedDetail />}
           />
           <Route
             path="medical-event/medical-event-list"

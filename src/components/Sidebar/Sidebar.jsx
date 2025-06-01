@@ -195,6 +195,12 @@ const Sidebar = () => {
         ],
       },
       {
+        label: "Medical Received",
+        key: "medical-received",
+        icon: <MedicineBoxOutlined />,
+        link: "/nurse/medical-received/medical-received-list",
+      },
+      {
         label: "Profile",
         key: "/nurse/profile",
         icon: <ProfileOutlined />,
@@ -269,12 +275,6 @@ const Sidebar = () => {
             key: "/parent/medical-registration/list",
             link: "/parent/medical-registration/list",
             icon: <FileTextOutlined />,
-          },
-          {
-            label: "Detail Medical Registration",
-            key: "/parent/medical-registration/detail",
-            link: "/parent/medical-registration/detail",
-            icon: <FileSearchOutlined />,
           },
         ],
       },

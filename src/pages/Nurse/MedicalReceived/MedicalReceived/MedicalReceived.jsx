@@ -1,22 +1,23 @@
 import React, {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
 import axiosInstance from "../../../../api/axios";
-import {Card, Button, Row, Col, Tag, Pagination} from "antd";
+import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
+import {Card, Button, Row, Col, Tag, Pagination, Spin} from "antd";
 
-const MedicalRegistrationList = () => {
+const MedicalReceived = () => {
   const navigate = useNavigate();
-  const parentId = useSelector((state) => state.user?.userId);
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const pageSize = 10; // You can adjust this value as needed
+  const pageSize = 10;
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const response = await axiosInstance.get(
-          `/api/parents/${parentId}/medical-registrations`,
+          "/api/nurses/medical-registrations",
           {
             params: {
               pageIndex,
@@ -26,24 +27,33 @@ const MedicalRegistrationList = () => {
         );
         setData(response.data.items || []);
         setTotal(response.data.count || 0);
+        // eslint-disable-next-line no-unused-vars
       } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Cannot get medical registrations!",
+        }).then(() => {
+          navigate(-1);
+        });
         setData([]);
         setTotal(0);
-        console.error("Error fetching medical registrations:", error);
+      } finally {
+        setLoading(false);
       }
     };
-    if (parentId) fetchData();
-  }, [parentId, pageIndex, pageSize]);
+    fetchData();
+  }, [navigate, pageIndex, pageSize]);
+
+  if (loading) {
+    return <Spin style={{marginTop: 40}} />;
+  }
 
   // Chia data thành 2 hàng, mỗi hàng 5 phần tử
   const rows = [data.slice(0, 5), data.slice(5, 10)];
 
   return (
-    <div
-      style={{
-        padding: 24,
-      }}
-    >
+    <div style={{padding: 24}}>
       {rows.map((row, rowIndex) => (
         <Row
           gutter={[16, 16]}
@@ -81,7 +91,7 @@ const MedicalRegistrationList = () => {
                     <b>Medication:</b> {item.medicalRegistration.medicationName}
                   </p>
                   <p>
-                    <b>Dose:</b> {item.medicalRegistration.dosage}
+                    <b>Dosage:</b> {item.medicalRegistration.dosage}
                   </p>
                   <p>
                     <b>Date Submitted:</b>{" "}
@@ -96,13 +106,16 @@ const MedicalRegistrationList = () => {
                     type="primary"
                     style={{backgroundColor: "#355383"}}
                     onClick={() => {
-                      navigate(`/parent/medical-registration/detail`, {
-                        state: {
-                          registrationId:
-                            item.medicalRegistration.registrationId,
-                          studentId: item.student.studentId,
-                        },
-                      });
+                      navigate(
+                        `/nurse/medical-received/medical-received-detail`,
+                        {
+                          state: {
+                            registrationId:
+                              item.medicalRegistration.registrationId,
+                            studentId: item.student.studentId,
+                          },
+                        }
+                      );
                     }}
                   >
                     Details
@@ -127,4 +140,4 @@ const MedicalRegistrationList = () => {
   );
 };
 
-export default MedicalRegistrationList;
+export default MedicalReceived;

@@ -26,7 +26,7 @@ const MyChildren = () => {
     };
     fetchApi();
   }, [parentId, dispatch]);
-  console.log(data);
+  // console.log(data);
   return (
     <div
       style={{
