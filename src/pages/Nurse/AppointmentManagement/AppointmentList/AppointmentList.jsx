@@ -38,33 +38,34 @@ const AppointmentList = () => {
     fetchAppointments();
   }, [staffNurseId, dateRequest, pageIndex, step]);
 
-  // Step 2: appointment details
+  const updateStatus = async (appointmentId, confirmationStatus, completionStatus) => {
+  if (step === 2 && selectedAppointment) {
+      setSelectedAppointment(prev => ({
+        ...prev,
+        confirmationStatus,
+        completionStatus,
+      }));
+    }
+    axiosInstance.put(`/api/nurses/appointments/${appointmentId}`, {
+      staffNurseId,
+      confirmationStatus,
+      completionStatus,
+    }).catch(error => {
+      console.error("Error updating appointment status:", error);
+    });
+  };
+
   const handleDetail = async (appointmentId) => {
     setDetailLoading(true);
     try {
       const response = await axiosInstance.get(`/api/nurses/${staffNurseId}/appointments/${appointmentId}`);
-      console.log("API DETAIL DATA:", response.data);
-      setSelectedAppointment(response.data.item || response.data);
-      setStep(2);
+      setSelectedAppointment({ ...(response.data.item || response.data) });
+      if (step !== 2) setStep(2);
     } catch (error) {
       console.error("Error fetching appointment details:", error);
       setSelectedAppointment(null);
     } finally {
       setDetailLoading(false);
-    }
-  };
-
-  const updateStatus = async (appointmentId, confirmationStatus, completionStatus) => {
-    try {
-      await axiosInstance.put(`/api/nurses/appointments/${appointmentId}`, {
-        staffNurseId,
-        confirmationStatus,
-        completionStatus,
-      });
-      // reload details
-      await handleDetail(appointmentId);
-    } catch (error) {
-      console.error("Error updating appointment status:", error);
     }
   };
 
@@ -128,6 +129,26 @@ const AppointmentList = () => {
                       >
                         Details
                       </Button>
+                      {step === 2 && !item.confirmationStatus && (
+                        <Button
+                          type="primary"
+                          size="small"
+                          style={{ marginTop: 8 }}
+                          onClick={() => updateStatus(item.appointmentId, true, false)}
+                        >
+                          Confirm
+                        </Button>
+                      )}
+                      {item.confirmationStatus && !item.completionStatus && (
+                        <Button
+                          type="primary"
+                          size="small"
+                          style={{ marginTop: 8, background: "#355383" }}
+                          onClick={() => updateStatus(item.appointmentId, true, true)}
+                        >
+                          Complete
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Card>

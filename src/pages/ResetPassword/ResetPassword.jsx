@@ -30,18 +30,41 @@ const ResetPassword = () => {
     setError("");
     setSuccess("");
 
+    // Validate phone number
+    if (!/^\d{10,11}$/.test(phoneNumber)) {
+      setError("Phone number must be 10-11 digits.");
+      return;
+    }
+
+    // Validate new password
+    if (newPassword.length < 6) {
+      setError("New password must be at least 6 characters.");
+      return;
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+      setError("New password must contain at least one uppercase letter.");
+      return;
+    }
+    if (!/[0-9]/.test(newPassword)) {
+      setError("New password must contain at least one number.");
+      return;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+      setError("New password must contain at least one special character.");
+      return;
+    }
+
+    // Confirm password match
     if (newPassword !== confirmNewPassword) {
       setError("New password and confirmation do not match.");
       return;
     }
+
     if (newPassword === oldPassword) {
       setError("New password must be different from old password.");
       return;
     }
-    if (!phoneNumber || !/^\d{10,11}$/.test(phoneNumber)) {
-      setError("Phone number is required and must be 10-11 digits.");
-      return;
-    }
+
     const data = {
       phoneNumber,
       oldPassword,
