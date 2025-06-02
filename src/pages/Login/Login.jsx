@@ -11,7 +11,7 @@ import {setUserInfo} from "../../redux/feature/userSlice";
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const [fieldError, setFieldError] = useState({phoneNumber: "", password: ""});
   const [formData, setFormData] = useState({
     phoneNumber: "",
     password: "",
@@ -29,6 +29,50 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    // Validate phoneNumber
+    if (!/^\d{10,11}$/.test(formData.phoneNumber)) {
+      setFieldError({
+        phoneNumber: "Phone number must be 10-11 digits.",
+        password: "",
+      });
+      return;
+    } else {
+      setFieldError((prev) => ({...prev, phoneNumber: ""}));
+    }
+
+    // Kiểm tra mật khẩu mặc định trước
+    if (formData.password === "123@123@123") {
+      setFieldError({phoneNumber: "", password: ""});
+      Swal.fire({
+        icon: "info",
+        title: "Default Password",
+        text: "Please change your password.",
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate("/resetpassword", {
+          state: {phoneNumber: formData.phoneNumber},
+        });
+      });
+      return;
+    }
+
+    // Validate password: ít nhất 6 ký tự, có chữ hoa, số, ký tự đặc biệt
+    if (
+      !/^.*(?=.{6,})(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/.test(
+        formData.password
+      )
+    ) {
+      setFieldError({
+        phoneNumber: "",
+        password:
+          "Password must be at least 6 characters, include uppercase, number and special character.",
+      });
+      return;
+    } else {
+      setFieldError((prev) => ({...prev, password: ""}));
+    }
 
     try {
       const response = await authenticationAPI.Login(formData);
@@ -115,6 +159,14 @@ const Login = () => {
                   onChange={handleChange}
                   required
                 />
+                {fieldError.phoneNumber && (
+                  <p
+                    className="error-message"
+                    style={{color: "red", margin: 0}}
+                  >
+                    {fieldError.phoneNumber}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="login_form__label">Password: </label>
@@ -138,6 +190,14 @@ const Login = () => {
                     />
                   </div>
                 </div>
+                {fieldError.password && (
+                  <p
+                    className="error-message"
+                    style={{color: "red", margin: 0}}
+                  >
+                    {fieldError.password}
+                  </p>
+                )}
               </div>
             </div>
 
