@@ -31,7 +31,6 @@ import UpdateUserProfileAdmin from "./pages/Admin/Profile/Edit/UpdateUserProfile
 // Nurse pages
 import NurseDashboard from "./pages/Nurse/Dashboard";
 import AppointmentList from "./pages/Nurse/AppointmentManagement/AppointmentList/AppointmentList";
-import AppointmentDetail from "./pages/Nurse/AppointmentManagement/AppointmentDetail/AppointmentDetail";
 import NurseCampaignList from "./pages/Nurse/Campaign/CampaignList/CampaignList";
 import NurseDetailCampaign from "./pages/Nurse/Campaign/DetailCampaign/DetailCampaign";
 import NurseHistoryCampaign from "./pages/Nurse/Campaign/HistoryCampaign/HistoryCampaign";
@@ -209,10 +208,6 @@ function App() {
           <Route
             path="appointment-management/appointment-list"
             element={<AppointmentList />}
-          />
-          <Route
-            path="appointment-management/appointment-detail"
-            element={<AppointmentDetail />}
           />
           <Route
             path="campaign/campaign-list"

@@ -128,21 +128,8 @@ const Sidebar = () => {
       {
         label: "Appointment Management",
         key: "appointment-management",
-        icon: <SolutionOutlined />,
-        dropdown: [
-          {
-            label: "Appointment List",
-            key: "/nurse/appointment-management/appointment-list",
-            link: "/nurse/appointment-management/appointment-list",
-            icon: <FileTextOutlined />,
-          },
-          {
-            label: "Appointment Detail",
-            key: "/nurse/appointment-management/appointment-detail",
-            link: "/nurse/appointment-management/appointment-detail",
-            icon: <FileSearchOutlined />,
-          },
-        ],
+        link: "/nurse/appointment-management/appointment-list",
+        icon: <FileTextOutlined />,
       },
       {
         label: "Campaign",

@@ -4,10 +4,11 @@ import axiosInstance from "../../api/axios";
 import "./index.scss";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -15,7 +16,15 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const phoneNumber = useSelector((state) => state.userProfile.phoneNumber);
+  // Lấy phoneNumber từ redux hoặc location.state
+  const phoneNumberRedux = useSelector(
+    (state) => state.userProfile?.phoneNumber
+  );
+  const phoneNumberState = location.state?.phoneNumber;
+  const [phoneNumber, setPhoneNumber] = useState(
+    phoneNumberRedux || phoneNumberState || ""
+  );
+
   const handleReset = async (e) => {
     e.preventDefault();
     setError("");
@@ -27,6 +36,10 @@ const ResetPassword = () => {
     }
     if (newPassword === oldPassword) {
       setError("New password must be different from old password.");
+      return;
+    }
+    if (!phoneNumber || !/^\d{10,11}$/.test(phoneNumber)) {
+      setError("Phone number is required and must be 10-11 digits.");
       return;
     }
     const data = {
@@ -74,6 +87,23 @@ const ResetPassword = () => {
             {success && <div className="success">{success}</div>}
           </div>
           <form onSubmit={handleReset}>
+            <div className="reset_form__input">
+              <label>Phone Number:</label>
+              <input
+                type="text"
+                value={phoneNumber}
+                name="phoneNumber"
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Enter phone number"
+                required
+                disabled={!!(phoneNumberRedux || phoneNumberState)}
+                style={
+                  phoneNumberRedux || phoneNumberState
+                    ? {background: "#f0f0f0"}
+                    : {}
+                }
+              />
+            </div>
             <div className="reset_form__input-password">
               <div
                 className="reset_form__eye"
@@ -105,7 +135,7 @@ const ResetPassword = () => {
                 )}
               </div>
               <div className="reset_form__input">
-                <label> Old Password:</label>
+                <label>Old Password:</label>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={oldPassword}
@@ -117,7 +147,7 @@ const ResetPassword = () => {
               </div>
             </div>
             <div className="reset_form__input">
-              <label> New Password:</label>
+              <label>New Password:</label>
               <input
                 type={showPassword ? "text" : "password"}
                 value={newPassword}
@@ -128,7 +158,7 @@ const ResetPassword = () => {
               />
             </div>
             <div className="reset_form__input">
-              <label> Confirm New Password:</label>
+              <label>Confirm New Password:</label>
               <input
                 type={showPassword ? "text" : "password"}
                 value={confirmNewPassword}
