@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../../api/axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setListStudentParent } from "../../../../redux/feature/listStudentParent";
-import { Card, Button, Form, Input, Select, Radio, message, Alert, Spin, Empty } from "antd";
+import { Card, Button, Form, Input, Select, Radio, Spin, Empty } from "antd";
 import "./index.scss";
+import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 const { Option } = Select;
 
 const AppointmentList = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const [nurse, setNurse] = useState([]);
     const [selectedNurse, setSelectedNurse] = useState(null);
@@ -21,7 +25,6 @@ const AppointmentList = () => {
     const [appointmentEndTime, setAppointmentEndTime] = useState('');
     const [appointmentReason, setAppointmentReason] = useState('');
     const [success, setSuccess] = useState('');
-    const [alert, setAlert] = useState({ type: '', message: '', show: false });
     const [bookedSlots, setBookedSlots] = useState([]);
 
     const userId = useSelector((state) => state.user?.userId);
@@ -105,14 +108,12 @@ const AppointmentList = () => {
     const handleSelect = (nurse) => {
         setSelectedNurse(nurse);
         setStep(2);
-        setAlert({ type: 'info', message: `Selected nurse: ${nurse.fullName}`, show: true });
     };
 
     const handleDateSubmit = () => {
         setAppointmentStartTime(step2StartTime);
         setAppointmentEndTime(step2EndTime);
         setStep(3);
-        setAlert({ type: 'info', message: `Selected time slot: ${step2StartTime} - ${step2EndTime}`, show: true });
     };
 
     const toTimeWithSeconds = (timeStr) => {
@@ -133,8 +134,15 @@ const AppointmentList = () => {
             !endTime ||
             !appointmentReason
         ) {
-            message.error('Please fill in all required fields!');
-            setAlert({ type: 'error', message: 'Please fill in all required fields!', show: true });
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'Please fill in all required fields!',
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+            });
             return;
         }
 
@@ -155,23 +163,31 @@ const AppointmentList = () => {
                 localStorage.setItem('appointmentId', res.data.appointmentId);
             }
             setSuccess('Appointment booked successfully!');
-            // Reset các state về ban đầu
-            setStep(1);
-            setSelectedNurse(null);
-            setStep2StartTime('');
-            setStep2EndTime('');
-            setAppointmentStartTime('');
-            setAppointmentEndTime('');
-            message.success('Appointment booked successfully!');
-            setAlert({ type: 'success', message: 'Appointment booked successfully!', show: true });
+            navigate("/parent/appointment-history");
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Appointment booked successfully!',
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+            });
         } catch (error) {
             const errMsg =
                 error.response?.data?.errors?.request?.[0] ||
                 error.response?.data?.errors?.['$.appointmentStartTime']?.[0] ||
                 error.response?.data?.message ||
                 'Failed to book appointment!';
-            message.error(errMsg);
-            setAlert({ type: 'error', message: errMsg, show: true });
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: errMsg,
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+            });
         }
     };
 
@@ -208,24 +224,7 @@ const AppointmentList = () => {
     };
 
     return (
-        <div style={{ padding: 24, minHeight: "100vh", background: "#f7f9fb" }}>
-            {alert.show && (
-                <div style={{
-                    position: "fixed",
-                    top: 140,
-                    right: 0,
-                    zIndex: 9999,
-                    minWidth: 320
-                }}>
-                    <Alert
-                        message={alert.message}
-                        type={alert.type}
-                        showIcon
-                        closable
-                        onClose={() => setAlert({ ...alert, show: false })}
-                    />
-                </div>
-            )}
+        <div style={{ padding: 24 }}>
             <Card
                 title="Appointment"
                 extra={
@@ -246,7 +245,7 @@ const AppointmentList = () => {
                         </Button>
                     )
                 }
-                style={{ maxWidth: 900, margin: "0 auto", borderRadius: 12, minHeight: 600 }}
+                style={{ maxWidth: 1100, margin: "0 auto", borderRadius: 12, height: "100%" }}
             >
                 {step === 1 && (
                     <>
@@ -286,9 +285,9 @@ const AppointmentList = () => {
                                         </div>
                                         <div style={{ display: "flex", gap: 12 }}>
                                             <Button
-                                                type="primary"
+                                                color="default" variant="outlined"
                                                 onClick={() => handleSelect(n)}
-                                                style={{ minWidth: 100, borderRadius: 8 }}
+                                                style={{ minWidth: 100, borderRadius: 8, backgroundColor: "#355383", color: "#fff" }}
                                             >
                                                 Select
                                             </Button>
@@ -311,6 +310,11 @@ const AppointmentList = () => {
                         </div>
                         {/* Không cho đổi ngày, chỉ chọn time */}
                         <Form.Item label="Select Time Slot" required>
+                            {timeSlots.filter(slot => !isSlotBooked(slot)).length === 0 && (
+                                <div style={{ color: "red", fontWeight: 600, marginBottom: 8 }}>
+                                  This nurse's booking is over for today.
+                                </div>
+                              )}
                             <Radio.Group
                                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                                 onChange={e => {
@@ -327,13 +331,10 @@ const AppointmentList = () => {
                                             {slot.start} - {slot.end}
                                         </Radio>
                                     ))}
-                                {timeSlots.filter(slot => !isSlotBooked(slot)).length === 0 && (
-                                    <span style={{ color: "red" }}>All time slots are booked!</span>
-                                )}
                             </Radio.Group>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" disabled={!step2StartTime}>
+                            <Button style={{ borderRadius: 8, backgroundColor: "#355383", color: "#fff" }} variant="solid" htmlType="submit" disabled={!step2StartTime || timeSlots.filter(slot => !isSlotBooked(slot)).length === 0}>
                                 Continue
                             </Button>
                         </Form.Item>
@@ -380,7 +381,7 @@ const AppointmentList = () => {
                             <Input value={appointmentReason} onChange={e => setAppointmentReason(e.target.value)} />
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit">
+                            <Button style={{ borderRadius: 8, backgroundColor: "#355383", color: "#fff" }} variant="solid" htmlType="submit">
                                 Book Appointment
                             </Button>
                         </Form.Item>
