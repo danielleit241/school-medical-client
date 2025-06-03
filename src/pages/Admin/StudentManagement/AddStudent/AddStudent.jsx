@@ -70,30 +70,56 @@ const AddStudent = () => {
       setUploading(false);
     }
   };
-  return <div className="container">
-      <Upload
-        beforeUpload={handleBeforeUpload}
-        onRemove={handleRemove}
-        fileList={fileList}
-        maxCount={1} // chỉ cho chọn 1 file, ghi đè file cũ
-      >
-        <Button icon={<UploadOutlined />}>Chọn file Excel</Button>
-      </Upload>
-
-      {data.length > 0 && (
-        <>
-          <table border="1" style={{ marginTop: 16, borderCollapse: "collapse" }}>
-            <tbody>
-              {data.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {row.map((item, index) => (
-                    <td key={index} style={{ padding: 4, border: "1px solid #ccc" }}>{item}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
+   return (
+      <div className="container">
+        <h3 style={{ marginBottom: 16 }}>Import file Student here</h3>
+        <Upload
+          beforeUpload={handleBeforeUpload}
+          onRemove={handleRemove}
+          fileList={fileList}
+          maxCount={1}
+        >
+          <Button icon={<UploadOutlined />}>Choose file Excel</Button>
+        </Upload>
+  
+        {data.length > 0 && (() => {
+          // Xác định số cột lớn nhất
+          const columnCount = data.reduce((max, row) => Math.max(max, row.length), 0);
+          // Xác định các cột hợp lệ (ít nhất một dòng có giá trị khác rỗng)
+          const validColIndexes = [];
+          for (let col = 0; col < columnCount; col++) {
+            if (data.some(row => row[col] !== undefined && row[col] !== null && String(row[col]).trim() !== "")) {
+              validColIndexes.push(col);
+            }
+          }  
+          // Lọc bỏ row mà tất cả các cột hợp lệ đều rỗng (giữ lại header)
+          const filteredData = data.filter((row, rowIndex) =>
+            rowIndex === 0 ||
+            validColIndexes.some(colIdx =>
+              row[colIdx] !== undefined && row[colIdx] !== null && String(row[colIdx]).trim() !== ""
+            )
+          );
+  
+          return (
+            <table border="1" style={{ marginTop: 16, borderCollapse: "collapse" }}>
+              <tbody>
+                {filteredData.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {validColIndexes.map(colIdx => (
+                      <td key={colIdx} style={{ padding: 4, border: "1px solid #ccc" }}>
+                        {( rowIndex !== 0)
+                          ? (row[colIdx])
+                          : (row[colIdx] !== undefined ? row[colIdx] : "")}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          );
+        })()}
+  
+        {data.length > 0 && (
           <Button
             type="primary"
             onClick={handleUpload}
@@ -103,41 +129,41 @@ const AddStudent = () => {
           >
             {uploading ? "uploading..." : "Uploaded"}
           </Button>
-        </>
-      )}
-
-      {showAlert && (
-        <Alert
-          message="Upload successful!"
-          type="success"
-          closable
-          style={{
-            position: "fixed",
-            top: 120,
-            right: 0,
-            width: 300,
-            zIndex: 9999,
-          }}
-          onClose={() => setShowAlert(false)}
-        />
-      )}
-
-      {showErrorAlert && (
-        <Alert
-          message="Upload failed!"
-          type="error"
-          closable
-          style={{
-            position: "fixed",
-            top: 120,
-            right: 0,
-            width: 300,
-            zIndex: 9999,
-          }}
-          onClose={() => setShowErrorAlert(false)}
-        />
-      )}
-    </div>;
+        )}
+  
+        {showAlert && (
+          <Alert
+            message="Upload successful!"
+            type="success"
+            closable
+            style={{
+              position: "fixed",
+              top: 120,
+              right: 0,
+              width: 300,
+              zIndex: 9999,
+            }}
+            onClose={() => setShowAlert(false)}
+          />
+        )}
+  
+        {showErrorAlert && (
+          <Alert
+            message="Upload failed!"
+            type="error"
+            closable
+            style={{
+              position: "fixed",
+              top: 120,
+              right: 0,
+              width: 300,
+              zIndex: 9999,
+            }}
+            onClose={() => setShowErrorAlert(false)}
+          />
+        )}
+      </div>
+    );
 };
 
 export default AddStudent;
