@@ -39,6 +39,7 @@ import CreateMedicalEvent from "./pages/Nurse/MediacalEvent/CreateMedicalEvent/C
 import MedicalEventList from "./pages/Nurse/MediacalEvent/MedicalEventList/MedicalEventList";
 import MedicalReceivedList from "./pages/Nurse/MedicalReceived/MedicalReceived/MedicalReceived";
 import MedicalReceivedDetail from "./pages/Nurse/MedicalReceived/MedicalReceivedDetail/MedicalReceivedDetail";
+import NurseNotification from "./pages/Nurse/Notification/Notification";
 import UserProfileNurse from "./pages/Nurse/Profile/User/UserProfile";
 import UpdateUserProfileNurse from "./pages/Nurse/Profile/Edit/UpdateUserProfile";
 
@@ -54,8 +55,10 @@ import ParentMyChildren from "./pages/Parent/HealthDeclaration/MyChildren/MyChil
 import ParentCreateMedicalRegistration from "./pages/Parent/MedicalRegistration/CreateMedicalRes/CreateMedicalResForm";
 import ParentMedicalRegistrationList from "./pages/Parent/MedicalRegistration/MediacalRegistrationList/MedicalRegistrationList";
 import ParentDetailMedicalRegistration from "./pages/Parent/MedicalRegistration/DetailMedicalRes/DetailMediacalRes";
-import MedicalEventNotification from "./pages/Parent/Notification/MedicalEvent/MedicalEventNotification";
-import CampaignNotification from "./pages/Parent/Notification/CampaignEvent/CampaignNotification";
+import MedicalEventMyChildren from "./pages/Parent/MedicalEvent/MyChildren/MyChildren";
+import MedicalEventChildrenList from "./pages/Parent/MedicalEvent/MedicalEventStudent/MedicalEventList";
+import MedicalEventChildrenDetail from "./pages/Parent/MedicalEvent/MedicalEventDetail/MedicalEventDetail";
+import ParentNotification from "./pages/Parent/Notification/Notification";
 import UserProfile from "./pages/Parent/Profile/User/UserProfile";
 import UpdateUserProfile from "./pages/Parent/Profile/Edit/UpdateUserProfile";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
@@ -135,9 +138,20 @@ function App() {
               path="medical-registration/detail"
               element={<ParentDetailMedicalRegistration />}
             />
-            <Route path="medicalEvent" element={<MedicalEventNotification />} />
-            <Route path="campaignEvent" element={<CampaignNotification />} />
+            <Route
+              path="medical-event/my-children"
+              element={<MedicalEventMyChildren />}
+            />
+            <Route
+              path="medical-event/children-list"
+              element={<MedicalEventChildrenList />}
+            />
+            <Route
+              path="medical-event/children-detail"
+              element={<MedicalEventChildrenDetail />}
+            />
             <Route path="profile" element={<UserProfile />} />
+            <Route path="notification" element={<ParentNotification />} />
             <Route path="profile/update" element={<UpdateUserProfile />} />
             <Route path="resetpassword" element={<ResetPassword />} />
           </Route>
@@ -247,6 +261,7 @@ function App() {
             path="medical-event/medical-event-list"
             element={<MedicalEventList />}
           />
+          <Route path="notification" element={<NurseNotification />} />
           <Route path="profile" element={<UserProfileNurse />} />
           <Route path="profile/update" element={<UpdateUserProfileNurse />} />
           <Route path="resetpassword" element={<ResetPassword />} />
