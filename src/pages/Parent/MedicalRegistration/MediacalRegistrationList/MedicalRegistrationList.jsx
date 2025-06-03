@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import axiosInstance from "../../../../api/axios";
-import {Card, Button, Row, Col, Tag, Pagination} from "antd";
+import {Card, Button, Row, Col, Tag, Pagination, Select} from "antd";
 import {useNavigate} from "react-router-dom";
 
 const MedicalRegistrationList = () => {
@@ -10,7 +10,8 @@ const MedicalRegistrationList = () => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const pageSize = 10; // You can adjust this value as needed
+  const pageSize = 10;
+  const [filterStatus, setFilterStatus] = useState("notyet"); // "notyet" | "done"
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,15 +36,60 @@ const MedicalRegistrationList = () => {
     if (parentId) fetchData();
   }, [parentId, pageIndex, pageSize]);
 
+  // Kiểm tra đơn đã hoàn thành hết chưa
+  const isAllDoseCompleted = (item) =>
+    item.medicalRegistrationDetails &&
+    item.medicalRegistrationDetails.length > 0 &&
+    item.medicalRegistrationDetails.every((dose) => dose.isCompleted);
+
+  // Lọc data theo filter
+  const filteredData = data.filter((item) => {
+    if (filterStatus === "done") return isAllDoseCompleted(item);
+    if (filterStatus === "notyet") return !isAllDoseCompleted(item);
+    return true;
+  });
+
   // Chia data thành 2 hàng, mỗi hàng 5 phần tử
-  const rows = [data.slice(0, 5), data.slice(5, 10)];
+  const rows = [filteredData.slice(0, 5), filteredData.slice(5, 10)];
 
   return (
-    <div
-      style={{
-        padding: 24,
-      }}
-    >
+    <div style={{padding: 24}}>
+      <div
+        style={{
+          marginBottom: 16,
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          justifyContent: "left",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <p
+            style={{
+              margin: 0,
+              fontSize: 18,
+              fontWeight: 500,
+              textAlign: "center",
+            }}
+          >
+            Filter:
+          </p>
+        </div>
+        <Select
+          value={filterStatus}
+          style={{width: 160}}
+          onChange={setFilterStatus}
+        >
+          <Select.Option value="notyet">Not Yet</Select.Option>
+          <Select.Option value="done">Done</Select.Option>
+        </Select>
+      </div>
       {rows.map((row, rowIndex) => (
         <Row
           gutter={[16, 16]}
@@ -81,7 +127,8 @@ const MedicalRegistrationList = () => {
                     <b>Medication:</b> {item.medicalRegistration.medicationName}
                   </p>
                   <p>
-                    <b>Dose:</b> {item.medicalRegistration.dosage}
+                    <b>Total Dosages:</b>{" "}
+                    {item.medicalRegistration.totalDosages}
                   </p>
                   <p>
                     <b>Date Submitted:</b>{" "}

@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
-import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import {
   Card,
@@ -9,12 +8,13 @@ import {
   Spin,
   Button,
   Input,
-  Form,
   Row,
   Col,
+  Form,
 } from "antd";
 import {useSelector} from "react-redux";
 import dayjs from "dayjs";
+import axiosInstance from "../../../../api/axios";
 
 const MedicalReceivedDetail = () => {
   const location = useLocation();
@@ -23,9 +23,9 @@ const MedicalReceivedDetail = () => {
   const medicalRegistrationId = location.state?.registrationId;
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-
-  const [form] = Form.useForm();
+  const [doseNotes, setDoseNotes] = useState({});
+  const [confirmingDose, setConfirmingDose] = useState(null);
+  const [approving, setApproving] = useState(false);
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -35,6 +35,7 @@ const MedicalReceivedDetail = () => {
           `/api/nurses/medical-registrations/${medicalRegistrationId}`
         );
         setDetail(response.data);
+        console.log("Medical registration detail:", response.data);
         // eslint-disable-next-line no-unused-vars
       } catch (error) {
         Swal.fire({
@@ -61,45 +62,93 @@ const MedicalReceivedDetail = () => {
     }
   }, [medicalRegistrationId, navigate]);
 
-  const handleApprove = async (values) => {
-    setConfirming(true);
-    if (!nurseId) {
-      Swal.fire({
-        icon: "error",
-        title: "Don't have nurse ID",
-        text: "Cannot find nurse ID. Please log in again.",
-      });
-      setConfirming(false);
-      return;
-    }
-    const body = {
+  // Complete từng dose
+  const handleCompleteDose = async (doseIdx, dose) => {
+    setConfirmingDose(doseIdx);
+    console.log("Payload for dose:", {
       staffNurseId: nurseId,
-      staffNurseNotes: values.staffNurseNotes,
-      dateApproved: dayjs().format("YYYY-MM-DD"),
-    };
+      doseNumber: dose.doseNumber,
+      dateCompleted: dayjs().format("YYYY-MM-DD"),
+      notes: doseNotes[doseIdx] ?? "Medication administered on time.",
+    });
+    try {
+      // Gửi đúng doseNumber là số thứ tự ("1", "2", "3")
+      await axiosInstance.put(
+        `/api/nurses/medical-registrations/${medicalRegistrationId}/completed`,
+        {
+          staffNurseId: nurseId,
+          doseNumber: String(dose.doseNumber),
+          dateCompleted: dayjs().format("YYYY-MM-DD"),
+          notes: doseNotes[doseIdx] ?? "Medication administered on time.",
+        }
+      );
+      // Đợi 600ms rồi mới gọi GET lại
+      setTimeout(async () => {
+        const response = await axiosInstance.get(
+          `/api/nurses/medical-registrations/${medicalRegistrationId}`
+        );
+        setDetail(response.data);
+        setDoseNotes((prev) => ({...prev, [doseIdx]: ""}));
+      }, 1000);
+    } catch (error) {
+      // Sau khi GET lại, nếu dose đã complete thì không báo lỗi
+      setTimeout(async () => {
+        const response = await axiosInstance.get(
+          `/api/nurses/medical-registrations/${medicalRegistrationId}`
+        );
+        setDetail(response.data);
+        const updatedDose = response.data.medicalRegistrationDetails[doseIdx];
+        if (updatedDose?.isCompleted) {
+          Swal.fire({
+            icon: "success",
+            title: "Dose completed!",
+            showConfirmButton: false,
+            timer: 1200,
+          });
+          setDoseNotes((prev) => ({...prev, [doseIdx]: ""}));
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: error?.response?.data?.title || "Cannot complete dose!",
+          });
+        }
+      }, 600);
+    } finally {
+      setConfirmingDose(null);
+    }
+  };
+
+  // Approve tổng sau khi đã complete hết
+  const handleApprove = async () => {
+    setApproving(true);
     try {
       await axiosInstance.put(
-        `/api/nurses/medical-registrations/${medicalRegistrationId}`,
-        body
+        `/api/nurses/medical-registrations/${medicalRegistrationId}/approved`,
+        {
+          staffNurseId: nurseId,
+          dateApproved: dayjs().format("YYYY-MM-DD"),
+        }
       );
       Swal.fire({
         icon: "success",
-        title: "Confirmed Successfully",
-        text: "Medication registration has been confirmed.",
+        title: "Registration approved!",
         showConfirmButton: false,
-        timer: 1200, // 1.2 giây tự đóng
+        timer: 1200,
       });
-      setTimeout(() => {
-        navigate(-1); // hoặc window.location.reload();
-      }, 1200);
+      const response = await axiosInstance.get(
+        `/api/nurses/medical-registrations/${medicalRegistrationId}`
+      );
+      setDetail(response.data);
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error?.response?.data?.message || "Cannot confirm!",
+        text: "Cannot approve registration!",
       });
     } finally {
-      setConfirming(false);
+      setApproving(false);
     }
   };
 
@@ -107,10 +156,19 @@ const MedicalReceivedDetail = () => {
     return <Spin style={{marginTop: 40}} />;
   }
 
-  const {medicalRegistration, nurseApproved, student} = detail;
+  const {
+    medicalRegistration,
+    nurseApproved,
+    student,
+    medicalRegistrationDetails,
+  } = detail;
 
+  const allDoseCompleted =
+    medicalRegistrationDetails &&
+    medicalRegistrationDetails.length > 0 &&
+    medicalRegistrationDetails.every((dose) => dose.isCompleted);
   return (
-    <Row gutter={24} style={{maxWidth: 1100, margin: "32px auto"}}>
+    <Row gutter={24} style={{maxWidth: 1300, margin: "32px auto"}}>
       <Col xs={24} md={14}>
         <Card
           title={`Medication Registration Detail - ${
@@ -141,8 +199,13 @@ const MedicalReceivedDetail = () => {
           <Descriptions
             column={1}
             bordered
-            labelStyle={{width: 200, height: "auto"}}
-            contentStyle={{width: "100%"}}
+            labelStyle={{
+              width: 220,
+              minWidth: 180,
+              fontWeight: 500,
+              fontSize: 16,
+            }}
+            contentStyle={{width: 350, minWidth: 200, fontSize: 16}}
             style={{flex: 1}}
           >
             <Descriptions.Item label="Student Name">
@@ -151,8 +214,8 @@ const MedicalReceivedDetail = () => {
             <Descriptions.Item label="Medication Name">
               {medicalRegistration?.medicationName}
             </Descriptions.Item>
-            <Descriptions.Item label="Dosage">
-              {medicalRegistration?.dosage}
+            <Descriptions.Item label="Total Dosages (per day)">
+              {medicalRegistration?.totalDosages}
             </Descriptions.Item>
             <Descriptions.Item label="Date Submitted">
               {medicalRegistration?.dateSubmitted}
@@ -175,9 +238,6 @@ const MedicalReceivedDetail = () => {
                     <b>By:</b> {nurseApproved.staffNurseFullName || ""}
                   </div>
                   <div>
-                    <b>Notes:</b> {nurseApproved.staffNurseNotes || ""}
-                  </div>
-                  <div>
                     <b>Date:</b> {nurseApproved.dateApproved}
                   </div>
                 </>
@@ -192,6 +252,7 @@ const MedicalReceivedDetail = () => {
               textAlign: "center",
               display: "flex",
               justifyContent: "center",
+              gap: 16,
             }}
           >
             <Button
@@ -201,14 +262,24 @@ const MedicalReceivedDetail = () => {
             >
               Quay lại
             </Button>
+            {!nurseApproved?.dateApproved && (
+              <Button
+                type="primary"
+                loading={approving}
+                style={{backgroundColor: "#52c41a"}}
+                onClick={handleApprove}
+              >
+                Approve Registration
+              </Button>
+            )}
           </div>
         </Card>
       </Col>
       <Col xs={24} md={10}>
         <Card
-          title="Nurse Note & Approve"
+          title="Dose Confirmation"
           style={{
-            height: "45%",
+            minHeight: 400,
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -223,50 +294,93 @@ const MedicalReceivedDetail = () => {
             padding: "24px",
           }}
         >
+          {/* Đã approve thì mới cho complete từng dose */}
           {nurseApproved?.dateApproved ? (
-            <>
-              <p>
-                <b>Note:</b>{" "}
-                {nurseApproved.staffNurseNotes || "No notes"}
+            <div>
+              <p style={{marginBottom: 16, fontWeight: 500, fontSize: 16}}>
+                Dose Details & Nurse Confirmation
               </p>
-              <p>
-                <b>Approved By:</b> {nurseApproved.staffNurseFullName || ""}
-              </p>
-              <p>
-                <b>Date:</b> {nurseApproved.dateApproved}
-              </p>
-              <Tag color="green">Approved</Tag>
-            </>
+              {medicalRegistrationDetails &&
+              medicalRegistrationDetails.length > 0 ? (
+                medicalRegistrationDetails.map((dose, idx) => (
+                  <div
+                    key={dose.doseNumber + idx}
+                    style={{
+                      background: "#f6f6f6",
+                      padding: 12,
+                      borderRadius: 8,
+                      marginBottom: 16,
+                      border: "1px solid #e0e0e0",
+                    }}
+                  >
+                    <b>Dose Number: {dose.doseNumber}</b>
+                    <div>
+                      <span>
+                        <b>Dose Time:</b> {dose.doseTime}
+                      </span>
+                    </div>
+                    <div>
+                      <b>Notes:</b>{" "}
+                      {dose.notes || (
+                        <span style={{color: "#aaa"}}>No notes</span>
+                      )}
+                    </div>
+                    <div>
+                      <b>Status:</b>{" "}
+                      {dose.isCompleted ? (
+                        <Tag color="green">Completed</Tag>
+                      ) : (
+                        <Tag color="orange">Not Completed</Tag>
+                      )}
+                    </div>
+                    {dose.isCompleted && dose.dateCompleted && (
+                      <div>
+                        <b>Date Completed:</b> {dose.dateCompleted}
+                      </div>
+                    )}
+                    {/* Nurse confirm form for this dose */}
+                    {!dose.isCompleted && (
+                      <div style={{marginTop: 12}}>
+                        <Input.TextArea
+                          rows={2}
+                          placeholder="Nurse notes for this dose..."
+                          value={
+                            doseNotes[idx] ?? "Medication administered on time."
+                          }
+                          onChange={(e) =>
+                            setDoseNotes((prev) => ({
+                              ...prev,
+                              [idx]: e.target.value,
+                            }))
+                          }
+                          style={{marginBottom: 8}}
+                        />
+                        <Button
+                          type="primary"
+                          loading={confirmingDose === idx}
+                          style={{backgroundColor: "#355383"}}
+                          onClick={() => handleCompleteDose(idx, dose)}
+                        >
+                          Complete
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div style={{color: "#aaa"}}>No dose details available.</div>
+              )}
+            </div>
           ) : (
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleApprove}
-              initialValues={{
-                staffNurseNotes: "Confirmed for medication",
-              }}
-            >
-              <Form.Item
-                label="Nurse Notes"
-                name="staffNurseNotes"
-                rules={[{message: "Please enter notes!"}]}
-              >
-                <Input.TextArea
-                  rows={4}
-                  placeholder="Enter notes for the medication..."
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={confirming}
-                  style={{backgroundColor: "#355383"}}
-                >
-                  Confirm
-                </Button>
-              </Form.Item>
-            </Form>
+            <div style={{color: "#aaa"}}>
+              Please approve the registration before confirming doses.
+            </div>
+          )}
+          {/* Nếu đã approve xong hết thì hiển thị trạng thái */}
+          {nurseApproved?.dateApproved && allDoseCompleted && (
+            <div style={{marginTop: 24}}>
+              <Tag color="green">All Doses Completed</Tag>
+            </div>
           )}
         </Card>
       </Col>
