@@ -31,9 +31,9 @@ const Login = () => {
     e.preventDefault();
 
     // Validate phoneNumber
-    if (!/^\d{10,11}$/.test(formData.phoneNumber)) {
+    if (formData.phoneNumber.length < 10 || formData.phoneNumber.length > 11) {
       setFieldError({
-        phoneNumber: "Phone number must be 10-11 digits.",
+        phoneNumber: "Phone number must be 10-11 characters.",
         password: "",
       });
       return;
@@ -41,35 +41,40 @@ const Login = () => {
       setFieldError((prev) => ({...prev, phoneNumber: ""}));
     }
 
-    // Kiểm tra mật khẩu mặc định trước
-    if (formData.password === "123@123@123") {
-      setFieldError({phoneNumber: "", password: ""});
-      Swal.fire({
-        icon: "info",
-        title: "Default Password",
-        text: "Please change your password.",
-        timer: 1500,
-        showConfirmButton: false,
-      }).then(() => {
-        navigate("/resetpassword", {
-          state: {phoneNumber: formData.phoneNumber},
+    // Nếu là adminsystem thì bỏ qua validate password
+    if (formData.phoneNumber !== "adminsystem") {
+      // Kiểm tra mật khẩu mặc định trước
+      if (formData.password === "123@123@123") {
+        setFieldError({phoneNumber: "", password: ""});
+        Swal.fire({
+          icon: "info",
+          title: "Default Password",
+          text: "Please change your password.",
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          navigate("/resetpassword", {
+            state: {phoneNumber: formData.phoneNumber},
+          });
         });
-      });
-      return;
-    }
+        return;
+      }
 
-    // Validate password: ít nhất 6 ký tự, có chữ hoa, số, ký tự đặc biệt
-    if (
-      !/^.*(?=.{6,})(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/.test(
-        formData.password
-      )
-    ) {
-      setFieldError({
-        phoneNumber: "",
-        password:
-          "Password must be at least 6 characters, include uppercase, number and special character.",
-      });
-      return;
+      // Validate password: ít nhất 6 ký tự, có chữ hoa, số, ký tự đặc biệt
+      if (
+        !/^.*(?=.{6,})(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/.test(
+          formData.password
+        )
+      ) {
+        setFieldError({
+          phoneNumber: "",
+          password:
+            "Password must be at least 6 characters, include uppercase, number and special character.",
+        });
+        return;
+      } else {
+        setFieldError((prev) => ({...prev, password: ""}));
+      }
     } else {
       setFieldError((prev) => ({...prev, password: ""}));
     }
