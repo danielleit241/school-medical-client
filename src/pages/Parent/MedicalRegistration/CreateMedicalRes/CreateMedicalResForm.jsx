@@ -2,18 +2,39 @@ import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import axiosInstance from "../../../../api/axios";
 import {setListStudentParent} from "../../../../redux/feature/listStudentParent";
-import {Form, Input, DatePicker, Button, Checkbox, Card, Select} from "antd";
+import {
+  Form,
+  Input,
+  DatePicker,
+  Button,
+  Checkbox,
+  Card,
+  Select,
+  Row,
+  Col,
+} from "antd";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
 
-const MedicalRegistrationList = () => {
+const DOSE_TIME_OPTIONS = [
+  {label: "Morning", value: "Morning"},
+  {label: "Afternoon", value: "Afternoon"},
+  {label: "Evening", value: "Evening"},
+];
+
+const CreateMedicalResForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const parentId = useSelector((state) => state.user?.userId);
 
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [totalDosages, setTotalDosages] = useState("1");
+  // Mỗi phần tử: { doseNumber: "1", doseTime: "Morning", notes: "" }
+  const [doseDetails, setDoseDetails] = useState([
+    {doseNumber: "1", doseTime: "Morning", notes: ""},
+  ]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -23,27 +44,63 @@ const MedicalRegistrationList = () => {
         );
         setStudents(response.data);
         dispatch(setListStudentParent(response.data));
+      // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        console.error("Error fetching children data:", error);
         setStudents([]);
       }
     };
     if (parentId) fetchStudents();
   }, [parentId, dispatch]);
 
+  // Khi chọn lại số buổi, cập nhật lại form nhỏ
+  const handleTotalDosagesChange = (value) => {
+    setTotalDosages(value);
+    setDoseDetails(
+      Array.from({length: Number(value)}, (_, i) => ({
+        doseNumber: String(i + 1),
+        doseTime: DOSE_TIME_OPTIONS[i]?.value || "Morning",
+        notes: "",
+      }))
+    );
+  };
+
+  // Khi chọn buổi cho từng dose
+  const handleDoseTimeChange = (idx, val) => {
+    setDoseDetails((prev) =>
+      prev.map((item, i) => (i === idx ? {...item, doseTime: val} : item))
+    );
+  };
+
+  // Khi nhập notes cho từng buổi
+  const handleDoseNoteChange = (idx, val) => {
+    setDoseDetails((prev) =>
+      prev.map((item, i) => (i === idx ? {...item, notes: val} : item))
+    );
+  };
+
   const onFinish = async (values) => {
-    const data = {
+    const date = values.dateSubmitted.format("YYYY-MM-DD");
+    const medicalRegistration = {
       studentId: values.studentId,
       userId: parentId,
-      dateSubmitted: values.dateSubmitted.format("YYYY-MM-DD"),
+      dateSubmitted: date,
       medicationName: values.medicationName,
-      dosage: values.dosage,
+      totalDosages: String(values.totalDosages), // luôn là chuỗi
       notes: values.notes,
       parentConsent: values.parentConsent,
     };
+    const medicalRegistrationDetails = doseDetails.map((item) => ({
+      doseNumber: item.doseNumber, // "1", "2", "3"
+      doseTime: item.doseTime, // "Morning", "Afternoon", "Evening"
+      notes: item.notes,
+    }));
+
     setLoading(true);
     try {
-      await axiosInstance.post("/api/parents/medical-registrations", data);
+      await axiosInstance.post("/api/parents/medical-registrations", {
+        medicalRegistration,
+        medicalRegistrationDetails,
+      });
       Swal.fire({
         icon: "success",
         title: "Medication registration submitted!",
@@ -51,103 +108,177 @@ const MedicalRegistrationList = () => {
         timer: 1500,
       });
       navigate("/parent/medical-registration/list");
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Submit failed!",
         text: "Please check your information and try again.",
       });
-      console.error("Error submitting medication registration:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Card
-      title="Medication Registration"
-      style={{maxWidth: 500, margin: "0 auto"}}
+    <div
+      style={{
+        minHeight: "calc(100vh - 120px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
-      <Form
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          dateSubmitted: dayjs(),
-          parentConsent: false,
-        }}
+      <Card
+        title="Medication Registration"
+        style={{maxWidth: 1200, width: "100%"}}
       >
-        <Form.Item
-          label="Student"
-          name="studentId"
-          rules={[{required: true, message: "Please select your child"}]}
+        <Form
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={{
+            dateSubmitted: dayjs(),
+            parentConsent: false,
+            totalDosages: "1",
+          }}
         >
-          <Select placeholder="Select student" allowClear>
-            {students.map((s) => (
-              <Select.Option key={s.studentId} value={s.studentId}>
-                {s.fullName}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+          <Row gutter={24}>
+            {/* Main form */}
+            <Col xs={24} md={14}>
+              <Form.Item
+                label="Student"
+                name="studentId"
+                rules={[{required: true, message: "Please select your child"}]}
+              >
+                <Select placeholder="Select student" allowClear>
+                  {students.map((s) => (
+                    <Select.Option key={s.studentId} value={s.studentId}>
+                      {s.fullName}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
 
-        <Form.Item
-          label="Medication Name"
-          name="medicationName"
-          rules={[{required: true, message: "Please enter medication name"}]}
-        >
-          <Input />
-        </Form.Item>
+              <Form.Item
+                label="Medication Name"
+                name="medicationName"
+                rules={[
+                  {required: true, message: "Please enter medication name"},
+                ]}
+              >
+                <Input />
+              </Form.Item>
 
-        <Form.Item
-          label="Dosage"
-          name="dosage"
-          rules={[{required: true, message: "Please enter dosage"}]}
-        >
-          <Input />
-        </Form.Item>
+              <Form.Item
+                label="Total Dosages (per day)"
+                name="totalDosages"
+                rules={[
+                  {required: true, message: "Please select total dosages"},
+                ]}
+              >
+                <Select
+                  placeholder="Select number of dosages"
+                  onChange={handleTotalDosagesChange}
+                  value={totalDosages}
+                  style={{width: 180}}
+                >
+                  <Select.Option value="1">1</Select.Option>
+                  <Select.Option value="2">2</Select.Option>
+                  <Select.Option value="3">3</Select.Option>
+                </Select>
+              </Form.Item>
 
-        <Form.Item
-          label="Date Submitted"
-          name="dateSubmitted"
-          rules={[{required: true, message: "Please select date"}]}
-        >
-          <DatePicker style={{width: "100%"}} />
-        </Form.Item>
+              <Form.Item
+                label="Date Submitted"
+                name="dateSubmitted"
+                rules={[{required: true, message: "Please select date"}]}
+              >
+                <DatePicker style={{width: "100%"}} />
+              </Form.Item>
 
-        <Form.Item label="Notes" name="notes">
-          <Input.TextArea rows={2} />
-        </Form.Item>
+              <Form.Item label="Notes" name="notes">
+                <Input.TextArea rows={2} />
+              </Form.Item>
 
-        <Form.Item
-          name="parentConsent"
-          valuePropName="checked"
-          rules={[
-            {
-              validator: (_, value) =>
-                value
-                  ? Promise.resolve()
-                  : Promise.reject("You must consent to give medication"),
-            },
-          ]}
-        >
-          <Checkbox>
-            I consent to the school administering this medication to my child
-          </Checkbox>
-        </Form.Item>
+              <Form.Item
+                name="parentConsent"
+                valuePropName="checked"
+                rules={[
+                  {
+                    validator: (_, value) =>
+                      value
+                        ? Promise.resolve()
+                        : Promise.reject("You must consent to give medication"),
+                  },
+                ]}
+              >
+                <Checkbox>
+                  I consent to the school administering this medication to my
+                  child
+                </Checkbox>
+              </Form.Item>
 
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            style={{width: 120}}
-          >
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
-    </Card>
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  style={{width: 120, backgroundColor: "#355383"}}
+                >
+                  Submit
+                </Button>
+              </Form.Item>
+            </Col>
+
+            {/* Dose details form */}
+            <Col xs={24} md={10}>
+              {doseDetails.slice(0, Number(totalDosages)).map((item, idx) => (
+                <div
+                  key={item.doseNumber}
+                  style={{
+                    background: "#f6f6f6",
+                    padding: 12,
+                    borderRadius: 8,
+                    marginBottom: 16,
+                    border: "1px solid #e0e0e0",
+                  }}
+                >
+                  <b>Dose {item.doseNumber}</b>
+                  <Form.Item
+                    label="Dose Time"
+                    style={{marginBottom: 8}}
+                    required
+                  >
+                    <Select
+                      value={item.doseTime}
+                      onChange={(val) => handleDoseTimeChange(idx, val)}
+                      style={{width: "100%"}}
+                    >
+                      {DOSE_TIME_OPTIONS.map((opt) => (
+                        <Select.Option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                  <Form.Item label="Notes" style={{marginBottom: 0}}>
+                    <Input.TextArea
+                      rows={1}
+                      placeholder={`Notes for dose ${item.doseNumber} (optional)`}
+                      value={item.notes}
+                      onChange={(e) =>
+                        handleDoseNoteChange(idx, e.target.value)
+                      }
+                    />
+                  </Form.Item>
+                </div>
+              ))}
+            </Col>
+          </Row>
+        </Form>
+      </Card>
+    </div>
   );
 };
 
-export default MedicalRegistrationList;
+export default CreateMedicalResForm;
