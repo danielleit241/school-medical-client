@@ -15,6 +15,12 @@ const ResetPassword = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [passwordWarning, setPasswordWarning] = useState({
+    length: false,
+    uppercase: false,
+    number: false,
+    special: false,
+  });
 
   // Lấy phoneNumber từ redux hoặc location.state
   const phoneNumberRedux = useSelector(
@@ -100,6 +106,18 @@ const ResetPassword = () => {
     }
     console.log(phoneNumber);
   };
+
+  const handleNewPasswordChange = (e) => {
+    const value = e.target.value;
+    setNewPassword(value);
+    setPasswordWarning({
+      length: value.length >= 6,
+      uppercase: /[A-Z]/.test(value),
+      number: /[0-9]/.test(value),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+    });
+  };
+
   return (
     <>
       <div className="reset_main">
@@ -175,10 +193,44 @@ const ResetPassword = () => {
                 type={showPassword ? "text" : "password"}
                 value={newPassword}
                 name="newPassword"
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={handleNewPasswordChange}
                 placeholder="Enter new password"
                 required
               />
+              <div style={{fontSize: 13, marginTop: 4}}>
+                <p
+                  style={{
+                    color: passwordWarning.length ? "green" : "red",
+                    margin: 0,
+                  }}
+                >
+                  • At least 6 characters
+                </p>
+                <p
+                  style={{
+                    color: passwordWarning.uppercase ? "green" : "red",
+                    margin: 0,
+                  }}
+                >
+                  • At least one uppercase letter
+                </p>
+                <p
+                  style={{
+                    color: passwordWarning.number ? "green" : "red",
+                    margin: 0,
+                  }}
+                >
+                  • At least one number
+                </p>
+                <p
+                  style={{
+                    color: passwordWarning.special ? "green" : "red",
+                    margin: 0,
+                  }}
+                >
+                  • At least one special character
+                </p>
+              </div>
             </div>
             <div className="reset_form__input">
               <label>Confirm New Password:</label>
