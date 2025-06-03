@@ -1,7 +1,4 @@
 .appointment-fullscreen {
-  min-height: 100vh;
-  width: 100vw;
-  background: #f7f9fb;
   padding: 0;
   margin: 0;
   position: relative;
@@ -9,11 +6,7 @@
   .ant-card {
    margin: 0 auto;
     border-radius: 16px;
-    box-shadow: 0 4px 24px #e0e2e6;
     background: #fff;
-    min-height: 600px;
-    max-width: 1000px;
-    width: 100%;
     padding: 32px 40px;
     font-family: inherit;
   }

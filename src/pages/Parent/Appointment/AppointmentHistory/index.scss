@@ -1,147 +1,119 @@
-.appointment-history-fullscreen {
-  min-height: 100vh;
-  width: 100%; // Sửa lại, không dùng 100vw
-  background: #f7f9fb;
-  padding: 0;
-  margin: 0;
-  position: relative;
-  overflow-x: hidden;
-  font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center; // căn giữa ngang
+// .appointment-history-fullscreen {
+//   width: 100%;
+//   padding: 0;
+//   margin: 0;
+//   position: relative;
+//   overflow-x: hidden;
+//   font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
 
-  .ant-card {
-    margin: 32px 0 0 0;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px #e0e2e6;
-    background: #fff;
-    min-height: 600px;
-    max-width: 1000px;
-    width: 100%;
-    padding: 32px 40px;
-    font-family: inherit;
-    box-sizing: border-box;
-    transition: padding 0.2s, margin 0.2s;
-  }
+//   .appointment-history-card {
+//     margin: 32px 0 0 0;
+//     border-radius: 20px;
+//     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+//     background: #fff;
+//     width: 95%;
+//     padding: 24px 32px;
+//     font-family: inherit;
+//     box-sizing: border-box;
+//     transition: padding 0.2s, margin 0.2s;
+//     border: none;
+//     display: flex;
+//     flex-direction: column;
+//     align-items: stretch;
+//     min-height: unset;
+//   }
 
-  @media (max-width: 1200px) {
-    .ant-card {
-      max-width: 95vw;
-      padding: 24px 16px;
-    }
-  }
+//   .ant-descriptions {
+//     background: #fff;
+//     border-radius: 16px;
+//     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+//     padding: 24px 32px;
+//     margin-top: 16px;
+//     font-size: 16px;
+//   }
 
-  @media (max-width: 768px) {
-    .ant-card {
-      max-width: 100vw;
-      margin: 16px 0 0 0;
-      padding: 16px 4px;
-      min-height: unset;
-    }
-  }
-}
+//   .ant-descriptions-bordered .ant-descriptions-item-label,
+//   .ant-descriptions-bordered .ant-descriptions-item-content {
+//     background: #fff;
+//     font-size: 16px;
+//     font-weight: 400;
+//     border: none;
+//     padding: 12px 16px;
+//   }
 
-.appointment-history-card {
-  width: 100%;
-  max-width: 900px; // Giảm max-width cho đồng bộ
-  margin: 32px auto 0 auto;
-  border-radius: 16px;
-  min-height: 600px;
-  background: #fff;
-  box-shadow: 0 4px 24px #e0e2e6;
-  padding: 24px 24px; // Giảm padding ngang
-  font-family: inherit;
-}
+//   .ant-descriptions-item-label {
+//     font-weight: 600;
+//     color: #222;
+//     width: 220px;
+//   }
 
-.appointment-history-row {
-  width: 100%;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px #f0f1f2;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  transition: box-shadow 0.2s;
-  font-family: inherit;
+//   .ant-descriptions-item-content {
+//     color: #444;
+//   }
 
-  &:hover {
-    box-shadow: 0 4px 16px #e6e6e6;
-  }
-}
+//   .ant-btn {
+//     border-radius: 8px;
+//     font-size: 15px;
+//     padding: 0 20px;
+//     height: 38px;
+//   }
 
-.appointment-history-row-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  font-size: 16px;
-  font-family: inherit;
+//   .ant-tag {
+//     font-size: 15px;
+//     padding: 0 12px;
+//     border-radius: 8px;
+//   }
 
-  b {
-    font-weight: 600;
-    font-size: 16px;
-  }
-}
+//   .appointment-history-row {
+//     background: #fff;
+//     border-radius: 16px;
+//     box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+//     margin-bottom: 24px;
+//     padding: 18px 24px;
+//     display: flex;
+//     justify-content: space-between;
+//     align-items: center;
+//     transition: box-shadow 0.2s;
+//     border: none;
+//   }
 
-.appointment-history-row-actions {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
+//   .appointment-history-row-info {
+//     font-size: 16px;
+//     color: #222;
+//     display: flex;
+//     flex-direction: column;
+//     gap: 4px;
+//   }
 
-  .ant-btn {
-    border-radius: 6px;
-    min-width: 80px;
-    font-weight: 500;
-    font-size: 15px;
-    font-family: inherit;
-    background: #1677ff;
-    color: #fff;
-    border: none;
-    transition: background 0.2s;
+//   .appointment-history-row-actions {
+//     display: flex;
+//     align-items: center;
+//     gap: 12px;
+//   }
+// }
 
-    &:hover {
-      background: #4096ff;
-      color: #fff;
-    }
-  }
-}
+// @media (max-width: 1200px) {
+//   .appointment-history-fullscreen .appointment-history-card {
+//     max-width: 95vw;
+//     padding: 24px 16px;
+//   }
+//   .appointment-history-fullscreen .ant-descriptions {
+//     padding: 16px 8px;
+//   }
+// }
 
-.appointment-history-detail {
-  font-size: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px 0;
-  font-family: inherit;
-}
-
-.appointment-alert-float {
-  position: fixed;
-  top: 32px;
-  right: 32px;
-  z-index: 9999;
-  min-width: 320px;
-}
-
-.fade-step-enter {
-  opacity: 0;
-  transform: translateY(30px);
-}
-.fade-step-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 400ms, transform 400ms;
-}
-.fade-step-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-.fade-step-exit-active {
-  opacity: 0;
-  transform: translateY(-30px);
-  transition: opacity 400ms, transform 400ms;
-}
+// @media (max-width: 768px) {
+//   .appointment-history-fullscreen .appointment-history-card {
+//     max-width: 100vw;
+//     margin: 16px 0 0 0;
+//     padding: 12px 2px;
+//     min-height: unset;
+//   }
+//   .appointment-history-fullscreen .ant-descriptions {
+//     padding: 8px 2px;
+//     font-size: 14px;
+//   }
+// }
