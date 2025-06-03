@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import "./index.scss";
 import axiosInstance from "../../api/axios";
-import { Alert } from "antd";
-import { useNavigate } from "react-router-dom";
+import {Alert} from "antd";
+import {useNavigate} from "react-router-dom";
 
 const ChangePassword = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -15,6 +15,12 @@ const ChangePassword = () => {
   const [step, setStep] = useState(1);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [stepAnimation, setStepAnimation] = useState("fade-in");
+  const [passwordWarning, setPasswordWarning] = useState({
+    length: false,
+    uppercase: false,
+    number: false,
+    special: false,
+  });
   const navigate = useNavigate();
 
   // Step 1: send otp to email
@@ -23,10 +29,10 @@ const ChangePassword = () => {
     setError("");
     setSuccess("");
     try {
-      await axiosInstance.post('/api/auth/forgot-password/send-otp', {
+      await axiosInstance.post("/api/auth/forgot-password/send-otp", {
         phoneNumber,
         emailAddress,
-      });     
+      });
       setStepAnimation("fade-out");
       setTimeout(() => {
         setSuccess("OTP sent successfully. Please check your email.");
@@ -34,7 +40,9 @@ const ChangePassword = () => {
         setStepAnimation("fade-in");
       }, 300);
     } catch (err) {
-      setError(err.response?.data?.message || "Check again your email or phone number.");
+      setError(
+        err.response?.data?.message || "Check again your email or phone number."
+      );
     }
   };
 
@@ -44,7 +52,10 @@ const ChangePassword = () => {
     setError("");
     setSuccess("");
     try {
-      await axiosInstance.post('/api/auth/forgot-password/verify-otp', `"${otp}"`);
+      await axiosInstance.post(
+        "/api/auth/forgot-password/verify-otp",
+        `"${otp}"`
+      );
       setSuccess("OTP verified successfully. Please enter your new password.");
       setStepAnimation("fade-out");
       setTimeout(() => {
@@ -66,7 +77,7 @@ const ChangePassword = () => {
       return;
     }
     try {
-      await axiosInstance.post('/api/auth/forgot-password/reset-password', {
+      await axiosInstance.post("/api/auth/forgot-password/reset-password", {
         otp,
         phoneNumber,
         newPassword,
@@ -83,8 +94,23 @@ const ChangePassword = () => {
       setNewPassword("");
       setConfirmNewPassword("");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to change password. Please try again.");
+      setError(
+        err.response?.data?.message ||
+          "Failed to change password. Please try again."
+      );
     }
+  };
+
+  // Khi nhập newPassword, kiểm tra realtime
+  const handleNewPasswordChange = (e) => {
+    const value = e.target.value;
+    setNewPassword(value);
+    setPasswordWarning({
+      length: value.length >= 6,
+      uppercase: /[A-Z]/.test(value),
+      number: /[0-9]/.test(value),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+    });
   };
 
   // Title cho từng step
@@ -96,17 +122,17 @@ const ChangePassword = () => {
   };
 
   return (
-    <div className='reset_main'>
-      <div className='reset_form'>
+    <div className="reset_main">
+      <div className="reset_form">
         <h2 className={`reset_name ${stepAnimation}`}>{getStepTitle()}</h2>
-        <div className='reset_message'>
+        <div className="reset_message">
           {error && (
             <Alert
               message={error}
               type="error"
               showIcon
               className={error ? "custom-alert-animate" : "custom-alert-hide"}
-              style={{ marginBottom: 12 }}
+              style={{marginBottom: 12}}
             />
           )}
           {success && (
@@ -115,7 +141,7 @@ const ChangePassword = () => {
               type="success"
               showIcon
               className={success ? "custom-alert-animate" : "custom-alert-hide"}
-              style={{ marginBottom: 12 }}
+              style={{marginBottom: 12}}
             />
           )}
           {showSuccessAlert && (
@@ -123,7 +149,9 @@ const ChangePassword = () => {
               message="Reset password successfully"
               type="success"
               showIcon
-              className={showSuccessAlert ? "custom-alert-animate" : "custom-alert-hide"}
+              className={
+                showSuccessAlert ? "custom-alert-animate" : "custom-alert-hide"
+              }
               style={{
                 marginBottom: 12,
                 position: "fixed",
@@ -138,23 +166,23 @@ const ChangePassword = () => {
         </div>
         {step === 1 && (
           <form onSubmit={handleSendOtp} className={stepAnimation}>
-            <div className='reset_form__input'>
+            <div className="reset_form__input">
               <label>Phone Number</label>
               <input
                 type="text"
                 value={phoneNumber}
-                onChange={e => setPhoneNumber(e.target.value)}
-                placeholder='Enter phone number'
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Enter phone number"
                 required
               />
             </div>
-            <div className='reset_form__input'>
+            <div className="reset_form__input">
               <label>Email</label>
               <input
                 type="email"
                 value={emailAddress}
-                onChange={e => setEmailAddress(e.target.value)}
-                placeholder='Enter email'
+                onChange={(e) => setEmailAddress(e.target.value)}
+                placeholder="Enter email"
                 required
               />
             </div>
@@ -164,13 +192,13 @@ const ChangePassword = () => {
 
         {step === 2 && (
           <form onSubmit={handleVerifyOtp} className={stepAnimation}>
-            <div className='reset_form__input'>
+            <div className="reset_form__input">
               <label>OTP</label>
               <input
                 type="text"
                 value={otp}
-                onChange={e => setOtp(e.target.value)}
-                placeholder='Enter OTP'
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter OTP"
                 required
               />
             </div>
@@ -180,23 +208,57 @@ const ChangePassword = () => {
 
         {step === 3 && (
           <form onSubmit={handleResetPassword} className={stepAnimation}>
-            <div className='reset_form__input'>
+            <div className="reset_form__input">
               <label>New Password</label>
               <input
                 type="password"
                 value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                placeholder='Enter new password'
+                onChange={handleNewPasswordChange}
+                placeholder="Enter new password"
                 required
               />
+              <div style={{fontSize: 13, marginTop: 4}}>
+                <p
+                  style={{
+                    color: passwordWarning.length ? "green" : "red",
+                    margin: 0,
+                  }}
+                >
+                  • At least 6 characters
+                </p>
+                <p
+                  style={{
+                    color: passwordWarning.uppercase ? "green" : "red",
+                    margin: 0,
+                  }}
+                >
+                  • At least one uppercase letter
+                </p>
+                <p
+                  style={{
+                    color: passwordWarning.number ? "green" : "red",
+                    margin: 0,
+                  }}
+                >
+                  • At least one number
+                </p>
+                <p
+                  style={{
+                    color: passwordWarning.special ? "green" : "red",
+                    margin: 0,
+                  }}
+                >
+                  • At least one special character
+                </p>
+              </div>
             </div>
-            <div className='reset_form__input'>
+            <div className="reset_form__input">
               <label>Confirm New Password</label>
               <input
                 type="password"
                 value={confirmNewPassword}
-                onChange={e => setConfirmNewPassword(e.target.value)}
-                placeholder='Confirm new password'
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                placeholder="Confirm new password"
                 required
               />
             </div>
