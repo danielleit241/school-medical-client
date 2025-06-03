@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useCallback} from "react";
 import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
-import {SearchOutlined} from "@ant-design/icons";
+import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 
@@ -86,6 +86,45 @@ const StudentList = () => {
     }
   };
 
+  const handleDownloadExcel = async () => {
+    try {
+      const response = await axiosInstance.get("/api/students/export-excel", {
+        responseType: "blob",
+      });
+      // Tạo link download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "students.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      // Hiển thị alert thành công
+      Swal.fire({
+        icon: "success",
+        title: "Download successfully",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } catch (error) {
+      console.error("Error downloading Excel file:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Download failed",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    }
+  };
+
   const columns = [
     {
       title: "Student Code",
@@ -146,6 +185,13 @@ const StudentList = () => {
           onClick={handleSendCreateAccount}
         >
           Create Account for Parent
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          onClick={handleDownloadExcel}
+          style={{background: "#52c41a", color: "#fff"}}
+        >
+          Download
         </Button>
       </div>
       {error && (
