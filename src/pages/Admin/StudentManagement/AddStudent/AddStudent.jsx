@@ -72,13 +72,14 @@ const AddStudent = () => {
   };
    return (
       <div className="container">
+        <h3 style={{ marginBottom: 16 }}>Import file Student here</h3>
         <Upload
           beforeUpload={handleBeforeUpload}
           onRemove={handleRemove}
           fileList={fileList}
           maxCount={1}
         >
-          <Button icon={<UploadOutlined />}>Chọn file Excel</Button>
+          <Button icon={<UploadOutlined />}>Choose file Excel</Button>
         </Upload>
   
         {data.length > 0 && (() => {
