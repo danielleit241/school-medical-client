@@ -74,14 +74,34 @@ const AddInventory = () => {
   return (
     <div className="container">
       <h3 style={{ marginBottom: 16 }}>Import file Medical Inventory here</h3>
-      <Upload
-        beforeUpload={handleBeforeUpload}
-        onRemove={handleRemove}
-        fileList={fileList}
-        maxCount={1}
-      >
-        <Button icon={<UploadOutlined />}>Choose file Excel</Button>
-      </Upload>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+        <Upload
+          beforeUpload={handleBeforeUpload}
+          onRemove={handleRemove}
+          fileList={fileList}
+          maxCount={1}
+          showUploadList={false} // Ẩn danh sách file mặc định
+        >
+          <Button icon={<UploadOutlined />}>Choose file Excel</Button>
+        </Upload>
+        <Button
+          type="primary"
+          onClick={handleUpload}
+          disabled={fileList.length === 0}
+          loading={uploading}
+          style={{ minWidth: 100 }}
+        >
+          {uploading ? "uploading..." : "Upload"}
+        </Button>
+        {fileList.length > 0 && (
+          <span style={{ color: "#555", fontSize: 14, wordBreak: "break-all" }}>
+            <span style={{ marginRight: 4, color: "#888" }}>
+              <UploadOutlined />
+            </span>
+            {fileList[0].name}
+          </span>
+        )}
+      </div>
 
       {data.length > 0 && (() => {
         // Xác định số cột lớn nhất
@@ -125,18 +145,6 @@ const AddInventory = () => {
           </table>
         );
       })()}
-
-      {data.length > 0 && (
-        <Button
-          type="primary"
-          onClick={handleUpload}
-          disabled={fileList.length === 0}
-          loading={uploading}
-          style={{ marginTop: 16 }}
-        >
-          {uploading ? "uploading..." : "Uploaded"}
-        </Button>
-      )}
 
       {showAlert && (
         <Alert

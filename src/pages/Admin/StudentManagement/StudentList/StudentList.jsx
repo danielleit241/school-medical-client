@@ -127,6 +127,13 @@ const StudentList = () => {
 
   const columns = [
     {
+    title: "No",
+    key: "no",
+    render: (text, record, index) => (pageIndex - 1) * pageSize + index + 1,
+    width: 60,
+    align: "center",
+    },
+    {
       title: "Student Code",
       dataIndex: "studentCode",
       key: "studentCode",

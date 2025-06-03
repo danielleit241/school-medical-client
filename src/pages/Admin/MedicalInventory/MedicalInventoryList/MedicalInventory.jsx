@@ -2,7 +2,7 @@ import React, {useState, useEffect, useCallback} from "react";
 import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
 import {SearchOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
-import Swal from "sweetalert2";
+import "./index.scss"; 
 
 const pageSize = 10;
 
@@ -44,6 +44,13 @@ const MedicalInventory = () => {
   );
 
      const columns = [
+      {
+      title: "No",
+      key: "no",
+      render: (text, record, index) => (pageIndex - 1) * pageSize + index + 1,
+      width: 60,
+      align: "center",
+    },
     {title: "Item Name", dataIndex: "itemName", key: "itemName"},
     {title: "Category", dataIndex: "category", key: "category"},
     {title: "Description", dataIndex: "description", key: "description"},
@@ -53,14 +60,20 @@ const MedicalInventory = () => {
       key: "expiryDate", 
       render: (value) => value ? value.toString().slice(0, 10) : ""},
     {title: "Maximum Stock Level", 
-      dataIndex: "maximumStockLevel", 
-      key: "maximumStockLevel", sorter: (a, b) => a.maximumStockLevel - b.maximumStockLevel},
-    {title: "Minimum Stock Level", 
-      dataIndex: "minimumStockLevel", 
-      key: "minimumStockLevel", sorter: (a, b) => a.minimumStockLevel - b.minimumStockLevel},
-    {title: "Quantity Stock", 
-      dataIndex: "quantityInStock", 
-      key: "quantityInStock", sorter: (a, b) => a.quantityInStock - b.quantityInStock},
+      dataIndex: "maximumStockLevel",
+      key: "maximumStockLevel",
+      align: "center",
+    },
+    {title: "Minimum Stock Level",
+      dataIndex: "minimumStockLevel",
+      key: "minimumStockLevel",
+      align: "center",
+    },
+    {title: "Quantity Stock",
+      dataIndex: "quantityInStock",
+      key: "quantityInStock",
+      align: "center",
+    },
     {
       title: "Status",
       dataIndex: "status",
@@ -87,6 +100,9 @@ const MedicalInventory = () => {
           }}
         >
           <h2 style={{margin: 0}}>Medical Inventory List</h2>
+          <span style={{ color: "#d46b08", fontWeight: 500, fontSize: 15 }}>
+            Note: Items with <b>Quantity Stock</b> below 100 will be displayed
+          </span>
         </div>
         <div
           style={{
@@ -118,6 +134,9 @@ const MedicalInventory = () => {
             locale={{
               emptyText: !loading && !error ? "No items found" : undefined,
             }}
+              rowClassName={(record) =>
+              record.quantityInStock < 100 ? "low-quantity-row" : ""
+            }
           />
         </Spin>
         <div style={{marginTop: 16, textAlign: "right"}}>
@@ -134,3 +153,4 @@ const MedicalInventory = () => {
 };
 
 export default MedicalInventory;
+
