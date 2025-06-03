@@ -54,10 +54,13 @@ import ParentMyChildren from "./pages/Parent/HealthDeclaration/MyChildren/MyChil
 import ParentCreateMedicalRegistration from "./pages/Parent/MedicalRegistration/CreateMedicalRes/CreateMedicalResForm";
 import ParentMedicalRegistrationList from "./pages/Parent/MedicalRegistration/MediacalRegistrationList/MedicalRegistrationList";
 import ParentDetailMedicalRegistration from "./pages/Parent/MedicalRegistration/DetailMedicalRes/DetailMediacalRes";
-import ParentNotification from "./pages/Parent/Notification/Notification";
+import MedicalEventNotification from "./pages/Parent/Notification/MedicalEvent/MedicalEventNotification";
+import CampaignNotification from "./pages/Parent/Notification/CampaignEvent/CampaignNotification";
 import UserProfile from "./pages/Parent/Profile/User/UserProfile";
 import UpdateUserProfile from "./pages/Parent/Profile/Edit/UpdateUserProfile";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
+import AddInventory from "./pages/Admin/MedicalInventory/AddInventory/AddInventory";
+import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryList/MedicalInventory";
 
 function App() {
   const dispatch = useDispatch();
@@ -132,7 +135,8 @@ function App() {
               path="medical-registration/detail"
               element={<ParentDetailMedicalRegistration />}
             />
-            <Route path="notification" element={<ParentNotification />} />
+            <Route path="medicalEvent" element={<MedicalEventNotification />} />
+            <Route path="campaignEvent" element={<CampaignNotification />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="profile/update" element={<UpdateUserProfile />} />
             <Route path="resetpassword" element={<ResetPassword />} />
@@ -175,6 +179,11 @@ function App() {
             }
           />
           {/* Các route còn lại cho cả admin và manager */}
+          <Route path="inventory/createInventory" element={<AddInventory />} />
+          <Route
+            path="inventory/inventoryList"
+            element={<MedicalInventory />}
+          />
           <Route path="campaign/campaign-list" element={<CampaignList />} />
           <Route path="campaign/create-campaign" element={<CreateCampaign />} />
           <Route path="campaign/detail-campaign" element={<DetailCampaign />} />

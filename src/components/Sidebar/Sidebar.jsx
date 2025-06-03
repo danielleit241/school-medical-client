@@ -17,6 +17,7 @@ import {
   FileDoneOutlined,
   FileSearchOutlined,
   BellOutlined,
+  AppstoreAddOutlined,
 } from "@ant-design/icons";
 import {setUserInfo} from "../../redux/feature/userSlice";
 import "./index.scss"; // Import your CSS styles for the sidebar
@@ -83,6 +84,25 @@ const Sidebar = () => {
           key: "/admin/student-management/student-list",
           link: "/admin/student-management/student-list",
           icon: <TeamOutlined />,
+        },
+      ],
+    },
+    {
+      label: "Medical Inventory",
+      key: "inventory",
+      icon: <AppstoreAddOutlined />,
+      dropdown: [
+        {
+          label: "Create Inventory",
+          key: "/admin/inventory/createInventory",
+          link: "/admin/inventory/createInventory",
+          icon: <FileAddOutlined />,
+        },
+        {
+          label: "Inventory List",
+          key: "/admin/inventory/inventoryList",
+          link: "/admin/inventory/inventoryList",
+          icon: <FileTextOutlined />,
         },
       ],
     },
@@ -255,9 +275,22 @@ const Sidebar = () => {
       },
       {
         label: "Notification",
-        key: "/parent/notification",
+        key: "notification",
         icon: <BellOutlined />,
-        link: "/parent/notification",
+        dropdown: [
+          {
+            label: "Medical Event",
+            key: "/parent/medicalEvent",
+            link: "/parent/medicalEvent",
+            icon: <MedicineBoxOutlined />,
+          },
+          {
+            label: "Campaign Event",
+            key: "/parent/campaignEvent",
+            link: "/parent/campaignEvent",
+            icon: <CalendarOutlined />,
+          },
+        ],
       },
       {
         label: "Profile",
