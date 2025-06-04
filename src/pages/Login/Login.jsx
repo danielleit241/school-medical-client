@@ -43,37 +43,16 @@ const Login = () => {
       setFieldError((prev) => ({...prev, phoneNumber: ""}));
     }
 
-    // Nếu là adminsystem thì bỏ qua validate password
-    if (formData.phoneNumber !== "adminsystem") {
-      // Validate password: ít nhất 6 ký tự, có chữ hoa, số, ký tự đặc biệt
-      if (
-        !/^.*(?=.{6,})(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/.test(
-          formData.password
-        )
-      ) {
-        setFieldError({
-          phoneNumber: "",
-          password:
-            "Password must be at least 6 characters, include uppercase, number and special character.",
-        });
-        return;
-      } else {
-        setFieldError((prev) => ({...prev, password: ""}));
-      }
-    } else {
-      setFieldError((prev) => ({...prev, password: ""}));
-    }
-
     try {
       // Bước 1: Check login để kiểm tra password mặc định
       const checkRes = await axiosInstance.post("/api/auth/check-login", {
         phoneNumber: formData.phoneNumber,
         password: formData.password,
       });
-      const check = checkRes.data;
+      const isDefaultPassword = checkRes.data === true;
 
       // Nếu password là mặc định thì chuyển sang reset password
-      if (check.password === "123@123@123") {
+      if (isDefaultPassword && formData.password === "123@123@123") {
         Swal.fire({
           icon: "info",
           title: "Default Password",
@@ -88,13 +67,8 @@ const Login = () => {
         return;
       }
 
-      // Bước 2: Đăng nhập bình thường
+      // Nếu password đã đổi, cho đăng nhập bình thường
       const response = await authenticationAPI.Login(formData);
-
-      //Lấy thêm user profile của người dùng vừa login vào để hiển thị thông tin
-      // const userProfileResponse = await axios.get(
-      // );
-
       const data = response;
       // Lưu token
       localStorage.setItem("accessToken", data.accessToken);
@@ -140,15 +114,11 @@ const Login = () => {
       });
     } catch (err) {
       const msg = err.response?.data || "Login failed";
-
-      // Hiện alert lỗi
       Swal.fire({
         icon: "error",
         title: "Login Failed",
         text: msg,
       });
-
-      // setError(msg);
       console.error(err);
     }
   };
@@ -173,7 +143,7 @@ const Login = () => {
                 {fieldError.phoneNumber && (
                   <p
                     className="error-message"
-                    style={{color: "red", margin: 0}}
+                    style={{color: "red", marginTop: 5, fontSize: 12}}
                   >
                     {fieldError.phoneNumber}
                   </p>
@@ -204,7 +174,7 @@ const Login = () => {
                 {fieldError.password && (
                   <p
                     className="error-message"
-                    style={{color: "red", margin: 0}}
+                    style={{color: "red", marginTop: 4, fontSize: 12}}
                   >
                     {fieldError.password}
                   </p>
