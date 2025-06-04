@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
 import { axiosFormData } from "../../../../api/axios";
-import { Button, Upload, Alert } from "antd"; 
+import { Button, Upload, Alert, Input } from "antd"; 
 import { UploadOutlined } from "@ant-design/icons";
 import 'antd/dist/reset.css';
 
@@ -9,8 +9,11 @@ const AddStudent = () => {
   const [data, setData] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const [showAlert, setShowAlert] = useState(false); // Thành công
-  const [showErrorAlert, setShowErrorAlert] = useState(false); // Thất bại
+  const [showAlert, setShowAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+
+  // Thêm state để lưu dữ liệu có thể chỉnh sửa
+  const [editableData, setEditableData] = useState([]);
 
   const handleBeforeUpload = (file) => {
     // Đọc file Excel để show dữ liệu
@@ -27,6 +30,13 @@ const AddStudent = () => {
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       setData(jsonData);
       console.log("Parsed data:", jsonData); // In dữ liệu đã parse để kiểm tra
+
+      // Chuyển dữ liệu thành dạng editable (bỏ header)
+      if (jsonData.length > 1) {
+        setEditableData(jsonData.slice(1).map(row => [...row]));
+      } else {
+        setEditableData([]);
+      }
     };
     reader.readAsBinaryString(file);
 
@@ -40,6 +50,17 @@ const AddStudent = () => {
   const handleRemove = () => {
     setFileList([]);
     setData([]);
+    setEditableData([]);
+  };
+
+  // Xử lý thay đổi input
+  const handleInputChange = (rowIdx, colIdx, value) => {
+    setEditableData(prev => {
+      const newData = [...prev];
+      newData[rowIdx] = [...newData[rowIdx]];
+      newData[rowIdx][colIdx] = value;
+      return newData;
+    });
   };
 
   const handleUpload = async () => {
@@ -51,9 +72,40 @@ const AddStudent = () => {
       return;
     }
 
+    // Tạo file Excel mới từ dữ liệu đã chỉnh sửa
+    if (data.length > 0 && editableData.length > 0) {
+      const newSheet = [data[0], ...editableData];
+      const ws = XLSX.utils.aoa_to_sheet(newSheet);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const newFile = new File([wbout], fileList[0].name, { type: fileList[0].type });
+
+      const formData = new FormData();
+      formData.append("file", newFile);
+
+      setUploading(true);
+      try {
+        const response = await axiosFormData.post("/students/upload-excel", formData);
+        console.log("Upload response:", response.data.items);
+        setShowAlert(true); // Hiện alert thành công
+        setTimeout(() => setShowAlert(false), 3000); // Ẩn alert sau 3s
+        setFileList([]);
+        setData([]);
+        setEditableData([]);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        setShowErrorAlert(true); // Hiện alert thất bại
+        setTimeout(() => setShowErrorAlert(false), 3000); // Ẩn alert sau 3s
+      } finally {
+        setUploading(false);
+      }
+      return;
+    }
+
+    // Nếu không có chỉnh sửa, upload file gốc
     const formData = new FormData();
     formData.append("file", fileList[0]);
-
     setUploading(true);
     try {
       const response = await axiosFormData.post("/students/upload-excel", formData);
@@ -62,6 +114,7 @@ const AddStudent = () => {
       setTimeout(() => setShowAlert(false), 3000); // Ẩn alert sau 3s
       setFileList([]);
       setData([]);
+      setEditableData([]);
     } catch (error) {
       console.error("Upload failed:", error);
       setShowErrorAlert(true); // Hiện alert thất bại
@@ -73,64 +126,79 @@ const AddStudent = () => {
    return (
       <div className="container">
         <h3 style={{ marginBottom: 16 }}>Import file Student here</h3>
-        <Upload
-          beforeUpload={handleBeforeUpload}
-          onRemove={handleRemove}
-          fileList={fileList}
-          maxCount={1}
-        >
-          <Button icon={<UploadOutlined />}>Choose file Excel</Button>
-        </Upload>
-  
-        {data.length > 0 && (() => {
-          // Xác định số cột lớn nhất
-          const columnCount = data.reduce((max, row) => Math.max(max, row.length), 0);
-          // Xác định các cột hợp lệ (ít nhất một dòng có giá trị khác rỗng)
-          const validColIndexes = [];
-          for (let col = 0; col < columnCount; col++) {
-            if (data.some(row => row[col] !== undefined && row[col] !== null && String(row[col]).trim() !== "")) {
-              validColIndexes.push(col);
-            }
-          }  
-          // Lọc bỏ row mà tất cả các cột hợp lệ đều rỗng (giữ lại header)
-          const filteredData = data.filter((row, rowIndex) =>
-            rowIndex === 0 ||
-            validColIndexes.some(colIdx =>
-              row[colIdx] !== undefined && row[colIdx] !== null && String(row[colIdx]).trim() !== ""
-            )
-          );
-  
-          return (
-            <table border="1" style={{ marginTop: 16, borderCollapse: "collapse" }}>
-              <tbody>
-                {filteredData.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {validColIndexes.map(colIdx => (
-                      <td key={colIdx} style={{ padding: 4, border: "1px solid #ccc" }}>
-                        {( rowIndex !== 0)
-                          ? (row[colIdx])
-                          : (row[colIdx] !== undefined ? row[colIdx] : "")}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          );
-        })()}
-  
-        {data.length > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+          <Upload
+            beforeUpload={handleBeforeUpload}
+            onRemove={handleRemove}
+            fileList={fileList}
+            maxCount={1}
+            showUploadList={false}
+          >
+            <Button icon={<UploadOutlined />}>Choose file Excel</Button>
+          </Upload>
           <Button
             type="primary"
             onClick={handleUpload}
             disabled={fileList.length === 0}
             loading={uploading}
-            style={{ marginTop: 16 }}
+            style={{ minWidth: 100 }}
           >
-            {uploading ? "uploading..." : "Uploaded"}
+            {uploading ? "uploading..." : "Upload"}
           </Button>
+          {fileList.length > 0 && (
+            <span style={{ color: "#555", fontSize: 14, wordBreak: "break-all" }}>
+              <span style={{ marginRight: 4, color: "#888" }}>
+                <UploadOutlined />
+              </span>
+              {fileList[0].name}
+            </span>
+          )}
+        </div>
+
+        {/* Hiển thị form editable */}
+        {data.length > 0 && (
+          <div style={{ overflowX: "auto" }}>
+            <table border="1" style={{ marginTop: 16, borderCollapse: "collapse", minWidth: 600 }}>
+              <thead>
+                <tr>
+                  {data[0].map((header, idx) => (
+                    <th key={idx} style={{ padding: 6, background: "#f5f5f5" }}>{header}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {editableData.length > 0
+                  ? editableData.map((row, rowIdx) => (
+                    <tr key={rowIdx}>
+                      {row.map((cell, colIdx) => (
+                        <td key={colIdx} style={{ padding: 4 }}>
+                          <Input
+                            value={cell}
+                            onChange={e => handleInputChange(rowIdx, colIdx, e.target.value)}
+                            size="small"
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                  : data.slice(1).map((row, rowIdx) => (
+                    <tr key={rowIdx}>
+                      {row.map((cell, colIdx) => (
+                        <td key={colIdx} style={{ padding: 4 }}>
+                          <Input
+                            value={cell}
+                            onChange={e => handleInputChange(rowIdx, colIdx, e.target.value)}
+                            size="small"
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         )}
-  
+
         {showAlert && (
           <Alert
             message="Upload successful!"
@@ -146,7 +214,7 @@ const AddStudent = () => {
             onClose={() => setShowAlert(false)}
           />
         )}
-  
+
         {showErrorAlert && (
           <Alert
             message="Upload failed!"
