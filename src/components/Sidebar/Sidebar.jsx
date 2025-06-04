@@ -16,7 +16,6 @@ import {
   FileAddOutlined,
   FileDoneOutlined,
   FileSearchOutlined,
-  BellOutlined,
   AppstoreAddOutlined,
 } from "@ant-design/icons";
 import {setUserInfo} from "../../redux/feature/userSlice";
