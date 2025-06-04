@@ -7,16 +7,18 @@ import {Eye, EyeOff} from "lucide-react";
 import {authenticationAPI} from "../../services/authentication";
 import {useDispatch} from "react-redux";
 import {setUserInfo} from "../../redux/feature/userSlice";
+import axiosInstance from "../../api/axios";
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // const [checked, setChecked] = useState(false);
   const [fieldError, setFieldError] = useState({phoneNumber: "", password: ""});
   const [formData, setFormData] = useState({
     phoneNumber: "",
     password: "",
   });
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -43,23 +45,6 @@ const Login = () => {
 
     // Nếu là adminsystem thì bỏ qua validate password
     if (formData.phoneNumber !== "adminsystem") {
-      // Kiểm tra mật khẩu mặc định trước
-      if (formData.password === "123@123@123") {
-        setFieldError({phoneNumber: "", password: ""});
-        Swal.fire({
-          icon: "info",
-          title: "Default Password",
-          text: "Please change your password.",
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => {
-          navigate("/resetpassword", {
-            state: {phoneNumber: formData.phoneNumber},
-          });
-        });
-        return;
-      }
-
       // Validate password: ít nhất 6 ký tự, có chữ hoa, số, ký tự đặc biệt
       if (
         !/^.*(?=.{6,})(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).*$/.test(
@@ -80,6 +65,30 @@ const Login = () => {
     }
 
     try {
+      // Bước 1: Check login để kiểm tra password mặc định
+      const checkRes = await axiosInstance.post("/api/auth/check-login", {
+        phoneNumber: formData.phoneNumber,
+        password: formData.password,
+      });
+      const check = checkRes.data;
+
+      // Nếu password là mặc định thì chuyển sang reset password
+      if (check.password === "123@123@123") {
+        Swal.fire({
+          icon: "info",
+          title: "Default Password",
+          text: "Please change your password.",
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          navigate("/resetpassword", {
+            state: {phoneNumber: formData.phoneNumber},
+          });
+        });
+        return;
+      }
+
+      // Bước 2: Đăng nhập bình thường
       const response = await authenticationAPI.Login(formData);
 
       //Lấy thêm user profile của người dùng vừa login vào để hiển thị thông tin
@@ -87,12 +96,10 @@ const Login = () => {
       // );
 
       const data = response;
-      console.log(data);
       // Lưu token
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
-      console.log(data.accessToken);
-      // Giải mã role
+
       //Decode payload token
       const payloadBase64 = data.accessToken.split(".")[1];
       const base64 = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
@@ -107,8 +114,7 @@ const Login = () => {
       const userIdClaim =
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
       const userId = decodedPayload[userIdClaim] || null;
-      // console.log("role:", role);
-      // console.log("userId:", userId);
+
       //Lưu vào Redux
       dispatch(setUserInfo({role, userId}));
       localStorage.setItem("userId", userId);
@@ -142,8 +148,8 @@ const Login = () => {
         text: msg,
       });
 
-      setError(msg);
-      console.error(error);
+      // setError(msg);
+      console.error(err);
     }
   };
   return (
