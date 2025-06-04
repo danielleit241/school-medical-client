@@ -37,6 +37,7 @@ import NurseHistoryCampaign from "./pages/Nurse/Campaign/HistoryCampaign/History
 import RecordForm from "./pages/Nurse/Campaign/RecordForm/RecordForm";
 import CreateMedicalEvent from "./pages/Nurse/MediacalEvent/CreateMedicalEvent/CreateMedicalEvent";
 import MedicalEventList from "./pages/Nurse/MediacalEvent/MedicalEventList/MedicalEventList";
+import MedicalEventDetail from "./pages/Nurse/MediacalEvent/MedicalEventDetail/MedicaEventDetail";
 import MedicalReceivedList from "./pages/Nurse/MedicalReceived/MedicalReceived/MedicalReceived";
 import MedicalReceivedDetail from "./pages/Nurse/MedicalReceived/MedicalReceivedDetail/MedicalReceivedDetail";
 import NurseNotification from "./pages/Nurse/Notification/Notification";
@@ -46,7 +47,7 @@ import UpdateUserProfileNurse from "./pages/Nurse/Profile/Edit/UpdateUserProfile
 // Parent pages
 import ParentHome from "./pages/Parent/ParentHome";
 import ParentAppointmentList from "./pages/Parent/Appointment/AppointmentList/AppointmentList";
-import ParentAppointmentForm from "./pages/Parent/Appointment/AppointmentForm/AppointmentForm";
+import ParentAppointmentDetail from "./pages/Parent/Appointment/AppointmentDetails/AppointmentDetail";
 import ParentAppointmentHistory from "./pages/Parent/Appointment/AppointmentHistory/AppointmentHistory";
 import ParentCalenderAppointment from "./pages/Parent/Appointment/CalenderAppointment/CalenderAppointmentNurse";
 import ParentHealthDeclaration from "./pages/Parent/HealthDeclaration/DeclaretionForm/DeclaretionForm";
@@ -103,8 +104,8 @@ function App() {
               element={<ParentAppointmentList />}
             />
             <Route
-              path="appointment-form"
-              element={<ParentAppointmentForm />}
+              path="appointment-details"
+              element={<ParentAppointmentDetail />}
             />
             <Route
               path="appointment-history"
@@ -250,6 +251,14 @@ function App() {
             element={<CreateMedicalEvent />}
           />
           <Route
+            path="medical-event/medical-event-list"
+            element={<MedicalEventList />}
+          />
+          <Route
+            path="medical-event/medical-event-detail"
+            element={<MedicalEventDetail />}
+          />
+          <Route
             path="medical-received/medical-received-list"
             element={<MedicalReceivedList />}
           />
@@ -257,10 +266,7 @@ function App() {
             path="medical-received/medical-received-detail"
             element={<MedicalReceivedDetail />}
           />
-          <Route
-            path="medical-event/medical-event-list"
-            element={<MedicalEventList />}
-          />
+
           <Route path="notification" element={<NurseNotification />} />
           <Route path="profile" element={<UserProfileNurse />} />
           <Route path="profile/update" element={<UpdateUserProfileNurse />} />

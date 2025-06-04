@@ -70,7 +70,8 @@ const DeclarationDetail = () => {
   return (
     <div
       style={{
-        width: "100%",
+        width: "80%",
+        margin: "0 auto",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
