@@ -7,6 +7,8 @@ import { useSelector } from "react-redux";
 const AppointmentList = () => {
   const staffNurseId = useSelector((state) => state.user?.userId);
   console.log("Staff Nurse ID:", staffNurseId);
+   const parentId = useSelector((state) => state.user?.parentId);
+   console.log("Parent ID:", parentId);
  
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -40,20 +42,33 @@ const AppointmentList = () => {
 
   const updateStatus = async (appointmentId, confirmationStatus, completionStatus) => {
   if (step === 2 && selectedAppointment) {
-      setSelectedAppointment(prev => ({
-        ...prev,
-        confirmationStatus,
-        completionStatus,
-      }));
-    }
-    axiosInstance.put(`/api/nurses/appointments/${appointmentId}`, {
+    setSelectedAppointment(prev => ({
+      ...prev,
+      confirmationStatus,
+      completionStatus,
+    }));
+  }
+  try {
+    const res = await axiosInstance.put(`/api/nurses/appointments/${appointmentId}`, {
       staffNurseId,
       confirmationStatus,
       completionStatus,
-    }).catch(error => {
-      console.error("Error updating appointment status:", error);
     });
-  };
+    const {notificationTypeId, senderId, receiverId} = res.data;
+
+      // eslint-disable-next-line no-unused-vars
+      const notificationResponse = await axiosInstance.post(
+        "/api/notification/appoiments/to-parent",
+        {
+          notificationTypeId,
+          senderId,
+          receiverId,
+        }
+      );
+  } catch (error) {
+    console.error("Error updating appointment status or sending notification:", error);
+  }
+};
 
   const handleDetail = async (appointmentId) => {
     setDetailLoading(true);
