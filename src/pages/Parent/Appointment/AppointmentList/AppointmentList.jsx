@@ -164,7 +164,7 @@ const AppointmentList = () => {
             console.log("Appointment API response:", res);
             localStorage.setItem('appointmentId', res.data.notificationTypeId || res.data.appointmentId);
             console.log("Appointment ID:", res.data.notificationTypeId || res.data.appointmentId);
-            const notificationRes = await axiosInstance.post('/api/notification/appoiments/to-nurse', {
+            const notificationRes = await axiosInstance.post('/api/notification/appointments/to-nurse', {
                 notificationTypeId: res.data.notificationTypeId || res.data.appointmentId,
                 senderId: userId,
                 receiverId: selectedNurse.staffNurseId,
