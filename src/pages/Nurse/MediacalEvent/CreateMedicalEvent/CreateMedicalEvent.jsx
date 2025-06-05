@@ -143,7 +143,6 @@ const CreateMedicalEvent = () => {
       }, 600);
     }
   };
-
   return (
     <div
       style={{
