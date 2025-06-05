@@ -1,6 +1,6 @@
 # School Medical Management System
 
-**School Medical Management System** is a web application designed to help schools manage student health records, medical histories, and all activities related to school healthcare.
+**School Medical Management System** is a web application designed to help schools manage student health records, medical history, and all activities related to school healthcare.
 
 ## 🚀 Key Features
 - Manage student health records
@@ -53,6 +53,10 @@ yarn build
 ## 📖 Usage
 After running `npm run dev`, open [http://localhost:5173](http://localhost:5173) in your browser.
 
+## 👥 Contributors
+
+- [ngothanhdat-AK](https://github.com/ngothanhdat-AK)
+- [ThinhTP204](https://github.com/ThinhTP204)
 
 ## 🤝 Contributing & Contact
 
@@ -61,8 +65,4 @@ We welcome contributions and feedback from the community!
 - Submit Issues or Pull Requests directly on this GitHub repository
 - Contact: [ngothanhdat.AK@gmail.com](mailto:ngothanhdat.AK@gmail.com)
 
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
-
-----------------------------------------
+------------------------------------------------------------------
