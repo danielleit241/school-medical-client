@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useSelector, useDispatch} from "react-redux";
-import {Menu} from "antd";
+import {Menu, Badge} from "antd";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {
   DashboardOutlined,
@@ -17,102 +17,61 @@ import {
   FileDoneOutlined,
   FileSearchOutlined,
   AppstoreAddOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
+import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
+import axiosInstance from "../../api/axios";
 import {setUserInfo} from "../../redux/feature/userSlice";
-import "./index.scss"; // Import your CSS styles for the sidebar
+import "./index.scss";
 
 const Sidebar = () => {
   const role = useSelector((state) => state.user.role);
+  const userId = useSelector((state) => state.user.userId);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const token = localStorage.getItem("accessToken");
 
-  if (!role) return null;
+  useEffect(() => {
+    // Lấy số lượng chưa đọc
+    const fetchUnread = async () => {
+      if (!userId) return;
+      try {
+        const res = await axiosInstance.get(
+          `/api/users/${userId}/notifications/unread`
+        );
+        setUnreadCount(res.data?.unreadCount ?? res.data ?? 0);
+      } catch {
+        setUnreadCount(0);
+      }
+    };
+    fetchUnread();
 
-  const adminMenu = [
-    {
-      label: "Dashboard",
-      key: "/admin",
-      icon: <DashboardOutlined />,
-      link: "/admin",
-    },
-    {
-      label: "Campaign",
-      key: "campaign",
-      icon: <CalendarOutlined />,
-      dropdown: [
-        {
-          label: "Campaign List",
-          key: "/admin/campaign/campaign-list",
-          link: "/admin/campaign/campaign-list",
-          icon: <FileTextOutlined />,
-        },
-        {
-          label: "Create Campaign",
-          key: "/admin/campaign/create-campaign",
-          link: "/admin/campaign/create-campaign",
-          icon: <FileAddOutlined />,
-        },
-        {
-          label: "Detail Campaign",
-          key: "/admin/campaign/detail-campaign",
-          link: "/admin/campaign/detail-campaign",
-          icon: <FileSearchOutlined />,
-        },
-        {
-          label: "History Campaign",
-          key: "/admin/campaign/history-campaign",
-          link: "/admin/campaign/history-campaign",
-          icon: <FileDoneOutlined />,
-        },
-      ],
-    },
-    {
-      label: "Student Management",
-      key: "student-management",
-      icon: <TeamOutlined />,
-      dropdown: [
-        {
-          label: "Add Student",
-          key: "/admin/student-management/add-student",
-          link: "/admin/student-management/add-student",
-          icon: <UserOutlined />,
-        },
-        {
-          label: "Student List",
-          key: "/admin/student-management/student-list",
-          link: "/admin/student-management/student-list",
-          icon: <TeamOutlined />,
-        },
-      ],
-    },
-    {
-      label: "Medical Inventory",
-      key: "inventory",
-      icon: <AppstoreAddOutlined />,
-      dropdown: [
-        {
-          label: "Create Inventory",
-          key: "/admin/inventory/createInventory",
-          link: "/admin/inventory/createInventory",
-          icon: <FileAddOutlined />,
-        },
-        {
-          label: "Inventory List",
-          key: "/admin/inventory/inventoryList",
-          link: "/admin/inventory/inventoryList",
-          icon: <FileTextOutlined />,
-        },
-      ],
-    },
-    {
-      label: "Profile",
-      key: "/admin/profile",
-      icon: <ProfileOutlined />,
-      link: "/admin/profile",
-    },
-  ];
+    // Websocket realtime
+    const connection = new HubConnectionBuilder()
+      .withUrl("https://localhost:7009/notificationHub", {
+        accessTokenFactory: () => token,
+      })
+      .configureLogging(LogLevel.Information)
+      .withAutomaticReconnect()
+      .build();
 
+    connection
+      .start()
+      .then(() => {
+        connection.on("NotificationSignal", () => {
+          fetchUnread();
+        });
+      })
+      .catch((err) => console.error("Error while starting connection: ", err));
+
+    return () => {
+      connection.stop();
+    };
+  }, [userId, token]);
+
+  // Xác định menu được chọn và mở dựa trên location hiện tại
   const menuItemsByRole = {
     admin: [
       {
@@ -134,9 +93,165 @@ const Sidebar = () => {
           },
         ],
       },
-      ...adminMenu.slice(1),
+      {
+        label: "Campaign",
+        key: "campaign",
+        icon: <CalendarOutlined />,
+        dropdown: [
+          {
+            label: "Campaign List",
+            key: "/admin/campaign/campaign-list",
+            link: "/admin/campaign/campaign-list",
+            icon: <FileTextOutlined />,
+          },
+          {
+            label: "Create Campaign",
+            key: "/admin/campaign/create-campaign",
+            link: "/admin/campaign/create-campaign",
+            icon: <FileAddOutlined />,
+          },
+          {
+            label: "Detail Campaign",
+            key: "/admin/campaign/detail-campaign",
+            link: "/admin/campaign/detail-campaign",
+            icon: <FileSearchOutlined />,
+          },
+          {
+            label: "History Campaign",
+            key: "/admin/campaign/history-campaign",
+            link: "/admin/campaign/history-campaign",
+            icon: <FileDoneOutlined />,
+          },
+        ],
+      },
+      {
+        label: "Student Management",
+        key: "student-management",
+        icon: <TeamOutlined />,
+        dropdown: [
+          {
+            label: "Add Student",
+            key: "/admin/student-management/add-student",
+            link: "/admin/student-management/add-student",
+            icon: <UserOutlined />,
+          },
+          {
+            label: "Student List",
+            key: "/admin/student-management/student-list",
+            link: "/admin/student-management/student-list",
+            icon: <TeamOutlined />,
+          },
+        ],
+      },
+      {
+        label: "Medical Inventory",
+        key: "inventory",
+        icon: <AppstoreAddOutlined />,
+        dropdown: [
+          {
+            label: "Create Inventory",
+            key: "/admin/inventory/createInventory",
+            link: "/admin/inventory/createInventory",
+            icon: <FileAddOutlined />,
+          },
+          {
+            label: "Inventory List",
+            key: "/admin/inventory/inventoryList",
+            link: "/admin/inventory/inventoryList",
+            icon: <FileTextOutlined />,
+          },
+        ],
+      },
+      {
+        label: "Profile",
+        key: "/admin/profile",
+        icon: <ProfileOutlined />,
+        link: "/admin/profile",
+      },
     ],
-    manager: adminMenu,
+    manager: [
+      {
+        label: "Dashboard",
+        key: "/admin",
+        icon: <DashboardOutlined />,
+        link: "/admin",
+      },
+      {
+        label: "Campaign",
+        key: "campaign",
+        icon: <CalendarOutlined />,
+        dropdown: [
+          {
+            label: "Campaign List",
+            key: "/admin/campaign/campaign-list",
+            link: "/admin/campaign/campaign-list",
+            icon: <FileTextOutlined />,
+          },
+          {
+            label: "Create Campaign",
+            key: "/admin/campaign/create-campaign",
+            link: "/admin/campaign/create-campaign",
+            icon: <FileAddOutlined />,
+          },
+          {
+            label: "Detail Campaign",
+            key: "/admin/campaign/detail-campaign",
+            link: "/admin/campaign/detail-campaign",
+            icon: <FileSearchOutlined />,
+          },
+          {
+            label: "History Campaign",
+            key: "/admin/campaign/history-campaign",
+            link: "/admin/campaign/history-campaign",
+            icon: <FileDoneOutlined />,
+          },
+        ],
+      },
+      {
+        label: "Student Management",
+        key: "student-management",
+        icon: <TeamOutlined />,
+        dropdown: [
+          {
+            label: "Add Student",
+            key: "/admin/student-management/add-student",
+            link: "/admin/student-management/add-student",
+            icon: <UserOutlined />,
+          },
+          {
+            label: "Student List",
+            key: "/admin/student-management/student-list",
+            link: "/admin/student-management/student-list",
+            icon: <TeamOutlined />,
+          },
+        ],
+      },
+      {
+        label: "Medical Inventory",
+        key: "inventory",
+        icon: <AppstoreAddOutlined />,
+        dropdown: [
+          {
+            label: "Create Inventory",
+            key: "/admin/inventory/createInventory",
+            link: "/admin/inventory/createInventory",
+            icon: <FileAddOutlined />,
+          },
+          {
+            label: "Inventory List",
+            key: "/admin/inventory/inventoryList",
+            link: "/admin/inventory/inventoryList",
+            icon: <FileTextOutlined />,
+          },
+        ],
+      },
+      {
+        label: "Profile",
+        key: "/admin/profile",
+        icon: <ProfileOutlined />,
+        link: "/admin/profile",
+      },
+    ],
     nurse: [
       {
         label: "Dashboard",
@@ -320,7 +435,6 @@ const Sidebar = () => {
 
   const menuItems = menuItemsByRole[role] || [];
 
-  // Render menu items and submenus
   const renderMenuItems = (items) =>
     items.map((item) => {
       if (item.dropdown) {
@@ -341,7 +455,6 @@ const Sidebar = () => {
       );
     });
 
-  // Xác định menu được chọn và mở dựa trên location hiện tại
   const selectedKeys = [];
   const openKeys = [];
 
@@ -360,7 +473,6 @@ const Sidebar = () => {
     }
   });
 
-  // Thêm hàm logout
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -368,6 +480,19 @@ const Sidebar = () => {
     localStorage.removeItem("role");
     dispatch(setUserInfo({role: null, userId: null}));
     navigate("/login");
+  };
+
+  // control bell notification
+  const handleBellClick = async () => {
+    try {
+      await axiosInstance.put(`/api/users/${userId}/notifications`);
+      setUnreadCount(0);
+    } catch (err) {console.log(err);}
+    // dien đến trang notification tương ứng với role
+    if (role === "parent") navigate("/parent/notification", { state: { reload: Date.now() } });
+    else if (role === "nurse") navigate("/nurse/notification", { state: { reload: Date.now() } });
+    else if (role === "admin") navigate("/admin/notification", { state: { reload: Date.now() } });
+    else if (role === "manager") navigate("/manager/notification", { state: { reload: Date.now() } });
   };
 
   return (
@@ -384,11 +509,30 @@ const Sidebar = () => {
           }}
         >
           <span style={{fontWeight: "bold"}}>Hello, {role}</span>
+              {/* Bell notification */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "16px 0",
+            }}
+          >
+            <Badge count={unreadCount}>
+              <BellOutlined
+                style={{fontSize: 20, color: "#1890ff", cursor: "pointer"}}
+                onClick={handleBellClick}
+              />
+            </Badge>
+          </div>
           <button onClick={handleLogout} className="logout">
             Logout
           </button>
         </div>
       )}
+
+     
+
       <Menu
         mode="inline"
         selectedKeys={selectedKeys}

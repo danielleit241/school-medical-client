@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import axiosInstance from "../../../api/axios";
 import { Badge } from "antd";
 import { BellOutlined } from "@ant-design/icons";
@@ -10,6 +11,7 @@ const Notifications = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const token = localStorage.getItem("accessToken");
+  const location = useLocation();
 
   // Lấy số lượng chưa đọc
   const fetchUnread = async () => {
@@ -34,32 +36,41 @@ const Notifications = () => {
           params: { pageIndex, pageSize },
         }
       );
-      console.log("Notifications:", res.data);
       setNotifications(Array.isArray(res.data.items) ? res.data.items : []);
     } catch {
       setNotifications([]);
     }
   };
 
- 
-
-  // Đánh dấu tất cả đã đọc
-  const handleMarkAllAsRead = async () => {
+  // Đánh dấu đã đọc từng thông báo
+  const handleReadNotification = async (notificationId) => {
     try {
-      await axiosInstance.put(`/api/users/${userId}/notifications`);
-      setNotifications((prev) =>
-        prev.map((item) => ({
-          ...item,
-          notificationResponseDto: {
-            ...item.notificationResponseDto,
-            isRead: true,
-          },
-        }))
+      const noti = notifications.find(
+        (item) => item.notificationResponseDto?.notificationId === notificationId
+      )?.notificationResponseDto;
+      if (!noti || noti.isRead) return;
+
+      await axiosInstance.put(
+        `/api/users/${userId}/notifications`,
+        { notificationId }
       );
-      setUnreadCount(0);
+      setNotifications((prev) =>
+        prev.map((item) =>
+          item.notificationResponseDto?.notificationId === notificationId
+            ? {
+                ...item,
+                notificationResponseDto: {
+                  ...item.notificationResponseDto,
+                  isRead: true,
+                },
+              }
+            : item
+        )
+      );
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
       fetchUnread();
     } catch (err) {
-      console.error("Failed to mark all as read:", err);
+      console.error("Failed:", err);
     }
   };
 
@@ -88,20 +99,14 @@ const Notifications = () => {
     return () => {
       connection.stop();
     };
+    // Khi nhận state.reload từ navigate, sẽ reload lại danh sách
     // eslint-disable-next-line
-  }, [userId, token]);
+  }, [userId, token, location.state?.reload]);
   console.log("notifications state:", notifications);
 
   return (
     <div>
-      <Badge count={unreadCount}>
-        <BellOutlined
-          style={{ fontSize: 32, color: "#1890ff", cursor: "pointer" }}
-          onClick={handleMarkAllAsRead}
-        />
-      </Badge>
       <h1>({unreadCount} unread)</h1>
-      {/* Nếu vẫn muốn giữ danh sách thông báo, có thể để dưới đây */}
       <ul>
         {notifications.length === 0 ? (
           <li>No notifications.</li>
@@ -109,12 +114,18 @@ const Notifications = () => {
           notifications.map((item, idx) => {
             const noti = item.notificationResponseDto || {};
             const notificationId = noti.notificationId;
+            const isRead = noti.isRead;
             return (
               <li
                 key={notificationId || idx}
                 style={{
                   marginBottom: 12,
-                  background:  "#fff"
+                  background: isRead ? "#f5f5f5" : "#fff",
+                  cursor: "pointer",
+                  opacity: isRead ? 0.7 : 1,
+                }}
+                onClick={() => {
+                  if (notificationId) handleReadNotification(notificationId);
                 }}
               >
                 <div>
@@ -122,13 +133,6 @@ const Notifications = () => {
                 </div>
                 <div>
                   <b>Content:</b> {noti.content || "No content"}
-                </div>
-                <div>
-                  <small>
-                    {noti.sendDate
-                      ? new Date(noti.sendDate).toLocaleString()
-                      : ""}
-                  </small>
                 </div>
               </li>
             );
