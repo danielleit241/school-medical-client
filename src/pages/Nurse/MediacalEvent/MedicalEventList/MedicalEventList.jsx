@@ -53,7 +53,7 @@ const MedicalEventList = () => {
   const rows = [data.slice(0, 5), data.slice(5, 10)];
 
   return (
-    <div style={{padding: 24}}>
+    <div style={{padding: 20}}>
       <div
         style={{
           marginBottom: 16,
@@ -76,7 +76,7 @@ const MedicalEventList = () => {
             justifyContent: "left",
             alignItems: "center",
             width: "97%",
-            gap: 70,
+            gap: 65,
           }}
         >
           {row.map((item) => (
