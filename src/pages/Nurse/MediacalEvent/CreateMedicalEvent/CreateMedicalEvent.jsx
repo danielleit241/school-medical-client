@@ -109,10 +109,13 @@ const CreateMedicalEvent = () => {
           })),
       };
       setTimeout(async () => {
-        await axiosInstance.post(
+        const res = await axiosInstance.post(
           "/api/nurses/students/medical-events",
           payload
         );
+        localStorage.setItem("notificationTypeId", res.data.notificationTypeId);
+        console.log("Saved:", localStorage.getItem("notificationTypeId")); // sẽ ra đúng giá trị
+        console.log("API trả về:", res.data.notificationTypeId);
         Swal.fire({
           icon: "success",
           title: "Medical event created!",
