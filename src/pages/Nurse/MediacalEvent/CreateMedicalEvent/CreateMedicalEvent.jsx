@@ -102,6 +102,35 @@ const CreateMedicalEvent = () => {
             purpose: req.purpose,
           })),
       };
+
+      // Gửi request tạo medical event
+      const response = await axiosInstance.post(
+        "/api/nurses/students/medical-events",
+        payload
+      );
+      // console.log("CreateMedicalEvent response: ", response.data);
+      // Lấy thông tin từ response
+      const {notificationTypeId, senderId, receiverId} = response.data;
+
+      // Gửi notification cho parent
+      // eslint-disable-next-line no-unused-vars
+      const notificationResponse = await axiosInstance.post(
+        "/api/notifications/medical-events/to-parent",
+        {
+          notificationTypeId,
+          senderId,
+          receiverId,
+        }
+      );
+      // console.log("noti: ", notificationResponse.data);
+      Swal.fire({
+        icon: "success",
+        title: "Medical event created!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      navigate("/nurse/medical-event/medical-event-list");
+      setLoading(false);
       // eslint-disable-next-line no-unused-vars
     } catch (error) {
       setTimeout(() => {
@@ -114,6 +143,7 @@ const CreateMedicalEvent = () => {
       }, 600);
     }
   };
+
   return (
     <div
       style={{
