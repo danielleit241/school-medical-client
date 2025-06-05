@@ -7,6 +7,7 @@ import "./index.scss";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -17,8 +18,7 @@ const AppointmentList = () => {
     const [selectedNurse, setSelectedNurse] = useState(null);
     const [step, setStep] = useState(1);
     const [dateRequest, setDateRequest] = useState(() => {
-        const today = new Date();
-        return today.toISOString().split('T')[0]; // yyyy-MM-dd
+        return dayjs().format("YYYY-MM-DD"); 
     });
     const [topic, setTopic] = useState('');
     const [appointmentStartTime, setAppointmentStartTime] = useState('');
@@ -28,6 +28,8 @@ const AppointmentList = () => {
     const [bookedSlots, setBookedSlots] = useState([]);
 
     const userId = useSelector((state) => state.user?.userId);
+    const parentId = localStorage.getItem('parentId') || userId;
+    console.log("Parent ID:", parentId);
     const listStudentParent = useSelector((state) => state.listStudentParent.listStudentParent);
     const studentId = listStudentParent.length > 0 ? listStudentParent[0].studentId : null;
 
@@ -38,7 +40,7 @@ const AppointmentList = () => {
     // Tự động cập nhật ngày khi sang ngày mới
     useEffect(() => {
         const interval = setInterval(() => {
-            const today = new Date().toISOString().split('T')[0];
+            const today = dayjs().format("YYYY-MM-DD");
             if (dateRequest !== today) {
                 setDateRequest(today);
                 setStep(1);
@@ -48,7 +50,7 @@ const AppointmentList = () => {
                 setAppointmentStartTime('');
                 setAppointmentEndTime('');
             }
-        }, 60 * 1000); // kiểm tra mỗi phút
+        }, 60 * 1000 * 86400); // kiểm tra mỗi phút
         return () => clearInterval(interval);
     }, [dateRequest]);
 
@@ -159,9 +161,15 @@ const AppointmentList = () => {
 
         try {
             const res = await axiosInstance.post('/api/parents/appointments', payload);
-            if (res.data && res.data.appointmentId) {
-                localStorage.setItem('appointmentId', res.data.appointmentId);
-            }
+            console.log("Appointment API response:", res);
+            localStorage.setItem('appointmentId', res.data.notificationTypeId || res.data.appointmentId);
+            console.log("Appointment ID:", res.data.notificationTypeId || res.data.appointmentId);
+            const notificationRes = await axiosInstance.post('/api/notification/appointments/to-nurse', {
+                notificationTypeId: res.data.notificationTypeId || res.data.appointmentId,
+                senderId: userId,
+                receiverId: selectedNurse.staffNurseId,
+            });
+            console.log("Notification API response:", notificationRes);
             setSuccess('Appointment booked successfully!');
             navigate("/parent/appointment-history");
             Swal.fire({
@@ -174,6 +182,7 @@ const AppointmentList = () => {
                 timerProgressBar: true,
             });
         } catch (error) {
+            console.error("Appointment API error:", error);
             const errMsg =
                 error.response?.data?.errors?.request?.[0] ||
                 error.response?.data?.errors?.['$.appointmentStartTime']?.[0] ||
