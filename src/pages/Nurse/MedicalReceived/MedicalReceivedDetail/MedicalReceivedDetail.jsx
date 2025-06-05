@@ -73,13 +73,23 @@ const MedicalReceivedDetail = () => {
     });
     try {
       // Gửi đúng doseNumber là số thứ tự ("1", "2", "3")
-      await axiosInstance.put(
+      const responseComplete = await axiosInstance.put(
         `/api/nurses/medical-registrations/${medicalRegistrationId}/completed`,
         {
           staffNurseId: nurseId,
           doseNumber: String(dose.doseNumber),
           dateCompleted: dayjs().format("YYYY-MM-DD"),
           notes: doseNotes[doseIdx] ?? "Medication administered on time.",
+        }
+      );
+      const {notificationTypeId, senderId, receiverId} = responseComplete.data;
+      // eslint-disable-next-line no-unused-vars
+      const notificationResponse = await axiosInstance.post(
+        "/api/notifications/medical-registrations/completed/to-parent",
+        {
+          notificationTypeId,
+          senderId,
+          receiverId,
         }
       );
       // Đợi 600ms rồi mới gọi GET lại
@@ -123,11 +133,22 @@ const MedicalReceivedDetail = () => {
   const handleApprove = async () => {
     setApproving(true);
     try {
-      await axiosInstance.put(
+      const responseApproved = await axiosInstance.put(
         `/api/nurses/medical-registrations/${medicalRegistrationId}/approved`,
         {
           staffNurseId: nurseId,
           dateApproved: dayjs().format("YYYY-MM-DD"),
+        }
+      );
+
+      const {notificationTypeId, senderId, receiverId} = responseApproved.data;
+      // eslint-disable-next-line no-unused-vars
+      const notificationResponse = await axiosInstance.post(
+        "/api/notifications/medical-registrations/approved/to-parent",
+        {
+          notificationTypeId,
+          senderId,
+          receiverId,
         }
       );
       Swal.fire({
@@ -302,71 +323,75 @@ const MedicalReceivedDetail = () => {
               </p>
               {medicalRegistrationDetails &&
               medicalRegistrationDetails.length > 0 ? (
-                medicalRegistrationDetails.map((dose, idx) => (
-                  <div
-                    key={dose.doseNumber + idx}
-                    style={{
-                      background: "#f6f6f6",
-                      padding: 12,
-                      borderRadius: 8,
-                      marginBottom: 16,
-                      border: "1px solid #e0e0e0",
-                    }}
-                  >
-                    <b>Dose Number: {dose.doseNumber}</b>
-                    <div>
-                      <span>
-                        <b>Dose Time:</b> {dose.doseTime}
-                      </span>
-                    </div>
-                    <div>
-                      <b>Notes:</b>{" "}
-                      {dose.notes || (
-                        <span style={{color: "#aaa"}}>No notes</span>
-                      )}
-                    </div>
-                    <div>
-                      <b>Status:</b>{" "}
-                      {dose.isCompleted ? (
-                        <Tag color="green">Completed</Tag>
-                      ) : (
-                        <Tag color="orange">Not Completed</Tag>
-                      )}
-                    </div>
-                    {dose.isCompleted && dose.dateCompleted && (
+                // Sắp xếp tăng dần theo doseNumber trước khi map
+                [...medicalRegistrationDetails]
+                  .sort((a, b) => Number(a.doseNumber) - Number(b.doseNumber))
+                  .map((dose, idx) => (
+                    <div
+                      key={dose.doseNumber + idx}
+                      style={{
+                        background: "#f6f6f6",
+                        padding: 12,
+                        borderRadius: 8,
+                        marginBottom: 16,
+                        border: "1px solid #e0e0e0",
+                      }}
+                    >
+                      <b>Dose Number: {dose.doseNumber}</b>
                       <div>
-                        <b>Date Completed:</b> {dose.dateCompleted}
+                        <span>
+                          <b>Dose Time:</b> {dose.doseTime}
+                        </span>
                       </div>
-                    )}
-                    {/* Nurse confirm form for this dose */}
-                    {!dose.isCompleted && (
-                      <div style={{marginTop: 12}}>
-                        <Input.TextArea
-                          rows={2}
-                          placeholder="Nurse notes for this dose..."
-                          value={
-                            doseNotes[idx] ?? "Medication administered on time."
-                          }
-                          onChange={(e) =>
-                            setDoseNotes((prev) => ({
-                              ...prev,
-                              [idx]: e.target.value,
-                            }))
-                          }
-                          style={{marginBottom: 8}}
-                        />
-                        <Button
-                          type="primary"
-                          loading={confirmingDose === idx}
-                          style={{backgroundColor: "#355383"}}
-                          onClick={() => handleCompleteDose(idx, dose)}
-                        >
-                          Complete
-                        </Button>
+                      <div>
+                        <b>Notes:</b>{" "}
+                        {dose.notes || (
+                          <span style={{color: "#aaa"}}>No notes</span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))
+                      <div>
+                        <b>Status:</b>{" "}
+                        {dose.isCompleted ? (
+                          <Tag color="green">Completed</Tag>
+                        ) : (
+                          <Tag color="orange">Not Completed</Tag>
+                        )}
+                      </div>
+                      {dose.isCompleted && dose.dateCompleted && (
+                        <div>
+                          <b>Date Completed:</b> {dose.dateCompleted}
+                        </div>
+                      )}
+                      {/* Nurse confirm form for this dose */}
+                      {!dose.isCompleted && (
+                        <div style={{marginTop: 12}}>
+                          <Input.TextArea
+                            rows={2}
+                            placeholder="Nurse notes for this dose..."
+                            value={
+                              doseNotes[idx] ??
+                              "Medication administered on time."
+                            }
+                            onChange={(e) =>
+                              setDoseNotes((prev) => ({
+                                ...prev,
+                                [idx]: e.target.value,
+                              }))
+                            }
+                            style={{marginBottom: 8}}
+                          />
+                          <Button
+                            type="primary"
+                            loading={confirmingDose === idx}
+                            style={{backgroundColor: "#355383"}}
+                            onClick={() => handleCompleteDose(idx, dose)}
+                          >
+                            Complete
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))
               ) : (
                 <div style={{color: "#aaa"}}>No dose details available.</div>
               )}

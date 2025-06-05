@@ -22,12 +22,6 @@ const SEVERITY_OPTIONS = [
   {label: "High", value: "High"},
 ];
 
-const EVENT_TYPE_OPTIONS = [
-  {label: "Injury", value: "Injury"},
-  {label: "Illness", value: "Illness"},
-  {label: "Other", value: "Other"},
-];
-
 const CreateMedicalEvent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -108,23 +102,6 @@ const CreateMedicalEvent = () => {
             purpose: req.purpose,
           })),
       };
-      setTimeout(async () => {
-        const res = await axiosInstance.post(
-          "/api/nurses/students/medical-events",
-          payload
-        );
-        localStorage.setItem("notificationTypeId", res.data.notificationTypeId);
-        console.log("Saved:", localStorage.getItem("notificationTypeId")); // sẽ ra đúng giá trị
-        console.log("API trả về:", res.data.notificationTypeId);
-        Swal.fire({
-          icon: "success",
-          title: "Medical event created!",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        navigate("/nurse/medical-event/medical-event-list");
-        setLoading(false);
-      }, 600);
       // eslint-disable-next-line no-unused-vars
     } catch (error) {
       setTimeout(() => {

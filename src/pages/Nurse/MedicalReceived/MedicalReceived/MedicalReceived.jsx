@@ -2,7 +2,17 @@ import React, {useEffect, useState} from "react";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
-import {Card, Button, Row, Col, Tag, Pagination, Spin, Select} from "antd";
+import {
+  Card,
+  Button,
+  Row,
+  Col,
+  Tag,
+  Pagination,
+  Spin,
+  Select,
+  Alert,
+} from "antd";
 
 const MedicalReceived = () => {
   const navigate = useNavigate();
@@ -63,6 +73,9 @@ const MedicalReceived = () => {
     return true;
   });
 
+  // Kiểm tra nếu không có dữ liệu trong filter "notyet"
+  const noData = filterStatus === "notyet" && filteredData.length === 0;
+
   // Chia data thành 2 hàng, mỗi hàng 5 phần tử
   const rows = [filteredData.slice(0, 5), filteredData.slice(5, 10)];
 
@@ -104,6 +117,17 @@ const MedicalReceived = () => {
           <Select.Option value="done">Done</Select.Option>
         </Select>
       </div>
+
+      {/* Hiển thị thông báo nếu không có dữ liệu khi filter "notyet" */}
+      {noData && (
+        <Alert
+          message="Không có đơn gửi thuốc nào từ phụ huynh"
+          type="warning"
+          showIcon
+          style={{margin: "40px 0 0 40px", width: "30%"}}
+        />
+      )}
+
       {rows.map((row, rowIndex) => (
         <Row
           gutter={[16, 16]}
@@ -118,65 +142,86 @@ const MedicalReceived = () => {
             gap: 70,
           }}
         >
-          {row.map((item) => (
-            <Col span={4} key={item.medicalRegistration.registrationId}>
-              <Card
-                title={item.student.studentFullName}
-                extra={
-                  item.nurseApproved.dateApproved ? (
-                    <Tag color="green">Nurse Approved</Tag>
-                  ) : (
-                    <Tag color="orange">Pending Nurse</Tag>
-                  )
-                }
-                style={{
-                  minWidth: 300,
-                  borderRadius: 8,
-                  boxShadow: "0 0px 5px rgba(0, 0, 0, 0.1)",
-                  marginBottom: 16,
-                }}
-              >
-                <div>
-                  <p>
-                    <b>Medication:</b> {item.medicalRegistration.medicationName}
-                  </p>
-                  <p>
-                    <b>Total Dosages:</b>{" "}
-                    {item.medicalRegistration.totalDosages}
-                  </p>
-                  <p>
-                    <b>Date Submitted:</b>{" "}
-                    {item.medicalRegistration.dateSubmitted}
-                  </p>
-                  <p>
-                    <b>Parent Notes:</b> {item.medicalRegistration.notes}
-                  </p>
-                </div>
-                <div style={{display: "flex", gap: 8, marginTop: 16}}>
-                  <Button
-                    type="primary"
-                    style={{backgroundColor: "#355383"}}
-                    onClick={() => {
-                      navigate(
-                        `/nurse/medical-received/medical-received-detail`,
-                        {
-                          state: {
-                            registrationId:
-                              item.medicalRegistration.registrationId,
-                            studentId: item.student.studentId,
-                          },
-                        }
-                      );
-                    }}
-                  >
-                    Details
-                  </Button>
-                </div>
-              </Card>
-            </Col>
-          ))}
+          {row.map((item) => {
+            // Lấy danh sách các dose chưa complete
+            const notCompletedDoses =
+              item.medicalRegistrationDetails?.filter(
+                (dose) => !dose.isCompleted
+              ) || [];
+
+            return (
+              <Col span={4} key={item.medicalRegistration.registrationId}>
+                <Card
+                  title={item.student.studentFullName}
+                  extra={
+                    isAllDoseCompleted(item) ? (
+                      <Tag color="green">Nurse Approved</Tag>
+                    ) : (
+                      <Tag color="orange">
+                        Not Yet
+                        {notCompletedDoses.length > 0 && (
+                          <span style={{marginLeft: 8}}>
+                            (
+                            {notCompletedDoses
+                              .map((dose) => `Dose ${dose.doseNumber}`)
+                              .join(", ")}
+                            )
+                          </span>
+                        )}
+                      </Tag>
+                    )
+                  }
+                  style={{
+                    minWidth: 300,
+                    borderRadius: 8,
+                    boxShadow: "0 0px 5px rgba(0, 0, 0, 0.1)",
+                    marginBottom: 16,
+                  }}
+                >
+                  <div>
+                    <p>
+                      <b>Medication:</b>{" "}
+                      {item.medicalRegistration.medicationName}
+                    </p>
+                    <p>
+                      <b>Total Dosages:</b>{" "}
+                      {item.medicalRegistration.totalDosages}
+                    </p>
+                    <p>
+                      <b>Date Submitted:</b>{" "}
+                      {item.medicalRegistration.dateSubmitted}
+                    </p>
+                    <p>
+                      <b>Parent Notes:</b> {item.medicalRegistration.notes}
+                    </p>
+                  </div>
+                  <div style={{display: "flex", gap: 8, marginTop: 16}}>
+                    <Button
+                      type="primary"
+                      style={{backgroundColor: "#355383"}}
+                      onClick={() => {
+                        navigate(
+                          `/nurse/medical-received/medical-received-detail`,
+                          {
+                            state: {
+                              registrationId:
+                                item.medicalRegistration.registrationId,
+                              studentId: item.student.studentId,
+                            },
+                          }
+                        );
+                      }}
+                    >
+                      Details
+                    </Button>
+                  </div>
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
       ))}
+
       <div style={{textAlign: "center", marginTop: 24}}>
         <Pagination
           current={pageIndex}
