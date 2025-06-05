@@ -43,8 +43,6 @@ npm run dev
 yarn dev
 ```
 
-> You may need to configure environment variables (e.g., `.env` file) to specify the backend API endpoint.
-
 ### Build for production
 ```bash
 npm run build
@@ -55,7 +53,6 @@ yarn build
 ## 📖 Usage
 After running `npm run dev`, open [http://localhost:5173](http://localhost:5173) in your browser.
 
-> Some features may require login credentials. Please contact the administrator to get an account if needed.
 
 ## 🤝 Contributing & Contact
 
