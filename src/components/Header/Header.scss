@@ -5,6 +5,7 @@
   --white-color: #ffffff;
   --wwhite-color-light: #fdfdfd;
   --black-color: #000000;
+  --gray-color: #ccc;
 
   --font-family: "Roboto", sans-serif;
 
@@ -112,16 +113,16 @@ hr {
   }
   &__login {
     background-color: var(--white-color);
-    color: var(--primary-color);
+    color: var(--black-color);
     padding: 10px 30px;
     font-size: var(--font-sm);
     font-family: var(--font-family);
     font-weight: 700;
     border-radius: 999px;
-    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0px 5px rgba(0, 0, 0, 0.1);
     &:hover {
       background-color: var(--wwhite-color-light);
-      color: var(--primary-color-light);
+      color: var(--gray-color);
     }
   }
   &__bottom {
@@ -146,4 +147,12 @@ hr {
   gap: 16px;
   max-width: 100%;
   margin-bottom: 0;
+}
+
+.notification-icon {
+  position: relative !important;
+}
+
+.notification-modal {
+  position: absolute !important;
 }

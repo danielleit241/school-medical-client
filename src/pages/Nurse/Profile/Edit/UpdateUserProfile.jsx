@@ -175,6 +175,7 @@ const UpdateUserProfile = () => {
         timer: 1500,
         showConfirmButton: false,
       });
+      window.location.reload();
       navigate("/nurse/profile");
     } catch (error) {
       setError(error);

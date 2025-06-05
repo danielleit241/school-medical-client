@@ -1,28 +1,16 @@
 import React, {useEffect, useState} from "react";
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import {useSelector} from "react-redux";
+import {useLocation} from "react-router-dom";
 import axiosInstance from "../../../api/axios";
 import {Badge} from "antd";
 import {BellOutlined} from "@ant-design/icons";
 
 const Notifications = () => {
   const userId = useSelector((state) => state.user?.userId);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const token = localStorage.getItem("accessToken");
-
-  // Lấy số lượng chưa đọc
-  const fetchUnread = async () => {
-    if (!userId) return;
-    try {
-      const res = await axiosInstance.get(
-        `/api/users/${userId}/notifications/unread`
-      );
-      setUnreadCount(res.data?.unreadCount ?? res.data ?? 0);
-    } catch {
-      setUnreadCount(0);
-    }
-  };
+  const location = useLocation();
 
   // Lấy danh sách notification (thêm pageIndex, pageSize)
   const fetchNotifications = async (pageIndex = 1, pageSize = 20) => {
@@ -34,36 +22,44 @@ const Notifications = () => {
           params: {pageIndex, pageSize},
         }
       );
-      console.log("Notifications:", res.data);
       setNotifications(Array.isArray(res.data.items) ? res.data.items : []);
     } catch {
       setNotifications([]);
     }
   };
 
-  // Đánh dấu tất cả đã đọc
-  const handleMarkAllAsRead = async () => {
+  // Đánh dấu đã đọc từng thông báo
+  const handleReadNotification = async (notificationId) => {
     try {
-      await axiosInstance.put(`/api/users/${userId}/notifications`);
+      const noti = notifications.find(
+        (item) =>
+          item.notificationResponseDto?.notificationId === notificationId
+      )?.notificationResponseDto;
+      if (!noti || noti.isRead) return;
+
+      await axiosInstance.put(`/api/users/${userId}/notifications`, {
+        notificationId,
+      });
       setNotifications((prev) =>
-        prev.map((item) => ({
-          ...item,
-          notificationResponseDto: {
-            ...item.notificationResponseDto,
-            isRead: true,
-          },
-        }))
+        prev.map((item) =>
+          item.notificationResponseDto?.notificationId === notificationId
+            ? {
+                ...item,
+                notificationResponseDto: {
+                  ...item.notificationResponseDto,
+                  isRead: true,
+                },
+              }
+            : item
+        )
       );
-      setUnreadCount(0);
-      fetchUnread();
     } catch (err) {
-      console.error("Failed to mark all as read:", err);
+      console.error("Failed:", err);
     }
   };
 
   useEffect(() => {
     if (!userId) return;
-    fetchUnread();
     fetchNotifications(1, 20);
     const connection = new HubConnectionBuilder()
       .withUrl("https://localhost:7009/notificationHub", {
@@ -77,7 +73,6 @@ const Notifications = () => {
       .start()
       .then(() => {
         connection.on("NotificationSignal", () => {
-          fetchUnread();
           fetchNotifications(1, 20);
         });
       })
@@ -86,53 +81,88 @@ const Notifications = () => {
     return () => {
       connection.stop();
     };
+    // Khi nhận state.reload từ navigate, sẽ reload lại danh sách
     // eslint-disable-next-line
-  }, [userId, token]);
+  }, [userId, token, location.state?.reload]);
   console.log("notifications state:", notifications);
 
   return (
-    <div>
-      <Badge count={unreadCount}>
-        <BellOutlined
-          style={{fontSize: 32, color: "#1890ff", cursor: "pointer"}}
-          onClick={handleMarkAllAsRead}
-        />
-      </Badge>
-      <h1>({unreadCount} unread)</h1>
-      {/* Nếu vẫn muốn giữ danh sách thông báo, có thể để dưới đây */}
-      <ul>
+    <div
+      style={{
+        maxWidth: 1200,
+        margin: "40px auto",
+        background: "#fff",
+        borderRadius: 4,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        padding: 0,
+      }}
+    >
+      <div
+        style={{
+          padding: "18px 28px 0 28px",
+          borderBottom: "1px solid #e0e0e0",
+        }}
+      >
+        <div style={{fontWeight: 700, fontSize: 22, marginBottom: 8}}>
+          Notifications
+        </div>
+      </div>
+      <div
+        style={{
+          padding: "0 0 0 0",
+          maxHeight: 700, // hoặc giá trị bạn muốn
+          overflowY: "auto",
+        }}
+      >
         {notifications.length === 0 ? (
-          <li>No notifications.</li>
+          <div style={{textAlign: "center", color: "#888", marginTop: 40}}>
+            No notifications.
+          </div>
         ) : (
           notifications.map((item, idx) => {
             const noti = item.notificationResponseDto || {};
             const notificationId = noti.notificationId;
+            const isRead = noti.isRead;
+
             return (
-              <li
+              <div
                 key={notificationId || idx}
                 style={{
-                  marginBottom: 12,
-                  background: "#fff",
+                  display: "flex",
+                  flexDirection: "column",
+                  borderBottom: "1px solid #e0e0e0",
+                  background: isRead ? "#fff" : "#f6fafd",
+                  padding: "18px 28px",
+                  cursor: "pointer",
+                  transition: "background 0.2s",
+                }}
+                onClick={() => {
+                  if (notificationId) handleReadNotification(notificationId);
                 }}
               >
-                <div>
-                  <strong>{noti.title || "No title"}</strong>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    fontSize: 16,
+                    marginBottom: 4,
+                  }}
+                >
+                  {noti.title || "No title"}
                 </div>
-                <div>
-                  <b>Content:</b> {noti.content || "No content"}
+                <div
+                  style={{
+                    color: "#444",
+                    fontSize: 15,
+                    marginBottom: 2,
+                  }}
+                >
+                  {noti.content || ""}
                 </div>
-                <div>
-                  <small>
-                    {noti.sendDate
-                      ? new Date(noti.sendDate).toLocaleString()
-                      : ""}
-                  </small>
-                </div>
-              </li>
+              </div>
             );
           })
         )}
-      </ul>
+      </div>
     </div>
   );
 };

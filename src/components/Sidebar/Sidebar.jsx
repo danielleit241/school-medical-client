@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {useSelector, useDispatch} from "react-redux";
-import {Menu, Badge} from "antd";
+import {Menu, Badge, Avatar, Dropdown, Modal, Popover} from "antd";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {
   DashboardOutlined,
@@ -18,11 +18,16 @@ import {
   FileSearchOutlined,
   AppstoreAddOutlined,
   BellOutlined,
+  LogoutOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import axiosInstance from "../../api/axios";
 import {setUserInfo} from "../../redux/feature/userSlice";
+import LogoDefault from "../../assets/images/defaultlogo.svg";
+import Notification from "../../pages/Parent/Notification/Notification"; // Đường dẫn tới Notification.jsx
 import "./index.scss";
+import NotificationModal from "../Notification/NotificationModal";
 
 const Sidebar = () => {
   const role = useSelector((state) => state.user.role);
@@ -31,7 +36,26 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [user, setUser] = useState(null); // Thêm state user
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const notificationRef = useRef(null);
+  const avatarContainerRef = useRef(null);
   const token = localStorage.getItem("accessToken");
+
+  useEffect(() => {
+    // Lấy user profile
+    const fetchUserProfile = async () => {
+      if (!userId) return;
+      try {
+        const response = await axiosInstance.get(`/api/user-profile/${userId}`);
+        setUser(response.data);
+        // eslint-disable-next-line no-unused-vars
+      } catch (error) {
+        setUser(null);
+      }
+    };
+    fetchUserProfile();
+  }, [userId]);
 
   useEffect(() => {
     // Lấy số lượng chưa đọc
@@ -162,12 +186,6 @@ const Sidebar = () => {
           },
         ],
       },
-      {
-        label: "Profile",
-        key: "/admin/profile",
-        icon: <ProfileOutlined />,
-        link: "/admin/profile",
-      },
     ],
     manager: [
       {
@@ -245,12 +263,6 @@ const Sidebar = () => {
           },
         ],
       },
-      {
-        label: "Profile",
-        key: "/admin/profile",
-        icon: <ProfileOutlined />,
-        link: "/admin/profile",
-      },
     ],
     nurse: [
       {
@@ -326,12 +338,6 @@ const Sidebar = () => {
         key: "/nurse/notification",
         icon: <ProfileOutlined />,
         link: "/nurse/notification",
-      },
-      {
-        label: "Profile",
-        key: "/nurse/profile",
-        icon: <ProfileOutlined />,
-        link: "/nurse/profile",
       },
     ],
 
@@ -424,12 +430,6 @@ const Sidebar = () => {
         icon: <ProfileOutlined />,
         link: "/parent/notification",
       },
-      {
-        label: "Profile",
-        key: "/parent/profile",
-        icon: <ProfileOutlined />,
-        link: "/parent/profile",
-      },
     ],
   };
 
@@ -482,56 +482,162 @@ const Sidebar = () => {
     navigate("/login");
   };
 
-  // control bell notification
-  const handleBellClick = async () => {
+  // Hàm xử lý khi click vào Notification trong dropdown
+  const handleNotificationClick = async () => {
     try {
       await axiosInstance.put(`/api/users/${userId}/notifications`);
       setUnreadCount(0);
-    } catch (err) {console.log(err);}
-    // dien đến trang notification tương ứng với role
-    if (role === "parent") navigate("/parent/notification", { state: { reload: Date.now() } });
-    else if (role === "nurse") navigate("/nurse/notification", { state: { reload: Date.now() } });
-    else if (role === "admin") navigate("/admin/notification", { state: { reload: Date.now() } });
-    else if (role === "manager") navigate("/manager/notification", { state: { reload: Date.now() } });
+    } catch (err) {
+      console.log(err);
+    }
+    setIsNotificationModalOpen(true);
   };
 
-  return (
-    <div style={{width: 250, height: "100vh", background: "#fff"}}>
-      {/* Hiển thị Hello, role và Logout nếu là admin, manager, nurse */}
-      {(role === "admin" || role === "manager" || role === "nurse") && (
-        <div
+  // Đóng modal khi click ra ngoài
+  useEffect(() => {
+    if (!isNotificationModalOpen) return;
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target) &&
+        avatarContainerRef.current &&
+        !avatarContainerRef.current.contains(event.target)
+      ) {
+        setIsNotificationModalOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isNotificationModalOpen]);
+
+  // Dropdown menu cho avatar
+  const menu = (
+    <Menu>
+      <Menu.Item key="notification" onClick={handleNotificationClick}>
+        <span
           style={{
-            padding: "16px",
-            borderBottom: "1px solid #eee",
+            cursor: "pointer",
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <span style={{fontWeight: "bold"}}>Hello, {role}</span>
-              {/* Bell notification */}
+          <BellOutlined style={{color: "black", marginRight: 8}} />
+          Notification:{" "}
+          <span style={{color: "black", marginLeft: 4}}>{unreadCount}</span>
+        </span>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item
+        key="profile"
+        icon={<UserOutlined />}
+        onClick={() => navigate(`/${role}/profile`)}
+      >
+        User Profile
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item
+        key="logout"
+        icon={<LogoutOutlined />}
+        onClick={handleLogout}
+        danger
+      >
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
+
+  return (
+    <div style={{width: 250, height: "100vh", background: "#fff"}}>
+      {/* Hiển thị Hello, role, avatar, notification giống Header */}
+      {(role === "admin" || role === "manager" || role === "nurse") && (
+        <div
+          style={{
+            padding: "10px",
+            borderBottom: "1px solid #eee",
+            display: "flex",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            gap: 12,
+            position: "relative",
+          }}
+        >
           <div
+            ref={avatarContainerRef}
             style={{
               display: "flex",
-              justifyContent: "center",
+              position: "relative",
               alignItems: "center",
-              padding: "16px 0",
+              cursor: "pointer",
             }}
           >
-            <Badge count={unreadCount}>
-              <BellOutlined
-                style={{fontSize: 20, color: "#1890ff", cursor: "pointer"}}
-                onClick={handleBellClick}
-              />
-            </Badge>
+            <Dropdown overlay={menu} trigger={["click"]}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  position: "relative",
+                }}
+              >
+                <Badge
+                  count={unreadCount}
+                  size="small"
+                  offset={[-5, 5]}
+                  style={{backgroundColor: "red"}}
+                >
+                  <Avatar
+                    size={50}
+                    src={
+                      user && user.avatarUrl && user.avatarUrl.trim() !== ""
+                        ? user.avatarUrl
+                        : LogoDefault
+                    }
+                    style={{cursor: "pointer", border: "2px solid #eee"}}
+                  />
+                </Badge>
+                <DownOutlined
+                  style={{
+                    fontSize: 10,
+                    marginLeft: 6,
+                    color: "white",
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    backgroundColor: "rgba(34,34,34,0.3)",
+                    padding: 2,
+                    borderRadius: "50%",
+                  }}
+                />
+              </div>
+            </Dropdown>
+            {/* Modal notification nằm sát avatar */}
+            {isNotificationModalOpen && (
+              <div
+                ref={notificationRef}
+                className="notification-dropdown"
+                style={{
+                  position: "absolute",
+                  top: 60, // ngay dưới avatar
+                  left: 0,
+                  width: 350,
+                  background: "#fff",
+                  borderRadius: 10,
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+                  zIndex: 1000,
+                  padding: 0,
+                  transition: "opacity 0.3s, transform 0.3s",
+                  opacity: 1,
+                  transform: "translateY(0)",
+                }}
+              >
+                <NotificationModal />
+              </div>
+            )}
           </div>
-          <button onClick={handleLogout} className="logout">
-            Logout
-          </button>
+          <span style={{fontWeight: "500", fontSize: "16px"}}>
+            Hello, {role}
+          </span>
         </div>
       )}
-
-     
 
       <Menu
         mode="inline"

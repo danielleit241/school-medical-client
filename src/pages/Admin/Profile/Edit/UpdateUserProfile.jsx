@@ -175,6 +175,7 @@ const UpdateUserProfile = () => {
         timer: 1500,
         showConfirmButton: false,
       });
+      window.location.reload();
       navigate("/admin/profile");
     } catch (error) {
       setError(error);
