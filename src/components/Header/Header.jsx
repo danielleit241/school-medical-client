@@ -27,6 +27,7 @@ const Header = () => {
   const userId = useSelector((state) => state.user.userId);
   const [user, setUser] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const unreadCountRef = useRef(0);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const notificationRef = useRef(null);
 
@@ -49,15 +50,18 @@ const Header = () => {
 
   useEffect(() => {
     // Lấy số lượng chưa đọc
-    const fetchUnread = async () => {
+      const fetchUnread = async () => {
       if (!userId) return;
       try {
         const res = await axiosInstance.get(
           `/api/users/${userId}/notifications/unread`
         );
-        setUnreadCount(res.data?.unreadCount ?? res.data ?? 0);
+        const newCount = res.data?.unreadCount ?? res.data ?? 0;
+        setUnreadCount(newCount);
+        unreadCountRef.current = newCount; // Cập nhật ref
       } catch {
         setUnreadCount(0);
+        unreadCountRef.current = 0;
       }
     };
     fetchUnread();
@@ -75,7 +79,12 @@ const Header = () => {
       .start()
       .then(() => {
         connection.on("NotificationSignal", () => {
+          const prevCount = unreadCountRef.current;
           fetchUnread();
+          if (unreadCountRef.current > prevCount) {
+            const audio = new Audio("/ting.mp3");
+            audio.play();
+          }
         });
       })
       .catch((err) => console.error("Error while starting connection: ", err));

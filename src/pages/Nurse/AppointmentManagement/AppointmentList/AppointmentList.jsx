@@ -154,7 +154,7 @@ const AppointmentList = () => {
                           Confirm
                         </Button>
                       )}
-                      {item.confirmationStatus && !item.completionStatus && (
+                      {step === 2 && item.confirmationStatus && !item.completionStatus && (
                         <Button
                           type="primary"
                           size="small"

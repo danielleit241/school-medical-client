@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useRef} from "react";
 import {useSelector, useDispatch} from "react-redux";
-import {Menu, Badge, Avatar, Dropdown, Modal, Popover} from "antd";
+import {Menu, Badge, Avatar, Dropdown} from "antd";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {
   DashboardOutlined,
@@ -25,7 +25,6 @@ import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import axiosInstance from "../../api/axios";
 import {setUserInfo} from "../../redux/feature/userSlice";
 import LogoDefault from "../../assets/images/defaultlogo.svg";
-import Notification from "../../pages/Parent/Notification/Notification"; // Đường dẫn tới Notification.jsx
 import "./index.scss";
 import NotificationModal from "../Notification/NotificationModal";
 
@@ -36,7 +35,8 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [user, setUser] = useState(null); // Thêm state user
+  const unreadCountRef = useRef(0); // Để kiểm tra số lượng chưa đọc trước đó
+  const [user, setUser] = useState(null);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const notificationRef = useRef(null);
   const avatarContainerRef = useRef(null);
@@ -49,8 +49,8 @@ const Sidebar = () => {
       try {
         const response = await axiosInstance.get(`/api/user-profile/${userId}`);
         setUser(response.data);
-        // eslint-disable-next-line no-unused-vars
       } catch (error) {
+        console.error("Error fetching user profile:", error);
         setUser(null);
       }
     };
@@ -65,9 +65,12 @@ const Sidebar = () => {
         const res = await axiosInstance.get(
           `/api/users/${userId}/notifications/unread`
         );
-        setUnreadCount(res.data?.unreadCount ?? res.data ?? 0);
+        const newCount = res.data?.unreadCount ?? res.data ?? 0;
+        setUnreadCount(newCount);
+        unreadCountRef.current = newCount;
       } catch {
         setUnreadCount(0);
+        unreadCountRef.current = 0;
       }
     };
     fetchUnread();
@@ -84,8 +87,14 @@ const Sidebar = () => {
     connection
       .start()
       .then(() => {
-        connection.on("NotificationSignal", () => {
-          fetchUnread();
+        connection.on("NotificationSignal", async () => {
+          const prevCount = unreadCountRef.current;
+          await fetchUnread();
+          // Chỉ phát âm thanh khi có thông báo mới (số lượng chưa đọc tăng lên)
+          if (unreadCountRef.current > prevCount) {
+            const audio = new Audio("/ting.mp3");
+            audio.play();
+          }
         });
       })
       .catch((err) => console.error("Error while starting connection: ", err));
@@ -333,12 +342,6 @@ const Sidebar = () => {
         icon: <MedicineBoxOutlined />,
         link: "/nurse/medical-received/medical-received-list",
       },
-      {
-        label: "Notification",
-        key: "/nurse/notification",
-        icon: <ProfileOutlined />,
-        link: "/nurse/notification",
-      },
     ],
 
     parent: [
@@ -424,12 +427,6 @@ const Sidebar = () => {
           },
         ],
       },
-      {
-        label: "Notification",
-        key: "/parent/notification",
-        icon: <ProfileOutlined />,
-        link: "/parent/notification",
-      },
     ],
   };
 
@@ -487,6 +484,7 @@ const Sidebar = () => {
     try {
       await axiosInstance.put(`/api/users/${userId}/notifications`);
       setUnreadCount(0);
+      unreadCountRef.current = 0;
     } catch (err) {
       console.log(err);
     }

@@ -83,7 +83,13 @@ const NotificationModal = ({ visible = true }) => {
           </Button>
         </div>
       </div>
-      <div style={{maxHeight: 600, padding: "8px 0"}}>
+      <div
+        style={{
+          maxHeight: 600,
+          padding: "8px 0",
+          overflowY: "auto", // Thêm dòng này để hiện thanh cuộn dọc
+        }}
+      >
         <List
           loading={loading}
           locale={{emptyText: "No notifications."}}
@@ -91,6 +97,26 @@ const NotificationModal = ({ visible = true }) => {
           renderItem={(item) => {
             const noti = item.notificationResponseDto || {};
             const isRead = noti.isRead;
+
+            // Hàm xử lý điều hướng khi click vào thông báo
+            const handleNotificationClick = () => {
+              if (noti.title === "Appointment Confirmation" && role === "parent") {
+                navigate("/parent/appointment-history");
+                window.location.reload();
+              } else if(noti.title === "Medical Event Notification" && role === "parent"){
+                navigate("/parent/medical-event/children-list");
+                window.location.reload();
+              } else if(noti.title === "Medical Registration Approved" || noti.title === "Medication Dose Completed" && role === "parent"){
+                navigate("/parent/medical-registration/list");
+                window.location.reload();
+
+              }else if (noti.title === "New Appointment Notification" && role === "nurse") {
+                navigate("/nurse/appointment-management/appointment-list");
+                window.location.reload();
+              }
+
+            };
+
             return (
               <List.Item
                 key={noti.notificationId}
@@ -100,9 +126,10 @@ const NotificationModal = ({ visible = true }) => {
                     ? "4px solid transparent"
                     : "4px solid #1890ff",
                   padding: "12px 20px",
-                  cursor: "pointer",
+                  cursor: "pointer", // Luôn có pointer khi hover
                   transition: "background 0.2s",
                 }}
+                onClick={handleNotificationClick}
               >
                 <List.Item.Meta
                   avatar={
