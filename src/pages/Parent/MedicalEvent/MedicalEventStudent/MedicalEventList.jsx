@@ -3,13 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import axiosInstance from "../../../../api/axios";
 import { setListStudentParent } from "../../../../redux/feature/listStudentParent";
 import { Card, Button, Row, Col, Pagination, Spin, Descriptions, Tag, Divider, List } from "antd";
-import { useLocation } from "react-router-dom";
+
+
 const MedicalEventList = () => {
-  const location = useLocation();
   const dispatch = useDispatch();
   const parentId = useSelector((state) => state.user?.userId);
-  const eventId = localStorage.getItem("notificationTypeId") || location.state?.eventId;
-  console.log(eventId);
 
   // Step control
   const [step, setStep] = useState(1);
@@ -26,12 +24,11 @@ const MedicalEventList = () => {
   const [loadingEvents, setLoadingEvents] = useState(false);
 
   // Step 3: Medical event detail
-
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const [eventDetail, setEventDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  // Step 1: Fetch students (giữ nguyên code của bạn)
+  // Step 1: Fetch students
   useEffect(() => {
     if (step !== 1) return;
     const fetchApi = async () => {
@@ -74,16 +71,16 @@ const MedicalEventList = () => {
 
   // Step 3: Fetch medical event detail
   useEffect(() => {
-    if (step !== 3 || !selectedEvent) return;
+    if (step !== 3 || !selectedEventId) return;
     setLoadingDetail(true);
     axiosInstance
-      .get(`/api/parents/students/medical-events/${eventId}`)
+      .get(`/api/parents/students/medical-events/${selectedEventId}`)
       .then((res) => setEventDetail(res.data))
       .catch(() => setEventDetail(null))
       .finally(() => setLoadingDetail(false));
-  }, [step, selectedEvent,eventId]);
+  }, [step, selectedEventId]);
 
-  // Step 1: Student list (giữ nguyên code của bạn, chỉ thêm nút View)
+  // Step 1: Student list
   if (step === 1) {
     return (
       <div
@@ -169,7 +166,7 @@ const MedicalEventList = () => {
                   md={8}
                   lg={6}
                   xl={5}
-                  key={event.medicalEvent.medicalEventId}
+                  key={event.medicalEvent.eventId}
                   style={{ display: "flex" }}
                 >
                   <Card
@@ -217,7 +214,7 @@ const MedicalEventList = () => {
                         type="primary"
                         style={{ backgroundColor: "#355383" }}
                         onClick={() => {
-                          setSelectedEvent(event);
+                          setSelectedEventId(event.medicalEvent.eventId);
                           setStep(3);
                         }}
                       >
@@ -287,56 +284,56 @@ const MedicalEventList = () => {
             marginBottom: 16,
           }}
         >
-           <Descriptions column={1} labelStyle={{width: 400}} bordered>
-          <Descriptions.Item label="Student Code">
-            {studentInfo?.studentCode || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Full Name">
-            {studentInfo?.fullName || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Event Date">
-            {medicalEvent?.eventDate || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Event Type">
-            {medicalEvent?.eventType || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Description">
-            {medicalEvent?.eventDescription || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Location">
-            {medicalEvent?.location || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Severity Level">
-            {medicalEvent?.severityLevel || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Notes">
-            {medicalEvent?.notes || ""}
-          </Descriptions.Item>
-        </Descriptions>
+          <Descriptions column={1} labelStyle={{ width: 400 }} bordered>
+            <Descriptions.Item label="Student Code">
+              {studentInfo?.studentCode || ""}
+            </Descriptions.Item>
+            <Descriptions.Item label="Full Name">
+              {studentInfo?.fullName || ""}
+            </Descriptions.Item>
+            <Descriptions.Item label="Event Date">
+              {medicalEvent?.eventDate || ""}
+            </Descriptions.Item>
+            <Descriptions.Item label="Event Type">
+              {medicalEvent?.eventType || ""}
+            </Descriptions.Item>
+            <Descriptions.Item label="Description">
+              {medicalEvent?.eventDescription || ""}
+            </Descriptions.Item>
+            <Descriptions.Item label="Location">
+              {medicalEvent?.location || ""}
+            </Descriptions.Item>
+            <Descriptions.Item label="Severity Level">
+              {medicalEvent?.severityLevel || ""}
+            </Descriptions.Item>
+            <Descriptions.Item label="Notes">
+              {medicalEvent?.notes || ""}
+            </Descriptions.Item>
+          </Descriptions>
 
-        <Divider orientation="left" style={{marginTop: 32}}>
-          Medical Requests
-        </Divider>
-        <List
-          dataSource={medicalRequests}
-          bordered
-          locale={{ emptyText: "No medical requests" }}
-          renderItem={(item) => (
-            <List.Item>
-              <Descriptions column={3} size="small">
-                <Descriptions.Item label="Item Id">
-                  {item.itemId}
-                </Descriptions.Item>
-                <Descriptions.Item label="Drug Name">
-                  {item.itemName}
-                </Descriptions.Item>
-                <Descriptions.Item label="Quantity">
-                  {item.requestQuantity}
-                </Descriptions.Item>
-              </Descriptions>
-            </List.Item>
-          )}
-        />
+          <Divider orientation="left" style={{ marginTop: 32 }}>
+            Medical Requests
+          </Divider>
+          <List
+            dataSource={medicalRequests}
+            bordered
+            locale={{ emptyText: "No medical requests" }}
+            renderItem={(item) => (
+              <List.Item>
+                <Descriptions column={3} size="small">
+                  <Descriptions.Item label="Item Id">
+                    {item.itemId}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Drug Name">
+                    {item.itemName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Quantity">
+                    {item.requestQuantity}
+                  </Descriptions.Item>
+                </Descriptions>
+              </List.Item>
+            )}
+          />
 
           <div style={{ display: "flex", gap: 20, marginTop: 24 }}>
             <Button type="default" onClick={() => setStep(2)}>

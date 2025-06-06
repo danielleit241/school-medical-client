@@ -1,91 +1,53 @@
 import React, {useEffect, useState} from "react";
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import {useSelector} from "react-redux";
-import {useLocation} from "react-router-dom";
 import axiosInstance from "../../../api/axios";
-import {Badge} from "antd";
-import {BellOutlined} from "@ant-design/icons";
+import {Button, Modal} from "antd";
+import { useNavigate } from "react-router-dom";
 
 const Notifications = () => {
   const userId = useSelector((state) => state.user?.userId);
   const [notifications, setNotifications] = useState([]);
-  const token = localStorage.getItem("accessToken");
-  const location = useLocation();
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [hoveredId, setHoveredId] = useState(null);
+  const navigate = useNavigate();
 
-  // Lấy danh sách notification (thêm pageIndex, pageSize)
-  const fetchNotifications = async (pageIndex = 1, pageSize = 20) => {
-    if (!userId) return;
+  // Lấy chi tiết notification
+  const fetchNotificationDetail = async (notificationId) => {
+    setLoadingDetail(true);
+    try {
+      const res = await axiosInstance.get(`/api/notifications/${notificationId}`);
+      setSelectedNotification(res.data);
+      setShowDetailModal(true);
+    } catch {
+      setSelectedNotification(null);
+      setShowDetailModal(false);
+    }
+    setLoadingDetail(false);
+  };
+
+ useEffect(() => {
+  if (!userId) return;
+
+  (async (pageIndex = 1, pageSize = 20) => {
     try {
       const res = await axiosInstance.get(
         `/api/users/${userId}/notifications`,
         {
-          params: {pageIndex, pageSize},
+          params: { pageIndex, pageSize },
         }
       );
       setNotifications(Array.isArray(res.data.items) ? res.data.items : []);
     } catch {
       setNotifications([]);
     }
-  };
+  })();
+}, [userId]);
+ 
 
-  // Đánh dấu đã đọc từng thông báo
-  const handleReadNotification = async (notificationId) => {
-    try {
-      const noti = notifications.find(
-        (item) =>
-          item.notificationResponseDto?.notificationId === notificationId
-      )?.notificationResponseDto;
-      if (!noti || noti.isRead) return;
-
-      await axiosInstance.put(`/api/users/${userId}/notifications`, {
-        notificationId,
-      });
-      setNotifications((prev) =>
-        prev.map((item) =>
-          item.notificationResponseDto?.notificationId === notificationId
-            ? {
-                ...item,
-                notificationResponseDto: {
-                  ...item.notificationResponseDto,
-                  isRead: true,
-                },
-              }
-            : item
-        )
-      );
-    } catch (err) {
-      console.error("Failed:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (!userId) return;
-    fetchNotifications(1, 20);
-    const connection = new HubConnectionBuilder()
-      .withUrl("https://localhost:7009/notificationHub", {
-        accessTokenFactory: () => token,
-      })
-      .configureLogging(LogLevel.Information)
-      .withAutomaticReconnect()
-      .build();
-
-    connection
-      .start()
-      .then(() => {
-        connection.on("NotificationSignal", () => {
-          fetchNotifications(1, 20);
-        });
-      })
-      .catch((err) => console.error("Error while starting connection: ", err));
-
-    return () => {
-      connection.stop();
-    };
-    // Khi nhận state.reload từ navigate, sẽ reload lại danh sách
-    // eslint-disable-next-line
-  }, [userId, token, location.state?.reload]);
-  console.log("notifications state:", notifications);
-
+  // STEP 1: Danh sách thông báo
   return (
     <div
       style={{
@@ -110,7 +72,7 @@ const Notifications = () => {
       <div
         style={{
           padding: "0 0 0 0",
-          maxHeight: 700, // hoặc giá trị bạn muốn
+          maxHeight: 700,
           overflowY: "auto",
         }}
       >
@@ -123,6 +85,18 @@ const Notifications = () => {
             const noti = item.notificationResponseDto || {};
             const notificationId = noti.notificationId;
             const isRead = noti.isRead;
+            const isHovered = hoveredId === notificationId;
+             // Hàm xử lý điều hướng khi click vào thông báo
+            const handleNotificationClick = () => {
+              if (noti.title === "Medical Event Notification" ) {
+                navigate("/parent/medical-event/children-list");
+                window.location.reload();
+              } else if (noti.title === "Appointment Confirmation") {
+                navigate("/parent/appointment-history");
+                window.location.reload();
+              }
+            // Có thể thêm các điều kiện khác nếu cần
+          };
 
             return (
               <div
@@ -131,14 +105,18 @@ const Notifications = () => {
                   display: "flex",
                   flexDirection: "column",
                   borderBottom: "1px solid #e0e0e0",
-                  background: isRead ? "#fff" : "#f6fafd",
+                  background: isHovered
+                    ? "#e6f7ff"
+                    : isRead
+                    ? "#fff"
+                    : "#f6fafd",
                   padding: "18px 28px",
                   cursor: "pointer",
                   transition: "background 0.2s",
                 }}
-                onClick={() => {
-                  if (notificationId) handleReadNotification(notificationId);
-                }}
+                onMouseEnter={() => setHoveredId(notificationId)}
+                onMouseLeave={() => setHoveredId(null)}
+                
               >
                 <div
                   style={{
@@ -158,11 +136,78 @@ const Notifications = () => {
                 >
                   {noti.content || ""}
                 </div>
+                <div style={{marginTop: 8}}>
+                  <Button
+                    size="small"
+                    type="primary"
+                    onClick={async () => {
+                     
+                      await fetchNotificationDetail(notificationId);
+                    }}
+                  >
+                    Details
+                  </Button> 
+
+                  <Button
+                    style={{marginLeft: 8}}
+                    size="small"
+                    type="primary"
+                    onClick={() => {
+                      handleNotificationClick();
+                    }}
+                  >
+                    View
+                  </Button>             
+                </div>
               </div>
             );
           })
         )}
       </div>
+      <Modal
+        open={showDetailModal}
+        onCancel={() => setShowDetailModal(false)}
+        footer={null}
+        centered
+        destroyOnClose
+        title="Notification Detail"
+        bodyStyle={{padding: 24, paddingTop: 8, minHeight: 180}}
+        transitionName="ant-zoom"
+        maskTransitionName="ant-fade"
+      >
+        {loadingDetail ? (
+          <div>Loading...</div>
+        ) : !selectedNotification ? (
+          <div style={{color: "#888"}}>No notification detail.</div>
+        ) : (
+          (() => {
+            const noti = selectedNotification.notificationResponseDto || {};
+            const sender = selectedNotification.senderInformationDto || {};
+            const receiver = selectedNotification.receiverInformationDto || {};
+            return (
+              <div>
+                <div style={{fontWeight: 700, fontSize: 22, marginBottom: 12}}>
+                  {noti.title || "No title"}
+                </div>
+                <div style={{marginBottom: 8}}>
+                  <b>Sender:</b> {sender.userName || "Unknown"}
+                </div>
+                <div style={{marginBottom: 8}}>
+                  <b>Receiver:</b> {receiver.userName || "Unknown"}
+                </div>
+                <div style={{color: "#444", fontSize: 16, marginBottom: 12}}>
+                  {noti.content || ""}
+                </div>
+                <div style={{marginTop: 24, textAlign: "right"}}>
+                  <Button onClick={() => setShowDetailModal(false)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            );
+          })()
+        )}
+      </Modal>
     </div>
   );
 };
