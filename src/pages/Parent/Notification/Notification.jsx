@@ -91,7 +91,7 @@ const Notifications = () => {
               if (noti.title === "Medical Event Notification" ) {
                 navigate("/parent/medical-event/children-list");
                 window.location.reload();
-              } else if (noti.title === "Appointment Confirmation") {
+              } else if (noti.title === "Appointment Confirmation" || noti.title === "Appointment Completion") {
                 navigate("/parent/appointment-history");
                 window.location.reload();
               }

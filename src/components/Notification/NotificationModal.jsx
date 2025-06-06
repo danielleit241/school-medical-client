@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {List, Avatar, Badge, Button, Tooltip} from "antd";
-import {BellOutlined, CheckCircleTwoTone} from "@ant-design/icons";
+import {List, Avatar, Button} from "antd";
+import {BellOutlined} from "@ant-design/icons";
 import axiosInstance from "../../api/axios";
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
@@ -13,10 +13,11 @@ const NotificationModal = ({ visible = true }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
+  const [hoveredId, setHoveredId] = useState(null); // Sử dụng hoveredId thay vì hovered
 
   useEffect(() => {
     if (visible) {
-      setTimeout(() => setShow(true), 10); // delay nhỏ để kích hoạt transition
+      setTimeout(() => setShow(true), 10);
     } else {
       setShow(false);
     }
@@ -87,7 +88,7 @@ const NotificationModal = ({ visible = true }) => {
         style={{
           maxHeight: 600,
           padding: "8px 0",
-          overflowY: "auto", // Thêm dòng này để hiện thanh cuộn dọc
+          overflowY: "auto",
         }}
       >
         <List
@@ -97,38 +98,51 @@ const NotificationModal = ({ visible = true }) => {
           renderItem={(item) => {
             const noti = item.notificationResponseDto || {};
             const isRead = noti.isRead;
+            const isHovered = hoveredId === noti.notificationId;
 
             // Hàm xử lý điều hướng khi click vào thông báo
             const handleNotificationClick = () => {
-              if (noti.title === "Appointment Confirmation" && role === "parent") {
+              if (
+                (noti.title === "Appointment Confirmation" ||
+                  noti.title === "Appointment Completion") &&
+                role === "parent"
+              ) {
                 navigate("/parent/appointment-history");
                 window.location.reload();
-              } else if(noti.title === "Medical Event Notification" && role === "parent"){
+              } else if (noti.title === "Medical Event Notification" && role === "parent") {
                 navigate("/parent/medical-event/children-list");
                 window.location.reload();
-              } else if(noti.title === "Medical Registration Approved" || noti.title === "Medication Dose Completed" && role === "parent"){
+              } else if (
+                (noti.title === "Medical Registration Approved" ||
+                  noti.title === "Medication Dose Completed") &&
+                role === "parent"
+              ) {
                 navigate("/parent/medical-registration/list");
                 window.location.reload();
-
-              }else if (noti.title === "New Appointment Notification" && role === "nurse") {
+              } else if (noti.title === "New Appointment Notification" && role === "nurse") {
                 navigate("/nurse/appointment-management/appointment-list");
                 window.location.reload();
               }
-
             };
 
             return (
               <List.Item
                 key={noti.notificationId}
                 style={{
-                  background: isRead ? "#fff" : "#f6f8fa",
+                  background: isHovered
+                    ? "#e6f7ff"
+                    : isRead
+                    ? "#fff"
+                    : "#f6f8fa",
                   borderLeft: isRead
                     ? "4px solid transparent"
                     : "4px solid #1890ff",
                   padding: "12px 20px",
-                  cursor: "pointer", // Luôn có pointer khi hover
+                  cursor: "pointer",
                   transition: "background 0.2s",
                 }}
+                onMouseEnter={() => setHoveredId(noti.notificationId)}
+                onMouseLeave={() => setHoveredId(null)}
                 onClick={handleNotificationClick}
               >
                 <List.Item.Meta

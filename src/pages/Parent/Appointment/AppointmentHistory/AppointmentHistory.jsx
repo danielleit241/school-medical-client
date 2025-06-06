@@ -56,7 +56,7 @@ const AppointmentHistory = () => {
  
 
   const getStatus = (item) => {
-    if (item.completionStatus) return {text: "Done", color: "blue"};
+    if (item.completionStatus) return {text: "Completed", color: "blue"};
     if (item.confirmationStatus) return {text: "Confirmed", color: "green"};
     return {text: "Pending", color: "orange"};
   };
@@ -73,19 +73,19 @@ const AppointmentHistory = () => {
         );
         if (filtered.length === 0) {
           filtered = appointments.filter(
-            (item) => getStatus(item).text === "Done"
+            (item) => getStatus(item).text === "Completed"
           );
           if (filtered.length === 0) return [];
-          setFilterStatus("Done");
+          setFilterStatus("Completed");
         } else {
           setFilterStatus("Confirmed");
         }
       } else if (filterStatus === "Confirmed") {
         filtered = appointments.filter(
-          (item) => getStatus(item).text === "Done"
+          (item) => getStatus(item).text === "Completed"
         );
         if (filtered.length === 0) return [];
-        setFilterStatus("Done");
+        setFilterStatus("Completed");
       }
     }
     return filtered;
@@ -131,7 +131,7 @@ const AppointmentHistory = () => {
             >
               <Option value="Pending">Pending</Option>
               <Option value="Confirmed">Confirmed</Option>
-              <Option value="Done">Done</Option>
+              <Option value="Completed">Completed</Option>
             </Select>
           </div>
           {loading ? (
