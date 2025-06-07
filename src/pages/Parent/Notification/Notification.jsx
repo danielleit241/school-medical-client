@@ -12,7 +12,15 @@ const Notifications = () => {
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
+ 
   const navigate = useNavigate();
+
+  // Thêm state để cập nhật lại mỗi phút
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Lấy chi tiết notification
   const fetchNotificationDetail = async (notificationId) => {
@@ -45,6 +53,7 @@ const Notifications = () => {
     }
   })();
 }, [userId]);
+
  
 
   // STEP 1: Danh sách thông báo
@@ -86,13 +95,31 @@ const Notifications = () => {
             const notificationId = noti.notificationId;
             const isRead = noti.isRead;
             const isHovered = hoveredId === notificationId;
-             // Hàm xử lý điều hướng khi click vào thông báo
+
+            // Lấy thời gian gửi (cộng 7 tiếng)
+            const sendDate = noti.sendDate ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000) : null;
+            let timeLabel = "";
+            if (sendDate) {
+              const diffMs = now - sendDate.getTime();
+              const diffMin = Math.floor(diffMs / 60000);
+              if (diffMin <= 3) {
+                timeLabel = "now";
+              } else if (diffMin < 60) {
+                timeLabel = `${diffMin} minutes ago`;
+              } else {
+                const diffHour = Math.floor(diffMin / 60);
+                if (diffHour < 24) {
+                  timeLabel = `${diffHour} hours ago`;
+                } else {
+                  timeLabel = sendDate.toLocaleString();
+                }
+              }
+            }
+
+            // Hàm xử lý điều hướng khi click vào thông báo
             const handleNotificationClick = () => {
-              if (noti.title === "Medical Event Notification" ) {
-                navigate("/parent/medical-event/children-list");
-                window.location.reload();
-              } else if (noti.title === "Appointment Confirmation" || noti.title === "Appointment Completion") {
-                navigate("/parent/appointment-history");
+              if (noti.title === "New Appointment Notification" ) {
+                navigate("/nurse/appointment-management/appointment-list");
                 window.location.reload();
               }
             // Có thể thêm các điều kiện khác nếu cần
@@ -136,12 +163,20 @@ const Notifications = () => {
                 >
                   {noti.content || ""}
                 </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#888",
+                    marginTop: 2,
+                  }}
+                >
+                  {timeLabel}
+                </div>
                 <div style={{marginTop: 8}}>
                   <Button
                     size="small"
                     type="primary"
-                    onClick={async () => {
-                     
+                    onClick={async () => {                   
                       await fetchNotificationDetail(notificationId);
                     }}
                   >
@@ -186,17 +221,43 @@ const Notifications = () => {
             const receiver = selectedNotification.receiverInformationDto || {};
             return (
               <div>
-                <div style={{fontWeight: 700, fontSize: 22, marginBottom: 12}}>
+                <div 
+                style={{fontWeight: 700, 
+                fontSize: 22, 
+                marginBottom: 12
+                }}
+                >
                   {noti.title || "No title"}
                 </div>
-                <div style={{marginBottom: 8}}>
+                <div 
+                style={{marginBottom: 8
+                  }}
+                >
                   <b>Sender:</b> {sender.userName || "Unknown"}
                 </div>
-                <div style={{marginBottom: 8}}>
+                <div style=
+                {{marginBottom: 8
+                  }}
+                >
                   <b>Receiver:</b> {receiver.userName || "Unknown"}
                 </div>
-                <div style={{color: "#444", fontSize: 16, marginBottom: 12}}>
+                <div 
+                style={{color: "#444", 
+                fontSize: 16, 
+                marginBottom: 12
+                }}
+                >
                   {noti.content || ""}
+                </div>
+                <div 
+                style={{fontSize: 12, 
+                color: "#888", 
+                marginTop: 2
+                }}
+                >
+                  {noti.sendDate
+                  ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000).toLocaleString()
+                  : ""}
                 </div>
                 <div style={{marginTop: 24, textAlign: "right"}}>
                   <Button onClick={() => setShowDetailModal(false)}>
