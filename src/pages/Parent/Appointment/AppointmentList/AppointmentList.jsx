@@ -26,6 +26,8 @@ const AppointmentList = () => {
     const [appointmentReason, setAppointmentReason] = useState('');
     const [success, setSuccess] = useState('');
     const [bookedSlots, setBookedSlots] = useState([]);
+    const [showList, setShowList] = useState(false);
+    const [dotIndex, setDotIndex] = useState(0);
 
     const userId = useSelector((state) => state.user?.userId);
     const parentId = localStorage.getItem('parentId') || userId;
@@ -232,6 +234,28 @@ const AppointmentList = () => {
         );
     };
 
+    // Hiện hiệu ứng 3 dấu chấm lần lượt trong 2s rồi show list
+    useEffect(() => {
+        setShowList(false);
+        setDotIndex(0);
+        let interval = null;
+        let timeout = null;
+
+        interval = setInterval(() => {
+            setDotIndex(prev => (prev + 1) % 3);
+        }, 200); // đổi dấu chấm mỗi 0.2s
+
+        timeout = setTimeout(() => {
+            setShowList(true);
+            clearInterval(interval);
+        }, 300); // tổng thời gian loading 0.3s
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
+    }, []); // chỉ chạy 1 lần khi mount
+
     return (
         <div style={{ padding: 24 }}>
             <Card
@@ -259,15 +283,32 @@ const AppointmentList = () => {
                 {step === 1 && (
                     <>
                         <h3 style={{ marginBottom: 16 }}>Nurses List</h3>
-                        {nurse === null || nurse === undefined ? (
-                            <div style={{ background: "#fff", borderRadius: 12, padding: 32 }}>
-                                <Spin />
+                        {!showList ? (
+                            <div style={{
+                                    background: "#fff",
+                                    borderRadius: 12,
+                                    padding: 32,
+                                    textAlign: "center",
+                                    fontSize: 30, // tăng kích thước
+                                    letterSpacing: 8,
+                                    height: 120,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: 900, // đậm hơn
+                                    color: "#222", // màu đậm hơn
+                                }}>
+                                <span>
+                                    <span style={{ opacity: dotIndex === 0 ? 1 : 0.3 }}>.</span>
+                                    <span style={{ opacity: dotIndex === 1 ? 1 : 0.3 }}>.</span>
+                                    <span style={{ opacity: dotIndex === 2 ? 1 : 0.3 }}>.</span>
+                                </span>
                             </div>
-                        ) : nurse.length === 0 ? (
+                            ) : nurse.length === 0 ? (
                             <div style={{ background: "#fff", borderRadius: 12, padding: 32 }}>
                                 <Empty description="No Nurse found" />
                             </div>
-                        ) : (
+                            ) : (
                             <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                                 {nurse.map((n) => (
                                     <div

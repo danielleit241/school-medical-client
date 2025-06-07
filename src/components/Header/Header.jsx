@@ -17,7 +17,6 @@ import {
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import axiosInstance from "../../api/axios";
 import LogoDefault from "../../assets/images/defaultlogo.svg";
-import Notification from "../../pages/Parent/Notification/Notification"; // Đảm bảo đúng đường dẫn
 import NotificationModal from "../Notification/NotificationModal";
 
 const Header = () => {

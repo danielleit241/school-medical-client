@@ -85,7 +85,7 @@ const AppointmentList = () => {
   };
 
   const getStatus = (item) => {
-    if (item.completionStatus) return { text: "Done", color: "blue" };
+    if (item.completionStatus) return { text: "Completed", color: "blue" };
     if (item.confirmationStatus) return { text: "Confirmed", color: "green" };
     return { text: "Pending", color: "orange" };
   };

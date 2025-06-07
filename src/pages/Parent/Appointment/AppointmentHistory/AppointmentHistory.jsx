@@ -19,7 +19,8 @@ const {Option} = Select;
 const AppointmentHistory = () => {
   const userId = useSelector((state) => state.user?.userId);
   const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [showList, setShowList] = useState(false);
+  const [dotIndex, setDotIndex] = useState(0);
  
   const [filterStatus, setFilterStatus] = useState("Pending");
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const AppointmentHistory = () => {
   useEffect(() => {
     if ( !userId) return;
     const fetchAppointments = async () => {
-      setLoading(true);
+      setShowList(true);
       try {
         const response = await axiosInstance.get(
           `/api/parents/${userId}/appointments`,
@@ -47,7 +48,7 @@ const AppointmentHistory = () => {
         console.error("Error fetching appointments:", error);
         setAppointments([]);
       } finally {
-        setLoading(false);
+        setShowList(false);
       }
     };
     fetchAppointments();
@@ -56,7 +57,7 @@ const AppointmentHistory = () => {
  
 
   const getStatus = (item) => {
-    if (item.completionStatus) return {text: "Done", color: "blue"};
+    if (item.completionStatus) return {text: "Completed", color: "blue"};
     if (item.confirmationStatus) return {text: "Confirmed", color: "green"};
     return {text: "Pending", color: "orange"};
   };
@@ -73,23 +74,45 @@ const AppointmentHistory = () => {
         );
         if (filtered.length === 0) {
           filtered = appointments.filter(
-            (item) => getStatus(item).text === "Done"
+            (item) => getStatus(item).text === "Completed"
           );
           if (filtered.length === 0) return [];
-          setFilterStatus("Done");
+          setFilterStatus("Completed");
         } else {
           setFilterStatus("Confirmed");
         }
       } else if (filterStatus === "Confirmed") {
         filtered = appointments.filter(
-          (item) => getStatus(item).text === "Done"
+          (item) => getStatus(item).text === "Completed"
         );
         if (filtered.length === 0) return [];
-        setFilterStatus("Done");
+        setFilterStatus("Completed");
       }
     }
     return filtered;
   };
+
+   // Hiện hiệu ứng 3 dấu chấm lần lượt trong 2s rồi show list
+      useEffect(() => {
+          setShowList(false);
+          setDotIndex(0);
+          let interval = null;
+          let timeout = null;
+  
+          interval = setInterval(() => {
+              setDotIndex(prev => (prev + 1) % 3);
+          }, 200); // đổi dấu chấm mỗi 0.2s
+
+          timeout = setTimeout(() => {
+              setShowList(true);
+              clearInterval(interval);
+          }, 300); // tổng thời gian loading 0.3s
+
+          return () => {
+              clearInterval(interval);
+              clearTimeout(timeout);
+          };
+      }, []); // chỉ chạy 1 lần khi mount
 
   const filteredAppointments = getFilteredAppointments();
 
@@ -131,12 +154,31 @@ const AppointmentHistory = () => {
             >
               <Option value="Pending">Pending</Option>
               <Option value="Confirmed">Confirmed</Option>
-              <Option value="Done">Done</Option>
+              <Option value="Completed">Completed</Option>
             </Select>
           </div>
-          {loading ? (
-            <Spin />
-          ) : filteredAppointments.length === 0 ? (
+          {!showList ? (
+                            <div style={{
+                                    background: "#fff",
+                                    borderRadius: 12,
+                                    padding: 32,
+                                    textAlign: "center",
+                                    fontSize: 30, // tăng kích thước
+                                    letterSpacing: 8,
+                                    height: 120,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: 900, // đậm hơn
+                                    color: "#222", // màu đậm hơn
+                                }}>
+                                <span>
+                                    <span style={{ opacity: dotIndex === 0 ? 1 : 0.3 }}>.</span>
+                                    <span style={{ opacity: dotIndex === 1 ? 1 : 0.3 }}>.</span>
+                                    <span style={{ opacity: dotIndex === 2 ? 1 : 0.3 }}>.</span>
+                                </span>
+                            </div>
+                            ): filteredAppointments.length === 0 ? (
             <Empty description="No appointments found" />
           ) : (
             <div
@@ -209,6 +251,7 @@ const AppointmentHistory = () => {
               </Row>
             </div>
           )}
+          
         </>
       </div>
     </div>
