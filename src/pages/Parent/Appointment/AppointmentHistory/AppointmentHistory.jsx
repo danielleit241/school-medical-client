@@ -1,18 +1,9 @@
 import React, {useEffect, useState} from "react";
 import axiosInstance from "../../../../api/axios";
 import {useSelector} from "react-redux";
-import {
-  Card,
-  Spin,
-  Empty,
-  Button,
-  Tag,
-  Row,
-  Col,
-  Select,
-} from "antd";
+import {Card, Spin, Empty, Button, Tag, Row, Col, Select} from "antd";
 import "./index.scss";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const {Option} = Select;
 
@@ -21,13 +12,13 @@ const AppointmentHistory = () => {
   const [appointments, setAppointments] = useState([]);
   const [showList, setShowList] = useState(false);
   const [dotIndex, setDotIndex] = useState(0);
- 
+
   const [filterStatus, setFilterStatus] = useState("Pending");
   const navigate = useNavigate();
 
   // Fetch appointments
   useEffect(() => {
-    if ( !userId) return;
+    if (!userId) return;
     const fetchAppointments = async () => {
       setShowList(true);
       try {
@@ -53,8 +44,6 @@ const AppointmentHistory = () => {
     };
     fetchAppointments();
   }, [userId]);
-
- 
 
   const getStatus = (item) => {
     if (item.completionStatus) return {text: "Completed", color: "blue"};
@@ -92,38 +81,38 @@ const AppointmentHistory = () => {
     return filtered;
   };
 
-   // Hiện hiệu ứng 3 dấu chấm lần lượt trong 2s rồi show list
-      useEffect(() => {
-          setShowList(false);
-          setDotIndex(0);
-          let interval = null;
-          let timeout = null;
-  
-          interval = setInterval(() => {
-              setDotIndex(prev => (prev + 1) % 3);
-          }, 200); // đổi dấu chấm mỗi 0.2s
+  // Hiện hiệu ứng 3 dấu chấm lần lượt trong 2s rồi show list
+  useEffect(() => {
+    setShowList(false);
+    setDotIndex(0);
+    let interval = null;
+    let timeout = null;
 
-          timeout = setTimeout(() => {
-              setShowList(true);
-              clearInterval(interval);
-          }, 300); // tổng thời gian loading 0.3s
+    interval = setInterval(() => {
+      setDotIndex((prev) => (prev + 1) % 3);
+    }, 200); // đổi dấu chấm mỗi 0.2s
 
-          return () => {
-              clearInterval(interval);
-              clearTimeout(timeout);
-          };
-      }, []); // chỉ chạy 1 lần khi mount
+    timeout = setTimeout(() => {
+      setShowList(true);
+      clearInterval(interval);
+    }, 300); // tổng thời gian loading 0.3s
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []); // chỉ chạy 1 lần khi mount
 
   const filteredAppointments = getFilteredAppointments();
 
-  return  (
+  return (
     <div
       className="appointment-history-fullscreen"
       style={{
-        backgroundColor: "#ffffff",
+        // backgroundColor: "#ffffff",
         height: "100vh",
         margin: "20px 20px",
-        boxShadow: "0 0px 8px rgba(0, 0, 0, 0.1)",
+        // boxShadow: "0 0px 8px rgba(0, 0, 0, 0.1)",
         borderRadius: 20,
       }}
     >
@@ -158,33 +147,46 @@ const AppointmentHistory = () => {
             </Select>
           </div>
           {!showList ? (
-                            <div style={{
-                                    background: "#fff",
-                                    borderRadius: 12,
-                                    padding: 32,
-                                    textAlign: "center",
-                                    fontSize: 30, // tăng kích thước
-                                    letterSpacing: 8,
-                                    height: 120,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontWeight: 900, // đậm hơn
-                                    color: "#222", // màu đậm hơn
-                                }}>
-                                <span>
-                                    <span style={{ opacity: dotIndex === 0 ? 1 : 0.3 }}>.</span>
-                                    <span style={{ opacity: dotIndex === 1 ? 1 : 0.3 }}>.</span>
-                                    <span style={{ opacity: dotIndex === 2 ? 1 : 0.3 }}>.</span>
-                                </span>
-                            </div>
-                            ): filteredAppointments.length === 0 ? (
-            <Empty description="No appointments found" />
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 12,
+                padding: 32,
+                textAlign: "center",
+                fontSize: 30,
+                letterSpacing: 8,
+                height: 120,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 900,
+                color: "#222",
+              }}
+            >
+              <span>
+                <span style={{opacity: dotIndex === 0 ? 1 : 0.3}}>.</span>
+                <span style={{opacity: dotIndex === 1 ? 1 : 0.3}}>.</span>
+                <span style={{opacity: dotIndex === 2 ? 1 : 0.3}}>.</span>
+              </span>
+            </div>
+          ) : filteredAppointments.length === 0 ? (
+            <div
+              style={{
+                borderRadius: 12,
+                padding: 32,
+                textAlign: "center",
+                fontSize: 20,
+                color: "#888",
+                marginTop: 40,
+              }}
+            >
+              No appointment history found.
+            </div>
           ) : (
             <div
               style={{
                 borderRadius: 20,
-                padding: 24,
+                // padding: 24,
                 minHeight: 300,
               }}
             >
@@ -192,13 +194,7 @@ const AppointmentHistory = () => {
                 {filteredAppointments.map((item) => {
                   const statusObj = getStatus(item);
                   return (
-                    <Col
-                      xs={24}
-                      sm={12}
-                      md={8}
-                      lg={6}
-                      key={item.appointmentId}
-                    >
+                    <Col xs={24} sm={12} md={8} lg={6} key={item.appointmentId}>
                       <Card
                         title={item.student.fullName}
                         style={{
@@ -213,9 +209,8 @@ const AppointmentHistory = () => {
                           <b>Date:</b> {item.appointmentDate}
                         </p>
                         <p>
-                          <b>Time:</b>{" "}
-                          {item.appointmentStartTime?.slice(0, 5)} -{" "}
-                          {item.appointmentEndTime?.slice(0, 5)}
+                          <b>Time:</b> {item.appointmentStartTime?.slice(0, 5)}{" "}
+                          - {item.appointmentEndTime?.slice(0, 5)}
                         </p>
                         <p>
                           <b>Topic:</b> {item.topic}
@@ -234,10 +229,10 @@ const AppointmentHistory = () => {
                           </Tag>
                           <Button
                             type="primary"
-                            style={{ background: "#355383" }}
+                            style={{background: "#355383"}}
                             onClick={() =>
                               navigate("/parent/appointment-details", {
-                                state: { id: item.appointmentId },
+                                state: {id: item.appointmentId},
                               })
                             }
                           >
@@ -251,7 +246,6 @@ const AppointmentHistory = () => {
               </Row>
             </div>
           )}
-          
         </>
       </div>
     </div>

@@ -5,12 +5,11 @@ import {setListStudentParent} from "../../../../redux/feature/listStudentParent"
 import {Card, Button, Row, Col} from "antd";
 import {useNavigate} from "react-router-dom";
 
-const MyChildren = () => {
+const MedicalChildren = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const parentId = useSelector((state) => state.user?.userId);
   const [data, setData] = useState([]);
-  const [declarationMap, setDeclarationMap] = useState({});
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -20,27 +19,8 @@ const MyChildren = () => {
         );
         setData(response.data);
         dispatch(setListStudentParent(response.data));
-
-        response.data.forEach(async (item) => {
-          try {
-            const res = await axiosInstance.get(
-              `/api/students/${item.studentId}/health-declarations`
-            );
-            console.log(item.studentId);
-            setDeclarationMap((prev) => ({
-              ...prev,
-              [item.studentId]:
-                res.data.healthDeclaration?.isDeclaration || false,
-            }));
-          } catch {
-            setDeclarationMap((prev) => ({
-              ...prev,
-              [item.studentId]: false,
-            }));
-          }
-        });
+        // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        console.error("Error fetching children data:", error);
         setData([]);
       }
     };
@@ -51,10 +31,8 @@ const MyChildren = () => {
     <div
       style={{
         padding: "30px",
-        // background: "#ffffff",
         height: "100%",
         borderRadius: "20px",
-        // boxShadow: "0 0px 15px rgba(0, 0, 0, 0.1)",
       }}
     >
       <h1>My Children</h1>
@@ -78,37 +56,16 @@ const MyChildren = () => {
                 <b>Lớp:</b> {item.grade.trim()}
               </p>
               <div style={{display: "flex", gap: 8, marginTop: 16}}>
-                {declarationMap[item.studentId] ? (
-                  <span style={{color: "#1890ff", fontWeight: 600}}>
-                    Declared
-                  </span>
-                ) : (
-                  <Button
-                    type="primary"
-                    style={{background: "#355383"}}
-                    onClick={() => {
-                      navigate(`/parent/health-declaration/declaration-form`, {
-                        state: {
-                          studentId: item.studentId,
-                          fullName: item.fullName,
-                        },
-                      });
-                    }}
-                  >
-                    Declare
-                  </Button>
-                )}
                 <Button
+                  type="primary"
                   onClick={() => {
-                    navigate(`/parent/health-declaration/detail`, {
-                      state: {
-                        studentId: item.studentId,
-                        fullName: item.fullName,
-                      },
+                    localStorage.setItem("studentId", item.studentId);
+                    navigate("/parent/medical-event/children-event-list", {
+                      state: {student: item},
                     });
                   }}
                 >
-                  Details
+                  View
                 </Button>
               </div>
             </Card>
@@ -119,4 +76,4 @@ const MyChildren = () => {
   );
 };
 
-export default MyChildren;
+export default MedicalChildren;

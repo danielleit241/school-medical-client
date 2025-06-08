@@ -56,8 +56,9 @@ import ParentMyChildren from "./pages/Parent/HealthDeclaration/MyChildren/MyChil
 import ParentCreateMedicalRegistration from "./pages/Parent/MedicalRegistration/CreateMedicalRes/CreateMedicalResForm";
 import ParentMedicalRegistrationList from "./pages/Parent/MedicalRegistration/MediacalRegistrationList/MedicalRegistrationList";
 import ParentDetailMedicalRegistration from "./pages/Parent/MedicalRegistration/DetailMedicalRes/DetailMediacalRes";
-import MedicalEventMyChildren from "./pages/Parent/MedicalEvent/MyChildren/MyChildren";
-import MedicalEventChildrenList from "./pages/Parent/MedicalEvent/MedicalEventStudent/MedicalEventList";
+// import MedicalEventMyChildren from "./pages/Parent/MedicalEvent/MyChildren/MyChildren";
+import MedicalEventChildrenList from "./pages/Parent/MedicalEvent/MedicalChild/MedicalChildren";
+import MedicalEventChildrenEventList from "./pages/Parent/MedicalEvent/MedicalEventStudent/MedicalEventList";
 import MedicalEventChildrenDetail from "./pages/Parent/MedicalEvent/MedicalEventDetail/MedicalEventDetail";
 import ParentNotification from "./pages/Parent/Notification/Notification";
 import UserProfile from "./pages/Parent/Profile/User/UserProfile";
@@ -140,15 +141,15 @@ function App() {
               element={<ParentDetailMedicalRegistration />}
             />
             <Route
-              path="medical-event/my-children"
-              element={<MedicalEventMyChildren />}
-            />
-            <Route
               path="medical-event/children-list"
               element={<MedicalEventChildrenList />}
             />
             <Route
-              path="medical-event/children-detail"
+              path="medical-event/children-event-list"
+              element={<MedicalEventChildrenEventList />}
+            />
+            <Route
+              path="medical-event/children-detail/"
               element={<MedicalEventChildrenDetail />}
             />
             <Route path="profile" element={<UserProfile />} />
@@ -255,7 +256,7 @@ function App() {
             element={<MedicalEventList />}
           />
           <Route
-            path="medical-event/medical-event-detail"
+            path="medical-event/medical-event-detail/"
             element={<MedicalEventDetail />}
           />
           <Route

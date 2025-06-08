@@ -49,8 +49,11 @@ const MedicalEventList = () => {
     return <Spin style={{marginTop: 40}} />;
   }
 
-  // Chia data thành 2 hàng, mỗi hàng 5 phần tử
-  const rows = [data.slice(0, 5), data.slice(5, 10)];
+  // Chia data thành nhiều dòng, mỗi dòng 5 phần tử
+  const rows = [];
+  for (let i = 0; i < data.length; i += 5) {
+    rows.push(data.slice(i, i + 5));
+  }
 
   return (
     <div style={{padding: 20}}>
@@ -75,8 +78,8 @@ const MedicalEventList = () => {
             flexWrap: "wrap",
             justifyContent: "left",
             alignItems: "center",
-            width: "97%",
-            gap: 65,
+            width: "100%",
+            gap: 50,
           }}
         >
           {row.map((item) => (
