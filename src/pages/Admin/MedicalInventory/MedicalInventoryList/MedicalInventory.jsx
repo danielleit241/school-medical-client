@@ -101,7 +101,7 @@ const MedicalInventory = () => {
         >
           <h2 style={{margin: 0}}>Medical Inventory List</h2>
           <span style={{ color: "#d46b08", fontWeight: 500, fontSize: 15 }}>
-            Note: Items with <b>Quantity Stock</b> below 100 will be displayed
+            Note: Items with <b>Quantity Stock</b> euqual <b>Minimum Stock</b> will be displayed
           </span>
         </div>
         <div
@@ -135,7 +135,7 @@ const MedicalInventory = () => {
               emptyText: !loading && !error ? "No items found" : undefined,
             }}
               rowClassName={(record) =>
-              record.quantityInStock < 100 ? "low-quantity-row" : ""
+              record.quantityInStock === record.minimumStockLevel ? "low-quantity-row" : ""
             }
           />
         </Spin>
