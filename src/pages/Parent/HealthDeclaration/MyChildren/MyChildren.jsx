@@ -10,6 +10,7 @@ const MyChildren = () => {
   const navigate = useNavigate();
   const parentId = useSelector((state) => state.user?.userId);
   const [data, setData] = useState([]);
+  const [declarationMap, setDeclarationMap] = useState({});
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -19,6 +20,24 @@ const MyChildren = () => {
         );
         setData(response.data);
         dispatch(setListStudentParent(response.data));
+        
+        response.data.forEach(async (item) => {
+          try {
+            const res = await axiosInstance.get(
+              `/api/students/${item.studentId}/health-declarations`
+            );
+            console.log(item.studentId);
+            setDeclarationMap((prev) => ({
+              ...prev,
+              [item.studentId]: res.data.healthDeclaration?.isDeclaration || false,
+            }));
+          } catch {
+            setDeclarationMap((prev) => ({
+              ...prev,
+              [item.studentId]: false,
+            }));
+          }
+        });
       } catch (error) {
         console.error("Error fetching children data:", error);
         setData([]);
@@ -26,7 +45,7 @@ const MyChildren = () => {
     };
     fetchApi();
   }, [parentId, dispatch]);
-  // console.log(data);
+
   return (
     <div
       style={{
@@ -52,20 +71,26 @@ const MyChildren = () => {
                 <b>Lớp:</b> {item.grade.trim()}
               </p>
               <div style={{display: "flex", gap: 8, marginTop: 16}}>
-                <Button
-                  type="primary"
-                  style={{background: "#355383"}}
-                  onClick={() => {
-                    navigate(`/parent/health-declaration/declaration-form`, {
-                      state: {
-                        studentId: item.studentId,
-                        fullName: item.fullName,
-                      },
-                    });
-                  }}
-                >
-                  Declare
-                </Button>
+                {declarationMap[item.studentId] ? (
+                  <span style={{color: "#1890ff", fontWeight: 600}}>
+                    Declared
+                  </span>
+                ) : (
+                  <Button
+                    type="primary"
+                    style={{background: "#355383"}}
+                    onClick={() => {
+                      navigate(`/parent/health-declaration/declaration-form`, {
+                        state: {
+                          studentId: item.studentId,
+                          fullName: item.fullName,
+                        },
+                      });
+                    }}
+                  >
+                    Declare
+                  </Button>
+                )}
                 <Button
                   onClick={() => {
                     navigate(`/parent/health-declaration/detail`, {
