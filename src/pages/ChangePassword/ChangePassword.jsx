@@ -57,10 +57,11 @@ const ChangePassword = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    const otpValue = otpArray.join("");
     try {
       await axiosInstance.post(
         "/api/auth/forgot-password/verify-otp",
-        `"${otp}"`
+        `"${otpValue}"`
       );
       setSuccess("OTP verified successfully. Please enter your new password.");
       setStepAnimation("fade-out");
@@ -264,7 +265,7 @@ const ChangePassword = () => {
         {step === 2 && (
           <form onSubmit={handleVerifyOtp} className={stepAnimation}>
             <div className="reset_form__input" style={{marginBottom: 24}}>
-              <label>OTP</label>
+             
               <div
                 style={{
                   display: "flex",
@@ -297,6 +298,7 @@ const ChangePassword = () => {
                       color: "#222",
                       transition: "border-color 0.2s",
                       letterSpacing: "2px",
+                      boxShadow: "0 0 5 0 rgba(0, 0, 0, 0.2)",
                     }}
                     autoFocus={idx === 0}
                   />
@@ -316,7 +318,7 @@ const ChangePassword = () => {
                 }}
               >
                 <span>
-                  {countdown > 0 ? `Time left: ${countdown}s` : "Expired"}
+                  {countdown > 0 ? "Dont receive OTP? " : "Resend OTP in "}
                 </span>
                 {showResend && (
                   <Button
