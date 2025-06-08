@@ -1,7 +1,7 @@
-import React, {useState} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import "./index.scss";
 import axiosInstance from "../../api/axios";
-import {Alert} from "antd";
+import {Alert, Button} from "antd";
 import {useNavigate} from "react-router-dom";
 
 const ChangePassword = () => {
@@ -21,7 +21,13 @@ const ChangePassword = () => {
     number: false,
     special: false,
   });
+  const [countdown, setCountdown] = useState(60);
+  const [showResend, setShowResend] = useState(false);
   const navigate = useNavigate();
+
+  const OTP_LENGTH = 6;
+  const [otpArray, setOtpArray] = useState(Array(OTP_LENGTH).fill(""));
+  const otpInputs = useRef([]);
 
   // Step 1: send otp to email
   const handleSendOtp = async (e) => {
@@ -121,6 +127,71 @@ const ChangePassword = () => {
     return "";
   };
 
+  // Khi chuyển sang step 2, bắt đầu đếm ngược
+  useEffect(() => {
+    let timer;
+    if (step === 2) {
+      setCountdown(60);
+      setShowResend(false);
+      timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          if (prev === 41) setShowResend(true);
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [step]);
+
+  const handleOtpChange = (e, idx) => {
+    const val = e.target.value.replace(/[^0-9]/g, "");
+    const arr = [...otpArray];
+    if (val) {
+      arr[idx] = val[0];
+      setOtpArray(arr);
+      if (idx < OTP_LENGTH - 1) {
+        otpInputs.current[idx + 1].focus();
+      }
+    } else {
+      // Nếu xóa thì clear ô hiện tại
+      arr[idx] = "";
+      setOtpArray(arr);
+    }
+  };
+
+  const handleOtpKeyDown = (e, idx) => {
+    if (e.key === "Backspace") {
+      if (otpArray[idx]) {
+        // Nếu ô hiện tại có số thì xóa số đó
+        const arr = [...otpArray];
+        arr[idx] = "";
+        setOtpArray(arr);
+      } else if (idx > 0) {
+        // Nếu ô hiện tại rỗng thì focus về ô trước
+        otpInputs.current[idx - 1].focus();
+      }
+    }
+  };
+
+  const handlePasteOtp = (e) => {
+    const paste = e.clipboardData.getData("text").replace(/[^0-9]/g, "");
+    if (paste) {
+      const arr = paste.split("").slice(0, OTP_LENGTH);
+      setOtpArray((prev) =>
+        prev.map((_, i) => arr[i] || "")
+      );
+      setTimeout(() => {
+        const next = arr.length < OTP_LENGTH ? arr.length : OTP_LENGTH - 1;
+        otpInputs.current[next].focus();
+      }, 0);
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="reset_main">
       <div className="reset_form">
@@ -192,17 +263,89 @@ const ChangePassword = () => {
 
         {step === 2 && (
           <form onSubmit={handleVerifyOtp} className={stepAnimation}>
-            <div className="reset_form__input">
+            <div className="reset_form__input" style={{marginBottom: 24}}>
               <label>OTP</label>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="Enter OTP"
-                required
-              />
+              <div
+                style={{
+                  display: "flex",
+                  gap: 18,
+                  justifyContent: "center",
+                  marginTop: 8,
+                  marginBottom: 4,
+                }}
+              >
+                {otpArray.map((num, idx) => (
+                  <input
+                    key={idx}
+                    ref={el => otpInputs.current[idx] = el}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={num}
+                    onChange={e => handleOtpChange(e, idx)}
+                    onKeyDown={e => handleOtpKeyDown(e, idx)}
+                    onPaste={handlePasteOtp}
+                    style={{
+                      width: 44,
+                      height: 48,
+                      textAlign: "center",
+                      fontSize: 24,
+                      border: "none",
+                      borderBottom: "3px solid " + (num ? "#1890ff" : "#d9d9d9"),
+                      outline: "none",
+                      background: "transparent",
+                      color: "#222",
+                      transition: "border-color 0.2s",
+                      letterSpacing: "2px",
+                    }}
+                    autoFocus={idx === 0}
+                  />
+                ))}
+              </div>
+              {/* Countdown + Send OTP nhỏ nằm dưới input */}
+              <div
+                style={{
+                  fontSize: 15,
+                  color: "#bfbfbf",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  minHeight: 20,
+                  userSelect: "none",
+                  justifyContent: "center",
+                }}
+              >
+                <span>
+                  {countdown > 0 ? `Time left: ${countdown}s` : "Expired"}
+                </span>
+                {showResend && (
+                  <Button
+                    type="link"
+                    style={{
+                      color: "#40a9ff",
+                      background: "none",
+                      border: "none",
+                      boxShadow: "none",
+                      fontWeight: 400,
+                      fontSize: 15,
+                      padding: 0,
+                      textDecoration: "underline",
+                      minWidth: 0,
+                      height: "auto",
+                      lineHeight: 1,
+                      bottom: 5,
+                    }}
+                    onClick={handleSendOtp}
+                  >
+                    Resend
+                  </Button>
+                )}
+              </div>
             </div>
-            <button type="submit">Verify OTP</button>
+            <button
+              type="submit">
+              Verify OTP
+            </button>
           </form>
         )}
 
