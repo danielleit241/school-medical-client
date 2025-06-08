@@ -49,8 +49,11 @@ const MedicalRegistrationList = () => {
     return true;
   });
 
-  // Chia data thành 2 hàng, mỗi hàng 5 phần tử
-  const rows = [filteredData.slice(0, 5), filteredData.slice(5, 10)];
+  // Chia data thành nhiều dòng, mỗi dòng 5 phần tử
+  const rows = [];
+  for (let i = 0; i < filteredData.length; i += 5) {
+    rows.push(filteredData.slice(i, i + 5));
+  }
 
   return (
     <div style={{padding: 24}}>
@@ -90,76 +93,90 @@ const MedicalRegistrationList = () => {
           <Select.Option value="done">Done</Select.Option>
         </Select>
       </div>
-      {rows.map((row, rowIndex) => (
-        <Row
-          gutter={[16, 16]}
-          key={rowIndex}
+      {filteredData.length === 0 ? (
+        <div
           style={{
-            marginBottom: 16,
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "left",
-            alignItems: "center",
-            width: "97%",
-            gap: 60,
+            textAlign: "center",
+            color: "#888",
+            marginTop: 40,
+            fontSize: 18,
           }}
         >
-          {row.map((item) => (
-            <Col span={4} key={item.medicalRegistration.registrationId}>
-              <Card
-                title={item.student.studentFullName}
-                extra={
-                  item.nurseApproved.dateApproved ? (
-                    <Tag color="green">Nurse Approved</Tag>
-                  ) : (
-                    <Tag color="orange">Pending Nurse</Tag>
-                  )
-                }
-                style={{
-                  minWidth: 300,
-                  borderRadius: 8,
-                  boxShadow: "0 0px 5px rgba(0, 0, 0, 0.1)",
-                  marginBottom: 16,
-                }}
-              >
-                <div>
-                  <p>
-                    <b>Medication:</b> {item.medicalRegistration.medicationName}
-                  </p>
-                  <p>
-                    <b>Total Dosages:</b>{" "}
-                    {item.medicalRegistration.totalDosages}
-                  </p>
-                  <p>
-                    <b>Date Submitted:</b>{" "}
-                    {item.medicalRegistration.dateSubmitted}
-                  </p>
-                  <p>
-                    <b>Parent Notes:</b> {item.medicalRegistration.notes}
-                  </p>
-                </div>
-                <div style={{display: "flex", gap: 8, marginTop: 16}}>
-                  <Button
-                    type="primary"
-                    style={{backgroundColor: "#355383"}}
-                    onClick={() => {
-                      navigate(`/parent/medical-registration/detail`, {
-                        state: {
-                          registrationId:
-                            item.medicalRegistration.registrationId,
-                          studentId: item.student.studentId,
-                        },
-                      });
-                    }}
-                  >
-                    Details
-                  </Button>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      ))}
+          No medical registration found.
+        </div>
+      ) : (
+        rows.map((row, rowIndex) => (
+          <Row
+            gutter={[16, 16]}
+            key={rowIndex}
+            style={{
+              marginBottom: 16,
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "left",
+              alignItems: "center",
+              width: "97%",
+              gap: 60,
+            }}
+          >
+            {row.map((item) => (
+              <Col span={4} key={item.medicalRegistration.registrationId}>
+                <Card
+                  title={item.student.studentFullName}
+                  extra={
+                    item.nurseApproved.dateApproved ? (
+                      <Tag color="green">Nurse Approved</Tag>
+                    ) : (
+                      <Tag color="orange">Pending Nurse</Tag>
+                    )
+                  }
+                  style={{
+                    minWidth: 300,
+                    borderRadius: 8,
+                    boxShadow: "0 0px 5px rgba(0, 0, 0, 0.1)",
+                    marginBottom: 16,
+                  }}
+                >
+                  <div>
+                    <p>
+                      <b>Medication:</b>{" "}
+                      {item.medicalRegistration.medicationName}
+                    </p>
+                    <p>
+                      <b>Total Dosages:</b>{" "}
+                      {item.medicalRegistration.totalDosages}
+                    </p>
+                    <p>
+                      <b>Date Submitted:</b>{" "}
+                      {item.medicalRegistration.dateSubmitted}
+                    </p>
+                    <p>
+                      <b>Parent Notes:</b> {item.medicalRegistration.notes}
+                    </p>
+                  </div>
+                  <div style={{display: "flex", gap: 8, marginTop: 16}}>
+                    <Button
+                      type="primary"
+                      style={{backgroundColor: "#355383"}}
+                      onClick={() => {
+                        navigate(`/parent/medical-registration/detail`, {
+                          state: {
+                            registrationId:
+                              item.medicalRegistration.registrationId,
+                            studentId: item.student.studentId,
+                          },
+                        });
+                      }}
+                    >
+                      Details
+                    </Button>
+                  </div>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        ))
+      )}
       <div style={{textAlign: "center", marginTop: 24}}>
         <Pagination
           current={pageIndex}

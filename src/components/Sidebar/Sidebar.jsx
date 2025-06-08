@@ -406,26 +406,7 @@ const Sidebar = () => {
         label: "Medical Event",
         key: "/parent/medical-event",
         icon: <MedicineBoxOutlined />,
-        dropdown: [
-          {
-            label: "My Children",
-            key: "/parent/medical-event/my-children",
-            link: "/parent/medical-event/my-children",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Children List",
-            key: "/parent/medical-event/children-list",
-            link: "/parent/medical-event/children-list",
-            icon: <FileTextOutlined />,
-          },
-          {
-            label: "Children Detail",
-            key: "/parent/medical-event/children-detail",
-            link: "/parent/medical-event/children-detail",
-            icon: <FileSearchOutlined />,
-          },
-        ],
+        link: "/parent/medical-event/children-list",
       },
     ],
   };

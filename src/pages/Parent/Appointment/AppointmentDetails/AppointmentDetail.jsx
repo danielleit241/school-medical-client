@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Card, Descriptions, Button, Tag, Spin } from "antd";
+import React, {useEffect, useState} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
+import {Card, Descriptions, Button, Tag, Spin} from "antd";
 import axiosInstance from "../../../../api/axios";
-import { useSelector } from "react-redux";
+import {useSelector} from "react-redux";
 
 const AppointmentDetail = () => {
   const location = useLocation();
@@ -33,9 +33,9 @@ const AppointmentDetail = () => {
   }, [appointmentId, userId]);
 
   const getStatus = (item) => {
-    if (item.completionStatus) return { text: "Done", color: "blue" };
-    if (item.confirmationStatus) return { text: "Confirmed", color: "green" };
-    return { text: "Pending", color: "orange" };
+    if (item.completionStatus) return {text: "Done", color: "blue"};
+    if (item.confirmationStatus) return {text: "Confirmed", color: "green"};
+    return {text: "Pending", color: "orange"};
   };
 
   if (!appointmentId) return <div>No Appointment Found.</div>;
@@ -46,10 +46,10 @@ const AppointmentDetail = () => {
     <div
       className="appointment-history-fullscreen"
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "none !important",
         height: "100vh",
         margin: "20px 20px",
-        boxShadow: "0 0px 8px rgba(0, 0, 0, 0.1)",
+        boxShadow: "none !important",
         borderRadius: 20,
       }}
     >
@@ -59,59 +59,58 @@ const AppointmentDetail = () => {
           padding: "32px 30px",
         }}
       >
-        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 32 }}>
-          Appointment History
+        <h1 style={{fontSize: 28, fontWeight: 700, marginBottom: 32}}>
+          Appointment Detail
         </h1>
-          <Card title="Appointment Details" style={{ width: "100%" }}>
-            <Descriptions
-              column={1}
-              bordered
-              labelStyle={{ width: 400, fontWeight: 600 }}
-              contentStyle={{ fontWeight: 400 }}
-              size="middle"
-            >
-              <Descriptions.Item label="Student Name">
-                {appointment.student?.fullName || "..."}
-              </Descriptions.Item>
-              <Descriptions.Item label="Date">
-                {appointment.appointmentDate}
-              </Descriptions.Item>
-              <Descriptions.Item label="Time">
-                {appointment.appointmentStartTime?.slice(0, 5)} -{" "}
-                {appointment.appointmentEndTime?.slice(0, 5)}
-              </Descriptions.Item>
-              <Descriptions.Item label="Topic">
-                {appointment.topic}
-              </Descriptions.Item>
-              <Descriptions.Item label="Reason">
-                {appointment.appointmentReason}
-              </Descriptions.Item>
-              <Descriptions.Item label="Nurse">
-                {appointment.staffNurse?.fullName || "..."}
-              </Descriptions.Item>
-              <Descriptions.Item label="Status">
-                <Tag
-                  color={getStatus(appointment).color}
-                  style={{
-                    padding: "6px 12px",
-                    fontSize: 14,
-                    textAlign: "center",
-                    borderRadius: 8,
-                  }}
-                >
-                  {getStatus(appointment).text}
-                </Tag>
-              </Descriptions.Item>
-            </Descriptions>
-            <div style={{ display: "flex", gap: 20, marginTop: 24 }}>
-              <Button type="default" onClick={() => navigate(-1)}>
-                Back
-              </Button>
-            </div>
-          </Card>
-        </div>
+        <Card title="Appointment Details" style={{width: "100%"}}>
+          <Descriptions
+            column={1}
+            bordered
+            labelStyle={{width: 400, fontWeight: 600}}
+            contentStyle={{fontWeight: 400}}
+            size="middle"
+          >
+            <Descriptions.Item label="Student Name">
+              {appointment.student?.fullName || "..."}
+            </Descriptions.Item>
+            <Descriptions.Item label="Date">
+              {appointment.appointmentDate}
+            </Descriptions.Item>
+            <Descriptions.Item label="Time">
+              {appointment.appointmentStartTime?.slice(0, 5)} -{" "}
+              {appointment.appointmentEndTime?.slice(0, 5)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Topic">
+              {appointment.topic}
+            </Descriptions.Item>
+            <Descriptions.Item label="Reason">
+              {appointment.appointmentReason}
+            </Descriptions.Item>
+            <Descriptions.Item label="Nurse">
+              {appointment.staffNurse?.fullName || "..."}
+            </Descriptions.Item>
+            <Descriptions.Item label="Status">
+              <Tag
+                color={getStatus(appointment).color}
+                style={{
+                  padding: "6px 12px",
+                  fontSize: 14,
+                  textAlign: "center",
+                  borderRadius: 8,
+                }}
+              >
+                {getStatus(appointment).text}
+              </Tag>
+            </Descriptions.Item>
+          </Descriptions>
+          <div style={{display: "flex", gap: 20, marginTop: 24}}>
+            <Button type="default" onClick={() => navigate(-1)}>
+              Back
+            </Button>
+          </div>
+        </Card>
       </div>
-   
+    </div>
   );
 };
 
