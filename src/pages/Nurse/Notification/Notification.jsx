@@ -3,7 +3,7 @@ import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import {useSelector} from "react-redux";
 import axiosInstance from "../../../api/axios";
 import {Button, Modal} from "antd";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const Notifications = () => {
   const userId = useSelector((state) => state.user?.userId);
@@ -12,8 +12,17 @@ const Notifications = () => {
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
- 
+
   const navigate = useNavigate();
+
+  const notificationTypeMap = {
+    1: "Appointment",
+    2: "HealthCheckUp",
+    3: "MedicalEvent",
+    4: "MedicalRegistration",
+    5: "Vaccination",
+    6: "GeneralNotification",
+  };
 
   // Thêm state để cập nhật lại mỗi phút
   const [now, setNow] = useState(Date.now());
@@ -26,7 +35,9 @@ const Notifications = () => {
   const fetchNotificationDetail = async (notificationId) => {
     setLoadingDetail(true);
     try {
-      const res = await axiosInstance.get(`/api/notifications/${notificationId}`);
+      const res = await axiosInstance.get(
+        `/api/notifications/${notificationId}`
+      );
       setSelectedNotification(res.data);
       setShowDetailModal(true);
     } catch {
@@ -36,25 +47,24 @@ const Notifications = () => {
     setLoadingDetail(false);
   };
 
- useEffect(() => {
-  if (!userId) return;
+  useEffect(() => {
+    if (!userId) return;
 
-  (async (pageIndex = 1, pageSize = 20) => {
-    try {
-      const res = await axiosInstance.get(
-        `/api/users/${userId}/notifications`,
-        {
-          params: { pageIndex, pageSize },
-        }
-      );
-      setNotifications(Array.isArray(res.data.items) ? res.data.items : []);
-    } catch {
-      setNotifications([]);
-    }
-  })();
-}, [userId]);
-
- 
+    (async (pageIndex = 1, pageSize = 20) => {
+      try {
+        const res = await axiosInstance.get(
+          `/api/users/${userId}/notifications`,
+          {
+            params: {pageIndex, pageSize},
+          }
+        );
+        setNotifications(Array.isArray(res.data.items) ? res.data.items : []);
+        // console.log("Notification list:", res.data.items);
+      } catch {
+        setNotifications([]);
+      }
+    })();
+  }, [userId]);
 
   // STEP 1: Danh sách thông báo
   return (
@@ -97,7 +107,9 @@ const Notifications = () => {
             const isHovered = hoveredId === notificationId;
 
             // Lấy thời gian gửi (cộng 7 tiếng)
-            const sendDate = noti.sendDate ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000) : null;
+            const sendDate = noti.sendDate
+              ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000)
+              : null;
             let timeLabel = "";
             if (sendDate) {
               const diffMs = now - sendDate.getTime();
@@ -118,12 +130,12 @@ const Notifications = () => {
 
             // Hàm xử lý điều hướng khi click vào thông báo
             const handleNotificationClick = () => {
-              if (noti.title === "New Appointment Notification" ) {
+              if (noti.title === "New Appointment Notification") {
                 navigate("/nurse/appointment-management/appointment-list");
                 window.location.reload();
               }
-            // Có thể thêm các điều kiện khác nếu cần
-          };
+              // Có thể thêm các điều kiện khác nếu cần
+            };
 
             return (
               <div
@@ -143,7 +155,6 @@ const Notifications = () => {
                 }}
                 onMouseEnter={() => setHoveredId(notificationId)}
                 onMouseLeave={() => setHoveredId(null)}
-                
               >
                 <div
                   style={{
@@ -152,7 +163,8 @@ const Notifications = () => {
                     marginBottom: 4,
                   }}
                 >
-                  {noti.title || "No title"}
+                  {`${notificationTypeMap[noti.type] + " Notification"}` ||
+                    "No title"}
                 </div>
                 <div
                   style={{
@@ -176,12 +188,12 @@ const Notifications = () => {
                   <Button
                     size="small"
                     type="primary"
-                    onClick={async () => {                   
+                    onClick={async () => {
                       await fetchNotificationDetail(notificationId);
                     }}
                   >
                     Details
-                  </Button> 
+                  </Button>
 
                   <Button
                     style={{marginLeft: 8}}
@@ -192,7 +204,7 @@ const Notifications = () => {
                     }}
                   >
                     View
-                  </Button>             
+                  </Button>
                 </div>
               </div>
             );
@@ -221,43 +233,25 @@ const Notifications = () => {
             const receiver = selectedNotification.receiverInformationDto || {};
             return (
               <div>
-                <div 
-                style={{fontWeight: 700, 
-                fontSize: 22, 
-                marginBottom: 12
-                }}
-                >
-                  {noti.title || "No title"}
+                <div style={{fontWeight: 700, fontSize: 22, marginBottom: 12}}>
+                  {`${notificationTypeMap[noti.type] + " Notification"}` ||
+                    "No title"}
                 </div>
-                <div 
-                style={{marginBottom: 8
-                  }}
-                >
+                <div style={{marginBottom: 8}}>
                   <b>Sender:</b> {sender.userName || "Unknown"}
                 </div>
-                <div style=
-                {{marginBottom: 8
-                  }}
-                >
+                <div style={{marginBottom: 8}}>
                   <b>Receiver:</b> {receiver.userName || "Unknown"}
                 </div>
-                <div 
-                style={{color: "#444", 
-                fontSize: 16, 
-                marginBottom: 12
-                }}
-                >
+                <div style={{color: "#444", fontSize: 16, marginBottom: 12}}>
                   {noti.content || ""}
                 </div>
-                <div 
-                style={{fontSize: 12, 
-                color: "#888", 
-                marginTop: 2
-                }}
-                >
+                <div style={{fontSize: 12, color: "#888", marginTop: 2}}>
                   {noti.sendDate
-                  ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000).toLocaleString()
-                  : ""}
+                    ? new Date(
+                        new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000
+                      ).toLocaleString()
+                    : ""}
                 </div>
                 <div style={{marginTop: 24, textAlign: "right"}}>
                   <Button onClick={() => setShowDetailModal(false)}>

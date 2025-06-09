@@ -8,7 +8,7 @@ import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 
 import "./index.scss";
 
-const NotificationModal = ({ visible = true }) => {
+const NotificationModal = ({visible = true}) => {
   const token = localStorage.getItem("accessToken");
   const userId = useSelector((state) => state.user.userId);
   const role = useSelector((state) => state.user.role);
@@ -20,6 +20,14 @@ const NotificationModal = ({ visible = true }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const unreadCountRef = useRef(0);
 
+  const notificationTypeMap = {
+    1: "Appointment",
+    2: "HealthCheckUp",
+    3: "MedicalEvent",
+    4: "MedicalRegistration",
+    5: "Vaccination",
+    6: "GeneralNotification",
+  };
   // State để cập nhật lại label thời gian mỗi phút
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -182,7 +190,9 @@ const NotificationModal = ({ visible = true }) => {
             const isHovered = hoveredId === noti.notificationId;
 
             // Lấy thời gian gửi (cộng 7 tiếng)
-            const sendDate = noti.sendDate ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000) : null;
+            const sendDate = noti.sendDate
+              ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000)
+              : null;
             let timeLabel = "";
             if (sendDate) {
               const diffMs = now - sendDate.getTime();
@@ -202,27 +212,35 @@ const NotificationModal = ({ visible = true }) => {
             }
 
             // Hàm xử lý điều hướng khi click vào thông báo
+            //2: Checkup
+            //5: Vaccination
+            // 2 cái này chưa làm
             const handleNotificationClick = () => {
-              if (
-                (noti.title === "Appointment Confirmation" ||
-                  noti.title === "Appointment Completion") &&
-                role === "parent"
-              ) {
-                navigate("/parent/appointment-history");
-                window.location.reload();
-              } else if (noti.title === "Medical Event Notification" && role === "parent") {
-                navigate("/parent/medical-event/children-list");
-                window.location.reload();
-              } else if (
-                (noti.title === "Medical Registration Approved" ||
-                  noti.title === "Medication Dose Completed") &&
-                role === "parent"
-              ) {
-                navigate("/parent/medical-registration/list");
-                window.location.reload();
-              } else if (noti.title === "New Appointment Notification" && role === "nurse") {
-                navigate("/nurse/appointment-management/appointment-list");
-                window.location.reload();
+              if (role === "parent") {
+                switch (noti.type) {
+                  case 1: // Appointment
+                    navigate("/parent/appointment-history");
+                    window.location.reload();
+                    break;
+                  case 3: // MedicalEvent
+                    navigate("/parent/medical-event/children-list");
+                    window.location.reload();
+                    break;
+                  case 4: // MedicalRegistration
+                    navigate("/parent/medical-registration/list");
+                    window.location.reload();
+                    break;
+                  default:
+                    // Có thể bổ sung các loại khác nếu cần
+                    break;
+                }
+              } else if (role === "nurse") {
+                if (noti.type === 1) {
+                  // Appointment for nurse
+                  navigate("/nurse/appointment-management/appointment-list");
+                  window.location.reload();
+                }
+                // Có thể bổ sung các loại khác cho nurse nếu cần
               }
             };
 
@@ -258,7 +276,7 @@ const NotificationModal = ({ visible = true }) => {
                   }
                   title={
                     <span style={{fontWeight: isRead ? 400 : 600}}>
-                      {noti.title || "No title"}
+                      {notificationTypeMap[noti.type] || "No title"}
                     </span>
                   }
                   description={
