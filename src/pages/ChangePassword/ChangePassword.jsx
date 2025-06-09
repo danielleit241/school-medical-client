@@ -57,12 +57,13 @@ const ChangePassword = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    const otpValue = otpArray.join("");
+    const otp = otpArray.join("");
     try {
       await axiosInstance.post(
         "/api/auth/forgot-password/verify-otp",
-        `"${otpValue}"`
+        `"${otp}"`
       );
+      setOtp(otp);
       setSuccess("OTP verified successfully. Please enter your new password.");
       setStepAnimation("fade-out");
       setTimeout(() => {
