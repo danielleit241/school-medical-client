@@ -211,12 +211,11 @@ const NotificationModal = ({visible = true}) => {
               }
             }
 
-            // Hàm xử lý điều hướng khi click vào thông báo
-            //2: Checkup
-            //5: Vaccination
-            // 2 cái này chưa làm
-            const handleNotificationClick = () => {
-              if (role === "parent") {
+           //2: Checkup
+           //5: Vaccination
+           // 2 cái này chưa làm
+           const handleNotificationClick = () => {
+             if (role === "parent") {
                 switch (noti.type) {
                   case 1: // Appointment
                     navigate("/parent/appointment-history");
