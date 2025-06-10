@@ -26,6 +26,7 @@ import {setUserInfo} from "../../redux/feature/userSlice";
 import LogoDefault from "../../assets/images/defaultlogo.svg";
 import "./index.scss";
 import NotificationModal from "../Notification/NotificationModal";
+import {RiArrowDownSFill} from "react-icons/ri";
 
 const Sidebar = () => {
   const role = useSelector((state) => state.user.role);
@@ -525,7 +526,7 @@ const Sidebar = () => {
   );
 
   return (
-    <div style={{width: 250, height: "100vh", background: "#fff"}}>
+    <div style={{background: "#fff"}}>
       {/* Hiển thị Hello, role, avatar, notification giống Header */}
       {(role === "admin" || role === "manager" || role === "nurse") && (
         <div
@@ -563,7 +564,7 @@ const Sidebar = () => {
                   style={{backgroundColor: "red"}}
                 >
                   <Avatar
-                    size={50}
+                    size={55}
                     src={
                       user && user.avatarUrl && user.avatarUrl.trim() !== ""
                         ? user.avatarUrl
@@ -572,16 +573,15 @@ const Sidebar = () => {
                     style={{cursor: "pointer", border: "2px solid #eee"}}
                   />
                 </Badge>
-                <DownOutlined
+                <RiArrowDownSFill
                   style={{
-                    fontSize: 10,
+                    fontSize: 20, // Đổi số này để tăng/giảm kích thước
                     marginLeft: 6,
-                    color: "white",
+                    color: "#aaa",
                     position: "absolute",
-                    bottom: 0,
+                    bottom: -5,
                     right: 0,
-                    backgroundColor: "rgba(34,34,34,0.3)",
-                    padding: 2,
+                    backgroundColor: "#F8F8F8",
                     borderRadius: "50%",
                   }}
                 />
@@ -611,7 +611,7 @@ const Sidebar = () => {
               </div>
             )}
           </div>
-          <span style={{fontWeight: "500", fontSize: "16px"}}>
+          <span style={{fontWeight: "500", fontSize: "16px", marginLeft: 20}}>
             Hello, {role}
           </span>
         </div>
@@ -621,7 +621,15 @@ const Sidebar = () => {
         mode="inline"
         selectedKeys={selectedKeys}
         defaultOpenKeys={openKeys}
-        style={{height: "100%", borderRight: 0}}
+        style={{
+          borderRight: 0,
+          fontSize: 16, // tăng size chữ
+          fontFamily: "'Ubuntu', sans-serif !important", // sử dụng font Ubuntu
+          paddingLeft: 4,
+          paddingRight: 4,
+          letterSpacing: 0.2,
+          minWidth: 350,
+        }}
       >
         {renderMenuItems(menuItems)}
       </Menu>

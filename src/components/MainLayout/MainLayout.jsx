@@ -17,7 +17,6 @@ const MainLayout = () => {
       style={{
         minHeight: "100vh",
         flexDirection: "column",
-        background: "#fff",
         zIndex: 0,
       }}
     >
@@ -26,40 +25,40 @@ const MainLayout = () => {
         <div>
           <SystemHeader
             style={{
-              background: "#fff", // Đặt màu nền header là trắng
-              boxShadow: "0 2px 8px 0 rgba(53,83,131,0.10)", // Đổ bóng rất lớn (bạn nên dùng shadow nhỏ hơn nếu chỉ muốn bóng dưới)
-              zIndex: 10, // Bóng chỉ bên phải
+              boxShadow: "0 2px 8px 0 rgba(53,83,131,0.10)",
+              zIndex: 10,
             }}
           />
         </div>
       )}
-      <Layout style={{flex: 1}}>
-        {/* Sidebar cố định */}
-        <Sider
-          width={250}
+      {/* Main content with sidebar and outlet */}
+      <div style={{display: "flex", flex: 1, minHeight: 0}}>
+        <Sidebar />
+        <div
           style={{
-            background: "#fff",
-            boxShadow: "0 0px 4px 0 rgba(53, 83, 131, 0.10)",
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <Sidebar />
-        </Sider>
-        {/* Nội dung sẽ thay đổi dựa trên Router */}
-        <Layout>
-          <Content
+          <div
             style={{
               padding:
                 role === "admin" || role === "manager" || role === "nurse"
                   ? "50px"
                   : "20px",
-              background: "none",
+              background: "#F8F8F8",
               zIndex: 1,
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <Outlet />
-          </Content>
-        </Layout>
-      </Layout>
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 };
