@@ -17,41 +17,9 @@
 - **Tailwind CSS**, **SASS** (styling)
 - **Axios** (API communication)
 - **SignalR** (real-time communication)
+= **Vitest**
 - **SweetAlert2**, **React-Icons**, **Lucide-React**, **Swiper**
 - Support for import/export with **xlsx**
-
-## ⚙️ Installation & Usage
-
-### Prerequisites
-- Node.js >= 18.x
-- npm >= 9.x or yarn
-
-### Setup
-```bash
-# Clone the repository
-git clone https://github.com/ngothanhdat-AK/school-medical-client.git
-cd school-medical-client
-
-# Install dependencies
-npm install
-# or
-yarn install
-
-# Start the development server
-npm run dev
-# or
-yarn dev
-```
-
-### Build for production
-```bash
-npm run build
-# or
-yarn build
-```
-
-## 📖 Usage
-After running `npm run dev`, open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## 👥 Contributors
 
