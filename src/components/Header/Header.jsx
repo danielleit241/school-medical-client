@@ -14,6 +14,7 @@ import {
   LogoutOutlined,
   DownOutlined,
 } from "@ant-design/icons";
+import {RiArrowDownSFill} from "react-icons/ri";
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import axiosInstance from "../../api/axios";
 import LogoDefault from "../../assets/images/defaultlogo.svg";
@@ -49,7 +50,7 @@ const Header = () => {
 
   useEffect(() => {
     // Lấy số lượng chưa đọc
-      const fetchUnread = async () => {
+    const fetchUnread = async () => {
       if (!userId) return;
       try {
         const res = await axiosInstance.get(
@@ -175,8 +176,8 @@ const Header = () => {
                   alt="Call Icon"
                 />
                 <div>
-                  <p className="text-white m-0">Emergency</p>
-                  <p className="header__text">(237) 681-812-255</p>
+                  <p className="header__text text-white m-0">Emergency</p>
+                  <p className="header__text m-0">(237) 681-812-255</p>
                 </div>
               </li>
               <li className="header__top-right-item flex items-center gap-3 mr-7">
@@ -186,8 +187,10 @@ const Header = () => {
                   alt="Clock Icon"
                 />
                 <div>
-                  <p className="text-white m-0">Working Hours</p>
-                  <p className="header__text">Mon - Fri: 8:00 AM - 5:00 PM</p>
+                  <p className="header__text text-white m-0">Working Hours</p>
+                  <p className="header__text m-0">
+                    Mon - Fri: 8:00 AM - 5:00 PM
+                  </p>
                 </div>
               </li>
               <li className="header__top-right-item flex items-center gap-3 mr-7">
@@ -197,8 +200,10 @@ const Header = () => {
                   alt="Location Icon"
                 />
                 <div>
-                  <p className="text-white m-0">Location</p>
-                  <p className="header__text">123 Medical St, Health City</p>
+                  <p className="header__text text-white m-0">Location</p>
+                  <p className="header__text m-0">
+                    123 Medical St, Health City
+                  </p>
                 </div>
               </li>
             </ul>
@@ -217,11 +222,11 @@ const Header = () => {
           </div>
 
           <nav className="header__bottom-navbar">
-            <ul className="header__bottom-list flex justify-center items-center gap-5 font-bold">
+            <ul className="header__bottom-list flex justify-center items-center gap-5 font-bold mb-0">
               <li className="header__bottom-item">
                 <NavLink
                   to="/"
-                  style={{textDecoration: "none"}}
+                  style={{textDecoration: "none", fontSize: 20}}
                   className={({isActive}) => (isActive ? "active-link" : "")}
                   end
                 >
@@ -231,7 +236,7 @@ const Header = () => {
               <li className="header__bottom-item">
                 <NavLink
                   to="/resources"
-                  style={{textDecoration: "none"}}
+                  style={{textDecoration: "none", fontSize: 20}}
                   className={({isActive}) => (isActive ? "active-link" : "")}
                 >
                   Vaccines
@@ -240,7 +245,7 @@ const Header = () => {
               <li className="header__bottom-item">
                 <NavLink
                   to="/blog"
-                  style={{textDecoration: "none"}}
+                  style={{textDecoration: "none", fontSize: 20}}
                   className={({isActive}) => (isActive ? "active-link" : "")}
                 >
                   Blog
@@ -249,7 +254,7 @@ const Header = () => {
               <li className="header__bottom-item">
                 <NavLink
                   to="/contact"
-                  style={{textDecoration: "none"}}
+                  style={{textDecoration: "none", fontSize: 20}}
                   className={({isActive}) => (isActive ? "active-link" : "")}
                 >
                   Contact
@@ -258,7 +263,7 @@ const Header = () => {
               <li className="header__bottom-item">
                 <NavLink
                   to="/parent"
-                  style={{textDecoration: "none"}}
+                  style={{textDecoration: "none", fontSize: 20}}
                   className={({isActive}) => (isActive ? "active-link" : "")}
                 >
                   Services
@@ -270,7 +275,9 @@ const Header = () => {
           <div className="header__bottom-button flex justify-center items-center gap-4 mr-10">
             {token && role ? (
               <div className="flex items-center gap-3">
-                <span style={{color: "#355383", fontWeight: "bold"}}>
+                <span
+                  style={{color: "#355383", fontWeight: "bold", fontSize: 20}}
+                >
                   Hello, {role}
                 </span>
                 <Dropdown overlay={menu} trigger={["click"]}>
@@ -298,16 +305,15 @@ const Header = () => {
                         style={{cursor: "pointer", border: "2px solid #eee"}}
                       />
                     </Badge>
-                    <DownOutlined
+                    <RiArrowDownSFill
                       style={{
-                        fontSize: 10,
+                        fontSize: 20, // Đổi số này để tăng/giảm kích thước
                         marginLeft: 6,
-                        color: "white",
+                        color: "#aaa",
                         position: "absolute",
-                        bottom: 0,
-                        right: 0,
-                        backgroundColor: "rgba(34,34,34,0.3)",
-                        padding: 2,
+                        bottom: -5,
+                        right: -5,
+                        backgroundColor: "#F8F8F8",
                         borderRadius: "50%",
                       }}
                     />

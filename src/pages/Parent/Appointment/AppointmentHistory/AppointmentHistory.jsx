@@ -53,32 +53,7 @@ const AppointmentHistory = () => {
 
   // Filter logic theo yêu cầu
   const getFilteredAppointments = () => {
-    let filtered = appointments.filter(
-      (item) => getStatus(item).text === filterStatus
-    );
-    if (filtered.length === 0) {
-      if (filterStatus === "Pending") {
-        filtered = appointments.filter(
-          (item) => getStatus(item).text === "Confirmed"
-        );
-        if (filtered.length === 0) {
-          filtered = appointments.filter(
-            (item) => getStatus(item).text === "Completed"
-          );
-          if (filtered.length === 0) return [];
-          setFilterStatus("Completed");
-        } else {
-          setFilterStatus("Confirmed");
-        }
-      } else if (filterStatus === "Confirmed") {
-        filtered = appointments.filter(
-          (item) => getStatus(item).text === "Completed"
-        );
-        if (filtered.length === 0) return [];
-        setFilterStatus("Completed");
-      }
-    }
-    return filtered;
+    return appointments.filter((item) => getStatus(item).text === filterStatus);
   };
 
   // Hiện hiệu ứng 3 dấu chấm lần lượt trong 2s rồi show list
@@ -190,46 +165,144 @@ const AppointmentHistory = () => {
                 minHeight: 300,
               }}
             >
-              <Row gutter={[16, 16]}>
+              <Row gutter={[24, 24]}>
                 {filteredAppointments.map((item) => {
                   const statusObj = getStatus(item);
                   return (
-                    <Col xs={24} sm={12} md={8} lg={6} key={item.appointmentId}>
+                    <Col xs={24} sm={12} md={8} lg={8} key={item.appointmentId}>
                       <Card
-                        title={item.student.fullName}
                         style={{
-                          minHeight: 220,
-                          borderRadius: "10px",
-                          boxShadow: "0 0px 5px rgba(0, 0, 0, 0.1)",
-                          marginBottom: 16,
+                          borderRadius: 12,
+                          minHeight: 240,
+                          boxShadow: "0 2px 8px #f0f1f2",
+                          padding: 0,
                         }}
                         bodyStyle={{padding: 20}}
                       >
-                        <p>
-                          <b>Date:</b> {item.appointmentDate}
-                        </p>
-                        <p>
-                          <b>Time:</b> {item.appointmentStartTime?.slice(0, 5)}{" "}
-                          - {item.appointmentEndTime?.slice(0, 5)}
-                        </p>
-                        <p>
-                          <b>Topic:</b> {item.topic}
-                        </p>
-                        <div style={{display: "flex", gap: 8, marginTop: 16}}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: 8,
+                          }}
+                        >
+                          {/* Avatar gradient */}
+                          <div
+                            style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: "50%",
+                              background:
+                                "linear-gradient(135deg, #6a82fb 0%, #fc5c7d 100%)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: 700,
+                              fontSize: 22,
+                              color: "#fff",
+                              marginRight: 14,
+                            }}
+                          >
+                            {item.student?.fullName?.[0] || "U"}
+                          </div>
+                          <div style={{flex: 1}}>
+                            <div style={{fontWeight: 700, fontSize: 17}}>
+                              {item.student?.fullName}
+                            </div>
+                            <div style={{color: "#888", fontSize: 15}}>
+                              {item.type || "Consultation"}
+                            </div>
+                          </div>
                           <Tag
                             color={statusObj.color}
                             style={{
-                              padding: "6px 20px",
+                              fontWeight: 600,
+                              borderRadius: 16,
                               fontSize: 14,
-                              textAlign: "center",
-                              borderRadius: 8,
+                              padding: "4px 16px",
+                              background:
+                                statusObj.color === "green"
+                                  ? "#e6fff2"
+                                  : undefined,
+                              color:
+                                statusObj.color === "green"
+                                  ? "#1bbf7a"
+                                  : undefined,
+                              border: "none",
                             }}
+                            icon={
+                              statusObj.text === "Completed" ? (
+                                <span>✔️</span>
+                              ) : undefined
+                            }
                           >
-                            {statusObj.text}
+                            {statusObj.text === "Completed"
+                              ? "Complete"
+                              : statusObj.text}
                           </Tag>
+                        </div>
+                        {/* Thông tin ngày, giờ, bác sĩ/y tá */}
+                        <div
+                          style={{
+                            color: "#355383",
+                            fontSize: 15,
+                            marginBottom: 4,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span style={{marginRight: 6}}>📅</span>
+                          {item.appointmentDate}
+                        </div>
+                        <div
+                          style={{
+                            color: "#1bbf7a",
+                            fontSize: 15,
+                            marginBottom: 4,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span style={{marginRight: 6}}>🕒</span>
+                          {item.appointmentStartTime?.slice(0, 5)} -{" "}
+                          {item.appointmentEndTime?.slice(0, 5)}
+                        </div>
+                        <div
+                          style={{
+                            color: "#a259e6",
+                            fontSize: 15,
+                            marginBottom: 4,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span style={{marginRight: 6}}>👩‍⚕️</span>
+                          {item.nurseName || "N/A"}
+                        </div>
+                        {/* Chủ đề */}
+                        <div
+                          style={{
+                            background: "#fafbfc",
+                            borderRadius: 10,
+                            padding: "12px 14px",
+                            margin: "14px 0 8px 0",
+                            minHeight: 44,
+                            color: "#222",
+                            fontSize: 15,
+                          }}
+                        >
+                          <b>Topic:</b> {item.topic || "No topic"}
+                        </div>
+                        <div style={{display: "flex", gap: 8, marginTop: 8}}>
                           <Button
-                            type="primary"
-                            style={{background: "#355383"}}
+                            style={{
+                              borderRadius: 8,
+                              background: "#fff",
+                              color: "#355383",
+                              border: "1px solid #355383",
+                              fontWeight: 600,
+                              minWidth: 90,
+                            }}
                             onClick={() =>
                               navigate("/parent/appointment-details", {
                                 state: {id: item.appointmentId},
