@@ -31,6 +31,6 @@
 We welcome contributions and feedback from the community!
 
 - Submit Issues or Pull Requests directly on this GitHub repository
-- Contact: [ngothanhdat.AK@gmail.com](mailto:ngothanhdat.AK@gmail.com)
+- Contact: [ngothanhdat4002@gmail.com](mailto:ngothanhdat4002@gmail.com)
 
 ------------------------------------------------------------------
