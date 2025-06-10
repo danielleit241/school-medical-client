@@ -3,6 +3,7 @@ import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
 import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
+import StudentModal from "./StudentModal";
 
 const pageSize = 10;
 
@@ -13,6 +14,8 @@ const StudentList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editItemId, setEditItemId] = useState(null);
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -137,6 +140,16 @@ const StudentList = () => {
     }
   };
 
+   const openEditModal = (itemId) => {
+    setEditItemId(itemId);
+    setEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setEditItemId(null);
+  };
+
   const columns = [
     {
     title: "No",
@@ -177,7 +190,8 @@ const StudentList = () => {
 
     return "";
   },
-},
+  },
+  
     {title: "Gender", dataIndex: "gender", key: "gender"},
     {title: "Grade", dataIndex: "grade", key: "grade"},
     {title: "Address", dataIndex: "address", key: "address"},
@@ -191,6 +205,23 @@ const StudentList = () => {
       dataIndex: "parentEmailAddress",
       key: "parentEmailAddress",
     }, // Thêm dòng này
+    {
+          title: "Action",
+          key: "action",
+          align: "center",
+          render: (item) => (
+            <>
+              <Button
+                type="primary"
+                onClick={() => openEditModal(item.itemId)}
+                style={{ marginRight: 8 }}
+              >
+                Edit
+              </Button>
+            </>
+          ),
+        },
+    
   ];
 
   return (
@@ -262,6 +293,12 @@ const StudentList = () => {
           onChange={(page) => setPageIndex(page)}
         />
       </div>
+      <StudentModal
+        open={editModalOpen}
+        studentId={editItemId}
+        onClose={closeEditModal}
+        onSaved={fetchStudents}
+      />
     </div>
   );
 };

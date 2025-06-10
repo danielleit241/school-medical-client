@@ -4,6 +4,7 @@ import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import "./index.scss"; 
 import Swal from "sweetalert2";
+import MedicalInventoryModal from "./MedicalInventoryModal";
 
 const pageSize = 10;
 
@@ -14,6 +15,8 @@ const MedicalInventory = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [searchText, setSearchText] = useState("");
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editItemId, setEditItemId] = useState(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -93,6 +96,65 @@ const MedicalInventory = () => {
     }
   };
 
+  const handleDelete = async (itemId) => {
+    try {
+      const res = await axiosInstance.delete(`/api/medical-inventories/${itemId}`);
+      console.log("Delete response:", res.data);
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted successfully",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+      fetchData(); // reload lại danh sách
+    } catch (err) {
+      console.error("Error deleting item:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Delete failed",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    }
+  };
+
+  const showDeleteConfirm = (itemId) => {
+    Swal.fire({
+      title: "Do you want to delete this item?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(itemId);
+      }
+    });
+  };
+
+  const openEditModal = (itemId) => {
+    setEditItemId(itemId);
+    setEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setEditItemId(null);
+  };
+
+  const openCreateModal = () => {
+    setEditItemId(null);
+    setEditModalOpen(true);
+  };
+
      const columns = [
       {
       title: "No",
@@ -108,7 +170,23 @@ const MedicalInventory = () => {
     { title: "Expiry Date", 
       dataIndex: "expiryDate", 
       key: "expiryDate", 
-      render: (value) => value ? value.toString().slice(0, 10) : ""},
+       width: 120,
+      render: (value) => value ? value.toString().slice(0, 10) : ""
+    },
+    { 
+      title: "Last Import Date", 
+      dataIndex: "lastImportDate", 
+      key: "lastImportDate", 
+      render: (value) => value ? value.toString().slice(0, 10) : "",
+      align: "center",
+    },
+    { 
+      title: "Last Export Date", 
+      dataIndex: "lastExportDate", 
+      key: "lastExportDate", 
+      render: (value) => value ? value.toString().slice(0, 10) : "",
+      align: "center",
+    },
     {title: "Maximum Stock Level", 
       dataIndex: "maximumStockLevel",
       key: "maximumStockLevel",
@@ -136,6 +214,28 @@ const MedicalInventory = () => {
           </span>
         );
       },
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "center",
+      render: (item) => (
+        <>
+          <Button
+            type="primary"
+            onClick={() => openEditModal(item.itemId)}
+            style={{ marginRight: 8 }}
+          >
+            Edit
+          </Button>
+          <Button
+            danger
+            onClick={() => showDeleteConfirm(item.itemId)}
+          >
+            Delete
+          </Button>
+        </>
+      ),
     },
   ];
   
@@ -178,6 +278,13 @@ const MedicalInventory = () => {
           >
             Download
           </Button>
+          <Button
+            type="primary"
+            style={{ background: "#1677ff", color: "#fff" }}
+            onClick={openCreateModal}
+          >
+            Add New
+          </Button>
         </div>      
         {error && (
           <Alert type="error" message={error} style={{marginBottom: 16}} />
@@ -206,6 +313,12 @@ const MedicalInventory = () => {
             onChange={(page) => setPageIndex(page)}
           />
         </div>
+        <MedicalInventoryModal
+          open={editModalOpen}
+          itemId={editItemId}
+          onClose={closeEditModal}
+          onSaved={fetchData}
+        />
       </div>;
 };
 
