@@ -12,6 +12,12 @@ const AppointmentDetail = () => {
   const [loading, setLoading] = useState(true);
   console.log(appointmentId);
   const userId = useSelector((state) => state.user?.userId);
+  const nurseMap = JSON.parse(localStorage.getItem("nurseMap") || "{}");
+
+  const getNurseName = (item) => {
+    // Ưu tiên lấy từ API, nếu không có thì lấy từ localStorage
+    return item.nurseName || nurseMap[item.appointmentId]?.fullName || "N/A";
+  };
   useEffect(() => {
     if (!appointmentId) return;
     const fetchDetail = async () => {
@@ -87,7 +93,7 @@ const AppointmentDetail = () => {
               {appointment.appointmentReason}
             </Descriptions.Item>
             <Descriptions.Item label="Nurse">
-              {appointment.staffNurse?.fullName || "..."}
+              {getNurseName(appointment) || "..."}
             </Descriptions.Item>
             <Descriptions.Item label="Status">
               <Tag
