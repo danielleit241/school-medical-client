@@ -8,7 +8,7 @@ import {useNavigate} from "react-router-dom";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import dayjs from "dayjs";
-import {AiOutlineCalendar} from "react-icons/ai";
+import {AiOutlineCalendar, AiOutlineUser} from "react-icons/ai";
 import {FiPhone} from "react-icons/fi";
 const {Option} = Select;
 
@@ -332,7 +332,6 @@ const AppointmentList = () => {
               borderRadius: 14,
               boxShadow: "0 2px 8px #f0f1f2",
               padding: 40,
-              height: "80vh",
             }}
           >
             {/* LEFT: List Nurse */}
@@ -889,34 +888,208 @@ const AppointmentList = () => {
               >
                 <div
                   style={{
-                    background: "#fff",
-                    borderRadius: 12,
-                    padding: 24,
+                    background: "#E6F4FF",
+                    borderRadius: 16,
+                    padding: 28,
                     marginBottom: 0,
-                    boxShadow: "0 2px 8px #f0f1f2",
+                    boxShadow: "0 2px 8px #e0e7ef",
+                    minWidth: 340,
+                    fontFamily: "inherit",
                   }}
                 >
                   <div
-                    style={{fontWeight: 700, fontSize: 18, marginBottom: 12}}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 18,
+                    }}
                   >
-                    Booking Summary
+                    <span
+                      style={{
+                        color: "#fff",
+                        borderRadius: "50%",
+                        width: 36,
+                        height: 36,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 20,
+                        marginRight: 12,
+                      }}
+                    >
+                      <i className="fa fa-user" />
+                      {/* Hoặc dùng icon react: <AiOutlineUser /> */}
+                      <AiOutlineUser style={{fontSize: 20, color: "#222"}} />
+                    </span>
+                    <span
+                      style={{fontWeight: 700, fontSize: 20, color: "#222"}}
+                    >
+                      Booking Summary
+                    </span>
                   </div>
-                  <div>
-                    <b>Nurse:</b> {nurseProfile?.fullName}
-                    <br />
-                    <b>Date:</b> {dateRequest}
-                    <br />
-                    <b>Time:</b> {appointmentStartTime || step2StartTime}
-                    <br />
-                    <b>Patient:</b>{" "}
-                    {
-                      listStudentParent.find(
-                        (s) => s.studentId === selectedStudentId
-                      )?.fullName
-                    }
+
+                  {/* Nurse */}
+                  <div
+                    style={{
+                      background: "#fff",
+                      borderRadius: 12,
+                      padding: "14px 18px",
+                      marginBottom: 14,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      boxShadow: "0 1px 2px #f0f1f2",
+                    }}
+                  >
+                    <span
+                      style={{
+                        background: "#e6fff2",
+                        color: "#1bbf7a",
+                        borderRadius: "50%",
+                        width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 18,
+                      }}
+                    >
+                      🧑‍⚕️
+                    </span>
+                    <div style={{flex: 1}}>
+                      <div style={{fontWeight: 600, color: "#222"}}>Nurse</div>
+                      <div style={{fontWeight: 700}}>
+                        {nurseProfile?.fullName || "—"}
+                      </div>
+                    </div>
                   </div>
-                  {/* Nếu có phí, thêm dòng này */}
-                  {/* <div style={{marginTop: 12, fontWeight: 700}}>Total Fee: <span style={{color: "#1976d2"}}>$50</span></div> */}
+
+                  {/* Date */}
+                  <div
+                    style={{
+                      background: "#fff",
+                      borderRadius: 12,
+                      padding: "14px 18px",
+                      marginBottom: 14,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      boxShadow: "0 1px 2px #f0f1f2",
+                    }}
+                  >
+                    <span
+                      style={{
+                        background: "#eaf1ff",
+                        color: "#5b8cff",
+                        borderRadius: "50%",
+                        width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 18,
+                      }}
+                    >
+                      📅
+                    </span>
+                    <div>
+                      <div style={{fontWeight: 600, color: "#222"}}>Date</div>
+                      <div style={{fontWeight: 700}}>{dateRequest}</div>
+                    </div>
+                  </div>
+
+                  {/* Time */}
+                  <div
+                    style={{
+                      background: "#fff",
+                      borderRadius: 12,
+                      padding: "14px 18px",
+                      marginBottom: 14,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      boxShadow: "0 1px 2px #f0f1f2",
+                    }}
+                  >
+                    <span
+                      style={{
+                        background: "#f3eaff",
+                        color: "#a259e6",
+                        borderRadius: "50%",
+                        width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 18,
+                      }}
+                    >
+                      ⏰
+                    </span>
+                    <div>
+                      <div style={{fontWeight: 600, color: "#222"}}>Time</div>
+                      <div style={{fontWeight: 700}}>
+                        {appointmentStartTime || step2StartTime || "--:--"}
+                        {appointmentEndTime || step2EndTime
+                          ? ` - ${appointmentEndTime || step2EndTime}`
+                          : ""}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Patient */}
+                  <div
+                    style={{
+                      background: "#fff",
+                      borderRadius: 12,
+                      padding: "14px 18px",
+                      marginBottom: 14,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      boxShadow: "0 1px 2px #f0f1f2",
+                    }}
+                  >
+                    <span
+                      style={{
+                        background: "#fff4e6",
+                        color: "#ff9900",
+                        borderRadius: "50%",
+                        width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 18,
+                      }}
+                    >
+                      🧑
+                    </span>
+                    <div>
+                      <div style={{fontWeight: 600, color: "#222"}}>
+                        Patient
+                      </div>
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          color: "#888",
+                          fontStyle: !selectedStudentId ? "italic" : "normal",
+                        }}
+                      >
+                        {listStudentParent.find(
+                          (s) => s.studentId === selectedStudentId
+                        )?.fullName || (
+                          <span style={{color: "#bbb"}}>To be assigned</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Booking ID (nếu có) */}
+                  {/* <div style={{borderTop: "1px solid #dde3ec", margin: "12px 0 0 0", paddingTop: 10, display: "flex", justifyContent: "space-between", color: "#555", fontSize: 15}}>
+    <span>Booking ID</span>
+    <span style={{fontWeight: 700}}>#BK-2025-001</span>
+  </div> */}
                 </div>
                 <div
                   style={{
