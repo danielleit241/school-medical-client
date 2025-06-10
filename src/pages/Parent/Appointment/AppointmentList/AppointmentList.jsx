@@ -184,6 +184,16 @@ const AppointmentList = () => {
         "/api/parents/appointments",
         payload
       );
+      const appointmentId = res.data.notificationTypeId || res.data.appointmentId;
+
+      // Lưu mapping nurse cho lịch sử
+      let nurseMap = JSON.parse(localStorage.getItem("nurseMap") || "{}");
+      nurseMap[appointmentId] = {
+        staffNurseId: selectedNurse.staffNurseId,
+        fullName: nurseProfile?.fullName || selectedNurse?.fullName,
+      };
+      localStorage.setItem("nurseMap", JSON.stringify(nurseMap));
+      
       console.log("Appointment API response:", res);
       localStorage.setItem(
         "appointmentId",

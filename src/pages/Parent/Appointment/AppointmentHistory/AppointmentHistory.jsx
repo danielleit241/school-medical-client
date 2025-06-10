@@ -15,6 +15,13 @@ const AppointmentHistory = () => {
 
   const [filterStatus, setFilterStatus] = useState("Pending");
   const navigate = useNavigate();
+  const nurseMap = JSON.parse(localStorage.getItem("nurseMap") || "{}");
+
+  const getNurseName = (item) => {
+    // Ưu tiên lấy từ API, nếu không có thì lấy từ localStorage
+    return item.nurseName || nurseMap[item.appointmentId]?.fullName || "N/A";
+  };
+
 
   // Fetch appointments
   useEffect(() => {
@@ -29,6 +36,7 @@ const AppointmentHistory = () => {
           }
         );
         const data = response.data;
+        console.log("Fetched appointments:", data);
         const arr = Array.isArray(data)
           ? data
           : Array.isArray(data?.items)
@@ -277,7 +285,7 @@ const AppointmentHistory = () => {
                           }}
                         >
                           <span style={{marginRight: 6}}>👩‍⚕️</span>
-                          {item.nurseName || "N/A"}
+                          {getNurseName(item) || "N/A"}
                         </div>
                         {/* Chủ đề */}
                         <div
