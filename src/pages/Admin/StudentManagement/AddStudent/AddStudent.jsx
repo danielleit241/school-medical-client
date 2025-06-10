@@ -49,7 +49,7 @@ const AddStudent = () => {
     });
   };
 
-  // ✅ Chuyển số serial Excel sang định dạng ngày yyyy-MM-dd
+  //Chuyển số serial Excel sang định dạng ngày yyyy-MM-dd
   const excelDateToString = (serial) => {
     if (!serial || isNaN(serial)) return serial;
     const utc_days = Math.floor(serial - 25569);
@@ -61,7 +61,7 @@ const AddStudent = () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  // ✅ Định dạng ô trước khi upload để đảm bảo dữ liệu ngày tháng chuẩn
+  // Định dạng ô trước khi upload để đảm bảo dữ liệu ngày tháng chuẩn
   const formatCellForUpload = (value, colName) => {
     const isDateCol = ["dayofbirth", "dateofbirth", "dob", "birthdate"].some(keyword =>
       String(colName).toLowerCase().includes(keyword)

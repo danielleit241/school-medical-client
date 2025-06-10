@@ -44,7 +44,7 @@ const CreateMedicalResForm = () => {
         );
         setStudents(response.data);
         dispatch(setListStudentParent(response.data));
-      // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
       } catch (error) {
         setStudents([]);
       }
@@ -85,22 +85,37 @@ const CreateMedicalResForm = () => {
       userId: parentId,
       dateSubmitted: date,
       medicationName: values.medicationName,
-      totalDosages: String(values.totalDosages), // luôn là chuỗi
+      totalDosages: String(values.totalDosages),
       notes: values.notes,
       parentConsent: values.parentConsent,
     };
     const medicalRegistrationDetails = doseDetails.map((item) => ({
-      doseNumber: item.doseNumber, // "1", "2", "3"
-      doseTime: item.doseTime, // "Morning", "Afternoon", "Evening"
+      doseNumber: item.doseNumber,
+      doseTime: item.doseTime,
       notes: item.notes,
     }));
 
     setLoading(true);
     try {
-      await axiosInstance.post("/api/parents/medical-registrations", {
-        medicalRegistration,
-        medicalRegistrationDetails,
-      });
+      // Bước 1: Đăng ký thuốc
+      const res = await axiosInstance.post(
+        "/api/parents/medical-registrations",
+        {
+          medicalRegistration,
+          medicalRegistrationDetails,
+        }
+      );
+
+      // Bước 2: Gửi thông báo cho nurse
+      await axiosInstance.post(
+        "/api/notifications/medical-registrations/to-nurse",
+        {
+          notificationTypeId: res.data.notificationTypeId,
+          senderId: res.data.senderId,
+          receiverId: res.data.receiverId,
+        }
+      );
+
       Swal.fire({
         icon: "success",
         title: "Medication registration submitted!",

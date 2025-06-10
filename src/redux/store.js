@@ -10,7 +10,5 @@ const store = configureStore({
         userProfile: userProfileSlice, 
         listStudent: listStudentSlice,
     },
-
 });
-
 export default store;
