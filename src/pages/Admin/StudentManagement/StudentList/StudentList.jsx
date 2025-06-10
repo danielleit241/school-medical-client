@@ -3,6 +3,7 @@ import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
 import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
+import StudentModal from "./StudentModal";
 
 const pageSize = 10;
 
@@ -13,6 +14,8 @@ const StudentList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editItemId, setEditItemId] = useState(null);
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -87,6 +90,18 @@ const StudentList = () => {
   };
 
   const handleDownloadExcel = async () => {
+    if(students.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "No students to download",
+        toast: true,
+        position: "top-end", 
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+      return;
+    }
     try {
       const response = await axiosInstance.get("/api/students/export-excel", {
         responseType: "blob",
@@ -123,6 +138,16 @@ const StudentList = () => {
         timerProgressBar: true,
       });
     }
+  };
+
+   const openEditModal = (itemId) => {
+    setEditItemId(itemId);
+    setEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setEditItemId(null);
   };
 
   const columns = [
@@ -165,7 +190,8 @@ const StudentList = () => {
 
     return "";
   },
-},
+  },
+  
     {title: "Gender", dataIndex: "gender", key: "gender"},
     {title: "Grade", dataIndex: "grade", key: "grade"},
     {title: "Address", dataIndex: "address", key: "address"},
@@ -179,6 +205,23 @@ const StudentList = () => {
       dataIndex: "parentEmailAddress",
       key: "parentEmailAddress",
     }, // Thêm dòng này
+    {
+          title: "Action",
+          key: "action",
+          align: "center",
+          render: (item) => (
+            <>
+              <Button
+                type="primary"
+                onClick={() => openEditModal(item.itemId)}
+                style={{ marginRight: 8 }}
+              >
+                Edit
+              </Button>
+            </>
+          ),
+        },
+    
   ];
 
   return (
@@ -250,6 +293,12 @@ const StudentList = () => {
           onChange={(page) => setPageIndex(page)}
         />
       </div>
+      <StudentModal
+        open={editModalOpen}
+        studentId={editItemId}
+        onClose={closeEditModal}
+        onSaved={fetchStudents}
+      />
     </div>
   );
 };
