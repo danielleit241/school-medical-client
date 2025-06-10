@@ -87,6 +87,18 @@ const StudentList = () => {
   };
 
   const handleDownloadExcel = async () => {
+    if(students.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "No students to download",
+        toast: true,
+        position: "top-end", 
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+      return;
+    }
     try {
       const response = await axiosInstance.get("/api/students/export-excel", {
         responseType: "blob",

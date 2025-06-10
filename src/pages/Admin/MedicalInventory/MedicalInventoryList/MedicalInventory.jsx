@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useCallback} from "react";
 import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
-import {SearchOutlined} from "@ant-design/icons";
+import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import "./index.scss"; 
+import Swal from "sweetalert2";
 
 const pageSize = 10;
 
@@ -42,6 +43,55 @@ const MedicalInventory = () => {
     const filterInventory = data.filter((item) =>
     item.itemName?.toLowerCase().includes(searchText.toLowerCase())
   );
+
+  const handleDownload = async () => {
+     if(data.length === 0) {
+          Swal.fire({
+            icon: "error",
+            title: "No items to download",
+            toast: true,
+            position: "top-end", 
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+          });
+          return;
+        }
+    try{
+      const res = await axiosInstance.get("/api/medical-inventories/export-excel", {
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "medical_inventory.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      Swal.fire({
+              icon: "success",
+              title: "Download successfully",
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+            });
+    }catch (error) {
+      console.error("Error downloading data:", error);
+       Swal.fire({
+              icon: "error",
+              title: "Download failed",
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+            });
+    }
+  };
 
      const columns = [
       {
@@ -117,11 +167,18 @@ const MedicalInventory = () => {
             placeholder="Search by item name"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            style={{width: 220}}
+            style={{ width: 220 }}
             allowClear
             prefix={<SearchOutlined />}
           />
-        </div>
+         <Button
+            icon={<DownloadOutlined />}
+            onClick={handleDownload}
+            style={{ background: "#52c41a", color: "#fff" }}
+          >
+            Download
+          </Button>
+        </div>      
         {error && (
           <Alert type="error" message={error} style={{marginBottom: 16}} />
         )}
