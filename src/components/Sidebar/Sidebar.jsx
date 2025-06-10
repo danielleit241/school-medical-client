@@ -10,7 +10,6 @@ import {
   SolutionOutlined,
   FileTextOutlined,
   FormOutlined,
-  ProfileOutlined,
   HomeOutlined,
   MedicineBoxOutlined,
   FileAddOutlined,
@@ -595,7 +594,7 @@ const Sidebar = () => {
                 className="notification-dropdown"
                 style={{
                   position: "absolute",
-                  top: 60, // ngay dưới avatar
+                  top: 60,
                   left: 0,
                   width: 350,
                   background: "#fff",

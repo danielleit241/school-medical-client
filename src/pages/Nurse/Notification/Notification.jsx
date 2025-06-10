@@ -17,11 +17,11 @@ const Notifications = () => {
 
   const notificationTypeMap = {
     1: "Appointment",
-    2: "HealthCheckUp",
-    3: "MedicalEvent",
-    4: "MedicalRegistration",
+    2: "Health CheckUp",
+    3: "Medical Event",
+    4: "Medical Registration",
     5: "Vaccination",
-    6: "GeneralNotification",
+    6: "General Notification",
   };
 
   // Thêm state để cập nhật lại mỗi phút
