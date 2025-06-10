@@ -5,10 +5,12 @@ import axiosInstance from "../../../../api/axios";
 import "./index.scss";
 import {useNavigate} from "react-router-dom";
 import LogoDefault from "../../../../assets/images/defaultlogo.svg";
+import Swal from "sweetalert2";
+import { Upload } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  // const [upload, setUpload] = useState(false);
   const [user, setUser] = useState(null);
   const storedUserId = localStorage.getItem("userId");
   const userId = useSelector((state) => state.user.userId) || storedUserId;
@@ -25,7 +27,7 @@ const UserProfile = () => {
       try {
         const response = await axiosInstance.get(`/api/user-profile/${userId}`);
         setUser(response.data);
-        // console.log("User profile fetched successfully:", response.data);
+        console.log("User profile fetched successfully:", response.data);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
@@ -33,13 +35,78 @@ const UserProfile = () => {
     fetchUserProfile();
   }, [userId]);
 
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "SchoolManagement");
+
+    const startTime = Date.now();
+
+    try {
+      // Upload lên Cloudinary
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/darnrlpag/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await res.json();
+      if (!data.secure_url) throw new Error("Upload failed");
+
+      
+      await axiosInstance.put(`/api/user-profile/${userId}/avatar`, {
+        avatarUrl: data.secure_url,
+      });
+
+      setUser((prev) => ({ ...prev, avatarUrl: data.secure_url }));
+
+      const endTime = Date.now();
+      const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: `Profile image updated!`,
+        text: `Upload time: ${duration} seconds`,
+        showConfirmButton: false,
+        timer: 2200,
+        showClass: { popup: "" },
+        hideClass: { popup: "" },
+        customClass: {
+          popup: "swal2-alert-custom-size",
+        },
+      });
+      window.location.reload(); // Reload page to reflect changes
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Upload failed!",
+        text: "Could not update profile image.",
+        showConfirmButton: false,
+        timer: 2000,
+        showClass: { popup: "" },
+        hideClass: { popup: "" },
+        customClass: {
+          popup: "swal2-alert-custom-size",
+        },
+      });
+    }
+  };
+
   return (
     <>
       {!user ? (
         <div>Loading...</div>
       ) : (
         <div className="profile_main">
-          <div className="profile_image no-upload">
+          <div className="profile_image no-upload" style={{ position: "relative", display: "inline-block" }}>
             <img
               src={
                 user.avatarUrl && user.avatarUrl.trim() !== ""
@@ -47,7 +114,41 @@ const UserProfile = () => {
                   : LogoDefault
               }
               alt="img2"
+              style={{ width: 120, height: 120, borderRadius: "50%", objectFit: "cover" }}
             />
+            <Upload
+              showUploadList={false}
+              accept="image/*"
+              customRequest={({ file }) => {
+                // Tạo 1 event giả để dùng lại handleUpload
+                handleUpload({ target: { files: [file] } });
+              }}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 8,
+                  right: 8,
+                  background: "#fff",
+                  borderRadius: "50%",
+                  width: 32,
+                  height: 32,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 0 4px #ccc",
+                  cursor: "pointer",
+                }}
+                title="Upload avatar"
+              >
+                <PlusOutlined style={{ fontSize: 18, color: "#1677ff" }} />
+              </div>
+            </Upload>
           </div>
           <h2>Hello {user.fullName}</h2>
           <div className="profile_form flex flex-col justify-center items-center relative">
@@ -73,9 +174,6 @@ const UserProfile = () => {
                 value={user.emailAddress}
                 readOnly
               />
-            </div>
-
-            <div className="profile_input_2">
               <label>Day of Birth</label>
               <input
                 type="date"
@@ -83,8 +181,6 @@ const UserProfile = () => {
                 value={user.dateOfBirth}
                 readOnly
               />
-            </div>
-            <div className="profile_input_1">
               <label>Address</label>
               <input type="text" name="address" value={user.address} readOnly />
             </div>

@@ -56,7 +56,7 @@ const UserProfile = () => {
       const data = await res.json();
       if (!data.secure_url) throw new Error("Upload failed");
 
-      // Gọi API backend để cập nhật avatar
+      
       await axiosInstance.put(`/api/user-profile/${userId}/avatar`, {
         avatarUrl: data.secure_url,
       });
