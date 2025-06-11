@@ -199,7 +199,7 @@ function App() {
             }
           />
           {/* Các route còn lại cho cả admin và manager */}
-          <Route path="inventory/createInventory" element={<VaccineInventory />} />
+          <Route path="inventory/createInventory" element={<AddInventory />} />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
