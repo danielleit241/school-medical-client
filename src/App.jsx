@@ -83,7 +83,7 @@ function App() {
 
   return (
     <>
-    <SessionTimeout />
+      <SessionTimeout />
       <Routes>
         {/* Trang chung cho tất cả user */}
         <Route path="/" element={<Layout />}>

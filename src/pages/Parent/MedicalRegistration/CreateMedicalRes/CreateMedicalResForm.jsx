@@ -29,6 +29,7 @@ const CreateMedicalResForm = () => {
   const parentId = useSelector((state) => state.user?.userId);
 
   const [students, setStudents] = useState([]);
+  const [nurses, setNurses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalDosages, setTotalDosages] = useState("1");
   // Mỗi phần tử: { doseNumber: "1", doseTime: "Morning", notes: "" }
@@ -51,7 +52,22 @@ const CreateMedicalResForm = () => {
     };
     if (parentId) fetchStudents();
   }, [parentId, dispatch]);
-
+  useEffect(() => {
+    const fetchNurses = async () => {
+      try {
+        const response = await axiosInstance.get("/api/nurses");
+        setNurses(response.data);
+        // eslint-disable-next-line no-unused-vars
+      } catch (error) {
+        setNurses([]);
+      }
+    };
+    fetchNurses();
+  }, []);
+  console.log(
+    "nurses",
+    nurses.map((n) => n.staffNurseId)
+  );
   // Khi chọn lại số buổi, cập nhật lại form nhỏ
   const handleTotalDosagesChange = (value) => {
     setTotalDosages(value);
@@ -83,6 +99,7 @@ const CreateMedicalResForm = () => {
     const medicalRegistration = {
       studentId: values.studentId,
       userId: parentId,
+      staffNurseId: values.staffNurseId,
       dateSubmitted: date,
       medicationName: values.medicationName,
       totalDosages: String(values.totalDosages),
@@ -94,7 +111,7 @@ const CreateMedicalResForm = () => {
       doseTime: item.doseTime,
       notes: item.notes,
     }));
-
+    console.log("Medical registration data:", medicalRegistration);
     setLoading(true);
     try {
       // Bước 1: Đăng ký thuốc
@@ -105,7 +122,7 @@ const CreateMedicalResForm = () => {
           medicalRegistrationDetails,
         }
       );
-
+      console.log("Medical registration response:", res.data);
       // Bước 2: Gửi thông báo cho nurse
       await axiosInstance.post(
         "/api/notifications/medical-registrations/to-nurse",
@@ -123,7 +140,7 @@ const CreateMedicalResForm = () => {
         timer: 1500,
       });
       navigate("/parent/medical-registration/list");
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -169,6 +186,20 @@ const CreateMedicalResForm = () => {
                   {students.map((s) => (
                     <Select.Option key={s.studentId} value={s.studentId}>
                       {s.fullName}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                label="Nurse"
+                name="staffNurseId"
+                rules={[{required: true, message: "Please select a nurse"}]}
+              >
+                <Select placeholder="Select nurse" allowClear>
+                  {nurses.map((n) => (
+                    <Select.Option key={n.staffNurseId} value={n.staffNurseId}>
+                      {n.fullName}
                     </Select.Option>
                   ))}
                 </Select>

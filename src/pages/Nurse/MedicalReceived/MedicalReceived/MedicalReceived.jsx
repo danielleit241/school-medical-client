@@ -13,9 +13,11 @@ import {
   Select,
   Alert,
 } from "antd";
+import {useSelector} from "react-redux";
 
 const MedicalReceived = () => {
   const navigate = useNavigate();
+  const userId = useSelector((state) => state.user?.userId);
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
@@ -28,25 +30,12 @@ const MedicalReceived = () => {
       setLoading(true);
       try {
         const response = await axiosInstance.get(
-          "/api/nurses/medical-registrations",
-          {
-            params: {
-              pageIndex,
-              pageSize,
-            },
-          }
+          `/api/nurses/${userId}/medical-registrations`
         );
         setData(response.data.items || []);
         setTotal(response.data.count || 0);
         // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Cannot get medical registrations!",
-        }).then(() => {
-          navigate(-1);
-        });
         setData([]);
         setTotal(0);
       } finally {
@@ -54,7 +43,7 @@ const MedicalReceived = () => {
       }
     };
     fetchData();
-  }, [navigate, pageIndex, pageSize]);
+  }, [navigate, userId, pageIndex, pageSize]);
 
   if (loading) {
     return <Spin style={{marginTop: 40}} />;
