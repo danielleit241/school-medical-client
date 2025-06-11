@@ -1,9 +1,9 @@
 import {render, screen} from "@testing-library/react";
-import Login from "../src/pages/Login/Login"; // Đảm bảo đường dẫn đúng
+import Login from "../src/pages/Login/Login";
 import {describe, it, expect} from "vitest";
 import {Provider} from "react-redux";
-import store from "../src/redux/store"; // Đảm bảo đường dẫn đúng
-import {BrowserRouter, Router} from "react-router-dom";
+import store from "../src/redux/store";
+import {BrowserRouter} from "react-router-dom";
 
 describe("Login Component", () => {
   it("should render the login form with phone number input field", () => {

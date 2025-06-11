@@ -10,6 +10,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import dayjs from "dayjs";
 import {AiOutlineCalendar, AiOutlineUser} from "react-icons/ai";
 import {FiPhone} from "react-icons/fi";
+import LogoDefault from "../../../../assets/images/defaultlogo.svg";
 const {Option} = Select;
 
 const AppointmentList = () => {
@@ -361,6 +362,7 @@ const AppointmentList = () => {
               >
                 {nurse.map((n) => {
                   // Shared sample info for all nurses
+                  //NHẮC
                   const nurseInfo = {
                     specialty: "School Nurse",
                     workingDays: "Monday - Friday (9:30 - 11:30)",
@@ -558,7 +560,11 @@ const AppointmentList = () => {
                   }}
                 >
                   <img
-                    src={nurseProfile.avatarUrl}
+                    src={
+                      nurseProfile.avatarUrl
+                        ? nurseProfile.avatarUrl
+                        : LogoDefault
+                    }
                     alt="avatar"
                     style={{
                       width: 200,
