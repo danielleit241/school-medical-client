@@ -124,7 +124,7 @@ const MedicalRegistrationList = () => {
                 <Card
                   title={item.student.studentFullName}
                   extra={
-                    item.nurseApproved ? (
+                    item.nurseApproved.dateApproved ? (
                       <Tag color="green">Nurse Approved</Tag>
                     ) : (
                       <Tag color="orange">Pending Nurse</Tag>
