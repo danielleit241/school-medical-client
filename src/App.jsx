@@ -83,7 +83,7 @@ function App() {
 
   return (
     <>
-    <SessionTimeout />
+      <SessionTimeout />
       <Routes>
         {/* Trang chung cho tất cả user */}
         <Route path="/" element={<Layout />}>
@@ -199,7 +199,10 @@ function App() {
             }
           />
           {/* Các route còn lại cho cả admin và manager */}
-          <Route path="inventory/createInventory" element={<VaccineInventory />} />
+          <Route
+            path="inventory/createInventory"
+            element={<VaccineInventory />}
+          />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
