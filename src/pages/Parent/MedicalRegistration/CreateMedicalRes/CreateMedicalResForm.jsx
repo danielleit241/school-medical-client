@@ -64,10 +64,6 @@ const CreateMedicalResForm = () => {
     };
     fetchNurses();
   }, []);
-  console.log(
-    "nurses",
-    nurses.map((n) => n.staffNurseId)
-  );
   // Khi chọn lại số buổi, cập nhật lại form nhỏ
   const handleTotalDosagesChange = (value) => {
     setTotalDosages(value);
