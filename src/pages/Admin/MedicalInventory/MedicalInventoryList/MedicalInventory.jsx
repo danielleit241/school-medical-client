@@ -221,10 +221,12 @@ const MedicalInventory = () => {
       align: "center",
       render: (item) => (
         <>
-          <Button
-            type="primary"
+          <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+            <Button
+            color="#355383"
+            variant="outlined"
             onClick={() => openEditModal(item.itemId)}
-            style={{ marginRight: 8 }}
+            style={{ marginRight: 8, color: "#355383" }}
           >
             Edit
           </Button>
@@ -234,6 +236,7 @@ const MedicalInventory = () => {
           >
             Delete
           </Button>
+          </div>
         </>
       ),
     },
