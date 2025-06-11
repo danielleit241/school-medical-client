@@ -301,7 +301,7 @@ const Sidebar = () => {
         dropdown: [
           {
             label: "Create Vaccine",
-            key: "/admin/vaccine/create",
+            key: "/admin/vaccine/createVaccine",
             link: "/admin/vaccine/create",
             icon: <FileAddOutlined />,
           },
