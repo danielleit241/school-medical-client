@@ -1,10 +1,11 @@
-import React, {useState, useEffect, useCallback} from "react";
-import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
-import {SearchOutlined} from "@ant-design/icons";
+import React, { useState, useEffect, useCallback } from "react";
+import { Table, Input, Pagination, Spin, Alert, Button, Select } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import VaccineModal from "./VaccineModal";
 import Swal from "sweetalert2";
 const pageSize = 10;
+
 
 const VaccineInventory = () => {
   const [data, setData] = useState([]);
@@ -23,28 +24,24 @@ const VaccineInventory = () => {
       const params = {
         PageIndex: pageIndex,
         PageSize: pageSize,
+        Search: searchText,
       };
-      const response = await axiosInstance.get("/api/vaccination-details", {params});
-      console.log("Fetched vaccination details:", response.data.items);
+      const response = await axiosInstance.get("/api/vaccination-details", { params });
       setData(response.data.items || []);
       setTotalCount(response.data.count || 0);
-  } catch (err) {
+    } catch (err) {
       setError(err.response?.data || err.message || "Error fetching vaccination details");
       setData([]);
       setTotalCount(0);
-  } finally {
+    } finally {
       setLoading(false);
-  }
-  }, [pageIndex]);
+    }
+  }, [pageIndex, searchText]);
 
   useEffect(() => {
     fetchData();
-  }, [pageIndex, fetchData]);
+  }, [pageIndex, fetchData, searchText]);
 
-  const filterInventory = data.filter((item) =>
-    item.vaccineName?.toLowerCase().includes(searchText.toLowerCase())
-  );
-  
   const openEditModal = (vaccineId) => {
     setEditItemId(vaccineId);
     setEditModalOpen(true);
@@ -54,7 +51,7 @@ const VaccineInventory = () => {
     setEditItemId(null);
     setEditModalOpen(false);
   };
-  
+
   const openCreateModal = () => {
     setEditItemId(null);
     setEditModalOpen(true);
@@ -73,9 +70,9 @@ const VaccineInventory = () => {
         timer: 2000,
         timerProgressBar: true,
       });
-      fetchData(); // reload lại danh sách
+      fetchData();
     } catch (err) {
-      console.error("Error deleting item:", err);
+      console.error("Delete error:", err);
       Swal.fire({
         icon: "error",
         title: "Delete failed",
@@ -103,141 +100,142 @@ const VaccineInventory = () => {
       }
     });
   };
+  const filterInventory = data.filter((item) =>
+    item.vaccineName?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
-   const columns = [
-        {
-        title: "No",
-        key: "no",
-        render: (text, record, index) => (pageIndex - 1) * pageSize + index + 1,
-        width: 60,
-        align: "center",
-      },    
-      {title: "Vaccine Code", dataIndex: "vaccineCode", key: "vaccineCode"},
-      {title: "Vaccine Name", dataIndex: "vaccineName", key: "vaccineName"},
-      {title: "Manufacturer", dataIndex: "manufacturer", key: "manufacturer"},
-      {title: "Vaccine Type", dataIndex: "vaccineType", key: "vaccineType"},
-      {title: "Age Recommendation", dataIndex: "ageRecommendation", key: "ageRecommendation"},
-      {title: "Batch Number", dataIndex: "batchNumber", key: "batchNumber"},
-      { title: "Expiration Date", 
-        dataIndex: "expirationDate", 
-        key: "expirationDate", 
-         width: 120,
-        render: (value) => value ? value.toString().slice(0, 10) : ""
-      },
-      {title: "Contraindication Notes", dataIndex: "contraindicationNotes", key: "contraindicationNotes"},
-      {title: "Description", dataIndex: "description", key: "description"},
-      { 
-        title: "Created At", 
-        dataIndex: "createAt", 
-        key: "createAt", 
-        render: (value) => value ? value.toString().slice(0, 10) : "",
-        align: "center",
-      },
-      {
-        title: "Updated At",
-        dataIndex: "updateAt",
-        key: "updateAt",
-        render: (value) => value ? value.toString().slice(0, 10) : "",
-        align: "center",
-      },
-      
-      {
-        title: "Action",
-        key: "action",
-        align: "center",
-        render: (item) => (
-          <>
-            <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
-              <Button
-              color="#355383"
-              variant="outlined"
-              onClick={() => openEditModal(item.vaccineId)}
-              style={{ marginRight: 8, color: "#355383" }}
-            >
-              Edit
-            </Button>
-            <Button
-              danger
-              onClick={() => showDeleteConfirm(item.vaccineId)}
-            >
-              Delete
-            </Button>
-            </div>
-          </>
-        ),
-      },
-    ];
+  const columns = [
+    {
+      title: "No",
+      key: "no",
+      render: (text, record, index) => (pageIndex - 1) * pageSize + index + 1,
+      width: 60,
+      align: "center",
+    },
+    { title: "Vaccine Code", dataIndex: "vaccineCode", key: "vaccineCode" },
+    { title: "Vaccine Name", dataIndex: "vaccineName", key: "vaccineName" },
+    { title: "Manufacturer", dataIndex: "manufacturer", key: "manufacturer" },
+    { title: "Vaccine Type", dataIndex: "vaccineType", key: "vaccineType" },
+    { title: "Age Recommendation", dataIndex: "ageRecommendation", key: "ageRecommendation" },
+    { title: "Batch Number", dataIndex: "batchNumber", key: "batchNumber" },
+    {
+      title: "Expiration Date",
+      dataIndex: "expirationDate",
+      key: "expirationDate",
+      width: 120,
+      render: (value) => value ? value.toString().slice(0, 10) : ""
+    },
+    { title: "Contraindication Notes", dataIndex: "contraindicationNotes", key: "contraindicationNotes" },
+    { title: "Description", dataIndex: "description", key: "description" },
+    {
+      title: "Created At",
+      dataIndex: "createAt",
+      key: "createAt",
+      render: (value) => value ? value.toString().slice(0, 10) : "",
+      align: "center",
+    },
+    {
+      title: "Updated At",
+      dataIndex: "updateAt",
+      key: "updateAt",
+      render: (value) => value ? value.toString().slice(0, 10) : "",
+      align: "center",
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "center",
+      render: (item) => (
+        <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+          <Button
+            color="#355383"
+            variant="outlined"
+            onClick={() => openEditModal(item.vaccineId)}
+            style={{ marginRight: 8, color: "#355383" }}
+          >
+            Edit
+          </Button>
+          <Button
+            danger
+            onClick={() => showDeleteConfirm(item.vaccineId)}
+          >
+            Delete
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "left",
-            marginBottom: 16,
-            gap: 16,
-          }}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "left",
+          marginBottom: 16,
+          gap: 16,
+        }}
+      >
+        <h2 style={{ margin: 0 }}>Vaccines Inventory List</h2>
+      </div>
+      <div
+        style={{
+          marginBottom: 16,
+          display: "flex",
+          gap: 16,
+          alignItems: "center",
+          justifyContent: "left",
+        }}
+      >
+        <Input
+          placeholder="Search by vaccine name"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 220 }}
+          allowClear
+          prefix={<SearchOutlined />}
+        />
+        <Button
+          type="primary"
+          style={{ background: "#1677ff", color: "#fff" }}
+          onClick={openCreateModal}
         >
-          <h2 style={{margin: 0}}>Vaccines Inventory List</h2>
-        </div>
-        <div
-          style={{
-            marginBottom: 16,
-            display: "flex",
-            gap: 16,
-            alignItems: "center",
-            justifyContent: "left",
+          Add New
+        </Button>
+      </div>
+      {error && (
+        <Alert type="error" message={error} style={{ marginBottom: 16 }} />
+      )}
+      <Spin spinning={loading}>
+        <Table
+          dataSource={filterInventory}
+          columns={columns}
+          rowKey="vaccineName"
+          pagination={false}
+          locale={{
+            emptyText: !loading && !error ? "No items found" : undefined,
           }}
-        >
-          <Input
-            placeholder="Search by item name"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: 220 }}
-            allowClear
-            prefix={<SearchOutlined />}
-          />
-          <Button
-            type="primary"
-            style={{ background: "#1677ff", color: "#fff" }}
-            onClick={openCreateModal}
-          >
-            Add New
-          </Button>
-        </div>      
-        {error && (
-          <Alert type="error" message={error} style={{marginBottom: 16}} />
-        )}
-        <Spin spinning={loading}>
-          <Table
-            dataSource={filterInventory}
-            columns={columns}
-            rowKey="vaccineId"
-            pagination={false}
-            locale={{
-              emptyText: !loading && !error ? "No items found" : undefined,
-            }}
-          />
-        </Spin>
-        <div style={{marginTop: 16, textAlign: "right"}}>
-          <Pagination
-            current={pageIndex}
-            pageSize={pageSize}
-            total={totalCount}
-            showSizeChanger={false}
-            showQuickJumper
-            onChange={(page) => setPageIndex(page)}
-          />
-        </div>
-        <VaccineModal
-          open={editModalOpen}
-          vaccineId={editItemId}
-          onClose={closeEditModal}
-          onSaved={fetchData}
+        />
+      </Spin>
+      <div style={{ marginTop: 16, textAlign: "right" }}>
+        <Pagination
+          current={pageIndex}
+          pageSize={pageSize}
+          total={totalCount}
+          showSizeChanger={false}
+          showQuickJumper
+          onChange={(page) => setPageIndex(page)}
         />
       </div>
-  )
-}
+      <VaccineModal
+        open={editModalOpen}
+        vaccineId={editItemId}
+        onClose={closeEditModal}
+        onSaved={fetchData}
+      />
+    </div>
+  );
+};
 
-export default VaccineInventory
+export default VaccineInventory;
