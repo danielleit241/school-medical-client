@@ -66,6 +66,9 @@ import UpdateUserProfile from "./pages/Parent/Profile/Edit/UpdateUserProfile";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import AddInventory from "./pages/Admin/MedicalInventory/AddInventory/AddInventory";
 import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryList/MedicalInventory";
+import VaccineInventory from "./pages/Admin/VaccineList/VaccineInventory/VaccineInventory";
+import AddVaccine from "./pages/Admin/VaccineList/AddVaccine/AddVaccine";
+import SessionTimeout from "./components/SessionTimeout/SessionTimeout";
 
 function App() {
   const dispatch = useDispatch();
@@ -80,6 +83,7 @@ function App() {
 
   return (
     <>
+    <SessionTimeout />
       <Routes>
         {/* Trang chung cho tất cả user */}
         <Route path="/" element={<Layout />}>
@@ -195,11 +199,13 @@ function App() {
             }
           />
           {/* Các route còn lại cho cả admin và manager */}
-          <Route path="inventory/createInventory" element={<AddInventory />} />
+          <Route path="inventory/createInventory" element={<VaccineInventory />} />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
           />
+          <Route path="vaccine/inventoryList" element={<VaccineInventory />} />
+          <Route path="vaccine/create" element={<AddVaccine />} />
           <Route path="campaign/campaign-list" element={<CampaignList />} />
           <Route path="campaign/create-campaign" element={<CreateCampaign />} />
           <Route path="campaign/detail-campaign" element={<DetailCampaign />} />
