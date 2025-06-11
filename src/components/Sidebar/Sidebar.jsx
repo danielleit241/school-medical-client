@@ -195,6 +195,26 @@ const Sidebar = () => {
           },
         ],
       },
+      {
+        label: "Vaccine Management",
+        key: "vaccine-management",
+        icon: <AppstoreAddOutlined />,
+        dropdown: [
+          {
+            label: "Create Vaccine",
+            key: "/admin/vaccine/create",
+            link: "/admin/vaccine/create",
+            icon: <FileAddOutlined />,
+          },
+          {
+            label: "Vaccine List",
+            key: "/admin/vaccine/inventoryList",
+            link: "/admin/vaccine/inventoryList",
+            icon: <FileTextOutlined />,
+          },
+        ],
+      },
+     
     ],
     manager: [
       {
@@ -272,6 +292,26 @@ const Sidebar = () => {
           },
         ],
       },
+      {
+        label: "Vaccine Management",
+        key: "vaccine-management",
+        icon: <AppstoreAddOutlined />,
+        dropdown: [
+          {
+            label: "Create Vaccine",
+            key: "/admin/vaccine/create",
+            link: "/admin/vaccine/create",
+            icon: <FileAddOutlined />,
+          },
+          {
+            label: "Vaccine List",
+            key: "/admin/vaccine/inventoryList",
+            link: "/admin/vaccine/inventoryList",
+            icon: <FileTextOutlined />,
+          },
+        ],
+      },
+      
     ],
     nurse: [
       {
