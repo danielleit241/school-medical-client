@@ -19,6 +19,9 @@ import {
   BellOutlined,
   LogoutOutlined,
   DownOutlined,
+  InboxOutlined,
+  DropboxOutlined,
+  DatabaseOutlined,
 } from "@ant-design/icons";
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import axiosInstance from "../../api/axios";
@@ -179,7 +182,7 @@ const Sidebar = () => {
       {
         label: "Medical Inventory",
         key: "inventory",
-        icon: <AppstoreAddOutlined />,
+        icon: <DatabaseOutlined />,
         dropdown: [
           {
             label: "Create Inventory",
@@ -198,7 +201,7 @@ const Sidebar = () => {
       {
         label: "Vaccine Management",
         key: "vaccine-management",
-        icon: <AppstoreAddOutlined />,
+        icon: <MedicineBoxOutlined />,
         dropdown: [
           {
             label: "Create Vaccine",
@@ -214,7 +217,6 @@ const Sidebar = () => {
           },
         ],
       },
-     
     ],
     manager: [
       {
@@ -311,7 +313,6 @@ const Sidebar = () => {
           },
         ],
       },
-      
     ],
     nurse: [
       {
