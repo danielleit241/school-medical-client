@@ -1,8 +1,8 @@
 # School Medical Management System
 
-**School Medical Management System** is a web application designed to help schools manage student health records, medical history, and all activities related to school healthcare.
-
 [![School Medical Project (CI included) | © 2025 by ngothanhdatAK](https://github.com/ngothanhdat-AK/school-medical-client/actions/workflows/node.js.yml/badge.svg)](https://github.com/ngothanhdat-AK/school-medical-client/actions/workflows/node.js.yml)
+
+**School Medical Management System** is a web application designed to help schools manage student health records, medical history, and all activities related to school healthcare.
 
 ## 🚀 Key Features
 - Manage student health records
