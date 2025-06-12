@@ -4,6 +4,7 @@ import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import StudentModal from "./StudentModal";
+import { Search } from "lucide-react";
 
 const pageSize = 10;
 
@@ -24,6 +25,7 @@ const StudentList = () => {
       const params = {
         PageIndex: pageIndex,
         PageSize: pageSize,
+        Search: searchText,
       };
       const response = await axiosInstance.get("/api/students", {params});
       if (response.data.items && response.data.items.length > 0) {
@@ -39,19 +41,14 @@ const StudentList = () => {
     } finally {
       setLoading(false);
     }
-  }, [pageIndex]);
+  }, [pageIndex, searchText]);
 
   useEffect(() => {
     fetchStudents();
-  }, [pageIndex, fetchStudents]);
-
-  // Lọc theo tên học sinh
-  const filteredStudents = students.filter((student) =>
-    student.fullName?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  }, [pageIndex, fetchStudents, searchText]);
 
   const handleSendCreateAccount = async () => {
-    if (filteredStudents.length === 0) {
+    if (students.length === 0) {
       Swal.fire({
         icon: "warning",
         title: "No students selected",
@@ -140,8 +137,8 @@ const StudentList = () => {
     }
   };
 
-   const openEditModal = (itemId) => {
-    setEditItemId(itemId);
+   const openEditModal = (studentId) => {
+    setEditItemId(studentId);
     setEditModalOpen(true);
   };
 
@@ -213,7 +210,7 @@ const StudentList = () => {
             <>
               <Button
                 type="primary"
-                onClick={() => openEditModal(item.itemId)}
+                onClick={() => openEditModal(item.studentId)}
                 style={{ marginRight: 8 }}
               >
                 Edit
@@ -274,7 +271,7 @@ const StudentList = () => {
       )}
       <Spin spinning={loading}>
         <Table
-          dataSource={filteredStudents}
+          dataSource={students}
           columns={columns}
           rowKey="studentId"
           pagination={false}

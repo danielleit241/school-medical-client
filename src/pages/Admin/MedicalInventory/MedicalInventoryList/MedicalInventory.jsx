@@ -25,6 +25,7 @@ const MedicalInventory = () => {
             const params = {
                 PageIndex: pageIndex,
                 PageSize: pageSize,
+                Search: searchText,
             };
             const response = await axiosInstance.get("/api/medical-inventories", {params});
             console.log("Fetched medical inventory:", response.data.items);
@@ -37,15 +38,11 @@ const MedicalInventory = () => {
         } finally {
             setLoading(false);
         }
-    }, [pageIndex]);
+    }, [pageIndex, searchText]);
 
     useEffect(() => {
         fetchData();
     }, [pageIndex, fetchData]);
-
-    const filterInventory = data.filter((item) =>
-    item.itemName?.toLowerCase().includes(searchText.toLowerCase())
-  );
 
   const handleDownload = async () => {
      if(data.length === 0) {
@@ -294,14 +291,14 @@ const MedicalInventory = () => {
         )}
         <Spin spinning={loading}>
           <Table
-            dataSource={filterInventory}
+            dataSource={data}
             columns={columns}
             rowKey="itemName"
             pagination={false}
             locale={{
               emptyText: !loading && !error ? "No items found" : undefined,
             }}
-              rowClassName={(record) =>
+            rowClassName={(record) =>
               record.quantityInStock === record.minimumStockLevel ? "low-quantity-row" : ""
             }
           />
