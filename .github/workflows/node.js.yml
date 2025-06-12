@@ -1,11 +1,10 @@
-name: CI
+name: School Medical Project (CI included) | © 2025 by ngothanhdatAK
+
 
 on:
   push:
     branches:
       - main
-      - master
-      - develop
   pull_request:
     branches:
       - "**"
