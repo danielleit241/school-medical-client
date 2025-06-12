@@ -137,8 +137,8 @@ const StudentList = () => {
     }
   };
 
-   const openEditModal = (itemId) => {
-    setEditItemId(itemId);
+   const openEditModal = (studentId) => {
+    setEditItemId(studentId);
     setEditModalOpen(true);
   };
 
@@ -210,7 +210,7 @@ const StudentList = () => {
             <>
               <Button
                 type="primary"
-                onClick={() => openEditModal(item.itemId)}
+                onClick={() => openEditModal(item.studentId)}
                 style={{ marginRight: 8 }}
               >
                 Edit

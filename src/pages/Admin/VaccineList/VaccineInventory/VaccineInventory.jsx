@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Table, Input, Pagination, Spin, Alert, Button, Select } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import VaccineModal from "./VaccineModal";
 import Swal from "sweetalert2";
@@ -57,9 +57,58 @@ const VaccineInventory = () => {
     setEditModalOpen(true);
   };
 
+  const handleDownload = async () => {
+    if(data.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "No items to download",
+        toast: true,
+        position: "top-end", 
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    try{
+      const res = await axiosInstance.get("/api/vaccines/export-excel", {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "vaccines.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      Swal.fire({
+        icon: "success",
+        title: "Download successfully",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+
+    }catch (error) {
+      console.error("Download error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Download failed",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    }
+  };
+
   const handleDelete = async (vaccineId) => {
     try {
-      const res = await axiosInstance.delete(`/api/vaccine-details/${vaccineId}`);
+      const res = await axiosInstance.delete(`/api/vaccination-details/${vaccineId}`);
       console.log("Delete response:", res.data);
       await Swal.fire({
         icon: "success",
@@ -196,6 +245,13 @@ const VaccineInventory = () => {
           allowClear
           prefix={<SearchOutlined />}
         />
+         <Button
+            icon={<DownloadOutlined />}
+            onClick={handleDownload}
+            style={{ background: "#52c41a", color: "#fff" }}
+          >
+            Download
+          </Button>
         <Button
           type="primary"
           style={{ background: "#1677ff", color: "#fff" }}
