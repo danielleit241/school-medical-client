@@ -36,8 +36,8 @@ function HomePage() {
   }, [userId, dispatch]);
   return (
     <>
-      <div className="">
-        <div className="home__carousel ">
+      <div className="home">
+        <div className="home__carousel">
           <Carousel autoplay />
         </div>
         <div className="container">

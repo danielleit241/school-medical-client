@@ -347,7 +347,6 @@ const Header = () => {
             width: 400,
             background: "#fff",
             borderRadius: 10,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
             zIndex: 1000,
             padding: 20,
           }}

@@ -1,67 +1,3 @@
-:root {
-  --primary-color: #355383;
-  --primary-color-light: #36588d;
-  --secondary-color: #159eec;
-  --white-color: #ffffff;
-  --wwhite-color-light: #fdfdfd;
-  --black-color: #000000;
-  --gray-color: #ccc;
-
-  --font-family: "Roboto", sans-serif;
-
-  --font-sm: 15px;
-  --font-md: 16px;
-  --font-lg: 18px;
-  --font-xl: 20px;
-}
-p {
-  margin: 0;
-}
-ul,
-ol {
-  margin: 0;
-  list-style-type: none;
-}
-
-button {
-  background-color: transparent;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-input {
-  color: var(--gray-color);
-  border: 0;
-  outline: none;
-}
-
-a {
-  color: var(--black-color);
-  color: inherit;
-  text-decoration: none;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-  object-fit: cover;
-  /* object-fit giữ ảnh ko méo */
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: 600;
-}
-
-hr {
-  border: 1px solid var(--price);
-}
 .active-link {
   text-decoration: none;
   color: var(--black-color); /* màu nổi bật */
@@ -83,7 +19,7 @@ hr {
     font-family: var(--font-family);
   }
   &__bottom-image {
-    width: 200px; /* kích thước khung muốn hiển thị */
+    width: 250px; /* kích thước khung muốn hiển thị */
     height: 80px; /* kích thước khung muốn hiển thị */
     overflow: hidden; /* ẩn phần thừa */
   }
@@ -113,19 +49,19 @@ hr {
   &__login {
     background-color: var(--white-color);
     color: var(--black-color);
-    padding: 10px 30px;
-    font-size: var(--font-sm);
+    padding: 15px 40px;
+    font-size: var(--font-lg);
     font-family: var(--font-family);
     font-weight: 700;
     border-radius: 999px;
-    box-shadow: 0 0px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0px 8px rgba(0, 0, 0, 0.1);
     &:hover {
       background-color: var(--wwhite-color-light);
       color: var(--gray-color);
     }
   }
   &__bottom {
-    box-shadow: 0 2px 8px rgba(53, 83, 131, 0.13);
+    box-shadow: 0 1px 2px rgba(53, 83, 131, 0.13);
     z-index: 10;
     position: relative;
     overflow: hidden; // Thêm dòng này để chặn tràn

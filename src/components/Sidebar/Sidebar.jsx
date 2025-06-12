@@ -567,7 +567,11 @@ const Sidebar = () => {
   );
 
   return (
-    <div style={{background: "#fff"}}>
+    <div
+      style={{
+        background: "#fff",
+      }}
+    >
       {/* Hiển thị Hello, role, avatar, notification giống Header */}
       {(role === "admin" || role === "manager" || role === "nurse") && (
         <div
