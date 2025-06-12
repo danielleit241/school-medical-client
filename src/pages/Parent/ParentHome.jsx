@@ -1,6 +1,6 @@
 import "./parentHome.scss"; // Assuming you have a HomePage.scss for styles
-import slide1 from "../../assets/imagecarousel/banner_doctor 1.svg"; // Adjust the path as necessary
-import slide2 from "../../assets/imagecarousel/banner_doctor 1.svg"; // Adjust the path as necessary
+import slide1 from "../../assets/imagecarousel/1.svg"; // Adjust the path as necessary
+import slide2 from "../../assets/imagecarousel/1.svg"; // Adjust the path as necessary
 import news1 from "../../assets/news/news1.svg";
 import news2 from "../../assets/news/news2.svg";
 import news3 from "../../assets/news/news3.svg";

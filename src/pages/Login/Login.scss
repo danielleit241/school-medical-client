@@ -1,90 +1,97 @@
-
 .login_main {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 30px 0px;
+  background-color: #fff;
+  padding: 60px 0px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
 
   .login_form {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    // background: #fff;
     border-radius: 1rem;
-    // box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
     width: 100%;
-    max-width: 500px;
+    max-width: 700px;
+    background-color: #fff;
+    box-shadow: 0 8px 32px 0 rgba(53, 83, 131, 0.12);
+    padding: 40px 32px 32px 32px;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.2s;
 
-    .login_name {
+    &_name {
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 2rem;
       font-family: "Poppins", sans-serif;
     }
 
-    .login_form {
+    &-input {
       display: flex;
       flex-direction: column;
-
-      &__label {
-        margin-bottom: 5px;
-        font-size: 14px;
-        font-weight: 400;
-        color: #7e7e7e;
-      }
-
-      &__input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ccc;
-        border-radius: 0.5rem;
-        font-size: 1rem;
-      }
-      &__forget {
-        font-size: 14px;
-
-        margin-bottom: 25px;
-        a {
-          text-decoration: underline;
-          color: #414040;
-        }
-      }
-      &__terms {
-        display: flex;
-        flex-direction: row !important;
-        font-size: 12px;
-        margin-bottom: 10px;
-      }
-
-      &__eye-password {
-        position: relative;
-      }
-      &__eye {
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-      }
+      gap: 30px;
+      margin-bottom: 20px;
     }
 
-    .login_button {
+    &__label {
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #7e7e7e;
+    }
+
+    &__input {
       width: 100%;
       padding: 0.75rem;
-      background-color: #ccc;
-      color: #fff;
-      font-weight: 500;
-      border: none;
+      border: 1px solid #ccc;
       border-radius: 0.5rem;
       font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s;
+      box-shadow: none !important;
+    }
+    &__forget {
+      font-size: 14px;
 
-      &:hover {
-        background-color: #aaa;
+      margin-bottom: 25px;
+      a {
+        text-decoration: underline;
+        color: #414040;
       }
+    }
+    &__terms {
+      display: flex;
+      flex-direction: row !important;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    &__eye-password {
+      position: relative;
+    }
+    &__eye {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+
+  .login_button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #ccc;
+    color: #fff;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #aaa;
     }
   }
 }
+
 .terms-container {
   display: flex !important;
   align-items: center !important; /* Căn giữa theo chiều dọc */

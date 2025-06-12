@@ -126,9 +126,9 @@ const Login = () => {
     <>
       <div className="login_main animate__animated animate__fadeIn">
         <div className="login_form">
-          <h2 className="login_name">Log in</h2>
+          <h1 className="login_form_name ">Log in</h1>
           <form onSubmit={handleLogin}>
-            <div className="login_form">
+            <div className="login_form-input">
               <div>
                 <label className="login_form__label">Phone Number: </label>
                 <input

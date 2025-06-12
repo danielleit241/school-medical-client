@@ -29,13 +29,6 @@ const MedicalEventList = () => {
         setTotal(response.data.count || 0);
         // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Cannot get medical events!",
-        }).then(() => {
-          navigate(-1);
-        });
         setData([]);
         setTotal(0);
       } finally {

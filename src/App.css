@@ -8,3 +8,65 @@ body {
   line-height: 1.4;
   font-family: "Open Sans", sans-serif;
 }
+
+:root {
+  --primary-color: #355383;
+  --primary-color-light: #36588d;
+  --secondary-color: #159eec;
+  --white-color: #ffffff;
+  --wwhite-color-light: #fdfdfd;
+  --black-color: #000000;
+  --ccc: #ccc;
+  --gray-color: #666666;
+
+  --font-family: "Roboto", sans-serif;
+
+  --font-sm: 15px;
+  --font-md: 16px;
+  --font-lg: 18px;
+  --font-xl: 20px;
+}
+
+ul,
+ol {
+  list-style-type: none;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input {
+  color: var(--gray-color);
+  border: 0;
+  outline: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  object-fit: cover;
+  /* object-fit giữ ảnh ko méo */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+}
+
+hr {
+  border: 1px solid var(--price);
+}
