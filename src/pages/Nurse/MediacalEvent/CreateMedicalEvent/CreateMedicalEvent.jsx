@@ -40,16 +40,10 @@ const CreateMedicalEvent = () => {
       try {
         setTimeout(async () => {
           //Thay api endpoint này bằng endpoint lấy danh sách học sinh
-          const res = await axiosInstance.get("/api/students", {
-            params: {
-              pageSize: 40,
-              pageIndex: 1,
-            },
-          });
-          setStudents(Array.isArray(res.data.items) ? res.data.items : []);
-          dispatch(
-            setListStudent(Array.isArray(res.data.items) ? res.data.items : [])
-          );
+          const res = await axiosInstance.get("/api/students/no-paged");
+          console.log("Students: ", res.data);
+          setStudents(Array.isArray(res.data) ? res.data : []);
+          dispatch(setListStudent(Array.isArray(res.data) ? res.data : []));
         }, 500);
       } catch {
         setStudents([]);
