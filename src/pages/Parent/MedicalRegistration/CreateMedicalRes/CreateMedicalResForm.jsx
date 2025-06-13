@@ -155,30 +155,77 @@ const CreateMedicalResForm = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        background: "#f7f8fa",
       }}
     >
       <Card
-        title="Medication Registration"
-        style={{maxWidth: 1200, width: "100%"}}
+        style={{
+          maxWidth: 1200,
+          width: "100%",
+          borderRadius: 20,
+          boxShadow: "0 8px 32px 0 rgba(53,83,131,0.10)",
+          padding: 0,
+          border: "none",
+          overflow: "hidden",
+        }}
+        bodyStyle={{padding: 0}}
       >
-        <Form
-          layout="vertical"
-          onFinish={onFinish}
-          initialValues={{
-            dateSubmitted: dayjs(),
-            parentConsent: false,
-            totalDosages: "1",
+        {/* Header gradient */}
+        <div
+          style={{
+            background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+            padding: "20px 36px 10px 36px",
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
           }}
         >
-          <Row gutter={24}>
-            {/* Main form */}
-            <Col xs={24} md={14}>
+          <span
+            style={{
+              fontWeight: 700,
+              fontSize: 32,
+              color: "#fff",
+              letterSpacing: 1,
+            }}
+          >
+            Medication Registration
+          </span>
+        </div>
+        <Row
+          gutter={0}
+          style={{
+            background: "#fff",
+            borderBottomLeftRadius: 20,
+            borderBottomRightRadius: 20,
+            boxShadow: "0 2px 8px rgba(53,83,131,0.04)",
+          }}
+        >
+          {/* Main form */}
+          <Col xs={24} md={14} style={{padding: "32px 32px 32px 36px"}}>
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 22,
+                marginBottom: 18,
+                color: "#222",
+              }}
+            >
+              Medication Information
+            </div>
+            <Form
+              layout="vertical"
+              onFinish={onFinish}
+              initialValues={{
+                dateSubmitted: dayjs(),
+                parentConsent: false,
+                totalDosages: "1",
+              }}
+            >
               <Form.Item
                 label="Student"
                 name="studentId"
                 rules={[{required: true, message: "Please select your child"}]}
               >
-                <Select placeholder="Select student" allowClear>
+                <Select placeholder="Select student" allowClear size="large">
                   {students.map((s) => (
                     <Select.Option key={s.studentId} value={s.studentId}>
                       {s.fullName}
@@ -192,7 +239,7 @@ const CreateMedicalResForm = () => {
                 name="staffNurseId"
                 rules={[{required: true, message: "Please select a nurse"}]}
               >
-                <Select placeholder="Select nurse" allowClear>
+                <Select placeholder="Select nurse" allowClear size="large">
                   {nurses.map((n) => (
                     <Select.Option key={n.staffNurseId} value={n.staffNurseId}>
                       {n.fullName}
@@ -208,7 +255,7 @@ const CreateMedicalResForm = () => {
                   {required: true, message: "Please enter medication name"},
                 ]}
               >
-                <Input />
+                <Input size="large" />
               </Form.Item>
 
               <Form.Item
@@ -223,6 +270,7 @@ const CreateMedicalResForm = () => {
                   onChange={handleTotalDosagesChange}
                   value={totalDosages}
                   style={{width: 180}}
+                  size="large"
                 >
                   <Select.Option value="1">1</Select.Option>
                   <Select.Option value="2">2</Select.Option>
@@ -235,11 +283,15 @@ const CreateMedicalResForm = () => {
                 name="dateSubmitted"
                 rules={[{required: true, message: "Please select date"}]}
               >
-                <DatePicker style={{width: "100%"}} />
+                <DatePicker style={{width: "100%"}} size="large" />
               </Form.Item>
 
               <Form.Item label="Notes" name="notes">
-                <Input.TextArea rows={2} />
+                <Input.TextArea
+                  rows={2}
+                  size="large"
+                  placeholder="Additional notes (optional)"
+                />
               </Form.Item>
 
               <Form.Item
@@ -254,7 +306,7 @@ const CreateMedicalResForm = () => {
                   },
                 ]}
               >
-                <Checkbox>
+                <Checkbox style={{fontWeight: 500}}>
                   I consent to the school administering this medication to my
                   child
                 </Checkbox>
@@ -265,59 +317,91 @@ const CreateMedicalResForm = () => {
                   type="primary"
                   htmlType="submit"
                   loading={loading}
-                  style={{width: 120, backgroundColor: "#355383"}}
+                  size="large"
+                  style={{
+                    width: 140,
+                    background:
+                      "linear-gradient(90deg, #2B5DC4 0%, #355383 100%)",
+                    border: "none",
+                    fontWeight: 600,
+                    fontSize: 17,
+                    borderRadius: 8,
+                    marginTop: 8,
+                  }}
                 >
                   Submit
                 </Button>
               </Form.Item>
-            </Col>
+            </Form>
+          </Col>
 
-            {/* Dose details form */}
-            <Col xs={24} md={10}>
-              {doseDetails.slice(0, Number(totalDosages)).map((item, idx) => (
-                <div
-                  key={item.doseNumber}
-                  style={{
-                    background: "#f6f6f6",
-                    padding: 12,
-                    borderRadius: 8,
-                    marginBottom: 16,
-                    border: "1px solid #e0e0e0",
-                  }}
+          {/* Dose details form */}
+          <Col
+            xs={24}
+            md={10}
+            style={{
+              background: "#f8fafd",
+              borderTopRightRadius: 20,
+              borderBottomRightRadius: 20,
+              padding: "32px 32px 32px 24px",
+              borderLeft: "2px solid #f0f0f0",
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 22,
+                marginBottom: 18,
+                color: "#222",
+                letterSpacing: 0.5,
+              }}
+            >
+              Dose Sessions
+            </div>
+            {doseDetails.slice(0, Number(totalDosages)).map((item, idx) => (
+              <div
+                key={item.doseNumber}
+                style={{
+                  background: "#fff",
+                  padding: 18,
+                  borderRadius: 12,
+                  marginBottom: 18,
+                  border: "1.5px solid #e0e0e0",
+                  boxShadow: "0 2px 8px rgba(53,83,131,0.04)",
+                }}
+              >
+                <b style={{color: "#355383"}}>Dose {item.doseNumber}</b>
+                <Form.Item
+                  label="Dose Time"
+                  style={{marginBottom: 8, marginTop: 10}}
+                  required
                 >
-                  <b>Dose {item.doseNumber}</b>
-                  <Form.Item
-                    label="Dose Time"
-                    style={{marginBottom: 8}}
-                    required
+                  <Select
+                    value={item.doseTime}
+                    onChange={(val) => handleDoseTimeChange(idx, val)}
+                    style={{width: "100%"}}
+                    size="large"
                   >
-                    <Select
-                      value={item.doseTime}
-                      onChange={(val) => handleDoseTimeChange(idx, val)}
-                      style={{width: "100%"}}
-                    >
-                      {DOSE_TIME_OPTIONS.map((opt) => (
-                        <Select.Option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item label="Notes" style={{marginBottom: 0}}>
-                    <Input.TextArea
-                      rows={1}
-                      placeholder={`Notes for dose ${item.doseNumber} (optional)`}
-                      value={item.notes}
-                      onChange={(e) =>
-                        handleDoseNoteChange(idx, e.target.value)
-                      }
-                    />
-                  </Form.Item>
-                </div>
-              ))}
-            </Col>
-          </Row>
-        </Form>
+                    {DOSE_TIME_OPTIONS.map((opt) => (
+                      <Select.Option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item label="Notes" style={{marginBottom: 0}}>
+                  <Input.TextArea
+                    rows={1}
+                    placeholder={`Notes for dose ${item.doseNumber} (optional)`}
+                    value={item.notes}
+                    onChange={(e) => handleDoseNoteChange(idx, e.target.value)}
+                    size="large"
+                  />
+                </Form.Item>
+              </div>
+            ))}
+          </Col>
+        </Row>
       </Card>
     </div>
   );

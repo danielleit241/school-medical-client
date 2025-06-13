@@ -8,7 +8,8 @@ import {useSelector} from "react-redux";
 const DeclarationDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const studentId = location.state?.studentId;
+  const selectedStudent = JSON.parse(localStorage.getItem("selectedStudent"));
+  const studentId = location.state?.studentId || selectedStudent?.studentId;
   const parentId = useSelector((state) => state.user?.userId);
   const [healthDeclaration, setHealthDeclaration] = useState(null);
   const [student, setStudent] = useState(null);
@@ -138,7 +139,10 @@ const DeclarationDetail = () => {
         />
 
         <div style={{display: "flex", gap: 20, marginTop: 24}}>
-          <Button type="default" onClick={() => navigate(-1)}>
+          <Button
+            type="default"
+            onClick={() => navigate("/parent/health-declaration/my-children")}
+          >
             Back
           </Button>
         </div>
