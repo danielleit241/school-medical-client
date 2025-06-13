@@ -150,6 +150,7 @@ const CreateMedicalResForm = () => {
 
   return (
     <div
+      className="animate__animated animate__fadeIn"
       style={{
         minHeight: "calc(100vh - 120px)",
         display: "flex",

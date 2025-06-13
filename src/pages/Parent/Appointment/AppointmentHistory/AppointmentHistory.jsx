@@ -226,6 +226,7 @@ const AppointmentHistory = () => {
               </div>
             ) : (
               <div
+                className="animate__animated animate__fadeIn"
                 style={{
                   borderRadius: 20,
                   overflowY: "auto",

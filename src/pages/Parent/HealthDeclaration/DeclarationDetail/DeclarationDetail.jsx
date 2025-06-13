@@ -1,6 +1,9 @@
-import React, {useEffect, useState} from "react";
+"use client";
+
+import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
-import {Button, Card, Descriptions, Divider, List} from "antd";
+import {Button, Spin} from "antd";
+import {FileTextOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import {useSelector} from "react-redux";
@@ -61,7 +64,18 @@ const DeclarationDetail = () => {
   }, [studentId]); // <-- chỉ để studentId
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
   }
 
   if (!healthDeclaration) {
@@ -71,82 +85,338 @@ const DeclarationDetail = () => {
   return (
     <div
       style={{
-        width: "80%",
-        margin: "0 auto",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 24,
-        boxSizing: "border-box",
+        backgroundColor: "#f5f5f5",
+        minHeight: "100vh",
+        padding: "20px",
+        display: "flex", // Thêm dòng này
+        justifyContent: "center", // Thêm dòng này
+        alignItems: "center", // Thêm dòng này
       }}
     >
-      <Card title="Your Children's Health Detail" style={{width: "100%"}}>
-        <Descriptions column={1} labelStyle={{width: 400}} bordered>
-          <Descriptions.Item label="Student Code">
-            {student?.studentCode || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Full Name">
-            {student?.fullName || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Date of Birth">
-            {student?.dayOfBirth || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Class">
-            {student?.grade?.trim() || ""}
-          </Descriptions.Item>
-          <Descriptions.Item label="Declaration Date">
-            {healthDeclaration.declarationDate}
-          </Descriptions.Item>
-          <Descriptions.Item label="Chronic Diseases">
-            {healthDeclaration.chronicDiseases}
-          </Descriptions.Item>
-          <Descriptions.Item label="Drug Allergies">
-            {healthDeclaration.drugAllergies}
-          </Descriptions.Item>
-          <Descriptions.Item label="Food Allergies">
-            {healthDeclaration.foodAllergies}
-          </Descriptions.Item>
-          <Descriptions.Item label="Notes">
-            {healthDeclaration.notes}
-          </Descriptions.Item>
-        </Descriptions>
-
-        <Divider orientation="left" style={{marginTop: 32}}>
-          Vaccinations
-        </Divider>
-        <List
-          dataSource={vaccinations}
-          bordered
-          locale={{emptyText: "No vaccination information"}}
-          renderItem={(item) => (
-            <List.Item>
-              <Descriptions column={4} size="small">
-                <Descriptions.Item label="Vaccine Name">
-                  {item.vaccineName}
-                </Descriptions.Item>
-                <Descriptions.Item label="Dose Number">
-                  {item.doseNumber}
-                </Descriptions.Item>
-                <Descriptions.Item label="Vaccinated Date">
-                  {item.vaccinatedDate}
-                </Descriptions.Item>
-                <Descriptions.Item label="Notes">
-                  {item.notes || "-"}
-                </Descriptions.Item>
-              </Descriptions>
-            </List.Item>
-          )}
-        />
-
-        <div style={{display: "flex", gap: 20, marginTop: 24}}>
-          <Button
-            type="default"
-            onClick={() => navigate("/parent/health-declaration/my-children")}
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          width: "100%",
+          display: "flex",
+          borderRadius: "20px",
+          overflow: "hidden",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+        }}
+      >
+        {/* Left Side - Title Section */}
+        <div
+          style={{
+            width: "30%",
+            background: "linear-gradient(100deg, #2B5DC4 0%, #355383 100%)",
+            padding: "40px 30px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "white",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              background: "linear-gradient(90deg, #86A6DF 0%, #86A6DF 100%)",
+              borderRadius: "50%",
+              width: "80px",
+              height: "80px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginBottom: "24px",
+            }}
           >
-            Back
-          </Button>
+            <FileTextOutlined
+              style={{fontSize: "40px", color: "white", margin: 0}}
+            />
+          </div>
+          <h1
+            style={{fontSize: "32px", fontWeight: "bold", margin: "0 0 16px 0"}}
+          >
+            Health Declaration
+          </h1>
+          <p style={{fontSize: "16px", opacity: "0.8", margin: 0}}>
+            View your child's health information details
+          </p>
         </div>
-      </Card>
+
+        {/* Right Side - Content Section */}
+        <div
+          style={{
+            width: "70%",
+            backgroundColor: "#fff",
+            padding: "30px",
+          }}
+        >
+          {/* Student Information */}
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <tbody>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    width: "200px",
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Student Code
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {student?.studentCode || ""}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Full Name
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {student?.fullName || ""}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Date of Birth
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {student?.dayOfBirth || ""}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Class
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {student?.grade?.trim() || ""}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Declaration Date
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {healthDeclaration.declarationDate}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Chronic Diseases
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {healthDeclaration.chronicDiseases || "None"}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Drug Allergies
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {healthDeclaration.drugAllergies || "None"}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Food Allergies
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {healthDeclaration.foodAllergies || "None"}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Notes
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {healthDeclaration.notes || "-"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Vaccinations Section */}
+          {vaccinations.length > 0 && (
+            <div style={{padding: "20px 24px"}}>
+              <h2
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  marginBottom: "16px",
+                }}
+              >
+                Vaccinations
+              </h2>
+
+              {vaccinations.map((item, index) => (
+                <div
+                  key={index}
+                  style={{
+                    padding: "16px",
+                    backgroundColor: "#f9f9f9",
+                    borderRadius: "8px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <div style={{display: "flex", flexWrap: "wrap", gap: "16px"}}>
+                    <div style={{minWidth: "200px"}}>
+                      <div style={{fontWeight: "600", fontSize: "14px"}}>
+                        Vaccine Name
+                      </div>
+                      <div>{item.vaccineName}</div>
+                    </div>
+                    <div style={{minWidth: "120px"}}>
+                      <div style={{fontWeight: "600", fontSize: "14px"}}>
+                        Dose Number
+                      </div>
+                      <div>{item.doseNumber}</div>
+                    </div>
+                    <div style={{minWidth: "150px"}}>
+                      <div style={{fontWeight: "600", fontSize: "14px"}}>
+                        Vaccinated Date
+                      </div>
+                      <div>{item.vaccinatedDate}</div>
+                    </div>
+                    <div style={{flex: "1"}}>
+                      <div style={{fontWeight: "600", fontSize: "14px"}}>
+                        Notes
+                      </div>
+                      <div>{item.notes || "-"}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Back Button */}
+          <div style={{padding: "20px 24px"}}>
+            <Button
+              type="default"
+              onClick={() => navigate("/parent/health-declaration/my-children")}
+              style={{
+                borderRadius: "8px",
+                height: "40px",
+                padding: "0 24px",
+                fontWeight: "500",
+                boxShadow: "none",
+                border: "1px solid #d9d9d9",
+              }}
+            >
+              Back
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
