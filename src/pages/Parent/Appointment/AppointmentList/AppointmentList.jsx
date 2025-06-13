@@ -185,7 +185,8 @@ const AppointmentList = () => {
         "/api/parents/appointments",
         payload
       );
-      const appointmentId = res.data.notificationTypeId || res.data.appointmentId;
+      const appointmentId =
+        res.data.notificationTypeId || res.data.appointmentId;
 
       // Lưu mapping nurse cho lịch sử
       let nurseMap = JSON.parse(localStorage.getItem("nurseMap") || "{}");
@@ -194,7 +195,7 @@ const AppointmentList = () => {
         fullName: nurseProfile?.fullName || selectedNurse?.fullName,
       };
       localStorage.setItem("nurseMap", JSON.stringify(nurseMap));
-      
+
       console.log("Appointment API response:", res);
       localStorage.setItem(
         "appointmentId",
@@ -215,7 +216,7 @@ const AppointmentList = () => {
       );
       console.log("Notification API response:", notificationRes);
       setSuccess("Appointment booked successfully!");
-      navigate("/parent/appointment-history");
+      navigate("/parent/appointment-history", {replace: true});
       Swal.fire({
         toast: true,
         position: "top-end",
@@ -321,54 +322,78 @@ const AppointmentList = () => {
       style={{
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
-        height: "100%",
+        alignItems: "flex-start",
         position: "relative",
       }}
     >
       <div
         style={{
+          width: "90%",
           background: "#F8F8F8",
           borderRadius: 18,
           boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-          margin: "50px auto",
+          margin: "20px auto",
         }}
       >
         {/* Step 1: Nurses List */}
         {step === 1 && (
           <div
-            className="animate__animated animate__fadeIn"
             style={{
               background: "#fff",
-              borderRadius: 14,
+              borderRadius: 20,
               boxShadow: "0 2px 8px #f0f1f2",
-              padding: 40,
+              padding: 0,
+              overflow: "hidden",
             }}
           >
-            {/* LEFT: List Nurse */}
-            <div style={{flex: 2}}>
-              <div
+            {/* Header gradient */}
+            <div
+              style={{
+                width: "100%",
+                background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+                padding: "36px 0 18px 0",
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                textAlign: "center",
+                marginBottom: 0,
+              }}
+            >
+              <h1
                 style={{
-                  fontSize: 32,
                   fontWeight: 700,
-                  textAlign: "center",
+                  fontSize: 38,
+                  color: "#fff",
+                  letterSpacing: 1,
                   marginBottom: 8,
+                  marginTop: 0,
                 }}
               >
-                <h1 style={{fontWeight: 700}}>Appointment Booking</h1>
-              </div>
+                Appointment Booking
+              </h1>
               <div
-                style={{color: "#888", textAlign: "center", marginBottom: 28}}
+                style={{
+                  color: "#e0e7ff",
+                  fontSize: 20,
+                  fontWeight: 500,
+                }}
               >
                 Parents can select a nurse to book a consultation for student
                 health and nutrition.
               </div>
+            </div>
+            {/* Danh sách nurse */}
+            <div
+              style={{
+                height: "calc(100vh - 100px)",
+                padding: "40px 40px 40px 40px",
+                background: "#fff",
+                borderBottomLeftRadius: 20,
+                borderBottomRightRadius: 20,
+              }}
+            >
               <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: 40,
-                }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
+                style={{marginTop: 10}}
               >
                 {nurse.map((n) => {
                   // Shared sample info for all nurses
@@ -509,46 +534,60 @@ const AppointmentList = () => {
         {/* Step 2: Time Slot */}
         {step === 2 && selectedNurse && (
           <div
-            className="animate__animated animate__fadeIn animate-delay-0.5s"
             style={{
               background: "#fff",
-              borderRadius: 14,
+              borderRadius: 20,
               boxShadow: "0 2px 8px #f0f1f2",
-              padding: 80,
+              padding: 0,
+              overflow: "hidden",
+              minWidth: 1100,
+              margin: "0 auto",
             }}
           >
+            {/* Header gradient */}
             <div
               style={{
-                fontSize: 26,
-                fontWeight: 700,
-                marginBottom: 8,
+                width: "100%",
+                background: "#395889",
+                padding: "36px 0 18px 0",
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
                 textAlign: "center",
+                marginBottom: 0,
               }}
             >
-              <h1 style={{fontWeight: 700}}>Appointments Booking</h1>
+              <h1
+                style={{
+                  fontWeight: 700,
+                  fontSize: 38,
+                  color: "#fff",
+                  letterSpacing: 1,
+                  marginBottom: 8,
+                  marginTop: 0,
+                }}
+              >
+                Appointment Booking
+              </h1>
+              <div
+                style={{
+                  color: "#e0e7ff",
+                  fontSize: 20,
+                  fontWeight: 500,
+                }}
+              >
+                Book your appointment with our healthcare professionals
+              </div>
             </div>
-            <div
-              style={{
-                color: "#888",
-                fontSize: 16,
-                marginBottom: 32,
-                textAlign: "center",
-              }}
-            >
-              Book your appointment with our healthcare professionals
-            </div>
+            {/* Nội dung chọn thời gian */}
             <div
               style={{
                 display: "flex",
                 gap: 40,
-                padding: 20,
-                minWidth: 1100,
+                padding: 40,
                 alignItems: "flex-start",
-                borderTop: "1px solid #ccc",
-                borderRight: "1px solid #ccc",
-                borderBottom: "1px solid #ccc",
-                borderLeft: "6px solid #355383",
-                borderRadius: 20,
+                borderBottomLeftRadius: 20,
+                borderBottomRightRadius: 20,
+                background: "#fff",
               }}
             >
               {/* LEFT: Nurse Profile */}
@@ -557,9 +596,7 @@ const AppointmentList = () => {
                   style={{
                     background: "#fff",
                     borderRadius: 10,
-                    // boxShadow: "0 1px 5px #7C4585",
                     padding: 20,
-                    marginBottom: 0,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -567,6 +604,7 @@ const AppointmentList = () => {
                     minWidth: 320,
                     minHeight: 340,
                     justifyContent: "center",
+                    boxShadow: "0 1px 5px #e0e7ef",
                   }}
                 >
                   <img

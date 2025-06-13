@@ -39,7 +39,13 @@ const CreateMedicalEvent = () => {
     const fetchStudents = async () => {
       try {
         setTimeout(async () => {
-          const res = await axiosInstance.get("/api/students");
+          //Thay api endpoint này bằng endpoint lấy danh sách học sinh
+          const res = await axiosInstance.get("/api/students", {
+            params: {
+              pageSize: 40,
+              pageIndex: 1,
+            },
+          });
           setStudents(Array.isArray(res.data.items) ? res.data.items : []);
           dispatch(
             setListStudent(Array.isArray(res.data.items) ? res.data.items : [])

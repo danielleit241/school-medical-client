@@ -223,7 +223,7 @@ const Header = () => {
 
           <nav className="header__bottom-navbar">
             <ul className="header__bottom-list flex justify-center items-center gap-5 font-bold mb-0">
-              <li className="header__bottom-item">
+              <li className="header__bottom-item relative">
                 <NavLink
                   to="/"
                   style={{textDecoration: "none", fontSize: 20}}
@@ -232,6 +232,7 @@ const Header = () => {
                 >
                   Home
                 </NavLink>
+                <div className="absolute bg-[#355383]"></div>
               </li>
               <li className="header__bottom-item">
                 <NavLink
