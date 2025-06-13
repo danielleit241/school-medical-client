@@ -1,8 +1,10 @@
-import React, {useEffect, useState} from "react";
+"use client";
+
+import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
-import {Card, Descriptions, Tag, Spin, Button, Row, Col} from "antd";
+import {Spin, Button, Descriptions} from "antd";
 
 const DetailMedicalRes = () => {
   const location = useLocation();
@@ -50,7 +52,18 @@ const DetailMedicalRes = () => {
   }
 
   if (loading || !detail) {
-    return <Spin style={{marginTop: 40}} />;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
   }
 
   const {
@@ -61,93 +74,333 @@ const DetailMedicalRes = () => {
   } = detail;
 
   return (
-    <Card
-      title={`Medication Registration Detail - ${
-        student?.studentFullName || ""
-      }`}
+    <div
       style={{
-        maxWidth: 1200,
-        margin: "32px auto",
-        minHeight: "75vh",
+        minHeight: "100vh",
         display: "flex",
-        flexDirection: "column",
-      }}
-      bodyStyle={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
         justifyContent: "center",
-        height: "100%",
-        width: "100%",
-        padding: "30px",
+        alignItems: "center",
+        padding: "20px",
       }}
-      extra={
-        nurseApproved?.dateApproved ? (
-          <Tag color="green">Nurse Approved</Tag>
-        ) : (
-          <Tag color="orange">Pending Nurse</Tag>
-        )
-      }
     >
-      <Row gutter={32}>
-        {/* Main info */}
-        <Col xs={24} md={14}>
-          <Descriptions
-            column={1}
-            bordered
-            labelStyle={{
-              width: 260,
-              height: 70,
-              minWidth: 200,
-              fontWeight: 500,
-              fontSize: 16,
+      {/* Container that takes 90% of the outlet width */}
+      <div
+        className="animate__animated animate__fadeIn"
+        style={{width: "90%", maxWidth: "1400px"}}
+      >
+        {/* Header Banner - Same width as main content */}
+        <div
+          style={{
+            width: "100%",
+            background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+            padding: "30px",
+            borderTopLeftRadius: "20px",
+            borderTopRightRadius: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: "15px",
             }}
-            contentStyle={{width: 400, minWidth: 250, fontSize: 16}}
-            style={{flex: 1, marginBottom: 24}}
           >
-            <Descriptions.Item label="Student Name">
-              {student?.studentFullName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Medication Name">
-              {medicalRegistration?.medicationName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Total Dosages (per day)">
-              {medicalRegistration?.totalDosages}
-            </Descriptions.Item>
-            <Descriptions.Item label="Date Submitted">
-              {medicalRegistration?.dateSubmitted}
-            </Descriptions.Item>
-            <Descriptions.Item label="Parent Notes">
-              {medicalRegistration?.notes}
-            </Descriptions.Item>
-            <Descriptions.Item label="Parent Consent">
-              {medicalRegistration?.parentConsent ? (
-                <Tag color="blue">Yes</Tag>
-              ) : (
-                <Tag color="red">No</Tag>
-              )}
-            </Descriptions.Item>
-            <Descriptions.Item label="Nurse Approved">
-              {nurseApproved?.dateApproved ? (
-                <>
-                  <Tag color="green">Approved</Tag>
-                  <div className="mt-2">
-                    <b>Date:</b> {nurseApproved?.dateApproved || ""}
-                  </div>
-                </>
-              ) : (
-                <Tag color="orange">Pending</Tag>
-              )}
-            </Descriptions.Item>
-          </Descriptions>
-        </Col>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M16 2V6"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M8 2V6"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M3 10H21"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <span style={{color: "white", fontSize: "32px", fontWeight: "600"}}>
+            Medication Registration
+          </span>
+        </div>
 
-        {/* Dose details */}
-        <Col xs={24} md={10}>
-          <div>
-            <p style={{marginBottom: 16, fontWeight: 500, fontSize: 16}}>
-              Dose Details
-            </p>
+        {/* Main Content - Same width as header */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            background: "white",
+            borderBottomLeftRadius: "20px",
+            borderBottomRightRadius: "20px",
+            width: "100%",
+          }}
+        >
+          {/* Left Column - Medication Information (65% of main content) */}
+          <div
+            style={{
+              width: "65%",
+              padding: "30px",
+              borderRight: "1px solid #f0f0f0",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "25px",
+                fontWeight: "600",
+                marginBottom: "20px",
+                color: "#333",
+              }}
+            >
+              Medication Information
+            </h2>
+
+            <table style={{width: "100%", borderCollapse: "collapse"}}>
+              <tbody>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Student Name
+                  </td>
+                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                    {student?.studentFullName}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Medication Name
+                  </td>
+                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                    {medicalRegistration?.medicationName}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Total Dosages (per day)
+                  </td>
+                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                    {medicalRegistration?.totalDosages}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Date Submitted
+                  </td>
+                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                    {medicalRegistration?.dateSubmitted}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Parent Notes
+                  </td>
+                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                    {medicalRegistration?.notes}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Parent Consent
+                  </td>
+                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                    {medicalRegistration?.parentConsent ? (
+                      <span
+                        style={{
+                          color: "#1bbf7a", // xanh lá đồng bộ Confirmed
+                          background: "#e6fff2", // nền xanh lá nhạt
+                          border: "none",
+                          borderRadius: "16px",
+                          padding: "4px 16px",
+                          fontWeight: "600",
+                          fontSize: "15px",
+                          display: "inline-block",
+                        }}
+                      >
+                        Yes
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          color: "#faad14", // vàng đồng bộ Pending
+                          background: "#fffbe6", // nền vàng nhạt
+                          border: "none",
+                          borderRadius: "16px",
+                          padding: "4px 16px",
+                          fontWeight: "600",
+                          fontSize: "15px",
+                          display: "inline-block",
+                        }}
+                      >
+                        No
+                      </span>
+                    )}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Nurse Approved
+                  </td>
+                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                    {nurseApproved?.dateApproved ? (
+                      <>
+                        <span
+                          style={{
+                            background: "#e6fff2", // xanh lá nhạt
+                            color: "#1bbf7a", // xanh lá
+                            border: "none",
+                            borderRadius: "16px",
+                            padding: "4px 16px",
+                            fontWeight: "600",
+                            fontSize: "15px",
+                            display: "inline-block",
+                          }}
+                        >
+                          Approved
+                        </span>
+                        <div style={{marginTop: "4px"}}>
+                          <b>Date:</b> {nurseApproved?.dateApproved || ""}
+                        </div>
+                      </>
+                    ) : (
+                      <span
+                        style={{
+                          background: "#fffbe6", // vàng nhạt
+                          color: "#faad14", // vàng
+                          border: "none",
+                          borderRadius: "16px",
+                          padding: "4px 16px",
+                          fontWeight: "600",
+                          fontSize: "15px",
+                          display: "inline-block",
+                        }}
+                      >
+                        Pending
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style={{marginTop: "30px"}}>
+              <Button
+                type="primary"
+                onClick={() => navigate(-1)}
+                style={{
+                  background:
+                    "linear-gradient(-90deg, #2B5DC4 0%, #355383 100%)",
+                  borderColor: "#2255c4",
+                  height: "36px",
+                  fontSize: "14px",
+                  borderRadius: "4px",
+                  boxShadow: "none",
+                  padding: "0 20px",
+                }}
+              >
+                Go Back
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Column - Dose Sessions (35% of main content) */}
+          <div style={{width: "35%", padding: "30px"}}>
+            <h2
+              style={{
+                fontSize: "25px",
+                fontWeight: "600",
+                marginBottom: "20px",
+                color: "#333",
+              }}
+            >
+              Dose Sessions
+            </h2>
+
             {nurseApproved?.dateApproved ? (
               medicalRegistrationDetails &&
               medicalRegistrationDetails.length > 0 ? (
@@ -155,66 +408,100 @@ const DetailMedicalRes = () => {
                   <div
                     key={dose.doseNumber + idx}
                     style={{
-                      background: "#f6f6f6",
-                      padding: 12,
-                      borderRadius: 8,
-                      marginBottom: 16,
-                      border: "1px solid #e0e0e0",
+                      marginBottom: "20px",
+                      borderRadius: "6px",
+                      border: "1px solid #f0f0f0",
+                      padding: "20px",
+                      background: "#fff",
                     }}
                   >
-                    <b>
-                      Dose {dose.doseNumber}{" "}
-                      <span style={{fontWeight: 400}}>({dose.doseTime})</span>
-                    </b>
-                    <div>
-                      <b>Parent Notes:</b>{" "}
+                    <div style={{marginBottom: "10px"}}>
+                      <span style={{fontWeight: "600", fontSize: "18px"}}>
+                        Dose {dose.doseNumber}
+                      </span>{" "}
+                      <span style={{color: "#666", fontSize: "18px"}}>
+                        ({dose.doseTime})
+                      </span>
+                    </div>
+
+                    <div style={{marginBottom: "10px", fontSize: "18px"}}>
+                      <span style={{fontWeight: "500"}}>Parent Notes:</span>{" "}
                       {dose.notes || (
-                        <span style={{color: "#aaa"}}>No notes</span>
+                        <span style={{color: "#999"}}>No notes</span>
                       )}
                     </div>
-                    <div>
+
+                    <div style={{marginBottom: 6}}>
                       <b>Status:</b>{" "}
                       {dose.isCompleted ? (
-                        <Tag color="green">Completed</Tag>
+                        <span
+                          style={{
+                            background: "#e6fff2", // xanh lá nhạt
+                            color: "#1bbf7a", // xanh lá
+                            border: "none",
+                            borderRadius: "16px",
+                            padding: "4px 16px",
+                            fontWeight: "600",
+                            fontSize: "15px",
+                            display: "inline-block",
+                          }}
+                        >
+                          Completed
+                        </span>
                       ) : (
-                        <Tag color="orange">Not Completed</Tag>
+                        <span
+                          style={{
+                            background: "#fffbe6", // vàng nhạt
+                            color: "#faad14", // vàng
+                            border: "none",
+                            borderRadius: "16px",
+                            padding: "4px 16px",
+                            fontWeight: "600",
+                            fontSize: "15px",
+                            display: "inline-block",
+                          }}
+                        >
+                          Not Completed
+                        </span>
                       )}
                     </div>
+
                     {dose.isCompleted && dose.dateCompleted && (
-                      <div>
-                        <b>Date Completed:</b> {dose.dateCompleted}
+                      <div style={{fontSize: "18px"}}>
+                        <span style={{fontWeight: "500"}}>Date Completed:</span>{" "}
+                        {dose.dateCompleted}
                       </div>
                     )}
                   </div>
                 ))
               ) : (
-                <div style={{color: "#aaa"}}>No dose details available.</div>
+                <div
+                  style={{
+                    color: "#999",
+                    textAlign: "center",
+                    padding: "20px",
+                    fontSize: "18px",
+                  }}
+                >
+                  No dose details available.
+                </div>
               )
             ) : (
-              <div style={{color: "#aaa"}}>
+              <div
+                style={{
+                  color: "#999",
+                  textAlign: "center",
+                  padding: "20px",
+                  fontSize: "18px",
+                }}
+              >
                 The nurse has not approved this registration yet.
               </div>
             )}
           </div>
-        </Col>
-      </Row>
-      <div
-        style={{
-          margin: "24px 0",
-          textAlign: "center",
-          display: "flex",
-          justifyContent: "left",
-        }}
-      >
-        <Button
-          type="primary"
-          style={{backgroundColor: "#355383"}}
-          onClick={() => navigate(-1)}
-        >
-          Go Back
-        </Button>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 };
 

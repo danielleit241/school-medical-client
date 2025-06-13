@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
-import {Card, Descriptions, Button, Tag, Spin} from "antd";
+import {Button, Spin} from "antd";
+import {CalendarOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import {useSelector} from "react-redux";
 
@@ -18,6 +19,7 @@ const AppointmentDetail = () => {
     // Ưu tiên lấy từ API, nếu không có thì lấy từ localStorage
     return item.nurseName || nurseMap[item.appointmentId]?.fullName || "N/A";
   };
+
   useEffect(() => {
     if (!appointmentId) return;
     const fetchDetail = async () => {
@@ -39,82 +41,302 @@ const AppointmentDetail = () => {
   }, [appointmentId, userId]);
 
   const getStatus = (item) => {
-    if (item.completionStatus) return {text: "Done", color: "blue"};
-    if (item.confirmationStatus) return {text: "Confirmed", color: "green"};
-    return {text: "Pending", color: "orange"};
+    if (item.completionStatus) return {text: "Done", color: "#1890ff"};
+    if (item.confirmationStatus) return {text: "Confirmed", color: "#52c41a"};
+    return {text: "Pending", color: "#faad14"};
   };
 
   if (!appointmentId) return <div>No Appointment Found.</div>;
-  if (loading) return <Spin />;
+  if (loading)
+    return (
+      <div
+        className="loading-container"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
   if (!appointment) return <div>No Appointment Details Found.</div>;
+
+  const statusInfo = getStatus(appointment);
 
   return (
     <div
-      className="appointment-history-fullscreen"
+      className="appointment-history-fullscreen animate__animated animate__fadeIn"
       style={{
-        backgroundColor: "none !important",
-        height: "100vh",
-        margin: "20px 20px",
-        boxShadow: "none !important",
-        borderRadius: 20,
+        backgroundColor: "#f5f5f5",
+        minHeight: "100vh",
+        padding: "20px",
+        display: "flex", // Thêm dòng này
+        justifyContent: "center", // Thêm dòng này
+        alignItems: "center", // Thêm dòng này
       }}
     >
       <div
         style={{
+          maxWidth: "1200px",
+          width: "100%", // Đảm bảo card không bị co lại
           margin: "0 auto",
-          padding: "32px 30px",
+          display: "flex",
+          borderRadius: "20px",
+          overflow: "hidden",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
         }}
       >
-        <h1 style={{fontSize: 28, fontWeight: 700, marginBottom: 32}}>
-          Appointment Detail
-        </h1>
-        <Card title="Appointment Details" style={{width: "100%"}}>
-          <Descriptions
-            column={1}
-            bordered
-            labelStyle={{width: 400, fontWeight: 600}}
-            contentStyle={{fontWeight: 400}}
-            size="middle"
+        {/* Left Side - Title Section */}
+        <div
+          style={{
+            width: "30%",
+            background: "linear-gradient(90deg, #2B5DC4 0%, #355383 100%)",
+            padding: "40px 30px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "white",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              background: "linear-gradient(90deg, #86A6DF 0%, #86A6DF 100%)",
+              borderRadius: "50%",
+              width: "80px",
+              height: "80px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginBottom: "24px",
+            }}
           >
-            <Descriptions.Item label="Student Name">
-              {appointment.student?.fullName || "..."}
-            </Descriptions.Item>
-            <Descriptions.Item label="Date">
-              {appointment.appointmentDate}
-            </Descriptions.Item>
-            <Descriptions.Item label="Time">
-              {appointment.appointmentStartTime?.slice(0, 5)} -{" "}
-              {appointment.appointmentEndTime?.slice(0, 5)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Topic">
-              {appointment.topic}
-            </Descriptions.Item>
-            <Descriptions.Item label="Reason">
-              {appointment.appointmentReason}
-            </Descriptions.Item>
-            <Descriptions.Item label="Nurse">
-              {getNurseName(appointment) || "..."}
-            </Descriptions.Item>
-            <Descriptions.Item label="Status">
-              <Tag
-                color={getStatus(appointment).color}
-                style={{
-                  padding: "6px 12px",
-                  fontSize: 14,
-                  textAlign: "center",
-                  borderRadius: 8,
-                }}
-              >
-                {getStatus(appointment).text}
-              </Tag>
-            </Descriptions.Item>
-          </Descriptions>
-          <div style={{display: "flex", gap: 20, marginTop: 24}}>
-            <Button type="default" onClick={() => navigate(-1)}>
+            <CalendarOutlined
+              style={{fontSize: "40px", color: "white", margin: 0}}
+            />
+          </div>
+          <h1
+            style={{fontSize: "32px", fontWeight: "bold", margin: "0 0 16px 0"}}
+          >
+            Appointment Detail
+          </h1>
+          <p style={{fontSize: "16px", opacity: "0.8", margin: 0}}>
+            View and manage your appointment information easily
+          </p>
+        </div>
+
+        {/* Right Side - Content Section */}
+        <div
+          style={{
+            width: "70%",
+            backgroundColor: "#fff",
+            padding: "30px",
+            borderRadius: "0 20px 20px 0",
+          }}
+        >
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              border: "1px solid #f8f8f8",
+            }}
+          >
+            <tbody>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    width: "200px",
+                    height: "80px",
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Student Name
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {appointment.student?.fullName || "..."}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    width: "200px",
+                    height: "80px",
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Date
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {appointment.appointmentDate}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    width: "200px",
+                    height: "80px",
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Time
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {appointment.appointmentStartTime?.slice(0, 5)} -{" "}
+                  {appointment.appointmentEndTime?.slice(0, 5)}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    width: "200px",
+                    height: "80px",
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Topic
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {appointment.topic}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    width: "200px",
+                    height: "80px",
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Reason
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {appointment.appointmentReason}
+                </td>
+              </tr>
+              <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    width: "200px",
+                    height: "80px",
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Nurse
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {getNurseName(appointment) || "..."}
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontWeight: 600,
+                    width: "200px",
+                    height: "80px",
+                    backgroundColor: "#f9f9f9",
+                    fontSize: "16px",
+                  }}
+                >
+                  Status
+                </td>
+                <td
+                  style={{
+                    padding: "20px 24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "6px 16px",
+                      backgroundColor:
+                        statusInfo.text === "Pending"
+                          ? "#FFC107"
+                          : statusInfo.text === "Confirmed"
+                          ? "#4CAF50"
+                          : "#2196F3",
+                      color: "white",
+                      borderRadius: "20px",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {statusInfo.text}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style={{padding: "24px"}}>
+            <Button
+              type="default"
+              onClick={() => navigate("/parent/appointment-history")}
+              style={{
+                borderRadius: "8px",
+                height: "40px",
+                padding: "0 24px",
+                fontWeight: "500",
+                boxShadow: "none",
+                border: "1px solid #d9d9d9",
+              }}
+            >
               Back
             </Button>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

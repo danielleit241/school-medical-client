@@ -411,7 +411,7 @@ const AppointmentList = () => {
                   return (
                     <div
                       key={n.staffNurseId || n.id}
-                      className="animate__animated animate__fadeInUp"
+                      className="animate__animated animate__fadeIn"
                       style={{
                         background: "#fff",
                         borderRadius: 14,
@@ -548,7 +548,7 @@ const AppointmentList = () => {
             <div
               style={{
                 width: "100%",
-                background: "#395889",
+                background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
                 padding: "36px 0 18px 0",
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,

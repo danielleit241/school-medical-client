@@ -58,6 +58,7 @@ const MedicalRegistrationList = () => {
       }}
     >
       <div
+        className="animate__animated animate__fadeIn"
         style={{
           background: "#fff",
           minHeight: "100vh",
