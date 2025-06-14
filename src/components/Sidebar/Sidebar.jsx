@@ -221,9 +221,9 @@ const Sidebar = () => {
     manager: [
       {
         label: "Dashboard",
-        key: "/admin",
+        key: "/manager",
         icon: <DashboardOutlined />,
-        link: "/admin",
+        link: "/manager",
       },
       {
         label: "Campaign",
@@ -232,26 +232,26 @@ const Sidebar = () => {
         dropdown: [
           {
             label: "Campaign List",
-            key: "/admin/campaign/campaign-list",
-            link: "/admin/campaign/campaign-list",
+            key: "/manager/campaign/campaign-list",
+            link: "/manager/campaign/campaign-list",
             icon: <FileTextOutlined />,
           },
           {
             label: "Create Campaign",
-            key: "/admin/campaign/create-campaign",
-            link: "/admin/campaign/create-campaign",
+            key: "/manager/campaign/create-campaign",
+            link: "/manager/campaign/create-campaign",
             icon: <FileAddOutlined />,
           },
           {
             label: "Detail Campaign",
-            key: "/admin/campaign/detail-campaign",
-            link: "/admin/campaign/detail-campaign",
+            key: "/manager/campaign/detail-campaign",
+            link: "/manager/campaign/detail-campaign",
             icon: <FileSearchOutlined />,
           },
           {
             label: "History Campaign",
-            key: "/admin/campaign/history-campaign",
-            link: "/admin/campaign/history-campaign",
+            key: "/manager/campaign/history-campaign",
+            link: "/manager/campaign/history-campaign",
             icon: <FileDoneOutlined />,
           },
         ],
@@ -263,14 +263,14 @@ const Sidebar = () => {
         dropdown: [
           {
             label: "Add Student",
-            key: "/admin/student-management/add-student",
-            link: "/admin/student-management/add-student",
+            key: "/manager/student-management/add-student",
+            link: "/manager/student-management/add-student",
             icon: <UserOutlined />,
           },
           {
             label: "Student List",
-            key: "/admin/student-management/student-list",
-            link: "/admin/student-management/student-list",
+            key: "/manager/student-management/student-list",
+            link: "/manager/student-management/student-list",
             icon: <TeamOutlined />,
           },
         ],
@@ -282,14 +282,14 @@ const Sidebar = () => {
         dropdown: [
           {
             label: "Create Inventory",
-            key: "/admin/inventory/createInventory",
-            link: "/admin/inventory/createInventory",
+            key: "/manager/inventory/createInventory",
+            link: "/manager/inventory/createInventory",
             icon: <FileAddOutlined />,
           },
           {
             label: "Inventory List",
-            key: "/admin/inventory/inventoryList",
-            link: "/admin/inventory/inventoryList",
+            key: "/manager/inventory/inventoryList",
+            link: "/manager/inventory/inventoryList",
             icon: <FileTextOutlined />,
           },
         ],
@@ -301,14 +301,14 @@ const Sidebar = () => {
         dropdown: [
           {
             label: "Create Vaccine",
-            key: "/admin/vaccine/createVaccine",
-            link: "/admin/vaccine/create",
+            key: "/manager/vaccine/createVaccine",
+            link: "/manager/vaccine/create",
             icon: <FileAddOutlined />,
           },
           {
             label: "Vaccine List",
-            key: "/admin/vaccine/inventoryList",
-            link: "/admin/vaccine/inventoryList",
+            key: "/manager/vaccine/inventoryList",
+            link: "/manager/vaccine/inventoryList",
             icon: <FileTextOutlined />,
           },
         ],
