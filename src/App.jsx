@@ -163,17 +163,16 @@ function App() {
           </Route>
         </Route>
 
-        {/* Route dành cho Admin và Manager */}
+        {/* Route dành cho Admin */}
         <Route
           path="admin"
           element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <MainLayout />
             </ProtectedRoute>
           }
         >
           <Route index element={<AdminDashboard />} />
-          {/* Chỉ admin mới được vào AccountManagement */}
           <Route
             path="account-management/create-user"
             element={
@@ -198,7 +197,44 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* Các route còn lại cho cả admin và manager */}
+          {/* Các route còn lại cho admin */}
+          <Route path="inventory/createInventory" element={<AddInventory />} />
+          <Route
+            path="inventory/inventoryList"
+            element={<MedicalInventory />}
+          />
+          <Route path="vaccine/inventoryList" element={<VaccineInventory />} />
+          <Route path="vaccine/create" element={<AddVaccine />} />
+          <Route path="campaign/campaign-list" element={<CampaignList />} />
+          <Route path="campaign/create-campaign" element={<CreateCampaign />} />
+          <Route path="campaign/detail-campaign" element={<DetailCampaign />} />
+          <Route
+            path="campaign/history-campaign"
+            element={<HistoryCampaign />}
+          />
+          <Route
+            path="student-management/add-student"
+            element={<AddStudent />}
+          />
+          <Route
+            path="student-management/student-list"
+            element={<StudentList />}
+          />
+          <Route path="profile" element={<UserProfileAdmin />} />
+          <Route path="profile/update" element={<UpdateUserProfileAdmin />} />
+          <Route path="resetpassword" element={<ResetPassword />} />
+        </Route>
+
+        {/* Route dành cho Manager */}
+        <Route
+          path="manager"
+          element={
+            <ProtectedRoute allowedRoles={["manager"]}>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />{" "}
           <Route path="inventory/createInventory" element={<AddInventory />} />
           <Route
             path="inventory/inventoryList"

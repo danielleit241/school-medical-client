@@ -102,8 +102,10 @@ const Login = () => {
         timer: 1500,
         showConfirmButton: false,
       }).then(() => {
-        if (role === "admin" || role === "manager") {
+        if (role === "admin") {
           navigate("/admin");
+        } else if (role === "manager") {
+          navigate("/manager");
         } else if (role === "nurse") {
           navigate("/nurse");
         } else if (role === "parent") {
