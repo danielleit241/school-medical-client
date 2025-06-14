@@ -137,7 +137,7 @@ const CreateCampaign = () => {
           description: r.description,
           startTime: r.startTime ? r.startTime.toISOString() : null,
           endTime: r.endTime ? r.endTime.toISOString() : null,
-          nurseId: r.nurseId, // Đúng là staffNurseId
+          nurseId: r.nurseId,
         })),
       };
       console.log("payload", payload);
