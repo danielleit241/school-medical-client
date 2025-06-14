@@ -135,9 +135,9 @@ const Sidebar = () => {
         icon: <CalendarOutlined />,
         dropdown: [
           {
-            label: "Campaign List",
-            key: "/admin/campaign/campaign-list",
-            link: "/admin/campaign/campaign-list",
+            label: "Vaccine Schedule List",
+            key: "/admin/campaign/vaccine-schedule",
+            link: "/admin/campaign/vaccine-schedule",
             icon: <FileTextOutlined />,
           },
           {
@@ -147,15 +147,15 @@ const Sidebar = () => {
             icon: <FileAddOutlined />,
           },
           {
-            label: "Detail Campaign",
-            key: "/admin/campaign/detail-campaign",
-            link: "/admin/campaign/detail-campaign",
+            label: "Vaccine Schedule Details",
+            key: "/admin/campaign/vaccine-schedule-details",
+            link: "/admin/campaign/vaccine-schedule-details",
             icon: <FileSearchOutlined />,
           },
           {
-            label: "History Campaign",
-            key: "/admin/campaign/history-campaign",
-            link: "/admin/campaign/history-campaign",
+            label: "Round Detail",
+            key: "/admin/campaign/round-detail",
+            link: "/admin/campaign/round-detail",
             icon: <FileDoneOutlined />,
           },
         ],
@@ -231,9 +231,9 @@ const Sidebar = () => {
         icon: <CalendarOutlined />,
         dropdown: [
           {
-            label: "Campaign List",
-            key: "/manager/campaign/campaign-list",
-            link: "/manager/campaign/campaign-list",
+            label: "Vaccine Schedule List",
+            key: "/manager/campaign/vaccine-schedule",
+            link: "/manager/campaign/vaccine-schedule",
             icon: <FileTextOutlined />,
           },
           {
@@ -243,15 +243,15 @@ const Sidebar = () => {
             icon: <FileAddOutlined />,
           },
           {
-            label: "Detail Campaign",
-            key: "/manager/campaign/detail-campaign",
-            link: "/manager/campaign/detail-campaign",
+            label: "Vaccine Schedule Details",
+            key: "/manager/campaign/vaccine-schedule-details",
+            link: "/manager/campaign/vaccine-schedule-details",
             icon: <FileSearchOutlined />,
           },
           {
-            label: "History Campaign",
-            key: "/manager/campaign/history-campaign",
-            link: "/manager/campaign/history-campaign",
+            label: "Round Detail",
+            key: "/manager/campaign/round-detail",
+            link: "/manager/campaign/round-detail",
             icon: <FileDoneOutlined />,
           },
         ],
