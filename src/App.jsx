@@ -245,7 +245,7 @@ function App() {
             element={<NurseCampaignList />}
           />
           <Route
-            path="campaign/detail-campaign"
+            path="campaign/round-campaign"
             element={<NurseDetailCampaign />}
           />
           <Route
