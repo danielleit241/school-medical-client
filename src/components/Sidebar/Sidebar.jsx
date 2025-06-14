@@ -333,15 +333,15 @@ const Sidebar = () => {
         icon: <CalendarOutlined />,
         dropdown: [
           {
-            label: "Campaign List",
+            label: "Vaccine Campaign",
             key: "/nurse/campaign/campaign-list",
             link: "/nurse/campaign/campaign-list",
             icon: <FileTextOutlined />,
           },
           {
-            label: "Detail Campaign",
-            key: "/nurse/campaign/detail-campaign",
-            link: "/nurse/campaign/detail-campaign",
+            label: "Vaccine Round",
+            key: "/nurse/campaign/round-campaign",
+            link: "/nurse/campaign/round-campaign",
             icon: <FileSearchOutlined />,
           },
           {
@@ -351,7 +351,7 @@ const Sidebar = () => {
             icon: <FileDoneOutlined />,
           },
           {
-            label: "Record Form",
+            label: "Vaccine Form",
             key: "/nurse/campaign/record-form",
             link: "/nurse/campaign/record-form",
             icon: <FormOutlined />,
