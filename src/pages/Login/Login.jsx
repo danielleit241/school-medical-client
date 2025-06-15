@@ -20,6 +20,7 @@ const Login = () => {
   });
   // const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loginStatus, setLoginStatus] = useState(""); // Thêm state
 
   const handleChange = (e) => {
     const {name, value} = e.target;
@@ -94,14 +95,17 @@ const Login = () => {
       localStorage.setItem("userId", userId);
       localStorage.setItem("role", role);
 
+      setLoginStatus("success"); // Đăng nhập thành công
       // Hiện alert thành công
-      Swal.fire({
-        icon: "success",
-        title: "Login Successful",
-        text: "Welcome back!",
-        timer: 1500,
-        showConfirmButton: false,
-      }).then(() => {
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "Login Successful",
+      //   text: "Welcome back!",
+      //   timer: 1500,
+      //   showConfirmButton: false,
+      // });
+
+      setTimeout(() => {
         if (role === "admin") {
           navigate("/admin");
         } else if (role === "manager") {
@@ -113,17 +117,18 @@ const Login = () => {
         } else {
           navigate("/");
         }
-      });
+      }, 1500);
     } catch (err) {
-      const msg = err.response?.data || "Login failed";
-      Swal.fire({
-        icon: "error",
-        title: "Login Failed",
-        text: msg,
-      });
+      setLoginStatus("fail"); // Đăng nhập thất bại
+      // Swal.fire({
+      //   icon: "error",
+      //   title: "Login Failed",
+      //   text: "Invalid phone number or password.",
+      // });
       console.error(err);
     }
   };
+  console.log(loginStatus);
   return (
     <>
       <div className="login_main animate__animated animate__fadeIn">
@@ -183,7 +188,14 @@ const Login = () => {
                 )}
               </div>
             </div>
-
+            <p
+              data-testid="login-status"
+              className="error-message"
+              style={{color: "red", marginTop: 4, fontSize: 12}}
+            >
+              {loginStatus === "success" && "Welcome back!"}
+              {loginStatus === "fail" && "Invalid phone number or password."}
+            </p>
             <div className="login_form__forget">
               <span
                 style={{

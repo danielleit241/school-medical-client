@@ -3,7 +3,7 @@ import Login from "../src/pages/Login/Login";
 import {describe, it, expect} from "vitest";
 import {Provider} from "react-redux";
 import store from "../src/redux/store";
-import {BrowserRouter} from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 
 describe("Login Component", () => {
   it("should render the login form with phone number input field", () => {
@@ -29,3 +29,4 @@ describe("Login Component", () => {
     expect(screen.getByPlaceholderText("***")).toBeInTheDocument();
   });
 });
+
