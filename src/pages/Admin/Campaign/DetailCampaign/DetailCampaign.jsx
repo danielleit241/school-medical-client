@@ -10,6 +10,11 @@ import {
   Button,
   Space,
   Modal,
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  message,
 } from "antd";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
@@ -38,6 +43,15 @@ const DetailCampaign = () => {
   const [studentList, setStudentList] = useState([]);
   const [studentListLoading, setStudentListLoading] = useState(false);
 
+  // Add round modal state
+  const [addRoundModalVisible, setAddRoundModalVisible] = useState(false);
+  const [addRoundLoading, setAddRoundLoading] = useState(false);
+  const [nurses, setNurses] = useState([]);
+  const [formAddRound] = Form.useForm();
+
+  const [toParentData, setToParentData] = useState([]);
+  const [toNurseData, setToNurseData] = useState([]);
+
   useEffect(() => {
     if (scheduleId) {
       axiosInstance
@@ -49,12 +63,10 @@ const DetailCampaign = () => {
 
   const handleBack = () => {
     localStorage.removeItem("scheduleId");
-    navigate(-1);
+    navigate(`/${roleName}/campaign/vaccine-schedule`);
   };
 
-  const handleEdit = () => {
-    navigate(`/${roleName}/campaign/vaccine-schedule-edit/${scheduleId}`);
-  };
+  const handleEdit = () => {};
 
   const handleRoundDetail = (roundId, nurseId) => {
     setModalVisible(true);
@@ -80,51 +92,132 @@ const DetailCampaign = () => {
     setRoundDetail(null);
   };
 
+  // Hàm gửi notification chung
+  const sendNotification = async (type, data) => {
+    if (!Array.isArray(data) || data.length === 0) return;
+    const url =
+      type === "parent"
+        ? "/api/notifications/vaccinations/to-parent"
+        : "/api/notifications/vaccinations/to-nurse";
+    await axiosInstance.post(url, data);
+  };
+
+  // Hàm add student, chỉ lưu lại dữ liệu notification
   const handleAddStudent = async () => {
     try {
       const res = await axiosInstance.post(
         "/api/vaccination/schedules/add-students",
-        scheduleId,
-        {headers: {"Content-Type": "application/json"}}
+        scheduleId
       );
       const {toParent = [], toNurse = []} = res.data || {};
-
-      // Gửi thông báo cho nurse
-      if (toNurse.length > 0) {
-        await axiosInstance.post(
-          "/api/notifications/vaccinations/to-nurse",
-          toNurse,
-          {headers: {"Content-Type": "application/json"}}
-        );
-      }
-
-      // Gửi thông báo cho parent
-      if (toParent.length > 0) {
-        await axiosInstance.post(
-          "/api/notifications/vaccinations/to-parent",
-          toParent,
-          {headers: {"Content-Type": "application/json"}}
-        );
-      }
-
+      setToParentData(toParent);
+      setToNurseData(toNurse);
+      console.log("To Parent Data:", toParent);
+      console.log("To Nurse Data:", toNurse);
       Swal.fire({
         icon: "success",
-        title: "Add students and send notifications successfully!",
+        title: "Students added!",
         html: `
         <div>
           <b>To Parent:</b> ${toParent.length} notification(s)<br/>
-          <b>To Nurse:</b> ${toNurse.length} notification(s)
+          <b>To Nurse:</b> ${toNurse.length} notification(s)<br/>
+          <span style="color:#1677ff">Now you can send notifications below.</span>
         </div>
       `,
-        showConfirmButton: false,
-        timer: 2500,
+        showConfirmButton: true,
       });
     } catch (err) {
       Swal.fire({
         icon: "error",
-        title: "Add students or send notifications failed!",
+        title: "Add students failed!",
         text: err?.response?.data?.message || "An error occurred.",
       });
+    }
+  };
+
+  // Hàm gửi notification cho nurse
+  const handleSendNotiNurse = async () => {
+    try {
+      if (toNurseData.length > 0) {
+        await sendNotification("nurse", toNurseData);
+        Swal.fire({
+          icon: "success",
+          title: "Sent notifications to nurses successfully!",
+          showConfirmButton: false,
+          timer: 1800,
+        });
+        setToNurseData([]);
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Send notifications to nurses failed!",
+        text: err?.response?.data?.message || "An error occurred.",
+      });
+    }
+  };
+
+  // Hàm gửi notification cho parent
+  const handleSendNotiParent = async () => {
+    try {
+      if (toParentData.length > 0) {
+        await sendNotification("parent", toParentData);
+        Swal.fire({
+          icon: "success",
+          title: "Sent notifications to parents successfully!",
+          showConfirmButton: false,
+          timer: 1800,
+        });
+        setToParentData([]);
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Send notifications to parents failed!",
+        text: err?.response?.data?.message || "An error occurred.",
+      });
+    }
+  };
+
+  // Add round
+  const openAddRoundModal = async () => {
+    setAddRoundModalVisible(true);
+    // Lấy danh sách nurse (nếu cần)
+    try {
+      const res = await axiosInstance.get("/api/nurses");
+      setNurses(res.data || []);
+    } catch {
+      setNurses([]);
+    }
+  };
+
+  const handleAddRound = async () => {
+    try {
+      setAddRoundLoading(true);
+      const values = await formAddRound.validateFields();
+      await axiosInstance.post("/api/schedules/vaccination-rounds", {
+        scheduleId,
+        roundName: values.roundName,
+        targetGrade: values.targetGrade,
+        description: values.description,
+        startTime: values.startTime.toISOString(),
+        endTime: values.endTime.toISOString(),
+        nurseId: values.nurseId,
+      });
+      message.success("Add round successfully!");
+      setAddRoundModalVisible(false);
+      formAddRound.resetFields();
+      // Reload rounds
+      setLoading(true);
+      axiosInstance
+        .get(`/api/vaccinations/schedules/${scheduleId}`)
+        .then((res) => setDetail(res.data))
+        .finally(() => setLoading(false));
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      message.error("Add round failed!");
+    } finally {
+      setAddRoundLoading(false);
     }
   };
 
@@ -175,6 +268,27 @@ const DetailCampaign = () => {
             onClick={handleAddStudent}
           >
             Add Student
+          </Button>
+          <Button
+            type="dashed"
+            icon={<PlusOutlined />}
+            onClick={openAddRoundModal}
+          >
+            Add Round
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleSendNotiNurse}
+            disabled={toNurseData.length === 0}
+          >
+            Send to Nurse
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleSendNotiParent}
+            disabled={toParentData.length === 0}
+          >
+            Send to Parent
           </Button>
         </Space>
       }
@@ -418,6 +532,66 @@ const DetailCampaign = () => {
             </tbody>
           </table>
         )}
+      </Modal>
+
+      {/* Modal for add round */}
+      <Modal
+        open={addRoundModalVisible}
+        title="Add Vaccination Round"
+        onCancel={() => setAddRoundModalVisible(false)}
+        onOk={handleAddRound}
+        confirmLoading={addRoundLoading}
+        okText="Add"
+      >
+        <Form form={formAddRound} layout="vertical">
+          <Form.Item
+            label="Round Name"
+            name="roundName"
+            rules={[{required: true, message: "Please input round name!"}]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Target Grade"
+            name="targetGrade"
+            rules={[{required: true, message: "Please input target grade!"}]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item label="Description" name="description">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Form.Item
+            label="Start Time"
+            name="startTime"
+            rules={[{required: true, message: "Please select start time!"}]}
+          >
+            <DatePicker showTime style={{width: "100%"}} />
+          </Form.Item>
+          <Form.Item
+            label="End Time"
+            name="endTime"
+            rules={[{required: true, message: "Please select end time!"}]}
+          >
+            <DatePicker showTime style={{width: "100%"}} />
+          </Form.Item>
+          <Form.Item
+            label="Nurse"
+            name="nurseId"
+            rules={[{required: true, message: "Please select nurse!"}]}
+          >
+            <Select placeholder="Select nurse">
+              {nurses.map((nurse) => (
+                <Select.Option
+                  key={nurse.staffNurseId}
+                  value={nurse.staffNurseId}
+                >
+                  {nurse.fullName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
       </Modal>
     </Card>
   );
