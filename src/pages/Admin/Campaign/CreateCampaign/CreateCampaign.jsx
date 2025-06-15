@@ -60,8 +60,8 @@ const CreateCampaign = () => {
   // Lấy danh sách vaccine
   // console.log("nurses", nurses);
   useEffect(() => {
-    axiosInstance.get("/api/vaccination-details").then((res) => {
-      setVaccines(res.data?.items || []);
+    axiosInstance.get("/api/vaccination-details/all").then((res) => {
+      setVaccines(res.data || []);
     });
   }, []);
   console.log("vaccines", vaccines);
@@ -148,7 +148,7 @@ const CreateCampaign = () => {
         showConfirmButton: false,
         timer: 1500,
       }).then(() => {
-        navigate(`/${roleName}/campaign/vaccine-schedule-allround`);
+        navigate(`/${roleName}/campaign/vaccine-schedule`);
       });
       form.resetFields();
       setRounds([

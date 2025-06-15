@@ -158,7 +158,7 @@ const DeclarationForm = () => {
           }))
         : [],
     };
-    console.log("Submitted data:", data);
+    // console.log("Submitted data:", data);
     const fetchApi = async () => {
       try {
         // eslint-disable-next-line no-unused-vars
