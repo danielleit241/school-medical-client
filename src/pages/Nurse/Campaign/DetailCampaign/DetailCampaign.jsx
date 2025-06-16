@@ -12,8 +12,6 @@ const DetailCampaign = () => {
   const navigate = useNavigate();
   const staffNurseId = useSelector((state) => state.user?.userId);
   const roundId = location.state?.roundId || localStorage.getItem("roundId");
-  console.log("DetailCampaign - staffNurseId:", staffNurseId);
-  console.log("DetailCampaign - roundId:", roundId);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -32,12 +30,22 @@ const DetailCampaign = () => {
         if (searchText) params.Search = searchText;
 
         const res = await axiosInstance.get(
-          `/api/nurses/${staffNurseId}/vaccination-rounds`,
+          `/api/nurses/${staffNurseId}/vaccination-rounds/${roundId}/students`,
           { params }
         );
-        // Đảm bảo students luôn là mảng
-        setStudents(Array.isArray(res.data.items) ? res.data.items : []);
+        
+        const mappedStudents = (Array.isArray(res.data.items) ? res.data.items : []).map(item => ({
+          studentCode: item.studentsOfRoundResponse.studentCode,
+          studentName: item.studentsOfRoundResponse.fullName,
+          grade: item.studentsOfRoundResponse.grade,
+          gender: item.studentsOfRoundResponse.gender,
+          dateOfBirth: item.studentsOfRoundResponse.dayOfBirth,
+          parentPhoneNumber: item.parentsOfStudent.phoneNumber,
+          ...item,
+        }));
+        setStudents(mappedStudents);
         console.log("Fetched students:", res.data);
+        console.log("Fetched students:", mappedStudents);
       } catch {
         setStudents([]);
       }
@@ -47,6 +55,7 @@ const DetailCampaign = () => {
   }, [staffNurseId, roundId, searchText]);
 
  
+
   const getStatus = (student) => {
     if (!student.vaccinationResultId) return "not_recorded";
     if (!student.observationDone) return "recorded";
@@ -72,14 +81,19 @@ const DetailCampaign = () => {
   };
 
   const columns = [
+    { title: "Student Code", dataIndex: "studentCode" },
     { title: "Student Name", dataIndex: "studentName" },
+    { title: "Grade", dataIndex: "grade" },
+    { title: "Gender", dataIndex: "gender" },
+    { title: "Date of Birth", dataIndex: "dateOfBirth" },
+    { title: "Parent Phone", dataIndex: "parentPhoneNumber" },
     {
       title: "Status",
       render: (_, student) => {
-        const status = getStatus(student);2
-        if (status === "not_recorded") return <Tag color="red">Chưa ghi nhận</Tag>;
-        if (status === "recorded") return <Tag color="blue">Đã ghi nhận</Tag>;
-        return <Tag color="green">Hoàn thành</Tag>;
+        const status = getStatus(student);
+        if (status === "not_recorded") return <Tag color="red">Not Yet</Tag>;
+        if (status === "recorded") return <Tag color="blue">Observating</Tag>;
+        return <Tag color="green">Completed</Tag>;
       },
     },
     {
@@ -112,7 +126,7 @@ const DetailCampaign = () => {
         onChange={(e) => setSearchText(e.target.value)}
         onSearch={() => {
           setSearchText(1);
-          // Gọi lại hàm fetchRounds hoặc set trigger để useEffect chạy lại
+          setLoading(true);
         }}
         style={{ width: 300, marginBottom: 24 }}
       />
@@ -131,7 +145,7 @@ const DetailCampaign = () => {
 
       <RecordFormModal
         open={modalType === "record"}
-        student={selectedStudent}
+        student={roundId}
         onOk={handleModalOk}
         onCancel={() => setModalType("")}
       />

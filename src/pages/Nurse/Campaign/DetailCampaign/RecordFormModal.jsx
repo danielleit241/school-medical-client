@@ -5,6 +5,7 @@ import axiosInstance from "../../../../api/axios";
 const RecordFormModal = ({ open, student, onOk, onCancel }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  console.log("RecordFormModal", student);
 
   useEffect(() => {
     if (student && student.vaccinationResultId) {
