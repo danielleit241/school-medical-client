@@ -1,13 +1,9 @@
 import {fireEvent, render, screen, waitFor} from "@testing-library/react";
 import Login from "../src/pages/Login/Login";
-import {describe, it, expect, vi} from "vitest";
+import {describe, it, expect} from "vitest";
 import {Provider} from "react-redux";
 import store from "../src/redux/store";
 import {BrowserRouter} from "react-router-dom";
-
-vi.mock("sweetalert2", () => ({
-  fire: vi.fn(() => Promise.resolve({isConfirmed: true})),
-}));
 
 const testCases = [
   ["0799995824", "Ngothanhdat@4002", "Invalid phone number or password."],
