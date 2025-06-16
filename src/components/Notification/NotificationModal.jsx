@@ -20,6 +20,7 @@ const NotificationModal = ({visible = true}) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const unreadCountRef = useRef(0);
 
+
   const notificationTypeMap = {
     1: "Appointment",
     2: "HealthCheckUp",
@@ -55,6 +56,7 @@ const NotificationModal = ({visible = true}) => {
         }
       );
       setNotifications(Array.isArray(res.data.items) ? res.data.items : []);
+      console.log("Notifications fetched:", res.data.items);
     } catch {
       setNotifications([]);
     }
@@ -229,6 +231,10 @@ const NotificationModal = ({visible = true}) => {
                     navigate("/parent/medical-registration/list");
                     window.location.reload();
                     break;
+                  case 5: // Vaccination
+                    navigate("/parent/medical-registration/list");
+                    window.location.reload();
+                    break;
                   default:
                     // Có thể bổ sung các loại khác nếu cần
                     break;
@@ -289,12 +295,62 @@ const NotificationModal = ({visible = true}) => {
                     </div>
                   }
                 />
+                {noti.type === 5 && (
+                  <VaccinationConfirmButton sourceId={noti.sourceId} />
+                )}
               </List.Item>
             );
           }}
         />
       </div>
     </div>
+  );
+};
+
+const VaccinationConfirmButton = ({ sourceId }) => {
+  const [status, setStatus] = useState(undefined);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (sourceId) {
+      axiosInstance
+        .get(`/api/vaccination-results/${sourceId}/is-confirmed`)
+        .then((res) => {
+          console.log("Status from API:", res.data?.status, "for", sourceId);
+          setStatus(res.data);
+        });
+    }
+  }, [sourceId]);
+
+  const handleConfirm = async (e) => {
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      await axiosInstance.put(
+        `/api/vaccination-results/${sourceId}/comfirm`,
+        { status: true }
+      );
+      const res = await axiosInstance.get(
+        `/api/vaccination-results/${sourceId}/is-confirmed`
+      );
+      console.log("Status after confirm:", res.data, "for", sourceId);
+      setStatus(res.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      type={status === true ? "default" : "primary"}
+      disabled={status === true}
+      loading={loading}
+      size="small"
+      onClick={handleConfirm}
+      style={{ marginLeft: "auto" }}
+    >
+      {status === true ? "Confirmed" : "Confirm"}
+    </Button>
   );
 };
 
