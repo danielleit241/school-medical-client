@@ -97,13 +97,13 @@ const Login = () => {
 
       setLoginStatus("success"); // Đăng nhập thành công
       // Hiện alert thành công
-      Swal.fire({
-        icon: "success",
-        title: "Login Successful",
-        text: "Welcome back!",
-        timer: 1500,
-        showConfirmButton: false,
-      });
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "Login Successful",
+      //   text: "Welcome back!",
+      //   timer: 1500,
+      //   showConfirmButton: false,
+      // });
 
       setTimeout(() => {
         if (role === "admin") {
@@ -120,11 +120,11 @@ const Login = () => {
       }, 1500);
     } catch (err) {
       setLoginStatus("fail"); // Đăng nhập thất bại
-      Swal.fire({
-        icon: "error",
-        title: "Login Failed",
-        text: "Invalid phone number or password.",
-      });
+      // Swal.fire({
+      //   icon: "error",
+      //   title: "Login Failed",
+      //   text: "Invalid phone number or password.",
+      // });
       console.error(err);
     }
   };
