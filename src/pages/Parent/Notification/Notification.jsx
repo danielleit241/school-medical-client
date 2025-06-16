@@ -12,7 +12,6 @@ const Notifications = () => {
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
-
   const navigate = useNavigate();
 
   const notificationTypeMap = {
@@ -202,6 +201,9 @@ const Notifications = () => {
                   >
                     View
                   </Button>
+                  {noti.type === 5 && (
+                  <VaccinationConfirmButton sourceId={noti.sourceId} />
+                )}
                 </div>
               </div>
             );
@@ -263,4 +265,51 @@ const Notifications = () => {
   );
 };
 
+const VaccinationConfirmButton = ({ sourceId }) => {
+  const [status, setStatus] = useState(undefined);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (sourceId) {
+      axiosInstance
+        .get(`/api/vaccination-results/${sourceId}/is-confirmed`)
+        .then((res) => {
+          console.log("Status from API:", res.data?.status, "for", sourceId);
+          setStatus(res.data);
+        });
+    }
+  }, [sourceId]);
+
+  const handleConfirm = async (e) => {
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      await axiosInstance.put(
+        `/api/vaccination-results/${sourceId}/comfirm`,
+        { status: true }
+      );
+      const res = await axiosInstance.get(
+        `/api/vaccination-results/${sourceId}/is-confirmed`
+      );
+      console.log("Status after confirm:", res.data, "for", sourceId);
+      setStatus(res.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      type={status === true ? "default" : "primary"}
+      disabled={status === true}
+      loading={loading}
+      size="small"
+      onClick={handleConfirm}
+      style={{ marginLeft: "auto" }}
+    >
+      {status === true ? "Confirmed" : "Confirm"}
+    </Button>
+  );
+};
+  
 export default Notifications;

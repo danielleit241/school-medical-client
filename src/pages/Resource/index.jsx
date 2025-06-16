@@ -362,7 +362,7 @@ const Resources = () => {
                 <div className="stat-number">
                   {counters.students.toLocaleString()}+
                 </div>
-                <div className="stat-label">Students Protected</div>
+                <div className="stat-label">Students Protected / Year</div>
               </div>
             </div>
           </div>
