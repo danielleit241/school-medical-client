@@ -51,12 +51,37 @@ const DetailCampaign = () => {
 
   const [toParentData, setToParentData] = useState([]);
   const [toNurseData, setToNurseData] = useState([]);
+  const [roundsWithNurse, setRoundsWithNurse] = useState([]);
+
+  // Thêm hàm lấy profile nurse cho từng round
+  const fetchRoundsWithNurse = async (rounds) => {
+    const roundsData = await Promise.all(
+      rounds.map(async (round) => {
+        if (round.nurseId) {
+          try {
+            const nurseRes = await axiosInstance.get(
+              `/api/user-profile/${round.nurseId}`
+            );
+            return {...round, nurseProfile: nurseRes.data};
+          } catch {
+            return {...round, nurseProfile: null};
+          }
+        }
+        return {...round, nurseProfile: null};
+      })
+    );
+    setRoundsWithNurse(roundsData);
+  };
 
   useEffect(() => {
     if (scheduleId) {
       axiosInstance
         .get(`/api/vaccinations/schedules/${scheduleId}`)
-        .then((res) => setDetail(res.data))
+        .then(async (res) => {
+          setDetail(res.data);
+          const rounds = res.data.vaccinationRounds || [];
+          await fetchRoundsWithNurse(rounds);
+        })
         .finally(() => setLoading(false));
     }
   }, [scheduleId]);
@@ -65,8 +90,6 @@ const DetailCampaign = () => {
     localStorage.removeItem("scheduleId");
     navigate(`/${roleName}/campaign/vaccine-schedule`);
   };
-
-  const handleEdit = () => {};
 
   const handleRoundDetail = (roundId, nurseId) => {
     setModalVisible(true);
@@ -92,14 +115,46 @@ const DetailCampaign = () => {
     setRoundDetail(null);
   };
 
-  // Hàm gửi notification chung
-  const sendNotification = async (type, data) => {
-    if (!Array.isArray(data) || data.length === 0) return;
-    const url =
-      type === "parent"
-        ? "/api/notifications/vaccinations/to-parent"
-        : "/api/notifications/vaccinations/to-nurse";
-    await axiosInstance.post(url, data);
+  // Add round
+  const openAddRoundModal = async () => {
+    setAddRoundModalVisible(true);
+    // Lấy danh sách nurse (nếu cần)
+    try {
+      const res = await axiosInstance.get("/api/nurses");
+      setNurses(res.data || []);
+    } catch {
+      setNurses([]);
+    }
+  };
+
+  const handleAddRound = async () => {
+    try {
+      setAddRoundLoading(true);
+      const values = await formAddRound.validateFields();
+      await axiosInstance.post("/api/schedules/vaccination-rounds", {
+        scheduleId,
+        roundName: values.roundName,
+        targetGrade: values.targetGrade,
+        description: values.description,
+        startTime: values.startTime.toISOString(),
+        endTime: values.endTime.toISOString(),
+        nurseId: values.nurseId,
+      });
+      message.success("Add round successfully!");
+      setAddRoundModalVisible(false);
+      formAddRound.resetFields();
+      // Reload rounds
+      setLoading(true);
+      axiosInstance
+        .get(`/api/vaccinations/schedules/${scheduleId}`)
+        .then((res) => setDetail(res.data))
+        .finally(() => setLoading(false));
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      message.error("Add round failed!");
+    } finally {
+      setAddRoundLoading(false);
+    }
   };
 
   // Hàm add student, chỉ lưu lại dữ liệu notification
@@ -133,6 +188,16 @@ const DetailCampaign = () => {
         text: err?.response?.data?.message || "An error occurred.",
       });
     }
+  };
+
+  // Hàm gửi notification chung
+  const sendNotification = async (type, data) => {
+    if (!Array.isArray(data) || data.length === 0) return;
+    const url =
+      type === "parent"
+        ? "/api/notifications/vaccinations/to-parent"
+        : "/api/notifications/vaccinations/to-nurse";
+    await axiosInstance.post(url, data);
   };
 
   // Hàm gửi notification cho nurse
@@ -179,48 +244,6 @@ const DetailCampaign = () => {
     }
   };
 
-  // Add round
-  const openAddRoundModal = async () => {
-    setAddRoundModalVisible(true);
-    // Lấy danh sách nurse (nếu cần)
-    try {
-      const res = await axiosInstance.get("/api/nurses");
-      setNurses(res.data || []);
-    } catch {
-      setNurses([]);
-    }
-  };
-
-  const handleAddRound = async () => {
-    try {
-      setAddRoundLoading(true);
-      const values = await formAddRound.validateFields();
-      await axiosInstance.post("/api/schedules/vaccination-rounds", {
-        scheduleId,
-        roundName: values.roundName,
-        targetGrade: values.targetGrade,
-        description: values.description,
-        startTime: values.startTime.toISOString(),
-        endTime: values.endTime.toISOString(),
-        nurseId: values.nurseId,
-      });
-      message.success("Add round successfully!");
-      setAddRoundModalVisible(false);
-      formAddRound.resetFields();
-      // Reload rounds
-      setLoading(true);
-      axiosInstance
-        .get(`/api/vaccinations/schedules/${scheduleId}`)
-        .then((res) => setDetail(res.data))
-        .finally(() => setLoading(false));
-      // eslint-disable-next-line no-unused-vars
-    } catch (err) {
-      message.error("Add round failed!");
-    } finally {
-      setAddRoundLoading(false);
-    }
-  };
-
   const handleShowStudentList = (roundId) => {
     setStudentListVisible(true);
     setStudentListLoading(true);
@@ -250,18 +273,16 @@ const DetailCampaign = () => {
   }
 
   const vaccine = detail.vaccinationDetailsResponse;
-  const rounds = detail.vaccinationRounds || [];
 
   return (
     <Card
       title="Vaccination Campaign Details"
-      style={{maxWidth: 1000, margin: "32px auto"}}
+      style={{maxWidth: 1200, margin: "32px auto"}}
       extra={
         <Space>
           <Button onClick={handleBack} type="primary">
             Back
           </Button>
-          <Button onClick={handleEdit}>Edit</Button>
           <Button
             type="dashed"
             icon={<PlusOutlined />}
@@ -331,8 +352,10 @@ const DetailCampaign = () => {
         {/* Vaccination Rounds */}
         <Col span={12}>
           <Title level={4}>Vaccination Rounds</Title>
-          {rounds.length === 0 && <Paragraph>No rounds available.</Paragraph>}
-          {rounds.map((round, idx) => (
+          {roundsWithNurse.length === 0 && (
+            <Paragraph>No rounds available.</Paragraph>
+          )}
+          {roundsWithNurse.map((round, idx) => (
             <Card
               key={round.roundId}
               type="inner"
@@ -382,7 +405,7 @@ const DetailCampaign = () => {
                     : ""}
                 </Descriptions.Item>
                 <Descriptions.Item label="Nurse">
-                  {nurseProfile && <span>{nurseProfile.fullName}</span>}
+                  {round.nurseProfile?.fullName || "Not assigned yet"}
                 </Descriptions.Item>
               </Descriptions>
             </Card>
