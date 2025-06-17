@@ -82,8 +82,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round }) => {
         const newTime = date.hour(time.hour()).minute(time.minute()).second(0);
         form.setFieldsValue({ vaccinatedTime: newTime });
       } else {
-        // Nếu chưa có, set mặc định là 08:00 cùng ngày
-        form.setFieldsValue({ vaccinatedTime: date.hour(8).minute(0).second(0) });
+        form.setFieldsValue({ vaccinatedTime: date.hour(0).minute(0).second(0) });
       }
     } else {
       form.setFieldsValue({ vaccinatedTime: null });
@@ -139,9 +138,6 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round }) => {
             form={form}
             layout="vertical"
             onFinish={handleFinish}
-            initialValues={{
-              // ...các giá trị khởi tạo nếu có...
-            }}
           >
             <Form.Item
               label="Vaccinated Date"
@@ -168,7 +164,6 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round }) => {
                 style={{ width: "100%" }}
                 format="HH:mm"
                 minuteStep={5}
-                // Chỉ cho nhập giờ, phút, ngày sẽ tự lấy từ vaccinatedDate
                 allowClear={false}
               />
             </Form.Item>

@@ -21,7 +21,6 @@ const DetailCampaign = () => {
   const [searchText, setSearchText] = useState("");
   const [statusMap, setStatusMap] = useState({});
   const [selectedRound, setSelectedRound] = useState(null);
-  const [result, setResult] = useState(null);
   // Lấy danh sách student
   const fetchStudents = async () => {
       setLoading(true);
@@ -80,11 +79,10 @@ const DetailCampaign = () => {
     try {
       const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
       const result = res.data;
-      setResult(result);
       for (const key in result) {
         if (result[key] === null && key !== "observation") {
           return "not_recorded";
-        } else if ( result[key] === null) {
+        } else if (result[key] === null) {         
           return "recorded";
         }
       }
@@ -94,10 +92,6 @@ const DetailCampaign = () => {
     }
   };
   
-  useEffect(() => {
-    checkVaccinationResult();
-  }, [students]);
-
   useEffect(() => {
     const fetchStatuses = async () => {
       const newStatusMap = {};
@@ -142,8 +136,6 @@ const DetailCampaign = () => {
       timer: 1500,
       showConfirmButton: false,
     });
-    // Nếu muốn reload lại danh sách sau khi lưu:
-    checkVaccinationResult(selectedStudent);
     fetchStudents();
   };
 
@@ -228,7 +220,6 @@ const DetailCampaign = () => {
         open={modalType === "observation"}
         student={selectedStudent}
         onOk={handleModalOk}
-        result={result}
         onCancel={() => setModalType("")}
       />
       <DetailModal

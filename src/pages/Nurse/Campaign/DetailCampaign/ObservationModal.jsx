@@ -1,12 +1,38 @@
-import React, {  useState } from "react";
-import { Modal, Form, Input, DatePicker, Button, Select, Col, Row, TimePicker } from "antd";
-import axiosInstance from "../../../../api/axios";
+import React, { useEffect, useState } from "react";
+import { Modal, Form, DatePicker, TimePicker, Button, Select, Col, Row, Input } from "antd";
 import dayjs from "dayjs";
+import axiosInstance from "../../../../api/axios";
 
-const ObservationModal = ({ open, student, onOk, onCancel, result }) => {
+const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  console.log("ObservationModal - student:", result?.vaccinatedDate);
+  const [vaccinatedDate, setVaccinatedDate] = useState(null);
+
+  // Fetch vaccinatedDate khi mở modal
+  useEffect(() => {
+    const fetchVaccinatedDate = async () => {
+      if (!student?.vaccinationResultId) {
+        setVaccinatedDate(null);
+        return;
+      }
+      try {
+        const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
+        setVaccinatedDate(res.data?.vaccinatedDate || null);
+      } catch (error) {
+        console.error("Error fetching vaccinated date:", error);
+        setVaccinatedDate(null);
+      }
+    };
+    if (open) fetchVaccinatedDate();
+  }, [open, student]);
+
+  useEffect(() => {
+      if (open) {
+        form.resetFields();
+        form.setFieldsValue({ vaccinatedDate });
+      }
+      //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open, student]);
 
   const handleFinish = async (values) => {
     setLoading(true);
@@ -51,53 +77,42 @@ const ObservationModal = ({ open, student, onOk, onCancel, result }) => {
     }
   };
 
-  const handleObservationEndTimeChange = (time) => {
-    const obsStart = form.getFieldValue("observationStartTime");
-    if (obsStart && time) {
-      const newTime = obsStart.clone().hour(time.hour()).minute(time.minute()).second(0);
-      form.setFieldsValue({ observationEndTime: newTime });
-    } else {
-      form.setFieldsValue({ observationEndTime: null });
-    }
-  };
+  const handleObservationStartTimeChange = (value) => {
+  if (value) {
+    // observationEndTime = observationStartTime + 30 phút
+    const endTime = value.clone().add(30, "minute");
+    form.setFieldsValue({ observationEndTime: endTime });
+  } else {
+    form.setFieldsValue({ observationEndTime: null });
+  }
+};
 
-  const handleReactionStartTimeChange = (time) => {
-    const obsStart = form.getFieldValue("observationStartTime");
-    if (obsStart && time) {
-      const newTime = obsStart.clone().hour(time.hour()).minute(time.minute()).second(0);
-      form.setFieldsValue({ reactionStartTime: newTime });
-    } else {
-      form.setFieldsValue({ reactionStartTime: null });
-    }
-  };
 
-  // Validate reactionStartTime phải cùng ngày và nằm trong khoảng observationStartTime và observationEndTime
-  const validateReactionStartTime = (_, value) => {
-    const obsStart = form.getFieldValue("observationStartTime");
-    const obsEnd = form.getFieldValue("observationEndTime");
-    if (!obsStart || !obsEnd || !value) return Promise.resolve();
+ // Validate reactionStartTime phải cùng ngày và nằm trong khoảng observationStartTime và observationEndTime
+const validateReactionStartTime = (_, value) => {
+  const obsStart = form.getFieldValue("observationStartTime");
+  const obsEnd = form.getFieldValue("observationEndTime");
+  if (!obsStart || !obsEnd || !value) return Promise.resolve();
 
-    // So sánh ngày
-    const obsStartDay = obsStart.format("YYYY-MM-DD");
-    const obsEndDay = obsEnd.format("YYYY-MM-DD");
-    const reactStartDay = value.format("YYYY-MM-DD");
-    if (obsStartDay !== reactStartDay || obsEndDay !== reactStartDay) {
-      return Promise.reject(new Error("Reaction Start Time must be on the same day as Observation Start/End Time"));
-    }
+  // Nếu value chỉ là giờ, phút (không có ngày), thì phải gán ngày của obsStart
+  const reactionDateTime = obsStart
+    .clone()
+    .hour(value.hour())
+    .minute(value.minute())
+    .second(0);
 
-    // So sánh giờ
-    if (value.isBefore(obsStart) || value.isAfter(obsEnd)) {
-      return Promise.reject(new Error("Reaction Start Time must be between Observation Start and End Time"));
-    }
-    return Promise.resolve();
-  };
+  if (reactionDateTime.isBefore(obsStart) || reactionDateTime.isAfter(obsEnd)) {
+    return Promise.reject(new Error("Reaction Start Time must be between Observation Start and End Time"));
+  }
+  return Promise.resolve();
+};
 
   // Validate observationStartTime phải cùng ngày với result?.vaccinatedDate
   const validateObservationStartTime = (_, value) => {
-    if (!value || !result?.vaccinatedDate) return Promise.resolve();
+    if (!value || !vaccinatedDate) return Promise.resolve();
     const obsDate = value.format("YYYY-MM-DD");
-    const vaccinatedDate = dayjs(result.vaccinatedDate).format("YYYY-MM-DD");
-    if (obsDate !== vaccinatedDate) {
+    const vaxDate = dayjs(vaccinatedDate).format("YYYY-MM-DD");
+    if (obsDate !== vaxDate) {
       return Promise.reject(
         new Error("Observation Start Time must be on the same day as Vaccinated Date")
       );
@@ -110,15 +125,19 @@ const ObservationModal = ({ open, student, onOk, onCancel, result }) => {
   return (
     <Modal
       open={open}
-      title="Observation"
       onCancel={onCancel}
       footer={null}
-      destroyOnClose
-      bodyStyle={{ maxHeight: 400, overflowY: "auto" }} // Thêm dòng này để có thể lăn chuột trong modal
+      width={600}
+      title="Observation"
     >
-      <Form form={form} layout="vertical" onFinish={handleFinish}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleFinish}
+        initialValues={initialValues}
+      >
         <Row gutter={16}>
-          <Col span={24}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Observation Start Time"
               name="observationStartTime"
@@ -131,11 +150,11 @@ const ObservationModal = ({ open, student, onOk, onCancel, result }) => {
                 showTime={{ format: "HH:mm" }}
                 format="YYYY-MM-DD HH:mm"
                 style={{ width: "100%" }}
-                onChange={() => form.validateFields(['observationStartTime'])}
+                onChange={handleObservationStartTimeChange}
               />
             </Form.Item>
           </Col>
-          <Col span={24}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Observation End Time"
               name="observationEndTime"
@@ -144,14 +163,18 @@ const ObservationModal = ({ open, student, onOk, onCancel, result }) => {
               <TimePicker
                 format="HH:mm"
                 style={{ width: "100%" }}
-                onChange={handleObservationEndTimeChange}
+                value={form.getFieldValue("observationEndTime")}
+                disabled
               />
             </Form.Item>
           </Col>
-          <Col span={24}>
+        </Row>
+        <Row gutter={16}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Reaction Start Time"
               name="reactionStartTime"
+              validateTrigger="onChange"
               rules={[
                 { required: true, message: "Please select reaction start time" },
                 { validator: validateReactionStartTime },
@@ -160,40 +183,64 @@ const ObservationModal = ({ open, student, onOk, onCancel, result }) => {
               <TimePicker
                 format="HH:mm"
                 style={{ width: "100%" }}
-                onChange={handleReactionStartTimeChange}
+                onChange={(time) => {
+                  const obsStart = form.getFieldValue("observationStartTime");
+                  if (obsStart && time) {
+                    const newTime = obsStart.clone().hour(time.hour()).minute(time.minute()).second(0);
+                    form.setFieldsValue({ reactionStartTime: newTime });
+                  } else {
+                    form.setFieldsValue({ reactionStartTime: null });
+                  }
+                }}
               />
             </Form.Item>
           </Col>
+          <Col xs={24} sm={12}>
+            <Form.Item name="reactionType" label="Reaction Type">
+              <Input />
+            </Form.Item>
+          </Col>
         </Row>
-        <Form.Item name="reactionType" label="Reaction Type">
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="severityLevel"
-          label="Severity Level"
-          rules={[{ required: true, message: "Please select severity level" }]}
-        >
-          <Select placeholder="Select severity level">
-            <Select.Option value="high">High</Select.Option>
-            <Select.Option value="medium">Medium</Select.Option>
-            <Select.Option value="low">Low</Select.Option>
-          </Select>
-        </Form.Item>
-        <Form.Item name="immediateReaction" label="Immediate Reaction">
-          <Input />
-        </Form.Item>
-        <Form.Item name="intervention" label="Intervention">
-          <Input />
-        </Form.Item>
-        <Form.Item name="observedBy" label="Observed By">
-          <Input />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="severityLevel"
+              label="Severity Level"
+              rules={[{ required: true, message: "Please select severity level" }]}
+            >
+              <Select placeholder="Select severity level">
+                <Select.Option value="high">High</Select.Option>
+                <Select.Option value="medium">Medium</Select.Option>
+                <Select.Option value="low">Low</Select.Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12}>
+            <Form.Item name="immediateReaction" label="Immediate Reaction">
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col xs={24} sm={12}>
+            <Form.Item name="intervention" label="Intervention">
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12}>
+            <Form.Item name="observedBy" label="Observed By">
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
         <Form.Item name="notes" label="Notes">
           <Input.TextArea />
         </Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading} block>
-          Save
-        </Button>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={loading}>
+            Save
+          </Button>
+        </Form.Item>
       </Form>
     </Modal>
   );
