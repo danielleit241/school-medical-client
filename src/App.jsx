@@ -22,7 +22,9 @@ import EditUser from "./pages/Admin/AccountManagement/EditUser/EditUser";
 import CampaignList from "./pages/Admin/Campaign/CampaignList/CampaignList";
 import CreateCampaign from "./pages/Admin/Campaign/CreateCampaign/CreateCampaign";
 import DetailCampaign from "./pages/Admin/Campaign/DetailCampaign/DetailCampaign";
-import HistoryCampaign from "./pages/Admin/Campaign/HistoryCampaign/HistoryCampaign";
+import CreateHealthCheck from "./pages/Admin/HealthCheck/CreateHealthCheck/CreateHealthCheck";
+import HealthCheckDetail from "./pages/Admin/HealthCheck/HealthCheckDetail/HealthCheckDetail";
+import HealthCheckList from "./pages/Admin/HealthCheck/HealthCheckList/HealthCheckList";
 import AddStudent from "./pages/Admin/StudentManagement/AddStudent/AddStudent";
 import StudentList from "./pages/Admin/StudentManagement/StudentList/StudentList";
 import UserProfileAdmin from "./pages/Admin/Profile/User/UserProfile";
@@ -213,7 +215,9 @@ function App() {
             path="campaign/vaccine-schedule-details"
             element={<DetailCampaign />}
           />
-          <Route path="campaign/round-detail" element={<HistoryCampaign />} />
+          <Route path="health-check/create" element={<CreateHealthCheck />} />
+          <Route path="health-check/details" element={<HealthCheckDetail />} />
+          <Route path="health-check/schedule" element={<HealthCheckList />} />
           <Route
             path="student-management/add-student"
             element={<AddStudent />}
@@ -250,7 +254,9 @@ function App() {
             path="campaign/vaccine-schedule-details"
             element={<DetailCampaign />}
           />
-          <Route path="campaign/round-detail" element={<HistoryCampaign />} />
+          <Route path="health-check/create" element={<CreateHealthCheck />} />
+          <Route path="health-check/details" element={<HealthCheckDetail />} />
+          <Route path="health-check/schedule" element={<HealthCheckList />} />
           <Route
             path="student-management/add-student"
             element={<AddStudent />}
