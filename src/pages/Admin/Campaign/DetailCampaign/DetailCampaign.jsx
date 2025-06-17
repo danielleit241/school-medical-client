@@ -500,7 +500,7 @@ const DetailCampaign = () => {
           <table style={{width: "100%", borderCollapse: "collapse"}}>
             <thead>
               <tr>
-                <th style={{border: "1px solid #eee", padding: 6}}>#</th>
+                <th style={{border: "1px solid #eee", padding: 6}}>No.</th>
                 <th style={{border: "1px solid #eee", padding: 6}}>
                   Student Code
                 </th>
@@ -512,9 +512,6 @@ const DetailCampaign = () => {
                 </th>
                 <th style={{border: "1px solid #eee", padding: 6}}>Gender</th>
                 <th style={{border: "1px solid #eee", padding: 6}}>Grade</th>
-                <th style={{border: "1px solid #eee", padding: 6}}>
-                  Parent Name
-                </th>
                 <th style={{border: "1px solid #eee", padding: 6}}>
                   Parent Phone
                 </th>
@@ -543,9 +540,6 @@ const DetailCampaign = () => {
                   </td>
                   <td style={{border: "1px solid #eee", padding: 6}}>
                     {item.studentsOfRoundResponse.grade?.trim()}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.parentsOfStudent?.fullName}
                   </td>
                   <td style={{border: "1px solid #eee", padding: 6}}>
                     {item.parentsOfStudent?.phoneNumber}
