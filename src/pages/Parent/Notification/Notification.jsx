@@ -268,6 +268,7 @@ const Notifications = () => {
 const VaccinationConfirmButton = ({ sourceId }) => {
   const [status, setStatus] = useState(undefined);
   const [loading, setLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
     if (sourceId) {
@@ -297,18 +298,53 @@ const VaccinationConfirmButton = ({ sourceId }) => {
       setLoading(false);
     }
   };
+  const handleCancel = async (e) => {
+    e.stopPropagation();
+    setCancelLoading(true);
+    try {
+      await axiosInstance.put(
+        `/api/vaccination-results/${sourceId}/comfirm`,
+        { status: false }
+      );
+      const res = await axiosInstance.get(
+        `/api/vaccination-results/${sourceId}/is-confirmed`
+      );
+      setStatus(res.data);
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  if (status === false) {
+    return <span style={{ color: "red", marginLeft: 8 }}>Canceled</span>;
+  }
+
 
   return (
-    <Button
-      type={status === true ? "default" : "primary"}
-      disabled={status === true}
-      loading={loading}
-      size="small"
-      onClick={handleConfirm}
-      style={{ marginLeft: "auto" }}
-    >
-      {status === true ? "Confirmed" : "Confirm"}
-    </Button>
+    <>
+      <Button
+        type={status === true ? "default" : "primary"}
+        disabled={status === true}
+        loading={loading}
+        size="small"
+        onClick={handleConfirm}
+        style={{ marginLeft: "auto", marginRight: 8 }}
+      >
+        {status === true ? "Confirmed" : "Confirm"}
+      </Button>
+      {status !== true && (
+        <Button
+          danger
+          type="default"
+          loading={cancelLoading}
+          size="small"
+          onClick={handleCancel}
+        >
+          Cancel
+        </Button>
+      )}
+    </>
+
   );
 };
   

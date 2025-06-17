@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect} from 'react'
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../../api/axios';
 import { Button, Table, Tag, Spin, Input } from "antd";
 import RecordFormModal from './RecordFormModal';
 import ObservationModal from "./ObservationModal";
+import DetailModal from "./DetailModal";
+import Swal from "sweetalert2";
 
 
 const DetailCampaign = () => {
@@ -12,17 +14,15 @@ const DetailCampaign = () => {
   const navigate = useNavigate();
   const staffNurseId = useSelector((state) => state.user?.userId);
   const roundId = location.state?.roundId || localStorage.getItem("roundId");
-  console.log("DetailCampaign - staffNurseId:", staffNurseId);
-  console.log("DetailCampaign - roundId:", roundId);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [modalType, setModalType] = useState(""); // "record" | "observation"
+  const [modalType, setModalType] = useState(""); 
   const [searchText, setSearchText] = useState("");
-
+  const [statusMap, setStatusMap] = useState({});
+  const [selectedRound, setSelectedRound] = useState(null);
   // Lấy danh sách student
-  useEffect(() => {
-    const fetchStudents = async () => {
+  const fetchStudents = async () => {
       setLoading(true);
       try {
         const params = {
@@ -32,25 +32,83 @@ const DetailCampaign = () => {
         if (searchText) params.Search = searchText;
 
         const res = await axiosInstance.get(
-          `/api/nurses/${staffNurseId}/vaccination-rounds`,
+          `/api/nurses/${staffNurseId}/vaccination-rounds/${roundId}/students`,
           { params }
         );
-        // Đảm bảo students luôn là mảng
-        setStudents(Array.isArray(res.data.items) ? res.data.items : []);
-        console.log("Fetched students:", res.data);
+        
+        const mappedStudents = (Array.isArray(res.data.items) ? res.data.items : []).map(item => ({
+          studentCode: item.studentsOfRoundResponse.studentCode,
+          studentName: item.studentsOfRoundResponse.fullName,
+          grade: item.studentsOfRoundResponse.grade,
+          gender: item.studentsOfRoundResponse.gender,
+          dateOfBirth: item.studentsOfRoundResponse.dayOfBirth,
+          parentPhoneNumber: item.parentsOfStudent.phoneNumber,
+          vaccinationResultId: item.studentsOfRoundResponse.vaccinationResultId,
+          ...item,
+        }));
+        
+        setStudents(mappedStudents);
+        console.log("Fetched students:", mappedStudents);
       } catch {
         setStudents([]);
       }
       setLoading(false);
     };
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Lấy thông tin chiến dịch (round)
+        const campaignRes = await axiosInstance.get(`/api/vaccination-rounds/${roundId}`);
+        setSelectedRound(campaignRes.data);
+      } catch {
+        setSelectedRound(null);
+      }
+      setLoading(false);
+    };
+
+  useEffect(() => {
+    fetchData();
     fetchStudents();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [staffNurseId, roundId, searchText]);
 
- 
-  const getStatus = (student) => {
+  const checkVaccinationResult = async (student) => {
     if (!student.vaccinationResultId) return "not_recorded";
-    if (!student.observationDone) return "recorded";
-    return "done";
+    
+    try {
+      const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
+      const result = res.data;
+      for (const key in result) {
+        if (result[key] === null && key !== "observation") {
+          return "not_recorded";
+        } else if (result[key] === null) {         
+          return "recorded";
+        }
+      }
+      return "done";
+    } catch {
+      return "not_recorded";
+    }
+  };
+  
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      const newStatusMap = {};
+      for (const student of students) {
+        const status = await checkVaccinationResult(student);
+        newStatusMap[student.vaccinationResultId] = status;
+      }
+      setStatusMap(newStatusMap);
+    };
+    fetchStatuses();
+  }, [students]);
+
+  const getStatus = (student) => {
+    const status = statusMap[student.vaccinationResultId];
+    if (status === "not_recorded") return "not_recorded";
+    if (status === "recorded") return "recorded";
+    if (status === "done") return "done";
   };
 
 
@@ -63,23 +121,38 @@ const DetailCampaign = () => {
     setSelectedStudent(student);
     setModalType("observation");
   };
-
-  
+  const openDetailModal = (student) => {
+    setSelectedStudent(student);
+    setModalType("detail");
+  };
+ 
   const handleModalOk = () => {
     setModalType("");
     setSelectedStudent(null);
-   
+    Swal.fire({
+      icon: "success",
+      title: "Saved!",
+      text: "Save successfully!",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    fetchStudents();
   };
 
   const columns = [
+    { title: "Student Code", dataIndex: "studentCode" },
     { title: "Student Name", dataIndex: "studentName" },
+    { title: "Grade", dataIndex: "grade" },
+    { title: "Gender", dataIndex: "gender" },
+    { title: "Date of Birth", dataIndex: "dateOfBirth" },
+    { title: "Parent Phone", dataIndex: "parentPhoneNumber" },
     {
       title: "Status",
       render: (_, student) => {
-        const status = getStatus(student);2
-        if (status === "not_recorded") return <Tag color="red">Chưa ghi nhận</Tag>;
-        if (status === "recorded") return <Tag color="blue">Đã ghi nhận</Tag>;
-        return <Tag color="green">Hoàn thành</Tag>;
+        const status = getStatus(student);
+        if (status === "not_recorded") return <Tag color="red">Not Yet</Tag>;
+        if (status === "recorded") return <Tag color="blue">Observating</Tag>;
+        return <Tag color="green">Completed</Tag>;
       },
     },
     {
@@ -98,7 +171,13 @@ const DetailCampaign = () => {
               Observation
             </Button>
           );
-        return <Tag color="green">Done</Tag>;
+        if (status === "done")
+          return (
+            <Button type="primary" onClick={() => openDetailModal(student)}>
+              Detail
+            </Button>
+          );
+        return null;
       },
     },
   ];
@@ -112,7 +191,7 @@ const DetailCampaign = () => {
         onChange={(e) => setSearchText(e.target.value)}
         onSearch={() => {
           setSearchText(1);
-          // Gọi lại hàm fetchRounds hoặc set trigger để useEffect chạy lại
+          setLoading(true);
         }}
         style={{ width: 300, marginBottom: 24 }}
       />
@@ -133,6 +212,7 @@ const DetailCampaign = () => {
         open={modalType === "record"}
         student={selectedStudent}
         onOk={handleModalOk}
+        round={selectedRound}
         onCancel={() => setModalType("")}
       />
 
@@ -142,6 +222,13 @@ const DetailCampaign = () => {
         onOk={handleModalOk}
         onCancel={() => setModalType("")}
       />
+      <DetailModal
+        open={modalType === "detail"}
+        student={selectedStudent}
+        onOk={handleModalOk}
+        onCancel={() => setModalType("")}
+      />
+
       <Button
         type="default"
         onClick={() => navigate("/nurse/campaign/campaign-list")}
