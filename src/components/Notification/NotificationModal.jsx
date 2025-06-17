@@ -20,10 +20,9 @@ const NotificationModal = ({visible = true}) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const unreadCountRef = useRef(0);
 
-
   const notificationTypeMap = {
     1: "Appointment",
-    2: "HealthCheckUp",
+    2: "HealthCheck",
     3: "MedicalEvent",
     4: "MedicalRegistration",
     5: "Vaccination",
@@ -213,14 +212,15 @@ const NotificationModal = ({visible = true}) => {
               }
             }
 
-            //2: Checkup
-            //5: Vaccination
-            // 2 cái này chưa làm
             const handleNotificationClick = () => {
               if (role === "parent") {
                 switch (noti.type) {
                   case 1: // Appointment
                     navigate("/parent/appointment-history");
+                    window.location.reload();
+                    break;
+                  case 2: // HealthCheck : chưa sửa
+                    navigate("/parent/health-check/history");
                     window.location.reload();
                     break;
                   case 3: // MedicalEvent
@@ -231,7 +231,7 @@ const NotificationModal = ({visible = true}) => {
                     navigate("/parent/medical-registration/list");
                     window.location.reload();
                     break;
-                  case 5: // Vaccination
+                  case 5: // Vaccination: chưa sửa
                     navigate("/parent/medical-registration/list");
                     window.location.reload();
                     break;
@@ -307,7 +307,7 @@ const NotificationModal = ({visible = true}) => {
   );
 };
 
-const VaccinationConfirmButton = ({ sourceId }) => {
+const VaccinationConfirmButton = ({sourceId}) => {
   const [status, setStatus] = useState(undefined);
   const [loading, setLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -327,10 +327,9 @@ const VaccinationConfirmButton = ({ sourceId }) => {
     e.stopPropagation();
     setLoading(true);
     try {
-      await axiosInstance.put(
-        `/api/vaccination-results/${sourceId}/comfirm`,
-        { status: true }
-      );
+      await axiosInstance.put(`/api/vaccination-results/${sourceId}/comfirm`, {
+        status: true,
+      });
       const res = await axiosInstance.get(
         `/api/vaccination-results/${sourceId}/is-confirmed`
       );
@@ -345,10 +344,9 @@ const VaccinationConfirmButton = ({ sourceId }) => {
     e.stopPropagation();
     setCancelLoading(true);
     try {
-      await axiosInstance.put(
-        `/api/vaccination-results/${sourceId}/comfirm`,
-        { status: false }
-      );
+      await axiosInstance.put(`/api/vaccination-results/${sourceId}/comfirm`, {
+        status: false,
+      });
       const res = await axiosInstance.get(
         `/api/vaccination-results/${sourceId}/is-confirmed`
       );
@@ -359,9 +357,8 @@ const VaccinationConfirmButton = ({ sourceId }) => {
   };
 
   if (status === false) {
-    return <span style={{ color: "red", marginLeft: 8 }}>Canceled</span>;
+    return <span style={{color: "red", marginLeft: 8}}>Canceled</span>;
   }
-
 
   return (
     <>
@@ -371,7 +368,7 @@ const VaccinationConfirmButton = ({ sourceId }) => {
         loading={loading}
         size="small"
         onClick={handleConfirm}
-        style={{ marginLeft: "auto", marginRight: 8 }}
+        style={{marginLeft: "auto", marginRight: 8}}
       >
         {status === true ? "Confirmed" : "Confirm"}
       </Button>
@@ -387,8 +384,6 @@ const VaccinationConfirmButton = ({ sourceId }) => {
         </Button>
       )}
     </>
-
-    
   );
 };
 

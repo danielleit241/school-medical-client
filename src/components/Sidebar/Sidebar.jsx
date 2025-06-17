@@ -165,8 +165,8 @@ const Sidebar = () => {
           },
           {
             label: "Health Check Schedule List",
-            key: "/admin/health-check/schedule",
-            link: "/admin/health-check/schedule",
+            key: "/admin/health-check/schedules",
+            link: "/admin/health-check/schedules",
             icon: <FileTextOutlined />,
           },
           {
@@ -280,8 +280,8 @@ const Sidebar = () => {
           },
           {
             label: "Health Check Schedule List",
-            key: "/manager/health-check/schedule",
-            link: "/manager/health-check/schedule",
+            key: "/manager/health-check/schedules",
+            link: "/manager/health-check/schedules",
             icon: <FileTextOutlined />,
           },
           {

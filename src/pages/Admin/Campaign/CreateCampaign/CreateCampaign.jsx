@@ -20,18 +20,6 @@ const {TextArea} = Input;
 
 const CreateCampaign = () => {
   const [form] = Form.useForm();
-  const [rounds, setRounds] = useState([
-    {
-      roundName: "",
-      targetGrade: "",
-      description: "",
-      startTime: null,
-      endTime: null,
-      nurseId: "",
-      startDate: null,
-      endDate: null,
-    },
-  ]);
   const userId = useSelector((state) => state.user?.userId);
   const roleName = useSelector((state) => state.user?.role);
   const [profile, setProfile] = useState(null);
@@ -64,7 +52,19 @@ const CreateCampaign = () => {
       setVaccines(res.data || []);
     });
   }, []);
-  console.log("vaccines", vaccines);
+  // console.log("vaccines", vaccines);
+
+  const [rounds, setRounds] = useState([
+    {
+      roundName: "",
+      targetGrade: "",
+      description: "",
+      startTime: null,
+      endTime: null,
+      nurseId: "",
+    },
+  ]);
+
   const addRound = () => {
     setRounds([
       ...rounds,
@@ -78,48 +78,18 @@ const CreateCampaign = () => {
       },
     ]);
   };
-
-  const removeRound = (idx) => {
+  const removeRound = (index) => {
     if (rounds.length === 1) return;
-    setRounds(rounds.filter((_, i) => i !== idx));
+    setRounds(rounds.filter((_, i) => i !== index));
   };
 
-  const handleRoundChange = (idx, field, value) => {
+  const handleRoundChange = (index, field, value) => {
     const newRounds = [...rounds];
-    newRounds[idx][field] = value;
+    newRounds[index][field] = value;
     setRounds(newRounds);
   };
 
   const onFinish = async (values) => {
-    // const scheduleStart = values.startDate.startOf("day");
-    // const scheduleEnd = values.endDate.startOf("day");
-
-    // for (const [idx, r] of rounds.entries()) {
-    //   if (
-    //     r.startTime &&
-    //     (r.startTime.isBefore(scheduleStart) ||
-    //       r.startTime.isAfter(scheduleEnd))
-    //   ) {
-    //     message.error(
-    //       `Round ${
-    //         idx + 1
-    //       }: Start Time must be within schedule's start and end date!`
-    //     );
-    //     return;
-    //   }
-    //   if (
-    //     r.endTime &&
-    //     (r.endTime.isBefore(scheduleStart) || r.endTime.isAfter(scheduleEnd))
-    //   ) {
-    //     message.error(
-    //       `Round ${
-    //         idx + 1
-    //       }: End Time must be within schedule's start and end date!`
-    //     );
-    //     return;
-    //   }
-    // }
-
     setLoading(true);
     try {
       const payload = {
@@ -130,7 +100,7 @@ const CreateCampaign = () => {
           ? values.startDate.format("YYYY-MM-DD")
           : null,
         endDate: values.endDate ? values.endDate.format("YYYY-MM-DD") : null,
-        createdBy: profile?.id || userId || "",
+        createdBy: userId || "",
         vaccinationRounds: rounds.map((r) => ({
           roundName: r.roundName,
           targetGrade: r.targetGrade,
@@ -274,7 +244,7 @@ const CreateCampaign = () => {
                   key={idx}
                   type="inner"
                   title={`Round ${idx + 1}`}
-                  style={{marginBottom: 12, background: "#f6ffed"}}
+                  style={{marginBottom: 12, background: "#E6F7FF"}}
                   extra={
                     rounds.length > 1 ? (
                       <Button

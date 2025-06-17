@@ -88,14 +88,19 @@ const CampaignList = () => {
     },
   ];
 
-  const fetchData = (page = 1, pageSize = 10) => {
+  const fetchData = () => {
     setLoading(true);
     axiosInstance
-      .get("/api/vaccinations/schedules", {
-        params: {pageIndex: page, pageSize},
-      })
+      .get("/api/vaccinations/schedules")
       .then((res) => {
-        setData(res.data?.items || []);
+        // Sắp xếp dữ liệu theo createdAt (mới nhất lên đầu)
+        const sortedData = [...(res.data?.items || [])].sort((a, b) => {
+          const dateA = new Date(a.vaccinationScheduleResponseDto.createdAt);
+          const dateB = new Date(b.vaccinationScheduleResponseDto.createdAt);
+          return dateB - dateA; // Sắp xếp giảm dần (mới nhất lên đầu)
+        });
+
+        setData(sortedData);
         setPagination({
           current: res.data?.pageIndex || 1,
           pageSize: res.data?.pageSize || 10,
