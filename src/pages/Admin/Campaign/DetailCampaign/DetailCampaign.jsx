@@ -36,7 +36,6 @@ const DetailCampaign = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [roundDetail, setRoundDetail] = useState(null);
   const [roundLoading, setRoundLoading] = useState(false);
-  const [nurseProfile, setNurseProfile] = useState(null);
 
   // Student list state
   const [studentListVisible, setStudentListVisible] = useState(false);
@@ -91,21 +90,15 @@ const DetailCampaign = () => {
     navigate(`/${roleName}/campaign/vaccine-schedule`);
   };
 
-  const handleRoundDetail = (roundId, nurseId) => {
+  const handleRoundDetail = (roundId) => {
     setModalVisible(true);
     setRoundLoading(true);
-    setNurseProfile(null);
+
     axiosInstance
       .get(`/api/vaccination-rounds/${roundId}`)
       .then((res) => {
         setRoundDetail(res.data);
-        // Lấy profile nurse nếu có nurseId
-        const nurseIdToFetch = res.data.nurse?.nurseId || nurseId;
-        if (nurseIdToFetch) {
-          axiosInstance
-            .get(`/api/user-profile/${nurseIdToFetch}`)
-            .then((nurseRes) => setNurseProfile(nurseRes.data));
-        }
+        // Không cần gọi API lấy profile nurse nữa vì đã có trong response
       })
       .finally(() => setRoundLoading(false));
   };
@@ -248,7 +241,7 @@ const DetailCampaign = () => {
     setStudentListVisible(true);
     setStudentListLoading(true);
     axiosInstance
-      .get(`/api/manager/vaccination-rounds/${roundId}/students`)
+      .get(`/api/managers/vaccination-rounds/${roundId}/students`)
       .then((res) => setStudentList(res.data.items || []))
       .finally(() => setStudentListLoading(false));
   };
@@ -360,7 +353,7 @@ const DetailCampaign = () => {
               key={round.roundId}
               type="inner"
               title={`Round ${idx + 1}: ${round.roundName}`}
-              style={{marginBottom: 16, background: "#f6ffed"}}
+              style={{marginBottom: 16, background: "#E6F7FF"}}
               extra={
                 <Space>
                   {round.status ? (
@@ -371,9 +364,7 @@ const DetailCampaign = () => {
                   <Button
                     size="small"
                     icon={<EyeOutlined />}
-                    onClick={() =>
-                      handleRoundDetail(round.roundId, round.nurseId)
-                    }
+                    onClick={() => handleRoundDetail(round.roundId)}
                   >
                     Detail
                   </Button>
@@ -469,13 +460,10 @@ const DetailCampaign = () => {
               style={{marginTop: 16}}
             >
               <Descriptions.Item label="Nurse Name">
-                {roundDetail.nurse?.nurseName}
+                {roundDetail.nurse?.nurseName || "Not assigned"}
               </Descriptions.Item>
               <Descriptions.Item label="Phone Number">
-                {roundDetail.nurse?.phoneNumber}
-              </Descriptions.Item>
-              <Descriptions.Item label="Nurse">
-                {nurseProfile && <span>{nurseProfile.fullName}</span>}
+                {roundDetail.nurse?.phoneNumber || "N/A"}
               </Descriptions.Item>
             </Descriptions>
           </>
@@ -489,7 +477,10 @@ const DetailCampaign = () => {
         open={studentListVisible}
         onCancel={handleCloseStudentList}
         footer={null}
-        title="Students of this Round"
+        title={`Students of ${
+          roundsWithNurse.find((r) => r.roundId === studentList[0]?.roundId)
+            ?.roundName || "Round"
+        }`}
         width={700}
       >
         {studentListLoading ? (
@@ -515,6 +506,7 @@ const DetailCampaign = () => {
                 <th style={{border: "1px solid #eee", padding: 6}}>
                   Parent Phone
                 </th>
+                <th style={{border: "1px solid #eee", padding: 6}}>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -533,7 +525,11 @@ const DetailCampaign = () => {
                     {item.studentsOfRoundResponse.fullName}
                   </td>
                   <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse.dayOfBirth}
+                    {item.studentsOfRoundResponse.dayOfBirth
+                      ? dayjs(item.studentsOfRoundResponse.dayOfBirth).format(
+                          "DD/MM/YYYY"
+                        )
+                      : ""}
                   </td>
                   <td style={{border: "1px solid #eee", padding: 6}}>
                     {item.studentsOfRoundResponse.gender}
@@ -542,7 +538,18 @@ const DetailCampaign = () => {
                     {item.studentsOfRoundResponse.grade?.trim()}
                   </td>
                   <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.parentsOfStudent?.phoneNumber}
+                    {item.parentOfStudent?.phoneNumber || "N/A"}
+                  </td>
+                  <td style={{border: "1px solid #eee", padding: 6}}>
+                    <Tag
+                      color={
+                        item.parentOfStudent?.parentConfirm ? "green" : "orange"
+                      }
+                    >
+                      {item.parentOfStudent?.parentConfirm
+                        ? "Confirmed"
+                        : "Pending"}
+                    </Tag>
                   </td>
                 </tr>
               ))}

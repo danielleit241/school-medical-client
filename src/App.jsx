@@ -217,7 +217,7 @@ function App() {
           />
           <Route path="health-check/create" element={<CreateHealthCheck />} />
           <Route path="health-check/details" element={<HealthCheckDetail />} />
-          <Route path="health-check/schedule" element={<HealthCheckList />} />
+          <Route path="health-check/schedules" element={<HealthCheckList />} />
           <Route
             path="student-management/add-student"
             element={<AddStudent />}
@@ -256,7 +256,7 @@ function App() {
           />
           <Route path="health-check/create" element={<CreateHealthCheck />} />
           <Route path="health-check/details" element={<HealthCheckDetail />} />
-          <Route path="health-check/schedule" element={<HealthCheckList />} />
+          <Route path="health-check/schedules" element={<HealthCheckList />} />
           <Route
             path="student-management/add-student"
             element={<AddStudent />}

@@ -344,19 +344,20 @@ const DeclarationDetail = () => {
           </table>
 
           {/* Vaccinations Section */}
-          {vaccinations.length > 0 && (
-            <div style={{padding: "20px 24px"}}>
-              <h2
-                style={{
-                  fontSize: "18px",
-                  fontWeight: "600",
-                  marginBottom: "16px",
-                }}
-              >
-                Vaccinations
-              </h2>
+          <div style={{padding: "20px 0px"}}>
+            <h2
+              style={{
+                fontSize: "18px",
+                fontWeight: "600",
+                marginBottom: "16px",
+              }}
+            >
+              The vaccine has been administered
+            </h2>
 
-              {vaccinations.map((item, index) => (
+            {vaccinations.length > 0 ? (
+              // Hiển thị khi có dữ liệu
+              vaccinations.map((item, index) => (
                 <div
                   key={index}
                   style={{
@@ -371,7 +372,7 @@ const DeclarationDetail = () => {
                       <div style={{fontWeight: "600", fontSize: "14px"}}>
                         Vaccine Name
                       </div>
-                      <div>{item.vaccineName}</div>
+                      <div>{item.vaccineName || "-"}</div>
                     </div>
                     <div style={{minWidth: "120px"}}>
                       <div style={{fontWeight: "600", fontSize: "14px"}}>
@@ -393,9 +394,23 @@ const DeclarationDetail = () => {
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            ) : (
+              // Hiển thị khi không có dữ liệu
+              <div
+                style={{
+                  padding: "16px",
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "8px",
+                  marginBottom: "12px",
+                  textAlign: "center",
+                  color: "#999",
+                }}
+              >
+                This student has never been vaccinated.
+              </div>
+            )}
+          </div>
 
           {/* Back Button */}
           <div style={{padding: "20px 24px"}}>
