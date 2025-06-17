@@ -69,6 +69,7 @@ import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryLis
 import VaccineInventory from "./pages/Admin/VaccineList/VaccineInventory/VaccineInventory";
 import AddVaccine from "./pages/Admin/VaccineList/AddVaccine/AddVaccine";
 import SessionTimeout from "./components/SessionTimeout/SessionTimeout";
+import VaccineTimeable from "./pages/Parent/Vaccine/VaccineTimeable";
 
 function App() {
   const dispatch = useDispatch();
@@ -104,6 +105,7 @@ function App() {
             }
           >
             <Route index element={<ParentHome />} />
+            <Route path="vaccine-timetable" element={<VaccineTimeable />} />
             <Route
               path="appointments-list"
               element={<ParentAppointmentList />}

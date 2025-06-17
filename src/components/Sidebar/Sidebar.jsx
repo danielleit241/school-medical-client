@@ -18,9 +18,6 @@ import {
   AppstoreAddOutlined,
   BellOutlined,
   LogoutOutlined,
-  DownOutlined,
-  InboxOutlined,
-  DropboxOutlined,
   DatabaseOutlined,
 } from "@ant-design/icons";
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
@@ -30,6 +27,7 @@ import LogoDefault from "../../assets/images/defaultlogo.svg";
 import "./index.scss";
 import NotificationModal from "../Notification/NotificationModal";
 import {RiArrowDownSFill} from "react-icons/ri";
+import {LuSyringe} from "react-icons/lu";
 
 const Sidebar = () => {
   const role = useSelector((state) => state.user.role);
@@ -135,16 +133,16 @@ const Sidebar = () => {
         icon: <CalendarOutlined />,
         dropdown: [
           {
-            label: "Vaccine Schedule List",
-            key: "/admin/campaign/vaccine-schedule",
-            link: "/admin/campaign/vaccine-schedule",
-            icon: <FileTextOutlined />,
-          },
-          {
             label: "Create Campaign",
             key: "/admin/campaign/create-campaign",
             link: "/admin/campaign/create-campaign",
             icon: <FileAddOutlined />,
+          },
+          {
+            label: "Vaccine Schedule List",
+            key: "/admin/campaign/vaccine-schedule",
+            link: "/admin/campaign/vaccine-schedule",
+            icon: <FileTextOutlined />,
           },
           {
             label: "Vaccine Schedule Details",
@@ -231,16 +229,16 @@ const Sidebar = () => {
         icon: <CalendarOutlined />,
         dropdown: [
           {
-            label: "Vaccine Schedule List",
-            key: "/manager/campaign/vaccine-schedule",
-            link: "/manager/campaign/vaccine-schedule",
-            icon: <FileTextOutlined />,
-          },
-          {
             label: "Create Campaign",
             key: "/manager/campaign/create-campaign",
             link: "/manager/campaign/create-campaign",
             icon: <FileAddOutlined />,
+          },
+          {
+            label: "Vaccine Schedule List",
+            key: "/manager/campaign/vaccine-schedule",
+            link: "/manager/campaign/vaccine-schedule",
+            icon: <FileTextOutlined />,
           },
           {
             label: "Vaccine Schedule Details",
@@ -391,6 +389,12 @@ const Sidebar = () => {
         key: "/parent",
         icon: <HomeOutlined />,
         link: "/parent",
+      },
+      {
+        label: "Vaccine Timetable",
+        key: "vaccine-timetable",
+        icon: <LuSyringe size={20} />,
+        link: "/parent/vaccine-timetable",
       },
       {
         label: "Appointment",
