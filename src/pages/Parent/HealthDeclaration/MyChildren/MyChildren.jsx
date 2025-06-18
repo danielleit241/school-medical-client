@@ -242,16 +242,63 @@ const MyChildren = () => {
                               fullName: item.fullName,
                             })
                           );
-                          navigate(`/parent/health-declaration/detail`, {
-                            state: {
-                              studentId: item.studentId,
-                              fullName: item.fullName,
-                            },
-                          });
+                          navigate(`/parent/health-declaration/detail`);
                         }}
                       >
                         <Eye className="w-4 h-4" />
                         Details
+                      </button>
+                      <button
+                        className={`${
+                          declarationMap[item.studentId]
+                            ? "flex-1"
+                            : "flex-none"
+                        } bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2`}
+                        style={{
+                          backgroundColor: "#f3f4f6",
+                          color: "#374151",
+                          border: "none",
+                          borderRadius: "0.375rem",
+                        }}
+                        onClick={() => {
+                          localStorage.setItem(
+                            "selectedStudent",
+                            JSON.stringify({
+                              studentId: item.studentId,
+                              fullName: item.fullName,
+                            })
+                          );
+                          navigate(`/parent/vaccine/result`);
+                        }}
+                      >
+                        <Eye className="w-4 h-4" />
+                        Vaccine Result
+                      </button>
+                      <button
+                        className={`${
+                          declarationMap[item.studentId]
+                            ? "flex-1"
+                            : "flex-none"
+                        } bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2`}
+                        style={{
+                          backgroundColor: "#f3f4f6",
+                          color: "#374151",
+                          border: "none",
+                          borderRadius: "0.375rem",
+                        }}
+                        onClick={() => {
+                          localStorage.setItem(
+                            "selectedStudent",
+                            JSON.stringify({
+                              studentId: item.studentId,
+                              fullName: item.fullName,
+                            })
+                          );
+                          navigate(`/parent/healthcheck/result`);
+                        }}
+                      >
+                        <Eye className="w-4 h-4" />
+                        Health Check Result
                       </button>
                     </div>
                   </div>

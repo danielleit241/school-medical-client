@@ -425,8 +425,8 @@ const Sidebar = () => {
         ],
       },
       {
-        label: "Health Declaration",
-        key: "health-declaration",
+        label: "Health Profile",
+        key: "health-profile",
         icon: <FileTextOutlined />,
         dropdown: [
           {
@@ -681,11 +681,11 @@ const Sidebar = () => {
         defaultOpenKeys={openKeys}
         style={{
           borderRight: 0,
-          fontSize: 16, // tăng size chữ
-          fontFamily: "'Ubuntu', sans-serif !important", // sử dụng font Ubuntu
+          fontSize: 16,
+          fontFamily: "'Ubuntu', sans-serif !important",
           paddingLeft: 4,
           paddingRight: 4,
-          letterSpacing: 0.2,
+          letterSpacing: 0.3,
           minWidth: 350,
         }}
       >
