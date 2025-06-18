@@ -204,6 +204,9 @@ const Notifications = () => {
                   {noti.type === 5 && (
                   <VaccinationConfirmButton sourceId={noti.sourceId} />
                 )}
+                {noti.type === 2 && (
+                  <HealthCheckConfirmButton sourceId={noti.sourceId} />
+                )}
                 </div>
               </div>
             );
@@ -262,6 +265,82 @@ const Notifications = () => {
         )}
       </Modal>
     </div>
+  );
+};
+
+const HealthCheckConfirmButton = ({sourceId}) => {
+  const [status, setStatus] = useState(undefined);
+  const [loading, setLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  useEffect(() => {
+    if (sourceId) {
+      axiosInstance
+        .get(`/api/health-check-results/${sourceId}/is-confirmed`)
+        .then((res) => {
+          setStatus(res.data);
+        });
+    }
+  }, [sourceId]);
+  const handleConfirm = async (e) => {
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      await axiosInstance.put(`/api/health-check-results/${sourceId}/confirm`, {
+        status: true,
+      });
+      const res = await axiosInstance.get(
+        `/api/health-check-results/${sourceId}/is-confirmed`
+      );
+      setStatus(res.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = async (e) => {
+    e.stopPropagation();
+    setCancelLoading(true);
+    try {
+      await axiosInstance.put(`/api/health-check-results/${sourceId}/confirm`, {
+        status: false,
+      });
+      const res = await axiosInstance.get(
+        `/api/health-check-results/${sourceId}/is-confirmed`
+      );
+      setStatus(res.data);
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  if (status === false) {
+    return <span style={{color: "red", marginLeft: 8}}>Canceled</span>;
+  }
+
+  return (
+    <>
+      <Button
+        type={status === true ? "default" : "primary"}
+        disabled={status === true}
+        loading={loading}
+        size="small"
+        onClick={handleConfirm}
+        style={{marginLeft: "auto", marginRight: 8}}
+      >
+        {status === true ? "Confirmed" : "Confirm"}
+      </Button>
+      {status !== true && (
+        <Button
+          danger
+          type="default"
+          loading={cancelLoading}
+          size="small"
+          onClick={handleCancel}
+        >
+          Cancel
+        </Button>
+      )}
+    </>
   );
 };
 

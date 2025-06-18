@@ -68,7 +68,7 @@ const DetailCampaign = () => {
       try {
         const res = await axiosInstance.get(`/api/vaccination-rounds/${roundId}`);
         setStatus(res.data.vaccinationRoundInformation.status);
-        console.log("Fetched round status:", res.data.vaccinationRoundInformation.status);
+        console.log("Fetched round status:", res.data.vaccinationRoundInformation.startTime);
       } catch {
         setStatus(false);
       }
@@ -106,12 +106,18 @@ const DetailCampaign = () => {
       if (qualified === false) return "cancel";
       const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
       const result = res.data;
-      for (const key in result) {
-        if (result[key] === null && key !== "observation") {
-          return "not_recorded";
-        } else if (result[key] === null) {
-          return "recorded";
-        }
+      console.log("Vaccination result:", result);
+      // Nếu resultResponse là object, kiểm tra có trường nào null
+      const hasNullInResultResponse =
+        result.resultResponse &&
+        typeof result.resultResponse === "object" &&
+        Object.values(result.resultResponse).some(val => val == null);
+
+      if (hasNullInResultResponse && !result.vaccinationObservation) {
+        return "not_recorded";
+      }
+      if (!result.vaccinationObservation) {
+        return "recorded";
       }
       return "done";
     } catch {

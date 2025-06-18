@@ -13,6 +13,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
   const [healthLoading, setHealthLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [qualified, setQualified] = useState(null);
+  const [vaccinationDate, setVaccinationDate] = useState(() => dayjs());
 
   // Fetch health declaration & qualified status
   useEffect(() => {
@@ -34,7 +35,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
     };
 
     if (open && student?.vaccinationResultId) {
-      axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}/health-quilified`)
+      axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}/health-qualified`)
         .then(res => {
           const qualified = typeof res.data === "boolean" ? res.data : res.data?.qualified;
           setQualified(qualified);
@@ -75,6 +76,25 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
     }
   }, [open]);
 
+  // Tự động cập nhật vaccinationDate khi sang ngày mới
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const today = dayjs();
+      setVaccinationDate(prev => {
+        if (!prev || !prev.isSame(today, "day")) return today;
+        return prev;
+      });
+    }, 60 * 1000); // kiểm tra mỗi phút
+    return () => clearInterval(interval);
+  }, []);
+
+  // Reset vaccinationDate khi mở modal
+  useEffect(() => {
+    if (open) {
+      setVaccinationDate(dayjs());
+    }
+  }, [open]);
+
   // Step 1: Xác nhận đủ điều kiện
   const handleQualified = async (isQualified) => {
     if (!student?.vaccinationResultId) return;
@@ -93,7 +113,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
       setTimeout(async () => {
         try {
           const res = await axiosInstance.get(
-            `/api/vaccination-results/${student.vaccinationResultId}/health-quilified`
+            `/api/vaccination-results/${student.vaccinationResultId}/health-qualified`
           );
           setQualified(res.data);
           console.log("Fetched qualified status:", res.data);
@@ -154,32 +174,28 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
     return Promise.resolve();
   };
 
-  const handleVaccinatedDateChange = (date) => {
-    if (date) {
-      const time = form.getFieldValue("vaccinatedTime");
-      if (time) {
-        const newTime = date.hour(time.hour()).minute(time.minute()).second(0);
-        form.setFieldsValue({ vaccinatedTime: newTime });
-      } else {
-        form.setFieldsValue({ vaccinatedTime: date.hour(0).minute(0).second(0) });
-      }
-    } else {
-      form.setFieldsValue({ vaccinatedTime: null });
-    }
-  };
+  
 
   const handleFinish = async (values) => {
     setLoading(true);
     try {
       const vaccinationResultId = student?.vaccinationResultId;
+
+      const vaccinatedDate = values.vaccinatedDate;
+      const vaccinatedTime = values.vaccinatedTime;
+
+      // Gộp ngày và giờ thành 1 DateTime ISO string
+      const vaccinatedDateTime = vaccinatedDate
+        .hour(vaccinatedTime.hour())
+        .minute(vaccinatedTime.minute())
+        .second(0)
+        .millisecond(0)
+        .format("YYYY-MM-DDTHH:mm:ss");
+
       const payload = {
         vaccinationResultId,
-        vaccinatedDate: values.vaccinatedDate
-          ? values.vaccinatedDate.format("YYYY-MM-DD")
-          : null,
-        vaccinatedTime: values.vaccinatedTime
-          ? values.vaccinatedTime.toISOString()
-          : null,
+        vaccinatedDate: vaccinationDate.format("YYYY-MM-DD"), // luôn lấy ngày hệ thống
+        vaccinatedTime: vaccinatedDateTime,
         vaccinated: values.vaccinated,
         injectionSite: values.injectionSite,
         notes: values.notes,
@@ -292,6 +308,9 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
               form={form}
               layout="vertical"
               onFinish={handleFinish}
+              initialValues={{
+                vaccinatedDate: vaccinationDate,
+              }}
             >
               <Form.Item
                 label="Vaccinated Date"
@@ -300,11 +319,12 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
                   { required: true, message: "Please select date" },
                   { validator: validateVaccinatedDate },
                 ]}
+                initialValue={vaccinationDate}
               >
                 <DatePicker
                   disabled
                   style={{ width: "100%" }}
-                  onChange={handleVaccinatedDateChange}
+                  value={vaccinationDate}
                 />
               </Form.Item>
               <Form.Item

@@ -11,20 +11,7 @@ const DetailModal = ({ open, onCancel, student }) => {
   const [healthDeclaration, setHealthDeclaration] = useState(null);
   const [nurseName, setNurseName] = useState("");
 
-  useEffect(() => {
-    const fetchNurseName = async () => {
-      if (detailData?.recorderId) {
-        try {
-          const response = await axiosInstance.get(`/api/user-profile/${detailData.recorderId}`);
-          setNurseName(response.data?.fullName || "Unknown Nurse");
-        } catch (error) {
-          console.error("Error fetching nurse name:", error);
-          setNurseName("Unknown Nurse");
-        }
-      }
-    };
-    fetchNurseName();
-  }, [detailData?.recorderId]);
+
 
   useEffect(() => {
   const fetchHealthDeclaration = async () => {
@@ -34,6 +21,7 @@ const DetailModal = ({ open, onCancel, student }) => {
           `/api/students/${student.studentsOfRoundResponse.studentId}/health-declarations`
         );
         setHealthDeclaration(response.data?.healthDeclaration || null);
+        console.log("Health Declaration:", response.data?.healthDeclaration);
       } catch (error) {
         console.error("Error fetching health declaration:", error);
         setHealthDeclaration(null);
@@ -54,7 +42,8 @@ const DetailModal = ({ open, onCancel, student }) => {
         if (!student?.vaccinationResultId) return;
         const response = await axiosInstance.get(`/api/vaccination-results/${student?.vaccinationResultId}`);
         setDetailData(response.data);
-        const res = await axiosInstance.get(`/api/user-profile/${response.data.recorderId}`);
+        console.log("Vaccination Result Detail:", response.data);
+        const res = await axiosInstance.get(`/api/user-profile/${response.data.resultResponse.recorderId}`);
         setNurseName(res.data?.fullName || "Unknown Nurse");
         setLoading(false);
       };
@@ -120,55 +109,55 @@ const DetailModal = ({ open, onCancel, student }) => {
           </Row>
           <Row gutter={[0, 12]}>                                   
             <Col span={12}><Text type="secondary">Vaccinated Date:</Text></Col>
-            <Col span={12}><Text>{detailData.vaccinatedDate}</Text></Col>
+            <Col span={12}><Text>{detailData.resultResponse.vaccinatedDate}</Text></Col>
             <Col span={12}><Text type="secondary">Notes:</Text></Col>
             <Col span={12}><Text>{detailData.notes || <span style={{ color: "#aaa" }}>No notes</span>}</Text></Col>          
             <Col span={12}><Text type="secondary">Parent Confirmed:</Text></Col>
             <Col span={12}>
-              <Tag color={detailData.parentConfirmed ? "green" : "red"}>
-                {detailData.parentConfirmed ? "Yes" : "No"}
+              <Tag color={detailData.resultResponse.parentConfirmed ? "green" : "red"}>
+                {detailData.resultResponse.parentConfirmed ? "Yes" : "No"}
               </Tag>
             </Col>
             <Col span={12}><Text type="secondary">Vaccinated:</Text></Col>
             <Col span={12}>
-              <Tag color={detailData.vaccinated ? "green" : "red"}>
-                {detailData.vaccinated ? "Yes" : "No"}
+              <Tag color={detailData.resultResponse.vaccinated ? "green" : "red"}>
+                {detailData.resultResponse.vaccinated ? "Yes" : "No"}
               </Tag>
             </Col>
             <Col span={12}><Text type="secondary">Status:</Text></Col>
             <Col span={12}>
               <Tag color="blue" style={{ textTransform: "capitalize" }}>
-                {detailData.status}
+                {detailData.resultResponse.status}
               </Tag>
             </Col>
             <Col span={12}><Text type="secondary">Injection Site:</Text></Col>
-            <Col span={12}><Text>{detailData.injectionSite}</Text></Col>
+            <Col span={12}><Text>{detailData.resultResponse.injectionSite}</Text></Col>
           </Row>
-          
-          {detailData.observation && (
+
+          {detailData.vaccinationObservation && (
             <>
               <Divider orientation="left" style={{ marginTop: 32 }}>
                 <b>Observation</b>
               </Divider>
               <Row gutter={[0, 12]}>
                 <Col span={12}><Text type="secondary">Observation Start Time:</Text></Col>
-                <Col span={12}><Text>{detailData.observation.observationStartTime}</Text></Col>
+                <Col span={12}><Text>{detailData.vaccinationObservation.observationStartTime}</Text></Col>
                 <Col span={12}><Text type="secondary">Observation End Time:</Text></Col>
-                <Col span={12}><Text>{detailData.observation.observationEndTime}</Text></Col>
+                <Col span={12}><Text>{detailData.vaccinationObservation.observationEndTime}</Text></Col>
                 <Col span={12}><Text type="secondary">Reaction Start Time:</Text></Col>
-                <Col span={12}><Text>{detailData.observation.reactionStartTime}</Text></Col>
+                <Col span={12}><Text>{detailData.vaccinationObservation.reactionStartTime}</Text></Col>
                 <Col span={12}><Text type="secondary">Reaction Type:</Text></Col>
-                <Col span={12}><Text>{detailData.observation.reactionType}</Text></Col>
+                <Col span={12}><Text>{detailData.vaccinationObservation.reactionType}</Text></Col>
                 <Col span={12}><Text type="secondary">Severity Level:</Text></Col>
-                <Col span={12}><Tag color="red">{detailData.observation.severityLevel}</Tag></Col>
+                <Col span={12}><Tag color="red">{detailData.vaccinationObservation.severityLevel}</Tag></Col>
                 <Col span={12}><Text type="secondary">Immediate Reaction:</Text></Col>
-                <Col span={12}><Text>{detailData.observation.immediateReaction}</Text></Col>
+                <Col span={12}><Text>{detailData.vaccinationObservation.immediateReaction}</Text></Col>
                 <Col span={12}><Text type="secondary">Intervention:</Text></Col>
-                <Col span={12}><Text>{detailData.observation.intervention}</Text></Col>
+                <Col span={12}><Text>{detailData.vaccinationObservation.intervention}</Text></Col>
                 <Col span={12}><Text type="secondary">Observed By:</Text></Col>
-                <Col span={12}><Text>{detailData.observation.observedBy}</Text></Col>
+                <Col span={12}><Text>{detailData.vaccinationObservation.observedBy}</Text></Col>
                 <Col span={12}><Text type="secondary">Notes:</Text></Col>
-                <Col span={12}><Text>{detailData.observation.notes}</Text></Col>
+                <Col span={12}><Text>{detailData.vaccinationObservation.notes}</Text></Col>
               </Row>
             </>
           )}
