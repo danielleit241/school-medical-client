@@ -6,6 +6,7 @@ import { Button, Table, Tag, Spin, Input, message } from "antd";
 import RecordFormModal from "./RecordFormModal";
 import DetailModal from "./DetailModal";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 const HealthCheckDetail = () => {
   const location = useLocation();
@@ -21,7 +22,8 @@ const HealthCheckDetail = () => {
   const [selectedRound, setSelectedRound] = useState(null);
   const [loadingMap] = useState({});
   const [status, setStatus] = useState(false); // trạng thái round
-  const [loadingComplete, setLoadingComplete] = useState(false);  
+  const [loadingComplete, setLoadingComplete] = useState(false);
+  const [dateRange, setDateRange] = useState({ start: null, end: null });
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -69,9 +71,15 @@ const HealthCheckDetail = () => {
         const res = await axiosInstance.get(`/api/health-check-rounds/${roundId}`);
         setStatus(res.data.healthCheckRoundInformation.status);
         setSelectedRound(res.data.healthCheckRoundInformation);
+        setDateRange({
+          start: res.data.healthCheckRoundInformation.startTime,
+          end: res.data.healthCheckRoundInformation.endTime,
+        });
+        console.log("Fetched round information:", res.data.healthCheckRoundInformation.startTime);
       } catch {
         setStatus(false);
         setSelectedRound(null);
+        setDateRange({ start: null, end: null });
       }
     };
     fetchRound();
@@ -151,6 +159,13 @@ const HealthCheckDetail = () => {
     setLoadingComplete(false);
   };
 
+  // Thêm hàm kiểm tra ngày hiện tại có nằm trong khoảng cho phép không
+  const isOutOfRange = (() => {
+    if (!dateRange.start || !dateRange.end) return false;
+    const now = dayjs().startOf("day");
+    return now.isBefore(dayjs(dateRange.start).startOf("day")) || now.isAfter(dayjs(dateRange.end).endOf("day"));
+  })();
+
   const columns = [
       { title: "Student Code", dataIndex: "studentCode" },
       { title: "Student Name", dataIndex: "studentName" },
@@ -163,8 +178,6 @@ const HealthCheckDetail = () => {
         render: (_, student) => {
           const status = getStatus(student);
           if (status === "not_recorded") return <Tag color="red">Not Yet</Tag>;
-          if (status === "recorded") return <Tag color="blue">Observating</Tag>;
-          if (status === "cancel") return <Tag color="orange"><i>Does not meet the requirements</i></Tag>;
           return <Tag color="green">Completed</Tag>;
         },
       },
@@ -174,10 +187,14 @@ const HealthCheckDetail = () => {
           const id = student.healthCheckResultId;
           const loading = loadingMap[id];
           const status = getStatus(student);
-  
+
           if (status === "not_recorded") {
             return (
-              <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading}>
+              <Button
+                type="primary"
+                onClick={() => openRecordModal(student)}
+                disabled={loading || isOutOfRange}
+              >
                 Record Form
               </Button>
             );
@@ -223,6 +240,12 @@ const HealthCheckDetail = () => {
         )}
       </div>
 
+      {isOutOfRange && (
+        <div style={{ color: "#eab308", fontWeight: 600, marginBottom: 16 }}>
+          It's not allowed at this time. Please check the round date range.
+        </div>
+      )}
+
       {loading ? (
         <Spin />
       ) : (
@@ -242,6 +265,7 @@ const HealthCheckDetail = () => {
         round={selectedRound}
         onCancel={() => setModalType("")}
         onReload={fetchStudents}
+        isOutOfRange={isOutOfRange}
       />
 
       <DetailModal
