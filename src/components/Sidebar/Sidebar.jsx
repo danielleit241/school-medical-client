@@ -374,23 +374,18 @@ const Sidebar = () => {
             link: "/nurse/campaign/campaign-list",
             icon: <FileTextOutlined />,
           },
+        ],
+      },
+      {
+        label: "Health Check",
+        key: "health-check",
+        icon: <CalendarOutlined />,
+        dropdown: [
           {
-            label: "Vaccine Round",
-            key: "/nurse/campaign/round-campaign",
-            link: "/nurse/campaign/round-campaign",
-            icon: <FileSearchOutlined />,
-          },
-          {
-            label: "History Campaign",
-            key: "/nurse/campaign/history-campaign",
-            link: "/nurse/campaign/history-campaign",
-            icon: <FileDoneOutlined />,
-          },
-          {
-            label: "Vaccine Form",
-            key: "/nurse/campaign/record-form",
-            link: "/nurse/campaign/record-form",
-            icon: <FormOutlined />,
+            label: "Health Check Campaign",
+            key: "/nurse/health-check/list",
+            link: "/nurse/health-check/list",
+            icon: <FileTextOutlined />,
           },
         ],
       },
@@ -429,10 +424,10 @@ const Sidebar = () => {
         link: "/parent",
       },
       {
-        label: "Vaccine Timetable",
-        key: "vaccine-timetable",
+        label: "Timetable",
+        key: "timetable",
         icon: <LuSyringe size={20} />,
-        link: "/parent/vaccine-timetable",
+        link: "/parent/timetable",
       },
       {
         label: "Appointment",

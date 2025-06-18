@@ -35,8 +35,10 @@ import NurseDashboard from "./pages/Nurse/Dashboard";
 import AppointmentList from "./pages/Nurse/AppointmentManagement/AppointmentList/AppointmentList";
 import NurseCampaignList from "./pages/Nurse/Campaign/CampaignList/CampaignList";
 import NurseDetailCampaign from "./pages/Nurse/Campaign/DetailCampaign/DetailCampaign";
-import NurseHistoryCampaign from "./pages/Nurse/Campaign/HistoryCampaign/HistoryCampaign";
-import RecordForm from "./pages/Nurse/Campaign/RecordForm/RecordForm";
+// import NurseHistoryCampaign from "./pages/Nurse/Campaign/HistoryCampaign/HistoryCampaign";
+// import RecordForm from "./pages/Nurse/Campaign/RecordForm/RecordForm";
+import HealthCheckListMain from "./pages/Nurse/HealthCheck/HealthCheckList/HealthCheckList";
+import HealthCheckDetailRound from "./pages/Nurse/HealthCheck/HealthCheckDetail/HealthCheckDetail";
 import CreateMedicalEvent from "./pages/Nurse/MediacalEvent/CreateMedicalEvent/CreateMedicalEvent";
 import MedicalEventList from "./pages/Nurse/MediacalEvent/MedicalEventList/MedicalEventList";
 import MedicalEventDetail from "./pages/Nurse/MediacalEvent/MedicalEventDetail/MedicaEventDetail";
@@ -71,7 +73,7 @@ import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryLis
 import VaccineInventory from "./pages/Admin/VaccineList/VaccineInventory/VaccineInventory";
 import AddVaccine from "./pages/Admin/VaccineList/AddVaccine/AddVaccine";
 import SessionTimeout from "./components/SessionTimeout/SessionTimeout";
-import VaccineTimeable from "./pages/Parent/Vaccine/VaccineTimeable";
+import Timeable from "./pages/Parent/Vaccine/Timeable";
 
 function App() {
   const dispatch = useDispatch();
@@ -107,7 +109,7 @@ function App() {
             }
           >
             <Route index element={<ParentHome />} />
-            <Route path="vaccine-timetable" element={<VaccineTimeable />} />
+            <Route path="timetable" element={<Timeable />} />
             <Route
               path="appointments-list"
               element={<ParentAppointmentList />}
@@ -292,11 +294,11 @@ function App() {
             path="campaign/round-campaign"
             element={<NurseDetailCampaign />}
           />
+          <Route path="health-check/list" element={<HealthCheckListMain />} />
           <Route
-            path="campaign/history-campaign"
-            element={<NurseHistoryCampaign />}
+            path="health-check/round-campaign"
+            element={<HealthCheckDetailRound />}
           />
-          <Route path="campaign/record-form" element={<RecordForm />} />
           <Route
             path="medical-event/create-medical-event"
             element={<CreateMedicalEvent />}
