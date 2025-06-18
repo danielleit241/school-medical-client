@@ -98,7 +98,7 @@ const DetailCampaign = () => {
     if (!student.vaccinationResultId) return "not_recorded";
     try {
       // Kiểm tra qualified
-      const qualifiedRes = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}/health-quilified`);
+      const qualifiedRes = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}/health-qualified`);
       const qualified =
         typeof qualifiedRes.data === "boolean"
           ? qualifiedRes.data

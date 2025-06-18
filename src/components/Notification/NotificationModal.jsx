@@ -307,6 +307,7 @@ const NotificationModal = ({visible = true}) => {
   );
 };
 
+
 const VaccinationConfirmButton = ({sourceId}) => {
   const [status, setStatus] = useState(undefined);
   const [loading, setLoading] = useState(false);
@@ -327,7 +328,7 @@ const VaccinationConfirmButton = ({sourceId}) => {
     e.stopPropagation();
     setLoading(true);
     try {
-      await axiosInstance.put(`/api/vaccination-results/${sourceId}/comfirm`, {
+      await axiosInstance.put(`/api/vaccination-results/${sourceId}/confirm`, {
         status: true,
       });
       const res = await axiosInstance.get(
@@ -344,7 +345,7 @@ const VaccinationConfirmButton = ({sourceId}) => {
     e.stopPropagation();
     setCancelLoading(true);
     try {
-      await axiosInstance.put(`/api/vaccination-results/${sourceId}/comfirm`, {
+      await axiosInstance.put(`/api/vaccination-results/${sourceId}/confirm`, {
         status: false,
       });
       const res = await axiosInstance.get(

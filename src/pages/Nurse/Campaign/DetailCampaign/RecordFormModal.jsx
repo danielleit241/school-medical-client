@@ -302,6 +302,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
                 ]}
               >
                 <DatePicker
+                  disabled
                   style={{ width: "100%" }}
                   onChange={handleVaccinatedDateChange}
                 />
