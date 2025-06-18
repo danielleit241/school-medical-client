@@ -7,6 +7,7 @@ import RecordFormModal from "./RecordFormModal";
 import ObservationModal from "./ObservationModal";
 import DetailModal from "./DetailModal";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 const DetailCampaign = () => {
   const location = useLocation();
@@ -24,6 +25,7 @@ const DetailCampaign = () => {
   const [loadingMap] = useState({});
   const [status, setStatus] = useState(false); // trạng thái round
   const [loadingComplete, setLoadingComplete] = useState(false);
+  const [dateRange, setDateRange] = useState({ start: null, end: null });
 
   // Lấy danh sách student
   const fetchStudents = async () => {
@@ -68,13 +70,24 @@ const DetailCampaign = () => {
       try {
         const res = await axiosInstance.get(`/api/vaccination-rounds/${roundId}`);
         setStatus(res.data.vaccinationRoundInformation.status);
+        setDateRange({
+          start: res.data.vaccinationRoundInformation.startTime,
+          end: res.data.vaccinationRoundInformation.endTime,
+        });
         console.log("Fetched round status:", res.data.vaccinationRoundInformation.startTime);
       } catch {
         setStatus(false);
+        setDateRange({ start: null, end: null })
       }
     };
     fetchRound();
   }, [roundId]);
+
+  const isOutOfRange = (() => {
+    if (!dateRange.start || !dateRange.end) return false;
+    const now = dayjs().startOf("day");
+    return now.isBefore(dayjs(dateRange.start).startOf("day")) || now.isAfter(dayjs(dateRange.end).endOf("day"));
+  })();
 
   const fetchData = async () => {
     setLoading(true);
@@ -219,7 +232,7 @@ const DetailCampaign = () => {
 
         if ((qualified === null || qualified === undefined) && status === "not_recorded") {
           return (
-            <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading}>
+            <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading || isOutOfRange}>
               Record Form
             </Button>
           );
@@ -244,7 +257,7 @@ const DetailCampaign = () => {
         // Trường hợp qualified === true && status === "not_recorded"
         if (qualified === true && status === "not_recorded") {
           return (
-            <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading}>
+            <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading || isOutOfRange}>
               Record Form
             </Button>
           );
@@ -271,6 +284,7 @@ const DetailCampaign = () => {
             onClick={handleComplete}
             loading={loadingComplete}
             style={{ borderRadius: 8, fontWeight: 600 }}
+            disabled={isOutOfRange}
           >
             Complete
           </Button>
@@ -281,10 +295,16 @@ const DetailCampaign = () => {
           </Tag>
         )}
       </div>
+      {isOutOfRange && (
+        <div style={{ color: "#eab308", fontWeight: 600, marginBottom: 16 }}>
+          It's not allowed at this time. Please check the round date range.
+        </div>
+      )}
 
       {loading ? (
         <Spin />
       ) : (
+        
         <Table
           rowKey="studentId"
           columns={columns}
@@ -301,6 +321,7 @@ const DetailCampaign = () => {
         round={selectedRound}
         onCancel={() => setModalType("")}
         onReload={fetchStudents}
+        isOutOfRange={isOutOfRange}
       />
 
       <ObservationModal

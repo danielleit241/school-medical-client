@@ -229,6 +229,7 @@ const HealthCheckDetail = () => {
             onClick={handleComplete}
             loading={loadingComplete}
             style={{ borderRadius: 8, fontWeight: 600 }}
+            disabled={isOutOfRange}
           >
             Complete
           </Button>
