@@ -7,7 +7,6 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [vaccinatedDate, setVaccinatedDate] = useState(null);
-
   // Fetch vaccinatedDate khi mở modal
   useEffect(() => {
     const fetchVaccinatedDate = async () => {
@@ -17,7 +16,8 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
       }
       try {
         const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
-        setVaccinatedDate(res.data?.vaccinatedDate || null);
+        setVaccinatedDate(res.data?.resultResponse?.vaccinatedDate || null);
+        console.log("Vaccinated Date:", res.data?.resultResponse?.vaccinatedDate);
       } catch (error) {
         console.error("Error fetching vaccinated date:", error);
         setVaccinatedDate(null);
@@ -37,20 +37,37 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
   const handleFinish = async (values) => {
     setLoading(true);
     try {
-      const vaccinationResultId =
-        student?.vaccinationResultId;
+      // Giả sử bạn đã có vaccinatedDate là dayjs object (ngày tiêm chủng)
+      // Các trường observationStartTime, observationEndTime, reactionStartTime là dayjs object (giờ phút)
+
+      const baseDate = dayjs(vaccinatedDate); // ngày tiêm chủng
+
+      const observationStartTime = baseDate
+        .hour(values.observationStartTime.hour())
+        .minute(values.observationStartTime.minute())
+        .second(0)
+        .millisecond(0)
+        .format("YYYY-MM-DDTHH:mm:ss");
+
+      const observationEndTime = baseDate
+        .hour(values.observationEndTime.hour())
+        .minute(values.observationEndTime.minute())
+        .second(0)
+        .millisecond(0)
+        .format("YYYY-MM-DDTHH:mm:ss");
+
+      const reactionStartTime = baseDate
+        .hour(values.reactionStartTime.hour())
+        .minute(values.reactionStartTime.minute())
+        .second(0)
+        .millisecond(0)
+        .format("YYYY-MM-DDTHH:mm:ss");
 
       const payload = {
-        vaccinationResultId,
-        observationStartTime: values.observationStartTime
-          ? values.observationStartTime.toISOString()
-          : null,
-        observationEndTime: values.observationEndTime
-          ? values.observationEndTime.toISOString()
-          : null,
-        reactionStartTime: values.reactionStartTime
-          ? values.reactionStartTime.toISOString()
-          : null,
+        vaccinationResultId: student?.vaccinationResultId,
+        observationStartTime,
+        observationEndTime,
+        reactionStartTime,
         reactionType: values.reactionType,
         severityLevel: values.severityLevel,
         immediateReaction: values.immediateReaction,
