@@ -396,42 +396,45 @@ const Timeable = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <Title level={4} style={{marginBottom: 8}}>
-                      {round.healthCheckRoundInformation.roundName}
+                      {round.healthCheckRoundInformationResponse.roundName}
                     </Title>
                     <Space className="mb-2">
                       <ClockCircleOutlined />
                       <Text>
                         {formatDate(
-                          round.healthCheckRoundInformation.startTime
+                          round.healthCheckRoundInformationResponse.startTime
                         )}{" "}
                         -
                         {formatTime(
-                          round.healthCheckRoundInformation.startTime
+                          round.healthCheckRoundInformationResponse.startTime
                         )}{" "}
                         to{" "}
-                        {formatTime(round.healthCheckRoundInformation.endTime)}
+                        {formatTime(
+                          round.healthCheckRoundInformationResponse.endTime
+                        )}
                       </Text>
                       <BookOutlined />
                       <Text>
-                        Class {round.healthCheckRoundInformation.targetGrade}
+                        Class{" "}
+                        {round.healthCheckRoundInformationResponse.targetGrade}
                       </Text>
                     </Space>
                   </div>
                   <Tag
                     color={
-                      round.healthCheckRoundInformation.status
+                      round.healthCheckRoundInformationResponse.status
                         ? "success"
                         : "default"
                     }
                   >
-                    {round.healthCheckRoundInformation.status
+                    {round.healthCheckRoundInformationResponse.status
                       ? "Active"
                       : "Inactive"}
                   </Tag>
                 </div>
 
                 <Paragraph>
-                  {round.healthCheckRoundInformation.description ||
+                  {round.healthCheckRoundInformationResponse.description ||
                     "No description available"}
                 </Paragraph>
 
@@ -472,12 +475,17 @@ const Timeable = () => {
                 >
                   <Descriptions column={1} size="small">
                     <Descriptions.Item label="Name">
-                      {round.nurse.nurseName}
+                      {round.healthCheckRoundNurseInformationResponse.nurseName}
                     </Descriptions.Item>
                     <Descriptions.Item label="Phone">
                       <Space>
                         <PhoneOutlined />
-                        <span>{round.nurse.phoneNumber}</span>
+                        <span>
+                          {
+                            round.healthCheckRoundNurseInformationResponse
+                              .phoneNumber
+                          }
+                        </span>
                       </Space>
                     </Descriptions.Item>
                   </Descriptions>
@@ -531,8 +539,24 @@ const Timeable = () => {
               onChange={(e) => setViewMode(e.target.value)}
               buttonStyle="solid"
             >
-              <Radio.Button value="week">Weekly View</Radio.Button>
-              <Radio.Button value="custom">Custom Range</Radio.Button>
+              <Radio.Button
+                style={{
+                  background: viewMode === "week" ? "#355383" : "transparent",
+                  border: "1px solid #355383",
+                }}
+                value="week"
+              >
+                Weekly View
+              </Radio.Button>
+              <Radio.Button
+                style={{
+                  background: viewMode === "custom" ? "#355383" : "transparent",
+                  border: "1px solid #355383",
+                }}
+                value="custom"
+              >
+                Custom Range
+              </Radio.Button>
             </Radio.Group>
 
             {viewMode === "week" ? (
@@ -567,7 +591,11 @@ const Timeable = () => {
                   placeholder="End date"
                 />
                 <Button
-                  type="primary"
+                  style={{
+                    background: "#355383",
+                    border: "1px solid #355383",
+                    color: "#fff",
+                  }}
                   onClick={handleCustomDateRange}
                   disabled={!startDate || !endDate}
                 >
@@ -598,7 +626,7 @@ const Timeable = () => {
       <Tabs activeKey={activeTab} onChange={handleTabChange}>
         <TabPane
           tab={
-            <span>
+            <span style={{color: "#355383"}}>
               <MedicineBoxOutlined /> Vaccination
             </span>
           }
@@ -638,7 +666,7 @@ const Timeable = () => {
 
         <TabPane
           tab={
-            <span>
+            <span style={{color: "#355383"}}>
               <HeartOutlined /> Health Check
             </span>
           }

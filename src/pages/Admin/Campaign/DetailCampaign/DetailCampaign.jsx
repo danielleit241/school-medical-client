@@ -19,7 +19,12 @@ import {
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
 import {useNavigate} from "react-router-dom";
-import {EyeOutlined, PlusOutlined, TeamOutlined} from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  EyeOutlined,
+  PlusOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
 
@@ -36,11 +41,6 @@ const DetailCampaign = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [roundDetail, setRoundDetail] = useState(null);
   const [roundLoading, setRoundLoading] = useState(false);
-
-  // Student list state
-  const [studentListVisible, setStudentListVisible] = useState(false);
-  const [studentList, setStudentList] = useState([]);
-  const [studentListLoading, setStudentListLoading] = useState(false);
 
   // Add round modal state
   const [addRoundModalVisible, setAddRoundModalVisible] = useState(false);
@@ -238,19 +238,9 @@ const DetailCampaign = () => {
   };
 
   const handleShowStudentList = (roundId) => {
-    setStudentListVisible(true);
-    setStudentListLoading(true);
-    axiosInstance
-      .get(`/api/managers/vaccination-rounds/${roundId}/students`)
-      .then((res) => setStudentList(res.data.items || []))
-      .finally(() => setStudentListLoading(false));
+    localStorage.setItem("selectedVaccinationRoundId", roundId);
+    navigate(`/${roleName}/campaign/vaccine-round/student-list`);
   };
-
-  const handleCloseStudentList = () => {
-    setStudentListVisible(false);
-    setStudentList([]);
-  };
-
   if (loading) {
     return (
       <div style={{textAlign: "center", marginTop: 40}}>
@@ -269,13 +259,21 @@ const DetailCampaign = () => {
 
   return (
     <Card
-      title="Vaccination Campaign Details"
+      title={
+        <div style={{display: "flex", alignItems: "center"}}>
+          <Button
+            icon={<ArrowLeftOutlined style={{margin: 0, padding: 0}} />}
+            onClick={handleBack}
+            style={{
+              marginRight: 16,
+            }}
+          />
+          <span>Vaccination Campaign Details</span>
+        </div>
+      }
       style={{maxWidth: 1200, margin: "32px auto"}}
       extra={
         <Space>
-          <Button onClick={handleBack} type="primary">
-            Back
-          </Button>
           <Button
             type="dashed"
             icon={<PlusOutlined />}
@@ -469,92 +467,6 @@ const DetailCampaign = () => {
           </>
         ) : (
           <Paragraph>No data found.</Paragraph>
-        )}
-      </Modal>
-
-      {/* Modal for student list */}
-      <Modal
-        open={studentListVisible}
-        onCancel={handleCloseStudentList}
-        footer={null}
-        title={`Students of ${
-          roundsWithNurse.find((r) => r.roundId === studentList[0]?.roundId)
-            ?.roundName || "Round"
-        }`}
-        width={700}
-      >
-        {studentListLoading ? (
-          <Spin />
-        ) : studentList.length === 0 ? (
-          <Paragraph>No students found.</Paragraph>
-        ) : (
-          <table style={{width: "100%", borderCollapse: "collapse"}}>
-            <thead>
-              <tr>
-                <th style={{border: "1px solid #eee", padding: 6}}>No.</th>
-                <th style={{border: "1px solid #eee", padding: 6}}>
-                  Student Code
-                </th>
-                <th style={{border: "1px solid #eee", padding: 6}}>
-                  Full Name
-                </th>
-                <th style={{border: "1px solid #eee", padding: 6}}>
-                  Date of Birth
-                </th>
-                <th style={{border: "1px solid #eee", padding: 6}}>Gender</th>
-                <th style={{border: "1px solid #eee", padding: 6}}>Grade</th>
-                <th style={{border: "1px solid #eee", padding: 6}}>
-                  Parent Phone
-                </th>
-                <th style={{border: "1px solid #eee", padding: 6}}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {studentList.map((item, idx) => (
-                <tr
-                  key={item.studentsOfRoundResponse.studentId + idx}
-                  style={{border: "1px solid #eee"}}
-                >
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {idx + 1}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse.studentCode}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse.fullName}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse.dayOfBirth
-                      ? dayjs(item.studentsOfRoundResponse.dayOfBirth).format(
-                          "DD/MM/YYYY"
-                        )
-                      : ""}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse.gender}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse.grade?.trim()}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.parentOfStudent?.phoneNumber || "N/A"}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    <Tag
-                      color={
-                        item.parentOfStudent?.parentConfirm ? "green" : "orange"
-                      }
-                    >
-                      {item.parentOfStudent?.parentConfirm
-                        ? "Confirmed"
-                        : "Pending"}
-                    </Tag>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         )}
       </Modal>
 

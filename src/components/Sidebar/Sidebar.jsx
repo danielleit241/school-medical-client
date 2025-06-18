@@ -144,12 +144,6 @@ const Sidebar = () => {
             link: "/admin/campaign/vaccine-schedule",
             icon: <FileTextOutlined />,
           },
-          {
-            label: "Vaccine Schedule Details",
-            key: "/admin/campaign/vaccine-schedule-details",
-            link: "/admin/campaign/vaccine-schedule-details",
-            icon: <FileSearchOutlined />,
-          },
         ],
       },
       {
@@ -168,12 +162,6 @@ const Sidebar = () => {
             key: "/admin/health-check/schedules",
             link: "/admin/health-check/schedules",
             icon: <FileTextOutlined />,
-          },
-          {
-            label: "Health Check Details",
-            key: "/admin/health-check/details",
-            link: "/admin/health-check/details",
-            icon: <FileSearchOutlined />,
           },
         ],
       },
@@ -259,12 +247,6 @@ const Sidebar = () => {
             link: "/manager/campaign/vaccine-schedule",
             icon: <FileTextOutlined />,
           },
-          {
-            label: "Vaccine Schedule Details",
-            key: "/manager/campaign/vaccine-schedule-details",
-            link: "/manager/campaign/vaccine-schedule-details",
-            icon: <FileSearchOutlined />,
-          },
         ],
       },
       {
@@ -283,12 +265,6 @@ const Sidebar = () => {
             key: "/manager/health-check/schedules",
             link: "/manager/health-check/schedules",
             icon: <FileTextOutlined />,
-          },
-          {
-            label: "Health Check Details",
-            key: "/manager/health-check/details",
-            link: "/manager/health-check/details",
-            icon: <FileSearchOutlined />,
           },
         ],
       },
