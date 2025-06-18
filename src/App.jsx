@@ -66,6 +66,8 @@ import ParentDetailMedicalRegistration from "./pages/Parent/MedicalRegistration/
 import MedicalEventChildrenList from "./pages/Parent/MedicalEvent/MedicalChild/MedicalChildren";
 import MedicalEventChildrenEventList from "./pages/Parent/MedicalEvent/MedicalEventStudent/MedicalEventList";
 import MedicalEventChildrenDetail from "./pages/Parent/MedicalEvent/MedicalEventDetail/MedicalEventDetail";
+import HealthCheckResult from "./pages/Parent/HealthDeclaration/HealthCheckResult/HealthCheckResult";
+import VaccineResult from "./pages/Parent/HealthDeclaration/VaccineResult/VaccineResult";
 import ParentNotification from "./pages/Parent/Notification/Notification";
 import UserProfile from "./pages/Parent/Profile/User/UserProfile";
 import UpdateUserProfile from "./pages/Parent/Profile/Edit/UpdateUserProfile";
@@ -168,6 +170,8 @@ function App() {
             <Route path="notification" element={<ParentNotification />} />
             <Route path="profile/update" element={<UpdateUserProfile />} />
             <Route path="resetpassword" element={<ResetPassword />} />
+            <Route path="healthcheck/result" element={<HealthCheckResult />} />
+            <Route path="vaccine/result" element={<VaccineResult />} />
           </Route>
         </Route>
 
