@@ -25,6 +25,8 @@ import DetailCampaign from "./pages/Admin/Campaign/DetailCampaign/DetailCampaign
 import CreateHealthCheck from "./pages/Admin/HealthCheck/CreateHealthCheck/CreateHealthCheck";
 import HealthCheckDetail from "./pages/Admin/HealthCheck/HealthCheckDetail/HealthCheckDetail";
 import HealthCheckList from "./pages/Admin/HealthCheck/HealthCheckList/HealthCheckList";
+import StudentHealthCheckList from "./pages/Admin/HealthCheck/StudentList/StudentHealthCheckList";
+import StudentVaccineList from "./pages/Admin/Campaign/StudentList/StudentVaccineList";
 import AddStudent from "./pages/Admin/StudentManagement/AddStudent/AddStudent";
 import StudentList from "./pages/Admin/StudentManagement/StudentList/StudentList";
 import UserProfileAdmin from "./pages/Admin/Profile/User/UserProfile";
@@ -217,9 +219,17 @@ function App() {
             path="campaign/vaccine-schedule-details"
             element={<DetailCampaign />}
           />
+          <Route
+            path="campaign/vaccine-round/student-list"
+            element={<StudentVaccineList />}
+          />
           <Route path="health-check/create" element={<CreateHealthCheck />} />
           <Route path="health-check/details" element={<HealthCheckDetail />} />
           <Route path="health-check/schedules" element={<HealthCheckList />} />
+          <Route
+            path="health-check/details/student-list"
+            element={<StudentHealthCheckList />}
+          />
           <Route
             path="student-management/add-student"
             element={<AddStudent />}
@@ -256,9 +266,17 @@ function App() {
             path="campaign/vaccine-schedule-details"
             element={<DetailCampaign />}
           />
+          <Route
+            path="campaign/vaccine-round/student-list"
+            element={<StudentVaccineList />}
+          />
           <Route path="health-check/create" element={<CreateHealthCheck />} />
           <Route path="health-check/details" element={<HealthCheckDetail />} />
           <Route path="health-check/schedules" element={<HealthCheckList />} />
+          <Route
+            path="health-check/details/student-list"
+            element={<StudentHealthCheckList />}
+          />
           <Route
             path="student-management/add-student"
             element={<AddStudent />}

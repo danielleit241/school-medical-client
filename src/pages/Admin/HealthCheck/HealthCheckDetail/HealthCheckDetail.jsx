@@ -43,12 +43,6 @@ const HealthCheckDetail = () => {
   const [roundDetail, setRoundDetail] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Student list state
-  const [studentListVisible, setStudentListVisible] = useState(false);
-  const [studentList, setStudentList] = useState([]);
-  const [studentListLoading, setStudentListLoading] = useState(false);
-  const [selectedRoundId, setSelectedRoundId] = useState(null);
-
   // Notification data states
   const [toParentData, setToParentData] = useState([]);
   const [toNurseData, setToNurseData] = useState([]);
@@ -188,25 +182,8 @@ const HealthCheckDetail = () => {
 
   // Handle showing student list
   const handleShowStudentList = (roundId) => {
-    setSelectedRoundId(roundId);
-    setStudentListVisible(true);
-    setStudentListLoading(true);
-
-    axiosInstance
-      .get(`/api/managers/health-check-rounds/${roundId}/students`)
-      .then((res) => setStudentList(res.data?.items || [])) // Sửa từ item thành items
-      .catch((err) => {
-        console.error("Error fetching students:", err);
-        message.error("Failed to fetch student list");
-      })
-      .finally(() => setStudentListLoading(false));
-  };
-
-  // Handle closing student list modal
-  const handleCloseStudentList = () => {
-    setStudentListVisible(false);
-    setStudentList([]);
-    setSelectedRoundId(null);
+    localStorage.setItem("selectedHealthCheckRoundId", roundId);
+    navigate(`/${roleName}/health-check/details/student-list`);
   };
 
   const handleBack = () => {
@@ -233,15 +210,19 @@ const HealthCheckDetail = () => {
     <Card
       title={
         <div style={{display: "flex", alignItems: "center"}}>
+          <Button
+            icon={<ArrowLeftOutlined style={{margin: 0, padding: 0}} />}
+            onClick={handleBack}
+            style={{
+              marginRight: 16,
+            }}
+          />
           <span>Health Check Details</span>
         </div>
       }
       style={{margin: 24}}
       extra={
         <Space>
-          <Button style={{marginRight: 16}} onClick={handleBack}>
-            Back
-          </Button>
           <Button
             type="dashed"
             icon={<PlusOutlined />}
@@ -411,90 +392,6 @@ const HealthCheckDetail = () => {
             {roundDetail?.nurse?.phoneNumber || "N/A"}
           </Descriptions.Item>
         </Descriptions>
-      </Modal>
-
-      {/* Student List Modal */}
-      <Modal
-        title={`Students of ${
-          rounds.find(
-            (r) => r.healthCheckRoundInformation.roundId === selectedRoundId
-          )?.healthCheckRoundInformation?.roundName || "Round"
-        }`}
-        open={studentListVisible}
-        onCancel={handleCloseStudentList}
-        footer={null}
-        width={700}
-      >
-        {studentListLoading ? (
-          <div style={{textAlign: "center", padding: "20px"}}>
-            <Spin />
-          </div>
-        ) : studentList.length === 0 ? (
-          <Empty description="No students found" />
-        ) : (
-          <table style={{width: "100%", borderCollapse: "collapse"}}>
-            <thead>
-              <tr>
-                <th style={{border: "1px solid #eee", padding: 6}}>No.</th>
-                <th style={{border: "1px solid #eee", padding: 6}}>
-                  Student Code
-                </th>
-                <th style={{border: "1px solid #eee", padding: 6}}>
-                  Full Name
-                </th>
-                <th style={{border: "1px solid #eee", padding: 6}}>
-                  Date of Birth
-                </th>
-                <th style={{border: "1px solid #eee", padding: 6}}>Gender</th>
-                <th style={{border: "1px solid #eee", padding: 6}}>Grade</th>
-                <th style={{border: "1px solid #eee", padding: 6}}>Parent</th>
-                <th style={{border: "1px solid #eee", padding: 6}}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {studentList.map((item, idx) => (
-                <tr key={idx} style={{border: "1px solid #eee"}}>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {idx + 1}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse?.studentCode}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse?.fullName}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse?.dayOfBirth
-                      ? dayjs(item.studentsOfRoundResponse.dayOfBirth).format(
-                          "DD/MM/YYYY"
-                        )
-                      : ""}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse?.gender}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.studentsOfRoundResponse?.grade?.trim()}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    {item.parentOfStudent?.phoneNumber || "N/A"}
-                  </td>
-                  <td style={{border: "1px solid #eee", padding: 6}}>
-                    <Tag
-                      color={
-                        item.parentOfStudent?.parentConfirm ? "green" : "orange"
-                      }
-                    >
-                      {item.parentOfStudent?.parentConfirm
-                        ? "Confirmed"
-                        : "Pending"}
-                    </Tag>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
       </Modal>
     </Card>
   );
