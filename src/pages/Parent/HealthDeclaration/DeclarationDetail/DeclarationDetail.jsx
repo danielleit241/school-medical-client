@@ -82,6 +82,11 @@ const DeclarationDetail = () => {
     return <div>No health declaration found.</div>;
   }
 
+  const handleBack = () => {
+    localStorage.removeItem("selectedStudent");
+    navigate("/parent/health-declaration/my-children");
+  };
+
   return (
     <div
       style={{
@@ -416,7 +421,7 @@ const DeclarationDetail = () => {
           <div style={{padding: "20px 24px"}}>
             <Button
               type="default"
-              onClick={() => navigate("/parent/health-declaration/my-children")}
+              onClick={handleBack}
               style={{
                 borderRadius: "8px",
                 height: "40px",

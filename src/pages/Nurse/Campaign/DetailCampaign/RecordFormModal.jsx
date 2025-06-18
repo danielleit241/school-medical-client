@@ -1,12 +1,30 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, Button, Spin, Row, Col, Typography, Divider, DatePicker, TimePicker, Switch, Card, Tag, Space, Steps, message } from "antd";
-import { MedicineBoxOutlined } from "@ant-design/icons";
+import React, {useEffect, useState} from "react";
+import {
+  Modal,
+  Form,
+  Input,
+  Button,
+  Spin,
+  Row,
+  Col,
+  Typography,
+  Divider,
+  DatePicker,
+  TimePicker,
+  Switch,
+  Card,
+  Tag,
+  Space,
+  Steps,
+  message,
+} from "antd";
+import {MedicineBoxOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
 
-const { Title, Text } = Typography;
+const {Title, Text} = Typography;
 
-const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => {
+const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [healthDeclaration, setHealthDeclaration] = useState(null);
@@ -35,9 +53,13 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
     };
 
     if (open && student?.vaccinationResultId) {
-      axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}/health-qualified`)
-        .then(res => {
-          const qualified = typeof res.data === "boolean" ? res.data : res.data?.qualified;
+      axiosInstance
+        .get(
+          `/api/vaccination-results/${student.vaccinationResultId}/health-qualified`
+        )
+        .then((res) => {
+          const qualified =
+            typeof res.data === "boolean" ? res.data : res.data?.qualified;
           setQualified(qualified);
           if (qualified === true) setStep(1);
           else setStep(0);
@@ -58,7 +80,6 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, student]);
 
-  
   useEffect(() => {
     if (qualified === true) setStep(1);
     if (qualified === false) {
@@ -71,7 +92,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
 
   useEffect(() => {
     if (!open) {
-      setQualified(null); 
+      setQualified(null);
       setStep(0);
     }
   }, [open]);
@@ -80,7 +101,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
   useEffect(() => {
     const interval = setInterval(() => {
       const today = dayjs();
-      setVaccinationDate(prev => {
+      setVaccinationDate((prev) => {
         if (!prev || !prev.isSame(today, "day")) return today;
         return prev;
       });
@@ -106,8 +127,8 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
       );
       if (!isQualified) {
         message.info("Student is not qualified for vaccination.");
-        if (onReload) await onReload(); 
-        onCancel(); 
+        if (onReload) await onReload();
+        onCancel();
         return;
       }
       setTimeout(async () => {
@@ -119,10 +140,9 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
           console.log("Fetched qualified status:", res.data);
           if (res.data === true) {
             setStep(1);
-          } else if (res.data=== false) {
+          } else if (res.data === false) {
             message.info("Student is not qualified for vaccination.");
-            setTimeout(() => {
-            }, 100);
+            setTimeout(() => {}, 100);
           }
         } catch (err) {
           console.error("Error fetching qualified status:", err);
@@ -154,7 +174,9 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
       if (value.isBefore(start) || value.isAfter(end)) {
         return Promise.reject(
           new Error(
-            `Vaccinated Date must be between ${start.format("YYYY-MM-DD")} and ${end.format("YYYY-MM-DD")}`
+            `Vaccinated Date must be between ${start.format(
+              "YYYY-MM-DD"
+            )} and ${end.format("YYYY-MM-DD")}`
           )
         );
       }
@@ -173,8 +195,6 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
     }
     return Promise.resolve();
   };
-
-  
 
   const handleFinish = async (values) => {
     setLoading(true);
@@ -219,16 +239,13 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
       onCancel={onCancel}
       footer={null}
       width={900}
-      styles={{ body: { padding: 32 } }}
+      styles={{body: {padding: 32}}}
       destroyOnClose
     >
       <Steps
         current={step}
-        items={[
-          { title: "Health Declaration" },
-          { title: "Vaccination Record" },
-        ]}
-        style={{ marginBottom: 32 }}
+        items={[{title: "Health Declaration"}, {title: "Vaccination Record"}]}
+        style={{marginBottom: 32}}
       />
       {step === 0 && (
         <Row gutter={32}>
@@ -241,44 +258,72 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
                 background: "#f9fbfd",
                 minHeight: 320,
               }}
-              bodyStyle={{ padding: 24 }}
+              bodyStyle={{padding: 24}}
             >
-              <Space direction="vertical" style={{ width: "100%" }} size={16}>
-                <Title level={5} style={{ margin: 0, color: "#1677ff" }}>
+              <Space direction="vertical" style={{width: "100%"}} size={16}>
+                <Title level={5} style={{margin: 0, color: "#1677ff"}}>
                   <MedicineBoxOutlined /> Health Declaration
                 </Title>
-                <Divider style={{ margin: "8px 0" }} />
+                <Divider style={{margin: "8px 0"}} />
                 {healthLoading ? (
                   <Spin />
                 ) : healthDeclaration && healthDeclaration.healthDeclaration ? (
-                  <div style={{ lineHeight: 2, fontSize: 15 }}>
+                  <div style={{lineHeight: 2, fontSize: 15}}>
                     <div>
                       <Text strong>Chronic Diseases:</Text>{" "}
-                      <Tag color={healthDeclaration.healthDeclaration.chronicDiseases === "no" ? "green" : "red"}>
-                        {healthDeclaration.healthDeclaration.chronicDiseases || "N/A"}
+                      <Tag
+                        color={
+                          healthDeclaration.healthDeclaration
+                            .chronicDiseases === "no"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {healthDeclaration.healthDeclaration.chronicDiseases ||
+                          "N/A"}
                       </Tag>
                     </div>
                     <div>
                       <Text strong>Drug Allergies:</Text>{" "}
-                      <Tag color={healthDeclaration.healthDeclaration.drugAllergies === "no" ? "green" : "red"}>
-                        {healthDeclaration.healthDeclaration.drugAllergies || "N/A"}
+                      <Tag
+                        color={
+                          healthDeclaration.healthDeclaration.drugAllergies ===
+                          "no"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {healthDeclaration.healthDeclaration.drugAllergies ||
+                          "N/A"}
                       </Tag>
                     </div>
                     <div>
                       <Text strong>Food Allergies:</Text>{" "}
-                      <Tag color={healthDeclaration.healthDeclaration.foodAllergies === "no" ? "green" : "red"}>
-                        {healthDeclaration.healthDeclaration.foodAllergies || "N/A"}
+                      <Tag
+                        color={
+                          healthDeclaration.healthDeclaration.foodAllergies ===
+                          "no"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {healthDeclaration.healthDeclaration.foodAllergies ||
+                          "N/A"}
                       </Tag>
                     </div>
                     <div>
                       <Text strong>Additional Notes:</Text>{" "}
-                      <Text>{healthDeclaration.healthDeclaration.notes || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      <Text>
+                        {healthDeclaration.healthDeclaration.notes || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
                   </div>
                 ) : (
                   <Text type="secondary">No health declaration data.</Text>
                 )}
-                <div style={{ display: "flex", gap: 16, marginTop: 24 }}>
+                <div style={{display: "flex", gap: 16, marginTop: 24}}>
                   <Button
                     danger
                     loading={loading}
@@ -316,14 +361,14 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
                 label="Vaccinated Date"
                 name="vaccinatedDate"
                 rules={[
-                  { required: true, message: "Please select date" },
-                  { validator: validateVaccinatedDate },
+                  {required: true, message: "Please select date"},
+                  {validator: validateVaccinatedDate},
                 ]}
                 initialValue={vaccinationDate}
               >
                 <DatePicker
                   disabled
-                  style={{ width: "100%" }}
+                  style={{width: "100%"}}
                   value={vaccinationDate}
                 />
               </Form.Item>
@@ -331,12 +376,12 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
                 label="Vaccinated Time"
                 name="vaccinatedTime"
                 rules={[
-                  { required: true, message: "Please select time" },
-                  { validator: validateVaccinatedTime },
+                  {required: true, message: "Please select time"},
+                  {validator: validateVaccinatedTime},
                 ]}
               >
                 <TimePicker
-                  style={{ width: "100%" }}
+                  style={{width: "100%"}}
                   format="HH:mm"
                   minuteStep={5}
                   allowClear={false}
@@ -352,7 +397,9 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
               <Form.Item
                 label="Injection Site"
                 name="injectionSite"
-                rules={[{ required: true, message: "Please enter injection site" }]}
+                rules={[
+                  {required: true, message: "Please enter injection site"},
+                ]}
               >
                 <Input />
               </Form.Item>
@@ -362,7 +409,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
               <Form.Item
                 label="Status"
                 name="status"
-                rules={[{ required: true, message: "Please enter status" }]}
+                rules={[{required: true, message: "Please enter status"}]}
               >
                 <Input />
               </Form.Item>
@@ -371,7 +418,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
                   type="primary"
                   htmlType="submit"
                   loading={loading}
-                  style={{ width: "100%" }}
+                  style={{width: "100%"}}
                 >
                   Save
                 </Button>
@@ -388,38 +435,66 @@ const RecordFormModal = ({ open, onCancel, student, onOk, round, onReload }) => 
                 background: "#f9fbfd",
                 minHeight: 320,
               }}
-              bodyStyle={{ padding: 24 }}
+              bodyStyle={{padding: 24}}
             >
-              <Space direction="vertical" style={{ width: "100%" }} size={16}>
-                <Title level={5} style={{ margin: 0, color: "#1677ff" }}>
+              <Space direction="vertical" style={{width: "100%"}} size={16}>
+                <Title level={5} style={{margin: 0, color: "#1677ff"}}>
                   <MedicineBoxOutlined /> Health Declaration
                 </Title>
-                <Divider style={{ margin: "8px 0" }} />
+                <Divider style={{margin: "8px 0"}} />
                 {healthLoading ? (
                   <Spin />
                 ) : healthDeclaration && healthDeclaration.healthDeclaration ? (
-                  <div style={{ lineHeight: 2, fontSize: 15 }}>
+                  <div style={{lineHeight: 2, fontSize: 15}}>
                     <div>
                       <Text strong>Chronic Diseases:</Text>{" "}
-                      <Tag color={healthDeclaration.healthDeclaration.chronicDiseases === "no" ? "green" : "red"}>
-                        {healthDeclaration.healthDeclaration.chronicDiseases || "N/A"}
+                      <Tag
+                        color={
+                          healthDeclaration.healthDeclaration
+                            .chronicDiseases === "no"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {healthDeclaration.healthDeclaration.chronicDiseases ||
+                          "N/A"}
                       </Tag>
                     </div>
                     <div>
                       <Text strong>Drug Allergies:</Text>{" "}
-                      <Tag color={healthDeclaration.healthDeclaration.drugAllergies === "no" ? "green" : "red"}>
-                        {healthDeclaration.healthDeclaration.drugAllergies || "N/A"}
+                      <Tag
+                        color={
+                          healthDeclaration.healthDeclaration.drugAllergies ===
+                          "no"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {healthDeclaration.healthDeclaration.drugAllergies ||
+                          "N/A"}
                       </Tag>
                     </div>
                     <div>
                       <Text strong>Food Allergies:</Text>{" "}
-                      <Tag color={healthDeclaration.healthDeclaration.foodAllergies === "no" ? "green" : "red"}>
-                        {healthDeclaration.healthDeclaration.foodAllergies || "N/A"}
+                      <Tag
+                        color={
+                          healthDeclaration.healthDeclaration.foodAllergies ===
+                          "no"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {healthDeclaration.healthDeclaration.foodAllergies ||
+                          "N/A"}
                       </Tag>
                     </div>
                     <div>
                       <Text strong>Additional Notes:</Text>{" "}
-                      <Text>{healthDeclaration.healthDeclaration.notes || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      <Text>
+                        {healthDeclaration.healthDeclaration.notes || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
                   </div>
                 ) : (
