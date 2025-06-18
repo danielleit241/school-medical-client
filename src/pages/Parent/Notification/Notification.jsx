@@ -286,7 +286,7 @@ const VaccinationConfirmButton = ({ sourceId }) => {
     setLoading(true);
     try {
       await axiosInstance.put(
-        `/api/vaccination-results/${sourceId}/comfirm`,
+        `/api/vaccination-results/${sourceId}/confirm`,
         { status: true }
       );
       const res = await axiosInstance.get(
@@ -303,7 +303,7 @@ const VaccinationConfirmButton = ({ sourceId }) => {
     setCancelLoading(true);
     try {
       await axiosInstance.put(
-        `/api/vaccination-results/${sourceId}/comfirm`,
+        `/api/vaccination-results/${sourceId}/confirm`,
         { status: false }
       );
       const res = await axiosInstance.get(
