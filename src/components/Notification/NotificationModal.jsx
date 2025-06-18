@@ -349,6 +349,7 @@ const HealthCheckConfirmButton = ({sourceId}) => {
       const res = await axiosInstance.get(
         `/api/health-check-results/${sourceId}/is-confirmed`
       );
+      console.log("Status after cancel:", res.data, "for", sourceId);
       setStatus(res.data);
     } finally {
       setCancelLoading(false);
