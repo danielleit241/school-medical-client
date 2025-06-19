@@ -70,9 +70,6 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
   const handleFinish = async (values) => {
     setLoading(true);
     try {
-      // Giả sử bạn đã có vaccinatedDate là dayjs object (ngày tiêm chủng)
-      // Các trường observationStartTime, observationEndTime, reactionStartTime là dayjs object (giờ phút)
-
       const baseDate = dayjs(vaccinatedDate); // ngày tiêm chủng
 
       const observationStartTime = baseDate
@@ -129,7 +126,6 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
 
   const handleObservationStartTimeChange = (value) => {
   if (value) {
-    // observationEndTime = observationStartTime + 30 phút
     const endTime = value.clone().add(30, "minute");
     form.setFieldsValue({ observationEndTime: endTime });
   } else {
@@ -157,7 +153,6 @@ const validateReactionStartTime = (_, value) => {
   return Promise.resolve();
 };
 
-  // Validate observationStartTime phải cùng ngày với result?.vaccinatedDate
   const validateObservationStartTime = (_, value) => {
     if (!value || !vaccinatedDate) return Promise.resolve();
     const obsDate = value.format("YYYY-MM-DD");

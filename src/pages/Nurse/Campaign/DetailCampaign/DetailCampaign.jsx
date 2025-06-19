@@ -27,7 +27,6 @@ const DetailCampaign = () => {
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [dateRange, setDateRange] = useState({ start: null, end: null });
 
-  // Lấy danh sách student
   const fetchStudents = async () => {
     setLoading(true);
     try {
@@ -64,7 +63,6 @@ const DetailCampaign = () => {
     setLoading(false);
   };
 
-  // Khi load round, lấy status
   useEffect(() => {
     const fetchRound = async () => {
       try {
@@ -92,7 +90,6 @@ const DetailCampaign = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Lấy thông tin chiến dịch (round)
       const campaignRes = await axiosInstance.get(`/api/vaccination-rounds/${roundId}`);
       setSelectedRound(campaignRes.data);
     } catch {
@@ -110,7 +107,6 @@ const DetailCampaign = () => {
   const checkVaccinationResult = async (student) => {
     if (!student.vaccinationResultId) return "not_recorded";
     try {
-      // Kiểm tra qualified
       const qualifiedRes = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}/health-qualified`);
       const qualified =
         typeof qualifiedRes.data === "boolean"
@@ -120,7 +116,6 @@ const DetailCampaign = () => {
       const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
       const result = res.data;
       console.log("Vaccination result:", result);
-      // Nếu resultResponse là object, kiểm tra có trường nào null
       const hasNullInResultResponse =
         result.resultResponse &&
         typeof result.resultResponse === "object" &&
