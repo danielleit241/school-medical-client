@@ -8,6 +8,7 @@ import Layout from "./components/Layout/Layout";
 import Resources from "./pages/Resource";
 import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
+import Guide from "./pages/Guide/Guide";
 import ProtectedRoute from "./components/ProtectRoute/ProtectRoute";
 import MainLayout from "./components/MainLayout/MainLayout";
 import {useEffect} from "react";
@@ -97,12 +98,13 @@ function App() {
         {/* Trang chung cho tất cả user */}
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
-          <Route path="login" element={<Login />} />{" "}
+          <Route path="login" element={<Login />} />
           <Route path="resetpassword" element={<ResetPassword />} />
           <Route path="changePassword" element={<ChangePassword />} />
           <Route path="resources" element={<Resources />} />
           <Route path="blog" element={<Blog />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="guide" element={<Guide />} />
           {/* Route dành cho Parent */}
           <Route
             path="parent"
