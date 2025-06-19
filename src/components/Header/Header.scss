@@ -1,3 +1,4 @@
+
 .active-link {
   text-decoration: none;
   color: var(--black-color); /* màu nổi bật */
@@ -9,7 +10,7 @@
   box-shadow: 0 1px 5px 0 rgba(53, 83, 131, 0.1); // Bóng phía dưới header
 
   &__top {
-    background-color: var(--primary-color);
+    background: var(--linear-color);
     height: 80px; // hoặc giá trị bạn muốn
     box-sizing: border-box;
   }

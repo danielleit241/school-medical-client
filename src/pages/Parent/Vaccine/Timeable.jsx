@@ -105,8 +105,7 @@ const Timeable = () => {
   const [viewMode, setViewMode] = useState("week");
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("vaccination"); // New state for tab selection
-  const userId =
-    localStorage.getItem("userId") || "4BE8652A-C665-423C-9092-631003922F0A";
+  const userId = localStorage.getItem("userId");
 
   // Function to call Vaccination API
   const fetchVaccinationRounds = async (userId, start, end) => {
