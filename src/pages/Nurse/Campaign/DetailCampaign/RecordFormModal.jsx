@@ -49,7 +49,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
       }
     }, [open, student, form]);
 
-  // Fetch health declaration & qualified status
+
   useEffect(() => {
     const fetchHealthDeclaration = async () => {
       if (open && student?.studentsOfRoundResponse?.studentId) {
@@ -113,7 +113,6 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
     }
   }, [open]);
 
-  // Tự động cập nhật vaccinationDate khi sang ngày mới
   useEffect(() => {
     const interval = setInterval(() => {
       const today = dayjs();
@@ -125,7 +124,6 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Reset vaccinationDate khi mở modal
   useEffect(() => {
     if (open) {
       setVaccinationDate(dayjs());
@@ -162,7 +160,6 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
           }
         } catch (err) {
           console.error("Error fetching qualified status:", err);
-          // Nếu GET trả về 404, xử lý thủ công
           if (!isQualified) {
             setQualified(false);
             message.info("Student is not qualified for vaccination.");
@@ -230,7 +227,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
 
       const payload = {
         vaccinationResultId,
-        vaccinatedDate: vaccinationDate.format("YYYY-MM-DD"), // luôn lấy ngày hệ thống
+        vaccinatedDate: vaccinationDate.format("YYYY-MM-DD"), 
         vaccinatedTime: vaccinatedDateTime,
         vaccinated: values.vaccinated,
         injectionSite: values.injectionSite,
