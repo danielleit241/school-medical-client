@@ -53,7 +53,7 @@ const colors = {
 };
 
 export default function Guide() {
-  const navigate = useNavigate();
+//   const navigate = useNavigate();
   const roleName = useSelector((state) => state.user?.role);
   const [currentStep, setCurrentStep] = useState(0);
 
