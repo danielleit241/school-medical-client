@@ -45,8 +45,44 @@ const MedicalChildren = () => {
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
             textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
+          {/* Decorative background elements */}
+          <div
+            style={{
+              position: "absolute",
+              top: "-50px",
+              right: "-50px",
+              width: "120px",
+              height: "120px",
+              background: "rgba(255, 255, 255, 0.1)",
+              borderRadius: "50%",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "-30px",
+              left: "-30px",
+              width: "80px",
+              height: "80px",
+              background: "rgba(255, 255, 255, 0.1)",
+              borderRadius: "50%",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: "25%",
+              width: "60px",
+              height: "60px",
+              background: "rgba(255, 193, 7, 0.2)",
+              borderRadius: "50%",
+            }}
+          />
           <h1
             style={{
               fontWeight: 700,

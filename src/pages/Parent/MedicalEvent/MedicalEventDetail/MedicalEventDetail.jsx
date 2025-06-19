@@ -101,8 +101,43 @@ const MedicalEventDetail = () => {
             justifyContent: "center",
             position: "relative",
             zIndex: 2,
+            overflow: "hidden",
           }}
         >
+          {/* Decorative background elements */}
+          <div
+            style={{
+              position: "absolute",
+              top: "-50px",
+              right: "-50px",
+              width: "120px",
+              height: "120px",
+              background: "rgba(255, 255, 255, 0.1)",
+              borderRadius: "50%",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "-30px",
+              left: "-30px",
+              width: "80px",
+              height: "80px",
+              background: "rgba(255, 255, 255, 0.1)",
+              borderRadius: "50%",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: "25%",
+              width: "60px",
+              height: "60px",
+              background: "rgba(255, 193, 7, 0.2)",
+              borderRadius: "50%",
+            }}
+          />
           <div
             style={{
               width: "40px",
@@ -476,8 +511,10 @@ const MedicalEventDetail = () => {
             transition: "background 0.2s",
           }}
           onClick={() => {
-            const card = document.getElementById('help-contact-card');
-            if (card) card.style.display = card.style.display === 'block' ? 'none' : 'block';
+            const card = document.getElementById("help-contact-card");
+            if (card)
+              card.style.display =
+                card.style.display === "block" ? "none" : "block";
           }}
           aria-label="Need Help?"
         >
@@ -503,19 +540,57 @@ const MedicalEventDetail = () => {
         >
           <div style={{fontSize: 32, color: "#355383", marginBottom: 8}}>
             <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
-              <path d="M12 21s-7-4.35-7-10a7 7 0 0 1 14 0c0 5.65-7 10-7 10Z" stroke="#355383" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" stroke="#355383" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path
+                d="M12 21s-7-4.35-7-10a7 7 0 0 1 14 0c0 5.65-7 10-7 10Z"
+                stroke="#355383"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M12 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"
+                stroke="#355383"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
-          <div style={{fontWeight: 700, color: "#355383", fontSize: 20, marginBottom: 8}}>
+          <div
+            style={{
+              fontWeight: 700,
+              color: "#355383",
+              fontSize: 20,
+              marginBottom: 8,
+            }}
+          >
             Need Help?
           </div>
           <div style={{color: "#555", fontSize: 16, marginBottom: 18}}>
             Our support team is here to assist you with your booking.
           </div>
-          <div style={{color: "#222", fontSize: 16, marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 6}}>
-            <span><b>Phone:</b> <a href="tel:0123456789" style={{color: '#355383'}}>0123 456 789</a></span>
-            <span><b>Email:</b> <a href="mailto:support@school.edu" style={{color: '#355383'}}>support@school.edu</a></span>
+          <div
+            style={{
+              color: "#222",
+              fontSize: 16,
+              marginBottom: 10,
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+            }}
+          >
+            <span>
+              <b>Phone:</b>{" "}
+              <a href="tel:0123456789" style={{color: "#355383"}}>
+                0123 456 789
+              </a>
+            </span>
+            <span>
+              <b>Email:</b>{" "}
+              <a href="mailto:support@school.edu" style={{color: "#355383"}}>
+                support@school.edu
+              </a>
+            </span>
           </div>
           <button
             style={{
@@ -529,7 +604,7 @@ const MedicalEventDetail = () => {
               cursor: "pointer",
               transition: "all 0.2s",
             }}
-            onClick={() => window.open('mailto:support@school.edu', '_blank')}
+            onClick={() => window.open("mailto:support@school.edu", "_blank")}
           >
             Contact Support
           </button>

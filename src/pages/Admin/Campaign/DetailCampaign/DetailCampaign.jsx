@@ -15,6 +15,7 @@ import {
   DatePicker,
   Select,
   message,
+  Dropdown,
 } from "antd";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
@@ -24,6 +25,7 @@ import {
   EyeOutlined,
   PlusOutlined,
   TeamOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
@@ -51,6 +53,7 @@ const DetailCampaign = () => {
   const [toParentData, setToParentData] = useState([]);
   const [toNurseData, setToNurseData] = useState([]);
   const [roundsWithNurse, setRoundsWithNurse] = useState([]);
+  const [classes, setClasses] = useState([]); // Thêm state để lưu danh sách lớp
 
   // Thêm hàm lấy profile nurse cho từng round
   const fetchRoundsWithNurse = async (rounds) => {
@@ -85,6 +88,21 @@ const DetailCampaign = () => {
     }
   }, [scheduleId]);
 
+  // Fetch danh sách lớp khi component mount
+  useEffect(() => {
+    axiosInstance
+      .get("/api/students/classes")
+      .then((res) => {
+        // Xử lý dữ liệu để loại bỏ khoảng trắng thừa
+        const formattedClasses = res.data.map((cls) => cls.trim());
+        setClasses(formattedClasses);
+      })
+      .catch((err) => {
+        console.error("Error fetching classes:", err);
+        setClasses([]);
+      });
+  }, []);
+
   const handleBack = () => {
     localStorage.removeItem("scheduleId");
     navigate(`/${roleName}/campaign/vaccine-schedule`);
@@ -108,10 +126,26 @@ const DetailCampaign = () => {
     setRoundDetail(null);
   };
 
+  // Thêm state để quản lý loại modal
+  const [modalType, setModalType] = useState("new"); // "new" hoặc "supplement"
+
   // Add round
-  const openAddRoundModal = async () => {
+  const openAddRoundModal = async (type) => {
+    setModalType(type); // "new" hoặc "supplement"
     setAddRoundModalVisible(true);
-    // Lấy danh sách nurse (nếu cần)
+
+    // Nếu là supplement round, tự động set targetGrade là "Supplement"
+    if (type === "supplement") {
+      formAddRound.setFieldsValue({
+        roundName: `Supplement Round`,
+        targetGrade: "Supplement",
+      });
+    } else {
+      // Đối với new round, chỉ cần reset form mà không cần set targetGrade
+      formAddRound.resetFields();
+    }
+
+    // Lấy danh sách nurse
     try {
       const res = await axiosInstance.get("/api/nurses");
       setNurses(res.data || []);
@@ -136,12 +170,35 @@ const DetailCampaign = () => {
       message.success("Add round successfully!");
       setAddRoundModalVisible(false);
       formAddRound.resetFields();
-      // Reload rounds
+
+      // Reload data with loading indicator
       setLoading(true);
-      axiosInstance
-        .get(`/api/vaccinations/schedules/${scheduleId}`)
-        .then((res) => setDetail(res.data))
-        .finally(() => setLoading(false));
+
+      try {
+        // Get updated schedule details
+        const scheduleRes = await axiosInstance.get(
+          `/api/vaccinations/schedules/${scheduleId}`
+        );
+        setDetail(scheduleRes.data);
+
+        // Update rounds with nurse data
+        if (scheduleRes.data && scheduleRes.data.vaccinationRounds) {
+          await fetchRoundsWithNurse(scheduleRes.data.vaccinationRounds);
+        }
+
+        // Reset notification data if needed
+        setToParentData([]);
+        setToNurseData([]);
+
+        // Add any other data refresh needed
+      } catch (refreshErr) {
+        console.error("Error refreshing data:", refreshErr);
+        message.error(
+          "Failed to refresh data. Please reload the page manually."
+        );
+      } finally {
+        setLoading(false);
+      }
       // eslint-disable-next-line no-unused-vars
     } catch (err) {
       message.error("Add round failed!");
@@ -281,13 +338,29 @@ const DetailCampaign = () => {
           >
             Add Student
           </Button>
-          <Button
-            type="dashed"
-            icon={<PlusOutlined />}
-            onClick={openAddRoundModal}
+
+          {/* Thay thế nút Add Round bằng Dropdown */}
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: "1",
+                  label: "Add New Round",
+                  onClick: () => openAddRoundModal("new"),
+                },
+                {
+                  key: "2",
+                  label: "Add Supplement Round",
+                  onClick: () => openAddRoundModal("supplement"),
+                },
+              ],
+            }}
           >
-            Add Round
-          </Button>
+            <Button type="dashed" icon={<PlusOutlined />}>
+              Add Round <DownOutlined />
+            </Button>
+          </Dropdown>
+
           <Button
             type="primary"
             onClick={handleSendNotiNurse}
@@ -473,11 +546,16 @@ const DetailCampaign = () => {
       {/* Modal for add round */}
       <Modal
         open={addRoundModalVisible}
-        title="Add Vaccination Round"
+        title={
+          modalType === "new"
+            ? "Add New Vaccination Round"
+            : "Add Supplement Vaccination Round"
+        }
         onCancel={() => setAddRoundModalVisible(false)}
         onOk={handleAddRound}
         confirmLoading={addRoundLoading}
         okText="Add"
+        width={600}
       >
         <Form form={formAddRound} layout="vertical">
           <Form.Item
@@ -487,13 +565,34 @@ const DetailCampaign = () => {
           >
             <Input />
           </Form.Item>
+
+          {/* Thay đổi target grade thành Select cho new round hoặc Input disabled cho supplement round */}
           <Form.Item
             label="Target Grade"
             name="targetGrade"
-            rules={[{required: true, message: "Please input target grade!"}]}
+            rules={[{required: true, message: "Please select target grade!"}]}
           >
-            <Input />
+            {modalType === "new" ? (
+              <Select
+                placeholder="Select class"
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.value ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              >
+                {classes.map((cls) => (
+                  <Select.Option key={cls} value={cls}>
+                    {cls}
+                  </Select.Option>
+                ))}
+              </Select>
+            ) : (
+              <Input disabled={true} />
+            )}
           </Form.Item>
+
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={2} />
           </Form.Item>

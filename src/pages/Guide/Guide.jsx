@@ -3,7 +3,6 @@ import {
   Card,
   Typography,
   Button,
-  Tag,
   Steps,
   Row,
   Col,
@@ -16,13 +15,10 @@ import {
   LoginOutlined,
   UserOutlined,
   HeartOutlined,
-  SettingOutlined,
   ArrowRightOutlined,
   CheckCircleOutlined,
-  ExclamationCircleOutlined,
   PhoneOutlined,
   LockOutlined,
-  UsergroupAddOutlined,
   MedicineBoxOutlined,
   FileTextOutlined,
   CalendarOutlined,
@@ -33,12 +29,10 @@ import LoginScreen from "../../assets/images/screenshot-login.png";
 import ServicesScreen from "../../assets/images/screenshot-services.png";
 import HealthProfileScreen from "../../assets/images/screenshot-health-profile.png";
 import SidebarScreen from "../../assets/images/screenshot-sidebar.png";
-// import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
 const {Title, Paragraph, Text} = Typography;
 const {Step} = Steps;
 
-// Định nghĩa bảng màu xanh dịu hơn
 const colors = {
   primary: "#4A90E2", // Xanh dương dịu
   primaryLight: "#B3D4FC", // Xanh dương nhạt
@@ -53,7 +47,6 @@ const colors = {
 };
 
 export default function Guide() {
-//   const navigate = useNavigate();
   const roleName = useSelector((state) => state.user?.role);
   const [currentStep, setCurrentStep] = useState(0);
 

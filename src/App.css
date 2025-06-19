@@ -25,6 +25,7 @@ body {
   --font-md: 16px;
   --font-lg: 18px;
   --font-xl: 20px;
+  --linear-color: linear-gradient(180deg, #2b5fc7 20%, #355383 100%);
 }
 
 ul,
