@@ -33,7 +33,7 @@ import LoginScreen from "../../assets/images/screenshot-login.png";
 import ServicesScreen from "../../assets/images/screenshot-services.png";
 import HealthProfileScreen from "../../assets/images/screenshot-health-profile.png";
 import SidebarScreen from "../../assets/images/screenshot-sidebar.png";
-import {useNavigate} from "react-router-dom";
+// import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
 const {Title, Paragraph, Text} = Typography;
 const {Step} = Steps;
