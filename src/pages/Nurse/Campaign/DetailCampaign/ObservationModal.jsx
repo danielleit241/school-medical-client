@@ -1,12 +1,42 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState } from "react";
 import { Modal, Form, DatePicker, TimePicker, Button, Select, Col, Row, Input } from "antd";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
+import { useSelector } from "react-redux";
 
 const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
+  const nurseId = useSelector((state) => state.user?.userId);
+  console.log("Nurse ID:", nurseId);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [vaccinatedDate, setVaccinatedDate] = useState(null);
+  const [nurseName, setNurseName] = useState("");
+  const [reactionTypeModalOpen, setReactionTypeModalOpen] = useState(false);
+  const [reactionTypeValue, setReactionTypeValue] = useState("");
+
+  useEffect(() => {
+    if(open){
+      setReactionTypeValue("");
+      form.resetFields();
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useEffect(() => {
+    if (!nurseId) return;
+    const fetchNurseName = async () => {
+      try {
+        const res = await axiosInstance.get(`/api/user-profile/${nurseId}`);
+        setNurseName(res.data?.fullName || "Unknown Nurse");
+        console.log("Nurse Name:", res.data);
+      } catch (error) {
+        console.error("Error fetching nurse name:", error);
+        setNurseName("Unknown Nurse");
+      }
+    };
+    fetchNurseName();
+  }, [nurseId]);
+
   // Fetch vaccinatedDate khi mở modal
   useEffect(() => {
     const fetchVaccinatedDate = async () => {
@@ -17,7 +47,7 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
       try {
         const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
         setVaccinatedDate(res.data?.resultResponse?.vaccinatedDate || null);
-        console.log("Vaccinated Date:", res.data?.resultResponse?.vaccinatedDate);
+        console.log("Vaccinated Date:", res.data);
       } catch (error) {
         console.error("Error fetching vaccinated date:", error);
         setVaccinatedDate(null);
@@ -68,7 +98,7 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
         observationStartTime,
         observationEndTime,
         reactionStartTime,
-        reactionType: values.reactionType,
+        reactionType: values.reactionType === "other" ? values.reactionDetail : values.reactionType,
         severityLevel: values.severityLevel,
         immediateReaction: values.immediateReaction,
         intervention: values.intervention,
@@ -213,9 +243,50 @@ const validateReactionStartTime = (_, value) => {
             </Form.Item>
           </Col>
           <Col xs={24} sm={12}>
-            <Form.Item name="reactionType" label="Reaction Type">
-              <Input />
+            <Form.Item name="reactionType" label="Reaction Type" rules={[{ required: true, message: "Please select reaction type" }]}>
+             <Select
+                value={reactionTypeValue ? reactionTypeValue : form.getFieldValue("reactionType")}
+                onSelect={val => {
+                  if (val === "other") {
+                    setReactionTypeModalOpen(true);
+                  } else {
+                    setReactionTypeValue("");
+                    form.setFieldsValue({ reactionType: val });
+                  }
+                }}
+                options={[
+                  { label: "Normal", value: "normal" },
+                  { label: reactionTypeValue || "Other", value: "other" },
+                ]}
+              />
             </Form.Item>
+              <Modal
+                open={reactionTypeModalOpen}
+                title="Enter Reaction Detail"
+                onCancel={() => setReactionTypeModalOpen(false)}
+                footer={null}
+                destroyOnClose
+              >
+                <Form
+                  onFinish={vals => {
+                  setReactionTypeValue(vals.reactionDetail);
+                  form.setFieldsValue({ reactionType: vals.reactionDetail });
+                  setReactionTypeModalOpen(false);
+                  }}
+                >
+                  <Form.Item
+                    name="reactionDetail"
+                    rules={[{ required: true, message: "Please enter detail" }]}
+                  >
+                    <Input autoFocus />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button htmlType="submit" type="primary" style={{ width: "100%" }}>
+                        Save
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </Modal>
           </Col>
         </Row>
         <Row gutter={16}>
@@ -245,8 +316,8 @@ const validateReactionStartTime = (_, value) => {
             </Form.Item>
           </Col>
           <Col xs={24} sm={12}>
-            <Form.Item name="observedBy" label="Observed By">
-              <Input />
+            <Form.Item name="observedBy" label="Observed By" initialValue={nurseName}>
+              <Input readOnly />
             </Form.Item>
           </Col>
         </Row>

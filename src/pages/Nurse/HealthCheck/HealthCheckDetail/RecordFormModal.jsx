@@ -3,6 +3,7 @@ import { Modal, Form, Input, Button, Row, Col, Typography, DatePicker, Select, m
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
 
+
 const { Title } = Typography;
 
 const RecordFormModal = ({ open, onCancel, student, onOk }) => {
@@ -22,10 +23,26 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  useEffect(() => {
+    if (open) {
+      form.setFieldsValue({
+        status:
+          student && typeof student.status !== "string"
+            ? student.status === true
+              ? "Completed"
+              : student.status === false
+              ? "Pending"
+              : "Completed"
+            : "Completed",
+      });
+    }
+  }, [open, student, form]);
+
   const handleFinish = async (values) => {
     setLoading(true);
     try {
       const { healthCheckResultId } = student;
+      console.log("Health Check Result ID:", healthCheckResultId);
       const payload = {
         healthCheckResultId,
         datePerformed: values.datePerformed.format("YYYY-MM-DD"),
@@ -36,13 +53,17 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
         hearing: values.hearing === "order" ? values.hearingOrderDetail : values.hearing,
         nose: values.nose === "order" ? values.noseOrderDetail : values.nose,
         bloodPressure: values.bloodPressure,
-        status: values.status, // boolean
+        status: "Completed", // phải là chuỗi, ví dụ: "Completed"
         notes: values.notes,
-      };
-
-      console.log("Payload gửi lên:", payload);
-      await axiosInstance.post("/api/health-check-results", payload);
-      message.success("Saved successfully!");
+      };    
+      const res = await axiosInstance.post("/api/health-check-results", payload);
+      
+      const { notificationTypeId, senderId, receiverId } = res.data;
+      await axiosInstance.post("/api/notifications/health-checks/results/to-parent", {
+        notificationTypeId,
+        senderId,
+        receiverId,
+      });
       onOk();
       form.resetFields();
     } catch (err) {
@@ -261,8 +282,12 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                   <Form.Item label="Notes" name="notes">
                     <Input.TextArea rows={3} style={{ borderRadius: 8 }} />
                   </Form.Item>
-                  <Form.Item label="Status" initialValue={true} name="status">
-                    <span style={{ color: "#22c55e", fontWeight: 600 }}>Done</span>
+                  <Form.Item
+                    label="Status"
+                    name="status"
+                    initialValue="Completed"
+                  >
+                    <Input readOnly style={{ color: "#22c55e", fontWeight: 600 }} />
                   </Form.Item>
                   <Form.Item>
                     <Button

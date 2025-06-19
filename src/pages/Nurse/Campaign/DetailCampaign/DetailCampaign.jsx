@@ -232,7 +232,7 @@ const DetailCampaign = () => {
 
         if ((qualified === null || qualified === undefined) && status === "not_recorded") {
           return (
-            <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading || isOutOfRange}>
+            <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading || isOutOfRange }>
               Record Form
             </Button>
           );
@@ -240,7 +240,7 @@ const DetailCampaign = () => {
 
         if ( status === "recorded") {
           return (
-            <Button type="primary" onClick={() => openObservationModal(student)} disabled={loading}>
+            <Button type="primary" onClick={() => openObservationModal(student)} disabled={loading || isOutOfRange}>
               Observation
             </Button>
           );
@@ -248,7 +248,7 @@ const DetailCampaign = () => {
 
         if ( status === "done") {
           return (
-            <Button type="primary" onClick={() => openDetailModal(student)} disabled={loading}>
+            <Button type="primary" onClick={() => openDetailModal(student)} disabled={loading || isOutOfRange}>
               Detail
             </Button>
           );

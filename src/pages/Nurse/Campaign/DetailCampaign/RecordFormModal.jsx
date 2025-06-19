@@ -17,6 +17,7 @@ import {
   Space,
   Steps,
   message,
+  Select
 } from "antd";
 import {MedicineBoxOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
@@ -32,6 +33,21 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
   const [step, setStep] = useState(0);
   const [qualified, setQualified] = useState(null);
   const [vaccinationDate, setVaccinationDate] = useState(() => dayjs());
+
+  useEffect(() => {
+      if (open) {
+        form.setFieldsValue({
+          status:
+            student && typeof student.status !== "string"
+              ? student.status === true
+                ? "Completed"
+                : student.status === false
+                ? "Pending"
+                : "Completed"
+              : "Completed",
+        });
+      }
+    }, [open, student, form]);
 
   // Fetch health declaration & qualified status
   useEffect(() => {
@@ -219,7 +235,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
         vaccinated: values.vaccinated,
         injectionSite: values.injectionSite,
         notes: values.notes,
-        status: values.status,
+        status: "Completed",
       };
 
       await axiosInstance.post("/api/vaccination-results", payload);
@@ -401,7 +417,10 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   {required: true, message: "Please enter injection site"},
                 ]}
               >
-                <Input />
+                <Select placeholder="Select injection site">
+                  <Select.Option value="Left Deltoid">Left Deltoid</Select.Option>
+                  <Select.Option value="Right Deltoid">Right Deltoid</Select.Option>
+                </Select>
               </Form.Item>
               <Form.Item label="Notes" name="notes">
                 <Input.TextArea rows={3} />
@@ -409,9 +428,9 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
               <Form.Item
                 label="Status"
                 name="status"
-                rules={[{required: true, message: "Please enter status"}]}
-              >
-                <Input />
+                initialValue="Completed"
+                >
+                <Input readOnly style={{ color: "#22c55e", fontWeight: 600 }} />
               </Form.Item>
               <Form.Item>
                 <Button
