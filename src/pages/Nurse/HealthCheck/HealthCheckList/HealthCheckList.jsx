@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { CalendarOutlined, TeamOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
+import dayjs from "dayjs";
 
 const HealthCheckList = () => {
   const staffNurseId = useSelector((state) => state.user?.userId);
@@ -122,7 +123,36 @@ const HealthCheckList = () => {
               </div>
             ) : rounds && rounds.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 p-5">
-                {rounds.map((round) => (
+              {rounds.map((round) => {
+                const now = dayjs();
+                const startTime = round.startTime ? dayjs(round.startTime) : null;
+                const endTime = round.endTime ? dayjs(round.endTime) : null;
+
+                let statusLabel = "Unknown";
+                let statusBg = "#ef4444"; // đỏ mặc định cho Not Active
+
+                if (round.status === true) {
+                  statusLabel = "Completed";
+                  statusBg = "#22c55e"; // xanh lá
+                } else if (round.status === false) {
+                  if (
+                    startTime && endTime &&
+                    (now.isSame(startTime, "day") ||
+                      now.isSame(endTime, "day") ||
+                      (now.isAfter(startTime, "day") && now.isBefore(endTime, "day")))
+                  ) {
+                    statusLabel = "In Active";
+                    statusBg = "#f59e42"; // cam
+                  } else {
+                    statusLabel = "Not Active";
+                    statusBg = "#ef4444"; // đỏ
+                  }
+                } else {
+                  statusLabel = "Unknown";
+                  statusBg = "#ef4444";
+                }
+
+                return (
                   <div
                     key={round.roundId}
                     className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col"
@@ -137,32 +167,32 @@ const HealthCheckList = () => {
                         borderTopRightRadius: 12,
                       }}
                     >
-                      <div className="flex justify-between items-start">       
+                      <div className="flex justify-between items-start">
                         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
                           <CalendarOutlined style={{ color: "#fff", fontWeight: 700, fontSize: 32 }} />
                           <h3 className="text-xl font-semibold text-white" style={{ marginBottom: 4, color: "#fff", fontWeight: 700, fontSize: 25 }}>
                             {round.roundName || "No name"}
                           </h3>
                         </div>
-                        
-                        {round.status === false && (
-                          <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow">
-                            Not InActive
-                          </span>
-                        )}
-                        {round.status === true && (
-                          <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow">
-                            Actived
-                          </span>
-                        )}
-                        {(round.status !== false && round.status !== true) && (
-                          <span className="bg-gray-400 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow">
-                            Unknown
-                          </span>
-                        )}
+                        <span
+                          className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow"
+                          style={{
+                            background: statusBg,
+                            color: "#fff",
+                            fontWeight: 600,
+                            minWidth: 70,
+                            textAlign: "center",
+                            border: "none",
+                            fontSize: 14,
+                            boxShadow: "0 2px 8px #3058A433",
+                            display: "inline-block"
+                          }}
+                        >
+                          {statusLabel}
+                        </span>
                       </div>
                     </div>
-  
+
                     {/* Card Body */}
                     <div className="flex-1 flex flex-col justify-between p-5">
                       <div className="space-y-3 mb-4">
@@ -218,7 +248,7 @@ const HealthCheckList = () => {
                           type="primary"
                           size="large"
                           onClick={() =>
-                            navigate(`/nurse/health-check/round-campaign/`, {
+                            navigate(`/nurse/health-check/round-campaign`, {
                               state: { roundId: round.roundId, roundName: round.roundName }
                             })
                           }
@@ -237,43 +267,44 @@ const HealthCheckList = () => {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <Empty
-                description={
-                  <span style={{ color: "#888" }}>No campaign rounds found.</span>
-                }
-                style={{ marginTop: 80, textAlign: "center" }}
-              />
-            )}
-          </div>
-          {/* Pagination */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              marginTop: 40,
-              marginBottom: 32,
-              paddingLeft: 40,
-            }}
-          >
-            <Pagination
-              current={pageIndex}
-              total={total}
-              pageSize={pageSize}
-              onChange={(page) => setPageIndex(page)}
-              showSizeChanger={false}
-              style={{
-                background: "#fff",
-                borderRadius: 8,
-                boxShadow: "0 2px 8px #e6f7ff",
-                padding: "12px 24px",
-              }}
+                );
+              })}
+            </div>
+          ) : (
+            <Empty
+              description={
+                <span style={{ color: "#888" }}>No campaign rounds found.</span>
+              }
+              style={{ marginTop: 80, textAlign: "center" }}
             />
-          </div>
+          )}
+        </div>
+        {/* Pagination */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-start",
+            marginTop: 40,
+            marginBottom: 32,
+            paddingLeft: 40,
+          }}
+        >
+          <Pagination
+            current={pageIndex}
+            total={total}
+            pageSize={pageSize}
+            onChange={(page) => setPageIndex(page)}
+            showSizeChanger={false}
+            style={{
+              background: "#fff",
+              borderRadius: 8,
+              boxShadow: "0 2px 8px #e6f7ff",
+              padding: "12px 24px",
+            }}
+          />
         </div>
       </div>
+    </div>
   );
 };
 

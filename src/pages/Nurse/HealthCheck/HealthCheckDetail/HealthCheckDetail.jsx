@@ -283,7 +283,7 @@ const HealthCheckDetail = () => {
 
       <Button
         type="default"
-        onClick={() => navigate("/nurse/campaign/campaign-list")}
+        onClick={() => navigate("/nurse/health-check/list")}
         style={{ marginBottom: 16 }}
       >
         Back

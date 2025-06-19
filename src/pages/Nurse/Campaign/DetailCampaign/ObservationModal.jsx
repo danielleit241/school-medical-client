@@ -13,10 +13,13 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
   const [nurseName, setNurseName] = useState("");
   const [reactionTypeModalOpen, setReactionTypeModalOpen] = useState(false);
   const [reactionTypeValue, setReactionTypeValue] = useState("");
+  const [interventionValue, setInterventionValue] = useState("");
+  const [interventionModalOpen, setInterventionModalOpen] = useState(false);
 
   useEffect(() => {
     if(open){
       setReactionTypeValue("");
+      setInterventionValue("");
       form.resetFields();
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -101,7 +104,7 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
         reactionType: values.reactionType === "other" ? values.reactionDetail : values.reactionType,
         severityLevel: values.severityLevel,
         immediateReaction: values.immediateReaction,
-        intervention: values.intervention,
+        intervention: values.intervention === "other" ? values.interventionDetail : values.intervention,
         observedBy: values.observedBy,
         notes: values.notes,
       };
@@ -254,6 +257,7 @@ const validateReactionStartTime = (_, value) => {
                     form.setFieldsValue({ reactionType: val });
                   }
                 }}
+                placeholder="Select Reaction Type"
                 options={[
                   { label: "Normal", value: "normal" },
                   { label: reactionTypeValue || "Other", value: "other" },
@@ -300,20 +304,66 @@ const validateReactionStartTime = (_, value) => {
                 <Select.Option value="high">High</Select.Option>
                 <Select.Option value="medium">Medium</Select.Option>
                 <Select.Option value="low">Low</Select.Option>
+                <Select.Option value="normal">Normal</Select.Option>
               </Select>
             </Form.Item>
           </Col>
           <Col xs={24} sm={12}>
-            <Form.Item name="immediateReaction" label="Immediate Reaction">
-              <Input />
+            <Form.Item name="immediateReaction" label="Immediate Reaction" rules={[{ required: true, message: "Please select immediate reaction" }]}>
+              <Select placeholder="Select immediate reaction">
+                <Select.Option value="yes">Yes</Select.Option>
+                <Select.Option value="no">No</Select.Option>
+              </Select>
             </Form.Item>
           </Col>
         </Row>
         <Row gutter={16}>
           <Col xs={24} sm={12}>
-            <Form.Item name="intervention" label="Intervention">
-              <Input />
+            <Form.Item name="intervention" label="Intervention" rules={[{ required: true, message: "Please select intervention type" }]}>
+             <Select
+                value={interventionValue ? interventionValue : form.getFieldValue("intervention")}
+                onSelect={val => {
+                  if (val === "other") {
+                    setInterventionModalOpen(true);
+                  } else {
+                    setInterventionValue("");
+                    form.setFieldsValue({ intervention: val });
+                  }
+                }}
+                placeholder="Select Intervention Type"
+                options={[
+                  { label: "No", value: "no" },
+                  { label: interventionValue || "Other", value: "other" },
+                ]}
+              />
             </Form.Item>
+            <Modal
+                open={interventionModalOpen}
+                title="Enter Intervention Detail"
+                onCancel={() => setInterventionModalOpen(false)}
+                footer={null}
+                destroyOnClose
+              >
+                <Form
+                  onFinish={vals => {
+                  setInterventionValue(vals.interventionDetail);
+                  form.setFieldsValue({ intervention: vals.interventionDetail });
+                  setInterventionModalOpen(false);
+                  }}
+                >
+                  <Form.Item
+                    name="interventionDetail"
+                    rules={[{ required: true, message: "Please enter detail" }]}
+                  >
+                    <Input autoFocus />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button htmlType="submit" type="primary" style={{ width: "100%" }}>
+                        Save
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </Modal>
           </Col>
           <Col xs={24} sm={12}>
             <Form.Item name="observedBy" label="Observed By" initialValue={nurseName}>
