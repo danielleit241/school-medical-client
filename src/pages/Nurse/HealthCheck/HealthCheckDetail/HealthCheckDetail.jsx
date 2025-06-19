@@ -159,7 +159,6 @@ const HealthCheckDetail = () => {
     setLoadingComplete(false);
   };
 
-  // Thêm hàm kiểm tra ngày hiện tại có nằm trong khoảng cho phép không
   const isOutOfRange = (() => {
     if (!dateRange.start || !dateRange.end) return false;
     const now = dayjs().startOf("day");
@@ -212,6 +211,10 @@ const HealthCheckDetail = () => {
       },
     ];
 
+  // Hàm kiểm tra tất cả đã completed
+  const allCompleted = Array.isArray(students) && students.length > 0
+  ? students.every(student => getStatus(student)?.toLowerCase() === "done")
+  : false;
 
  return (
     <div>
@@ -229,6 +232,7 @@ const HealthCheckDetail = () => {
             onClick={handleComplete}
             loading={loadingComplete}
             style={{ borderRadius: 8, fontWeight: 600 }}
+            disabled={!allCompleted || isOutOfRange} 
           >
             Complete
           </Button>
