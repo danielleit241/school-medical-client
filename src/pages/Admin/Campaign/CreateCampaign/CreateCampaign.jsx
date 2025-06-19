@@ -17,7 +17,7 @@ import {useNavigate} from "react-router-dom";
 import Swal from "sweetalert2";
 
 const {TextArea} = Input;
-
+const {Option} = Select;
 const CreateCampaign = () => {
   const [form] = Form.useForm();
   const userId = useSelector((state) => state.user?.userId);
@@ -27,6 +27,7 @@ const CreateCampaign = () => {
   const [vaccines, setVaccines] = useState([]);
   const [loading, setLoading] = useState(false);
   const defaultStartDate = dayjs().add(7, "day");
+  const [classes, setClasses] = useState([]);
   const navigate = useNavigate();
 
   // Lấy profile user từ API
@@ -53,6 +54,19 @@ const CreateCampaign = () => {
     });
   }, []);
   // console.log("vaccines", vaccines);
+
+  useEffect(() => {
+    axiosInstance
+      .get("/api/students/classes")
+      .then((res) => {
+        const formattedClasses = res.data.map((cls) => cls.trim());
+        setClasses(formattedClasses);
+      })
+      .catch((error) => {
+        console.error("Error fetching classes:", error);
+        setClasses([]);
+      });
+  }, []);
 
   const [rounds, setRounds] = useState([
     {
@@ -265,13 +279,26 @@ const CreateCampaign = () => {
                     }
                     style={{marginBottom: 8}}
                   />
-                  <Input
-                    placeholder="Target Grade"
-                    value={round.targetGrade}
-                    onChange={(e) =>
-                      handleRoundChange(idx, "targetGrade", e.target.value)
+                  {/* Thay thế Input bằng Select cho targetGrade */}
+                  <Select
+                    showSearch
+                    placeholder="Select Target Grade"
+                    value={round.targetGrade || undefined} // Quan trọng: đặt undefined khi không có giá trị
+                    onChange={(value) =>
+                      handleRoundChange(idx, "targetGrade", value)
                     }
-                    style={{marginBottom: 8}}
+                    style={{width: "100%", marginBottom: 8}}
+                    filterOption={(input, option) =>
+                      (option?.label?.toLowerCase() ?? "").includes(
+                        input.toLowerCase()
+                      )
+                    }
+                    options={[
+                      ...classes.map((cls) => ({
+                        value: cls,
+                        label: cls,
+                      })),
+                    ]}
                   />
                   <TextArea
                     placeholder="Description"
@@ -296,44 +323,24 @@ const CreateCampaign = () => {
                     onChange={(val) => handleRoundChange(idx, "endTime", val)}
                     style={{width: "100%", marginBottom: 8}}
                   />
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <select
-                      value={round.nurseId || ""}
-                      onChange={(e) =>
-                        handleRoundChange(idx, "nurseId", e.target.value)
-                      }
-                      style={{
-                        width: "100%",
-                        padding: "8px 36px 8px 8px",
-                        borderRadius: 4,
-                        border: "1px solid #d9d9d9",
-                        color: !round.nurseId ? "#ccc" : "#000",
-                        appearance: "none",
-                        WebkitAppearance: "none",
-                        MozAppearance: "none",
-                        background: "white",
-                      }}
-                    >
-                      <option value="" disabled style={{color: "#ccc"}}>
-                        Select Nurse
-                      </option>
-                      {nurses.map((nurse) => (
-                        <option
-                          key={nurse.staffNurseId}
-                          value={nurse.staffNurseId}
-                          style={{color: "#000"}}
-                        >
-                          {nurse.fullName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <Select
+                    placeholder="Select Nurse"
+                    value={round.nurseId || undefined}
+                    onChange={(value) =>
+                      handleRoundChange(idx, "nurseId", value)
+                    }
+                    style={{width: "100%", marginBottom: 8}}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label?.toLowerCase() ?? "").includes(
+                        input.toLowerCase()
+                      )
+                    }
+                    options={nurses.map((nurse) => ({
+                      value: nurse.staffNurseId,
+                      label: nurse.fullName,
+                    }))}
+                  />
                 </Card>
               ))}
               <Button type="dashed" onClick={addRound} style={{width: "100%"}}>
