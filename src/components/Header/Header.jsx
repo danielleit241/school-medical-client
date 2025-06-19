@@ -209,7 +209,7 @@ const Header = () => {
             </ul>
           </div>
         </div>
-        <div className="header__bottom flex justify-between items-center bg-white">
+        <div className="header__bottom flex justify-center items-center bg-white">
           <div className="header__bottom-image ml-10">
             <NavLink
               to="/"
@@ -221,7 +221,8 @@ const Header = () => {
             </NavLink>
           </div>
 
-          <nav className="header__bottom-navbar">
+          {/* Navigation bar đã được căn giữa */}
+          <nav className="header__bottom-navbar mx-auto">
             <ul className="header__bottom-list flex justify-center items-center gap-5 font-bold mb-0">
               <li className="header__bottom-item relative">
                 <NavLink

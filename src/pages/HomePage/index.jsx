@@ -15,6 +15,7 @@ import {IoEyeOutline} from "react-icons/io5";
 import {useDispatch, useSelector} from "react-redux";
 import {UserProfile} from "../../services/User";
 import {setUserProfile} from "../../redux/feature/userProfileSlice";
+import {Link} from "react-router-dom";
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -36,7 +37,10 @@ function HomePage() {
   }, [userId, dispatch]);
   return (
     <>
-      <div className="home">
+      <div className="relative home">
+        <div className="absolute guide top-5 left-20 z-10 underline text-red-400">
+          <Link to="/guide">Website usage guide for parents</Link>
+        </div>
         <div className="home__carousel">
           <Carousel autoplay />
         </div>
