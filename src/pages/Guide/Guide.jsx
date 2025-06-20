@@ -531,7 +531,7 @@ export default function Guide() {
                     color: colors.primary,
                     display: "flex",
                     alignItems: "center",
-                    gap: 4,
+                    gap: 16,
                   }}
                 >
                   {steps[currentStep].icon}
