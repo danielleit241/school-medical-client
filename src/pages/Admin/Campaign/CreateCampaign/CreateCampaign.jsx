@@ -102,7 +102,6 @@ const CreateCampaign = () => {
     newRounds[index][field] = value;
     setRounds(newRounds);
   };
-
   const onFinish = async (values) => {
     setLoading(true);
     try {
@@ -125,6 +124,7 @@ const CreateCampaign = () => {
         })),
       };
       console.log("payload", payload);
+      // Kiểm tra xem có ít nhất một round hợp lệ không
       await axiosInstance.post("/api/vaccinations/schedules", payload);
       Swal.fire({
         icon: "success",

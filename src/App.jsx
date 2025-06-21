@@ -17,6 +17,7 @@ import {setUserInfo} from "./redux/feature/userSlice";
 
 // Admin pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import ManagerDashboard from "./pages/Admin/ManagerDashboard";
 import CreateUser from "./pages/Admin/AccountManagement/CreateUser/CreateUser";
 import ListUser from "./pages/Admin/AccountManagement/ListUser/ListUser";
 import EditUser from "./pages/Admin/AccountManagement/EditUser/EditUser";
@@ -258,7 +259,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<AdminDashboard />} />{" "}
+          <Route index element={<ManagerDashboard />} />{" "}
           <Route path="inventory/createInventory" element={<AddInventory />} />
           <Route
             path="inventory/inventoryList"
