@@ -217,13 +217,16 @@ const HealthCheckList = () => {
                             <p className="text-xs text-gray-500 uppercase tracking-wide">
                               Time
                             </p>
-                            <p className="text-sm font-medium text-gray-800">
-                              {round.startTime
-                                ? `${new Date(round.startTime).toLocaleString()}`
+                             <p className="text-sm font-medium text-gray-800">
+                              Start:  
+                                {round.startTime
+                                ?  ` ${new Date(round.startTime).toLocaleString()}`
                                 : "N/A"}
-                              {" - "}
-                              {round.endTime
-                                ? `${new Date(round.endTime).toLocaleString()}`
+                            </p>
+                            <p className="text-sm font-medium text-gray-800">
+                              End: 
+                                {round.endTime
+                                ? ` ${new Date(round.endTime).toLocaleString()}`
                                 : "N/A"}
                             </p>
                           </div>
