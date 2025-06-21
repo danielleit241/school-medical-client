@@ -11,6 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@ant-design/charts": "^2.4.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@microsoft/signalr": "^8.0.7",

@@ -16,6 +16,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {UserProfile} from "../../services/User";
 import {setUserProfile} from "../../redux/feature/userProfileSlice";
 import {Link} from "react-router-dom";
+import DialogflowMessenger from "../../components/DialogFlow/DialogflowMessenger";
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -314,6 +315,10 @@ function HomePage() {
             </div>
           </div>
         </div>
+        <DialogflowMessenger
+          botId="6cf70102-1eac-4758-8f82-1ffdd6e78b0f"
+          title="School Medical Assistant"
+        />
       </div>
     </>
   );
