@@ -39,6 +39,7 @@ const StudentHealthCheckList = () => {
   const [resultDetail, setResultDetail] = useState(null);
   const [resultLoading, setResultLoading] = useState(false);
 
+
   // Function to fetch students with search
   const fetchStudents = useCallback(
     (searchText = "") => {
@@ -163,13 +164,13 @@ const StudentHealthCheckList = () => {
     },
     {
       title: "Parent Phone",
-      dataIndex: ["parentsOfStudent", "phoneNumber"],
+      dataIndex: ["parentOfStudent", "phoneNumber"], // sửa lại từ parentsOfStudent
       key: "parentPhone",
       render: (text) => text || "N/A",
     },
     {
       title: "Parent Confirm",
-      dataIndex: ["parentsOfStudent", "parentConfirm"],
+      dataIndex: ["parentOfStudent", "parentConfirm"], // sửa lại từ parentsOfStudent
       key: "parentConfirm",
       render: (confirmed) => (
         <Tag color={confirmed ? "green" : "orange"}>
