@@ -102,6 +102,43 @@ const CreateCampaign = () => {
     newRounds[index][field] = value;
     setRounds(newRounds);
   };
+
+  const validateSchedule = async () => {
+    try {
+      const values = form.getFieldsValue();
+      const payloadWithCheckValidation = {
+        vaccineId: values.vaccineId,
+        vaccinationRounds: rounds.map((r) => ({
+          roundName: r.roundName,
+          targetGrade: r.targetGrade,
+          description: r.description,
+          startTime: r.startTime ? r.startTime.toISOString() : null,
+          endTime: r.endTime ? r.endTime.toISOString() : null,
+          nurseId: r.nurseId,
+        })),
+      };
+      console.log("payloadWithCheckValidation", payloadWithCheckValidation);
+      const res = await axiosInstance.post(
+        "/api/vaccinations/schedules/is-valid",
+        payloadWithCheckValidation
+      );
+      console.log("Validation response:", res.data);
+      // Nếu đã tiêm vaccine đó cho lớp đó, trả về true
+      if (res.data === true) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: error.message || "An error occurred during validation.",
+      });
+      return false;
+    }
+  };
+
   const onFinish = async (values) => {
     setLoading(true);
     try {
