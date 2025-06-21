@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Input,
@@ -12,12 +12,12 @@ import {
 } from "antd";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
-import {useSelector} from "react-redux";
-import {useNavigate} from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-const {TextArea} = Input;
-const {Option} = Select;
+const { TextArea } = Input;
+const { Option } = Select;
 const CreateCampaign = () => {
   const [form] = Form.useForm();
   const userId = useSelector((state) => state.user?.userId);
@@ -171,7 +171,6 @@ const CreateCampaign = () => {
           nurseId: r.nurseId,
         })),
       };
-      // console.log("payload", payload);
       await axiosInstance.post("/api/vaccinations/schedules", payload);
       Swal.fire({
         icon: "success",
@@ -205,20 +204,20 @@ const CreateCampaign = () => {
 
   // Đặt initialValues cho Form
   useEffect(() => {
-    form.setFieldsValue({startDate: defaultStartDate});
+    form.setFieldsValue({ startDate: defaultStartDate });
   }, [form, defaultStartDate]);
 
   // Đảm bảo sau khi lấy profile từ API, bạn cũng set lại giá trị cho trường createdBy trong form:
   useEffect(() => {
     if (profile?.fullName) {
-      form.setFieldsValue({createdBy: profile.fullName});
+      form.setFieldsValue({ createdBy: profile.fullName });
     }
   }, [profile, form]);
 
   return (
     <Card
       title="Create Vaccination Campaign"
-      style={{maxWidth: 1200, margin: "32px auto"}}
+      style={{ maxWidth: 1200, margin: "32px auto" }}
     >
       <Form
         form={form}
@@ -239,7 +238,7 @@ const CreateCampaign = () => {
             <Form.Item
               label="Title"
               name="title"
-              rules={[{required: true, message: "Please input title!"}]}
+              rules={[{ required: true, message: "Please input title!" }]}
             >
               <Input />
             </Form.Item>
@@ -249,7 +248,7 @@ const CreateCampaign = () => {
             <Form.Item
               label="Vaccine"
               name="vaccineId"
-              rules={[{required: true, message: "Please select vaccine!"}]}
+              rules={[{ required: true, message: "Please select vaccine!" }]}
             >
               <Select placeholder="Select vaccine">
                 {vaccines.map((vaccine) => (
@@ -269,43 +268,43 @@ const CreateCampaign = () => {
                 placeholder="Loading..."
               />
             </Form.Item>
-            <p style={{color: "red", fontSize: 14, marginBottom: 10}}>
+            <p style={{ color: "red", fontSize: 14, marginBottom: 10 }}>
               Note: The time can start 7 days after the vaccination schedule is
               created.
             </p>
             <Form.Item
               label="Start Date"
               name="startDate"
-              rules={[{required: true}]}
+              rules={[{ required: true }]}
             >
               <DatePicker
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 value={form.getFieldValue("startDate")}
-                onChange={(val) => form.setFieldsValue({startDate: val})}
+                onChange={(val) => form.setFieldsValue({ startDate: val })}
                 format="YYYY-MM-DD"
               />
             </Form.Item>
             <Form.Item
               label="End Date"
               name="endDate"
-              rules={[{required: true, message: "Please select end date!"}]}
+              rules={[{ required: true, message: "Please select end date!" }]}
             >
-              <DatePicker style={{width: "100%"}} />
+              <DatePicker style={{ width: "100%" }} />
             </Form.Item>
           </Col>
 
           {/* Phần round */}
           <Col span={12}>
-            <div style={{marginBottom: 16, fontWeight: 600}}>
+            <div style={{ marginBottom: 16, fontWeight: 600 }}>
               Vaccination Rounds
             </div>
-            <Space direction="vertical" style={{width: "100%"}}>
+            <Space direction="vertical" style={{ width: "100%" }}>
               {rounds.map((round, idx) => (
                 <Card
                   key={idx}
                   type="inner"
                   title={`Round ${idx + 1}`}
-                  style={{marginBottom: 12, background: "#E6F7FF"}}
+                  style={{ marginBottom: 12, background: "#E6F7FF" }}
                   extra={
                     rounds.length > 1 ? (
                       <Button
@@ -324,7 +323,7 @@ const CreateCampaign = () => {
                     onChange={(e) =>
                       handleRoundChange(idx, "roundName", e.target.value)
                     }
-                    style={{marginBottom: 8}}
+                    style={{ marginBottom: 8 }}
                   />
                   {/* Thay thế Input bằng Select cho targetGrade */}
                   <Select
@@ -334,7 +333,7 @@ const CreateCampaign = () => {
                     onChange={(value) =>
                       handleRoundChange(idx, "targetGrade", value)
                     }
-                    style={{width: "100%", marginBottom: 8}}
+                    style={{ width: "100%", marginBottom: 8 }}
                     filterOption={(input, option) =>
                       (option?.label?.toLowerCase() ?? "").includes(
                         input.toLowerCase()
@@ -354,21 +353,21 @@ const CreateCampaign = () => {
                       handleRoundChange(idx, "description", e.target.value)
                     }
                     rows={2}
-                    style={{marginBottom: 8}}
+                    style={{ marginBottom: 8 }}
                   />
                   <DatePicker
                     showTime
                     placeholder="Start Time"
                     value={round.startTime}
                     onChange={(val) => handleRoundChange(idx, "startTime", val)}
-                    style={{width: "100%", marginBottom: 8}}
+                    style={{ width: "100%", marginBottom: 8 }}
                   />
                   <DatePicker
                     showTime
                     placeholder="End Time"
                     value={round.endTime}
                     onChange={(val) => handleRoundChange(idx, "endTime", val)}
-                    style={{width: "100%", marginBottom: 8}}
+                    style={{ width: "100%", marginBottom: 8 }}
                   />
                   <Select
                     placeholder="Select Nurse"
@@ -376,7 +375,7 @@ const CreateCampaign = () => {
                     onChange={(value) =>
                       handleRoundChange(idx, "nurseId", value)
                     }
-                    style={{width: "100%", marginBottom: 8}}
+                    style={{ width: "100%", marginBottom: 8 }}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label?.toLowerCase() ?? "").includes(
@@ -390,13 +389,17 @@ const CreateCampaign = () => {
                   />
                 </Card>
               ))}
-              <Button type="dashed" onClick={addRound} style={{width: "100%"}}>
+              <Button
+                type="dashed"
+                onClick={addRound}
+                style={{ width: "100%" }}
+              >
                 + Add Round
               </Button>
             </Space>
           </Col>
         </Row>
-        <div style={{textAlign: "center", marginTop: 24}}>
+        <div style={{ textAlign: "center", marginTop: 24 }}>
           <Button type="primary" htmlType="submit" loading={loading}>
             Create Campaign
           </Button>
