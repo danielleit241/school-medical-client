@@ -3,6 +3,7 @@ import axiosInstance from "../../../../api/axios";
 import {Card, Table, Tag, Spin, Button} from "antd";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
+import EditVaccineCampaignModal from "./EditVaccineCampaignModal"; 
 
 const CampaignList = () => {
   const roleName = useSelector((state) => state.user?.role);
@@ -13,6 +14,9 @@ const CampaignList = () => {
     total: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false); // Thêm state này
+  const [editCampaign, setEditCampaign] = useState(null); // Thay cho editScheduleId
+  const [schedule, setSchedule] = useState({});
   const navigate = useNavigate();
 
   const columns = [
@@ -72,18 +76,36 @@ const CampaignList = () => {
       title: "Action",
       key: "action",
       render: (text, record) => (
-        <Button
-          type="primary"
-          onClick={() => {
-            localStorage.setItem(
-              "vaccinationScheduleId",
-              record.vaccinationScheduleResponseDto.scheduleId
-            );
-            navigate(`/${roleName}/campaign/vaccine-schedule-details/`);
-          }}
-        >
-          Detail
-        </Button>
+        <>
+          <Button
+            type="primary"
+            onClick={() => {
+              localStorage.setItem(
+                "vaccinationScheduleId",
+                record.vaccinationScheduleResponseDto.scheduleId
+              );
+              navigate(`/${roleName}/campaign/vaccine-schedule-details/`);
+            }}
+            style={{ marginRight: 8 }}
+          >
+            Detail
+          </Button>
+          <Button
+            type="default"
+            onClick={() => {
+              // Tìm campaign đã map theo scheduleId
+              const found = schedule.find(
+                (item) =>
+                  item.vaccinationScheduleResponseDto.scheduleId ===
+                  record.vaccinationScheduleResponseDto.scheduleId
+              );
+              setEditCampaign(found);
+              setEditModalOpen(true);
+            }}
+          >
+            Edit
+          </Button>
+        </>
       ),
     },
   ];
@@ -99,6 +121,19 @@ const CampaignList = () => {
           const dateB = new Date(b.vaccinationScheduleResponseDto.createdAt);
           return dateB - dateA; // Sắp xếp giảm dần (mới nhất lên đầu)
         });
+        const mapSchedule = (Array.isArray(res.data?.items) 
+          ? res.data.items 
+          : []).map((item) => ({
+            vaccineId: item.vaccinationScheduleResponseDto.vaccineId,
+            title: item.vaccinationScheduleResponseDto.title,
+            description: item.vaccinationScheduleResponseDto.description,
+            startDate: item.vaccinationScheduleResponseDto.startDate,
+            endDate: item.vaccinationScheduleResponseDto.endDate,
+            scheduleId: item.vaccinationScheduleResponseDto.scheduleId,
+            ...item,
+          }));
+        setSchedule(mapSchedule);
+        console.log("Fetched Campaign Data:", mapSchedule);
 
         setData(sortedData);
         setPagination({
@@ -110,12 +145,20 @@ const CampaignList = () => {
       .finally(() => setLoading(false));
   };
 
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const handleTableChange = (pagination) => {
     fetchData(pagination.current, pagination.pageSize);
+  };
+
+  // Hàm đóng modal và reload lại danh sách nếu cần
+  const handleEditModalClose = (reload = false) => {
+    setEditModalOpen(false);
+    setEditCampaign(null);
+    if (reload) fetchData();
   };
 
   return (
@@ -135,6 +178,12 @@ const CampaignList = () => {
           onChange={handleTableChange}
         />
       )}
+      {/* Modal Edit */}
+      <EditVaccineCampaignModal
+        open={editModalOpen}
+        campaign={editCampaign}
+        onClose={handleEditModalClose}
+      />
     </Card>
   );
 };
