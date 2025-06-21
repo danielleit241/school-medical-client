@@ -102,9 +102,57 @@ const CreateCampaign = () => {
     newRounds[index][field] = value;
     setRounds(newRounds);
   };
+
+  const validateSchedule = async () => {
+    try {
+      const values = form.getFieldsValue();
+      const payloadWithCheckValidation = {
+        vaccineId: values.vaccineId,
+        vaccinationRounds: rounds.map((r) => ({
+          roundName: r.roundName,
+          targetGrade: r.targetGrade,
+          description: r.description,
+          startTime: r.startTime ? r.startTime.toISOString() : null,
+          endTime: r.endTime ? r.endTime.toISOString() : null,
+          nurseId: r.nurseId,
+        })),
+      };
+      console.log("payloadWithCheckValidation", payloadWithCheckValidation);
+      const res = await axiosInstance.post(
+        "/api/vaccinations/schedules/is-valid",
+        payloadWithCheckValidation
+      );
+      console.log("Validation response:", res.data);
+      // Nếu đã tiêm vaccine đó cho lớp đó, trả về true
+      if (res.data === true) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: error.message || "An error occurred during validation.",
+      });
+      return false;
+    }
+  };
+
   const onFinish = async (values) => {
     setLoading(true);
     try {
+      const isValid = await validateSchedule();
+      console.log("Validation result:", isValid);
+      if (!isValid) {
+        Swal.fire({
+          icon: "error",
+          title: "Validation Error",
+          text: "This vaccine has already been scheduled for the selected class.",
+        });
+        setLoading(false);
+        return;
+      }
       const payload = {
         vaccineId: values.vaccineId,
         title: values.title,
@@ -123,8 +171,7 @@ const CreateCampaign = () => {
           nurseId: r.nurseId,
         })),
       };
-      console.log("payload", payload);
-      // Kiểm tra xem có ít nhất một round hợp lệ không
+      // console.log("payload", payload);
       await axiosInstance.post("/api/vaccinations/schedules", payload);
       Swal.fire({
         icon: "success",
