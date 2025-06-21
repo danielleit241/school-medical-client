@@ -53,7 +53,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
         hearing: values.hearing === "order" ? values.hearingOrderDetail : values.hearing,
         nose: values.nose === "order" ? values.noseOrderDetail : values.nose,
         bloodPressure: values.bloodPressure,
-        status: "Completed", // phải là chuỗi, ví dụ: "Completed"
+        status: "Completed", 
         notes: values.notes,
       };    
       const res = await axiosInstance.post("/api/health-check-results", payload);
@@ -79,7 +79,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
       title={null}
       onCancel={onCancel}
       footer={null}
-      width={700} // mở rộng modal ra cho cân đối
+      width={700} 
       centered
       destroyOnClose
     >

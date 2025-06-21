@@ -13,6 +13,7 @@ const HealthCheckDetail = () => {
   const navigate = useNavigate();
   const staffNurseId = useSelector((state) => state.user?.userId);
   const roundId = location.state?.roundId || localStorage.getItem("roundId");
+  console.log("Round ID:", roundId);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -70,6 +71,7 @@ const HealthCheckDetail = () => {
       try {
         const res = await axiosInstance.get(`/api/health-check-rounds/${roundId}`);
         setStatus(res.data.healthCheckRoundInformation.status);
+        console.log("Round status:", res.data.healthCheckRoundInformation.status);
         setSelectedRound(res.data.healthCheckRoundInformation);
         setDateRange({
           start: res.data.healthCheckRoundInformation.startTime,
@@ -233,7 +235,11 @@ const HealthCheckDetail = () => {
             loading={loadingComplete}
             style={{ borderRadius: 8, fontWeight: 600 }}
             disabled={!allCompleted || isOutOfRange} 
-          >
+          >{status && (
+          <Tag color="green" style={{ fontSize: 16, fontWeight: 600, borderRadius: 8 }}>
+            Round Completed
+          </Tag>
+        )}
             Complete
           </Button>
         )}
@@ -283,7 +289,7 @@ const HealthCheckDetail = () => {
 
       <Button
         type="default"
-        onClick={() => navigate("/nurse/campaign/campaign-list")}
+        onClick={() => navigate("/nurse/health-check/list")}
         style={{ marginBottom: 16 }}
       >
         Back
