@@ -458,12 +458,12 @@ const VaccineResult = () => {
                     >
                       {actualIndex + 1}
                     </div>
-                    <span style={{fontWeight: 500, fontSize: "16px"}}>
+                    <span style={{fontWeight: 500, fontSize: "20px"}}>
                       {item.vaccineDoseSummary.vaccineName}
                     </span>
                     <Tag
                       color={actualIndex % 2 === 0 ? "green" : "blue"}
-                      style={{marginLeft: 8}}
+                      style={{marginLeft: 8, fontSize: "14px"}}
                     >
                       {item.vaccineDoseSummary.totalDoseByVaccineName} doses
                     </Tag>
@@ -600,6 +600,12 @@ const VaccineResult = () => {
           )}
 
           <style jsx="true">{`
+          .content-details {
+            font-size: 20px !important;
+          }
+          .content-details * {
+            font-size: 20px !important;
+          }
             @keyframes fadeIn {
               from {
                 opacity: 0;
