@@ -3,6 +3,7 @@ import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
 import {Card, Table, Tag, Button, Spin} from "antd"; // Thiếu import này
+import EditHealthCheckCampaignModal from "./EditHealthCheckCampaignModal"; // Import modal chỉnh sửa
 
 const HealthCheckList = () => {
   const roleName = useSelector((state) => state.user?.role);
@@ -13,6 +14,9 @@ const HealthCheckList = () => {
     total: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editCampaign, setEditCampaign] = useState(null); // Thay cho editScheduleId
+  const [schedule, setSchedule] = useState({});
   const navigate = useNavigate();
 
   const columns = [
@@ -72,6 +76,7 @@ const HealthCheckList = () => {
       title: "Action",
       key: "action",
       render: (text, record) => (
+        <>
         <Button
           type="primary"
           onClick={() => {
@@ -84,6 +89,24 @@ const HealthCheckList = () => {
         >
           Detail
         </Button>
+
+        <Button
+          type="default"
+          onClick={() => {
+          // Tìm campaign đã map theo scheduleId
+          const found = schedule.find(
+            (item) =>
+              item.healthCheckScheduleResponseDto.scheduleId ===
+              record.healthCheckScheduleResponseDto.scheduleId
+            );
+            setEditCampaign(found);
+            setEditModalOpen(true);
+          }}
+          >
+            Edit
+          </Button>
+        </>
+        
       ),
     },
   ];
@@ -99,6 +122,19 @@ const HealthCheckList = () => {
           const dateB = new Date(b.healthCheckScheduleResponseDto.createdAt);
           return dateB - dateA; // Sắp xếp giảm dần (mới nhất lên đầu)
         });
+        const mapSchedule = (Array.isArray(res.data?.items) 
+          ? res.data.items 
+          : []).map((item) => ({
+            title: item.healthCheckScheduleResponseDto.title,
+            healthCheckType: item.healthCheckScheduleResponseDto.healthCheckType,
+            description: item.healthCheckScheduleResponseDto.description,
+            startDate: item.healthCheckScheduleResponseDto.startDate,
+            endDate: item.healthCheckScheduleResponseDto.endDate,
+            scheduleId: item.healthCheckScheduleResponseDto.scheduleId,
+            createdBy: item.healthCheckScheduleResponseDto.createdBy,
+            ...item,
+          }));
+        setSchedule(mapSchedule);
 
         setData(sortedData);
         setPagination({
@@ -113,6 +149,12 @@ const HealthCheckList = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleEditModalClose = (reload = false) => {
+    setEditModalOpen(false);
+    setEditCampaign(null);
+    if (reload) fetchData();
+  };
 
   const handleTableChange = (pagination) => {
     fetchData(pagination.current, pagination.pageSize);
@@ -135,6 +177,11 @@ const HealthCheckList = () => {
           onChange={handleTableChange}
         />
       )}
+      <EditHealthCheckCampaignModal
+        open={editModalOpen}
+        campaign={editCampaign}
+        onClose={handleEditModalClose}
+      />
     </Card>
   );
 };

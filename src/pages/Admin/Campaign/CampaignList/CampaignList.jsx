@@ -4,6 +4,12 @@ import {Card, Table, Tag, Spin, Button} from "antd";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
 import EditVaccineCampaignModal from "./EditVaccineCampaignModal"; 
+import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 
 const CampaignList = () => {
   const roleName = useSelector((state) => state.user?.role);
@@ -75,38 +81,49 @@ const CampaignList = () => {
     {
       title: "Action",
       key: "action",
-      render: (text, record) => (
-        <>
-          <Button
-            type="primary"
-            onClick={() => {
-              localStorage.setItem(
-                "vaccinationScheduleId",
-                record.vaccinationScheduleResponseDto.scheduleId
-              );
-              navigate(`/${roleName}/campaign/vaccine-schedule-details/`);
-            }}
-            style={{ marginRight: 8 }}
-          >
-            Detail
-          </Button>
-          <Button
-            type="default"
-            onClick={() => {
-              // Tìm campaign đã map theo scheduleId
-              const found = schedule.find(
-                (item) =>
-                  item.vaccinationScheduleResponseDto.scheduleId ===
+      render: (text, record) => {
+        const startDate = dayjs(record.vaccinationScheduleResponseDto.startDate);
+        const endDate = dayjs(record.vaccinationScheduleResponseDto.endDate);
+        const now = dayjs();
+
+        
+        const isInRange =
+          now.isSameOrAfter(startDate, "day") && now.isSameOrBefore(endDate, "day");
+
+        return (
+          <>
+            <Button
+              type="primary"
+              onClick={() => {
+                localStorage.setItem(
+                  "vaccinationScheduleId",
                   record.vaccinationScheduleResponseDto.scheduleId
-              );
-              setEditCampaign(found);
-              setEditModalOpen(true);
-            }}
-          >
-            Edit
-          </Button>
-        </>
-      ),
+                );
+                navigate(`/${roleName}/campaign/vaccine-schedule-details/`);
+              }}
+              style={{ marginRight: 8 }}
+            >
+              Detail
+            </Button>
+            <Button
+              type="default"
+              disabled={isInRange}
+              onClick={() => {
+                // Tìm campaign đã map theo scheduleId
+                const found = schedule.find(
+                  (item) =>
+                    item.vaccinationScheduleResponseDto.scheduleId ===
+                    record.vaccinationScheduleResponseDto.scheduleId
+                );
+                setEditCampaign(found);
+                setEditModalOpen(true);
+              }}
+            >
+              Edit
+            </Button>
+          </>
+        );
+      },
     },
   ];
 
@@ -130,6 +147,7 @@ const CampaignList = () => {
             startDate: item.vaccinationScheduleResponseDto.startDate,
             endDate: item.vaccinationScheduleResponseDto.endDate,
             scheduleId: item.vaccinationScheduleResponseDto.scheduleId,
+            createdBy: item.vaccinationScheduleResponseDto.createdBy,
             ...item,
           }));
         setSchedule(mapSchedule);

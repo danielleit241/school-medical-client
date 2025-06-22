@@ -243,9 +243,28 @@ const CreateHealthCheck = () => {
             <Form.Item
               label="End Date"
               name="endDate"
-              rules={[{required: true, message: "Please select end date!"}]}
+              dependencies={["startDate"]}
+              rules={[
+                { required: true, message: "Please select end date!" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const startDate = getFieldValue("startDate");
+                    if (!value || !startDate) return Promise.resolve();
+                    // Đảm bảo value và startDate là dayjs object
+                    const end = dayjs(value);
+                    const start = dayjs(startDate);
+                    if (!end.isValid() || !start.isValid()) return Promise.resolve();
+                    if (end.isSameOrBefore(start, "day")) {
+                      return Promise.reject(
+                        new Error("End date must be after start date!")
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+               }),
+              ]}
             >
-              <DatePicker style={{width: "100%"}} />
+              <DatePicker style={{ width: "100%" }} />
             </Form.Item>
           </Col>
 
@@ -298,20 +317,82 @@ const CreateHealthCheck = () => {
                     rows={2}
                     style={{marginBottom: 8}}
                   />
-                  <DatePicker
-                    showTime
-                    placeholder="Start Time"
-                    value={round.startTime}
-                    onChange={(val) => handleRoundChange(idx, "startTime", val)}
-                    style={{width: "100%", marginBottom: 8}}
-                  />
-                  <DatePicker
-                    showTime
-                    placeholder="End Time"
-                    value={round.endTime}
-                    onChange={(val) => handleRoundChange(idx, "endTime", val)}
-                    style={{width: "100%", marginBottom: 8}}
-                  />
+                  <Form.Item
+                    style={{ marginBottom: 8 }}
+                    validateStatus={
+                      round.startTime &&
+                      (
+                        !form.getFieldValue("startDate") ||
+                        dayjs(round.startTime).isBefore(form.getFieldValue("startDate"), "minute") ||
+                        (form.getFieldValue("endDate") &&
+                          dayjs(round.startTime).isAfter(form.getFieldValue("endDate"), "minute"))
+                      )
+                        ? "error"
+                        : ""
+                    }
+                    help={
+                      round.startTime &&
+                      (
+                        !form.getFieldValue("startDate")
+                          ? "Please select campaign start date first."
+                          : dayjs(round.startTime).isBefore(form.getFieldValue("startDate"), "minute")
+                          ? "Round start time must be after or equal to campaign start date."
+                          : form.getFieldValue("endDate") &&
+                            dayjs(round.startTime).isAfter(form.getFieldValue("endDate"), "minute")
+                          ? "Round start time must be before or equal to campaign end date."
+                          : ""
+                      )
+                    }
+                  >
+                    <DatePicker
+                      showTime
+                      placeholder="Start Time"
+                      value={round.startTime}
+                      onChange={(val) => handleRoundChange(idx, "startTime", val)}
+                      style={{width: "100%", marginBottom: 8}}
+                    />
+                  </Form.Item>                  
+                  
+                  <Form.Item
+                    style={{ marginBottom: 8 }}
+                    validateStatus={
+                      round.endTime &&
+                      (
+                        !form.getFieldValue("startDate") ||
+                        dayjs(round.endTime).isBefore(form.getFieldValue("startDate"), "minute") ||
+                        (form.getFieldValue("endDate") &&
+                          dayjs(round.endTime).isAfter(form.getFieldValue("endDate"), "minute")) ||
+                        (round.startTime &&
+                          dayjs(round.endTime).isSameOrBefore(round.startTime, "minute"))
+                      )
+                        ? "error"
+                        : ""
+                    }
+                    help={
+                      round.endTime &&
+                      (
+                        !form.getFieldValue("startDate")
+                          ? "Please select campaign start date first."
+                          : dayjs(round.endTime).isBefore(form.getFieldValue("startDate"), "minute")
+                          ? "Round end time must be after or equal to campaign start date."
+                          : form.getFieldValue("endDate") &&
+                            dayjs(round.endTime).isAfter(form.getFieldValue("endDate"), "minute")
+                          ? "Round end time must be before or equal to campaign end date."
+                          : round.startTime &&
+                            dayjs(round.endTime).isSameOrBefore(round.startTime, "minute")
+                          ? "Round end time must be after round start time."
+                          : ""
+                      )
+                    }
+                  >
+                    <DatePicker
+                      showTime
+                      placeholder="End Time"
+                      value={round.endTime}
+                      onChange={(val) => handleRoundChange(idx, "endTime", val)}
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
                   <div
                     style={{
                       position: "relative",

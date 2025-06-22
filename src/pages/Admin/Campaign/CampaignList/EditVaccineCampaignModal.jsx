@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, DatePicker, Select, Spin, message } from "antd";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import Swal from "sweetalert2";
+
+dayjs.extend(isSameOrBefore);
 
 const { Option } = Select;
 
@@ -31,6 +34,7 @@ const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
         description: campaign.description,
         startDate: campaign.startDate ? dayjs(campaign.startDate) : null,
         endDate: campaign.endDate ? dayjs(campaign.endDate) : null,
+        createdBy: campaign.createdBy,
       };
       form.setFieldsValue(values);
     }
@@ -56,14 +60,11 @@ const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
         createdBy,
       };
 
-      console.log("PUT payload:", payload);
-
       await axiosInstance.put(
         `/api/vaccinations/schedules/${scheduleId}`,
         payload
       );
 
-      // Hiển thị SweetAlert khi thành công
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -133,17 +134,58 @@ const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={3} />
           </Form.Item>
+          <p style={{ color: "red", fontSize: 14, marginBottom: 10 }}>
+              Note: The time can start 7 days after the vaccination schedule is
+              created.
+            </p>
           <Form.Item
             label="Start Date"
             name="startDate"
-            rules={[{ required: true, message: "Please select start date!" }]}
+            rules={[
+              { required: true, message: "Please select start date!" },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve();
+                  const minDate = dayjs().add(7, "day").startOf("day");
+                  if (value.isBefore(minDate)) {
+                    return Promise.reject(
+                      new Error("Start date must be at least 7 days from today!")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
           </Form.Item>
           <Form.Item
             label="End Date"
             name="endDate"
-            rules={[{ required: true, message: "Please select end date!" }]}
+            dependencies={["startDate"]}
+            rules={[
+              { required: true, message: "Please select end date!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const startDate = getFieldValue("startDate");
+                  if (!value || !startDate) return Promise.resolve();
+
+                  // Đảm bảo value và startDate là dayjs object
+                  const end = dayjs.isDayjs(value) ? value : dayjs(value);
+                  const start = dayjs.isDayjs(startDate)
+                    ? startDate
+                    : dayjs(startDate);
+
+                  if (!end.isValid() || !start.isValid()) return Promise.resolve();
+                  if (end.isSameOrBefore(start, "day")) {
+                    return Promise.reject(
+                      new Error("End date must be after start date!")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              }),
+            ]}
           >
             <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
           </Form.Item>
