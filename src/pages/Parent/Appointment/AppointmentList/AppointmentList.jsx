@@ -43,6 +43,26 @@ const AppointmentList = () => {
   const [step2EndTime, setStep2EndTime] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState(studentId);
 
+  const Checking = async () => {
+    if (!userId)  return;
+    try{
+      const res = await axiosInstance.get(`/api/parents/${parentId}/appointments/has-booked`)
+      console.log("Check booked response:", res.data);
+
+    }catch (error) {
+      console.error("Error checking user ID:", error);
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "You already booked appointment today.",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      });
+    }
+  }
+
   // Tự động cập nhật ngày khi sang ngày mới
   useEffect(() => {
     const interval = setInterval(() => {
@@ -65,11 +85,14 @@ const AppointmentList = () => {
       try {
         const response = await axiosInstance.get("/api/nurses");
         setNurse(response.data);
+        const checking = await Checking();
+        console.log("Checking ss appointments:", checking);
       } catch (error) {
         console.error("Error fetching nurse data:", error);
       }
     };
     fetchNurse();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
