@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import usePollingEffect from "../../hooks/PollingService";
 import {
   Card,
@@ -19,6 +19,24 @@ import {
   Switch,
 } from "antd";
 import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title as ChartTitle,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import Chart from "chart.js/auto";
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ChartTitle,
+  Tooltip,
+  Legend
+);
+import {
   UserOutlined,
   KeyOutlined,
   LockOutlined,
@@ -28,9 +46,12 @@ import {
   AlertOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import axiosInstance from "../../api/axios";
 import {useSelector} from "react-redux";
+import HealthCheckupChart from "./HealthCheckupChart";
+import VaccinationChart from "./VaccinationChart";
 
 const {Title, Text} = Typography;
 const {TabPane} = Tabs;
@@ -62,6 +83,9 @@ const ManagerDashboard = () => {
   const [expiringError, setExpiringError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [prevLowStockCount, setPrevLowStockCount] = useState(0);
+  const [recentActions, setRecentActions] = useState(null);
+  const [recentActionsLoading, setRecentActionsLoading] = useState(true);
+  const [recentActionsError, setRecentActionsError] = useState(null);
 
   // States mới cho phần Admin Dashboard
   const [usersData, setUsersData] = useState(null);
@@ -77,18 +101,18 @@ const ManagerDashboard = () => {
     padding: "16px",
   };
   const metricTitleStyle = {
-    fontSize: "14px",
+    fontSize: "18px", // Tăng từ 14px lên 16px
     fontWeight: 500,
     marginBottom: 0,
     color: "rgba(0, 0, 0, 0.65)",
   };
   const metricValueStyle = {
-    fontSize: "24px",
+    fontSize: "28px", // Tăng từ 24px lên 26px
     fontWeight: 700,
     margin: "4px 0",
   };
   const metricSubtitleStyle = {
-    fontSize: "12px",
+    fontSize: "14px", // Tăng từ 12px lên 14px
     color: "rgba(0, 0, 0, 0.45)",
   };
   const statusDotStyle = {
@@ -426,34 +450,199 @@ const ManagerDashboard = () => {
 
       try {
         setUsersLoading(true);
-        const response = await axiosInstance.get(
-          "/api/admins/dashboards/users"
-        );
+        setRecentActionsLoading(true);
 
-        if (response.data && response.data.length > 0) {
+        // Fetch cả 2 endpoints cùng lúc
+        const [usersResponse, actionsResponse] = await Promise.all([
+          axiosInstance.get("/api/admins/dashboards/users"),
+          axiosInstance.get("/api/admins/dashboards/recent-actions"),
+        ]);
+
+        if (usersResponse.data && usersResponse.data.length > 0) {
           const formattedData = {
-            total: response.data[0]?.item || {count: 0, name: "No data"},
-            passwordChanged: response.data[1]?.item || {
+            total: usersResponse.data[0]?.item || {count: 0, name: "No data"},
+            passwordChanged: usersResponse.data[1]?.item || {
               count: 0,
               name: "No data",
             },
-            defaultPassword: response.data[2]?.item || {
+            defaultPassword: usersResponse.data[2]?.item || {
               count: 0,
               name: "No data",
             },
           };
           setUsersData(formattedData);
         }
-        setUsersLoading(false);
+
+        if (actionsResponse.data) {
+          setRecentActions(actionsResponse.data);
+        }
+
+        setUsersError(null);
+        setRecentActionsError(null);
       } catch (err) {
-        console.error("Error fetching admin users data:", err);
-        setUsersError("Failed to load users data");
+        console.error("Error fetching admin data:", err);
+        if (err.config?.url.includes("users")) {
+          setUsersError("Failed to load users data");
+        }
+        if (err.config?.url.includes("recent-actions")) {
+          setRecentActionsError("Failed to load recent actions data");
+        }
+      } finally {
         setUsersLoading(false);
+        setRecentActionsLoading(false);
       }
     };
 
     fetchAdminData();
   }, [roleName]);
+
+  const RecentActionsChart = ({data, loading, error}) => {
+    const chartRef = useRef(null);
+    const chartInstance = useRef(null);
+
+    useEffect(() => {
+      if (loading || error || !data || data.length === 0) return;
+
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+
+      // Tạo dữ liệu và nhãn từ dữ liệu API
+      const labels = data.map((item) => {
+        // Lấy phần trước "in" của tên
+        const actionName = item.userRecentAction.name.split(" in ")[0];
+        return actionName;
+      });
+
+      const values = data.map((item) => item.userRecentAction.count);
+
+      // Màu sắc cho từng loại hành động
+      const backgroundColors = [
+        "#52c41a", // Create - green
+        "#1890ff", // Update - blue
+        "#fa8c16", // Reset password - orange
+      ];
+
+      const chartData = {
+        labels: labels,
+        datasets: [
+          {
+            label: "Action Count",
+            data: values,
+            backgroundColor: backgroundColors,
+            borderColor: backgroundColors,
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return `Count: ${context.raw}`;
+              },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0, // Hiển thị số nguyên
+            },
+            title: {
+              display: true,
+              text: "Number of Actions",
+            },
+          },
+          x: {
+            title: {
+              display: true,
+              text: "Action Type",
+            },
+          },
+        },
+      };
+
+      const ctx = chartRef.current.getContext("2d");
+      chartInstance.current = new Chart(ctx, {
+        type: "bar",
+        data: chartData,
+        options: chartOptions,
+      });
+
+      return () => {
+        if (chartInstance.current) {
+          chartInstance.current.destroy();
+        }
+      };
+    }, [data, loading, error]);
+
+    if (loading) {
+      return (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "20px",
+            height: "300px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Spin />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div
+          style={{
+            color: "red",
+            textAlign: "center",
+            padding: "20px",
+            height: "300px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {error}
+        </div>
+      );
+    }
+
+    if (!data || data.length === 0) {
+      return (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "20px",
+            height: "300px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          No data available
+        </div>
+      );
+    }
+
+    return (
+      <div style={{height: "300px", position: "relative"}}>
+        <canvas ref={chartRef} />
+      </div>
+    );
+  };
 
   return (
     <div style={{padding: "24px"}}>
@@ -488,6 +677,7 @@ const ManagerDashboard = () => {
         </Tag>
       </div>
 
+      <Divider>Account Management</Divider>
       {/* Admin-specific Dashboard - chỉ hiển thị khi roleName là "admin" */}
       {roleName === "admin" && (
         <>
@@ -508,14 +698,14 @@ const ManagerDashboard = () => {
                     }}
                   >
                     <Text style={metricTitleStyle}>Total Users</Text>
-                    <UserOutlined style={{fontSize: 16, color: "#1890ff"}} />
+                    <UserOutlined style={{fontSize: 18, color: "#1890ff"}} />
                   </div>
                 </div>
                 <div style={cardBodyStyle}>
                   {usersLoading ? (
                     <Spin size="small" />
                   ) : usersError ? (
-                    <div style={{color: "red", fontSize: "14px"}}>
+                    <div style={{color: "red", fontSize: "18px"}}>
                       {usersError}
                     </div>
                   ) : usersData ? (
@@ -553,14 +743,14 @@ const ManagerDashboard = () => {
                     }}
                   >
                     <Text style={metricTitleStyle}>Password Changed</Text>
-                    <KeyOutlined style={{fontSize: 16, color: "#52c41a"}} />
+                    <KeyOutlined style={{fontSize: 18, color: "#52c41a"}} />
                   </div>
                 </div>
                 <div style={cardBodyStyle}>
                   {usersLoading ? (
                     <Spin size="small" />
                   ) : usersError ? (
-                    <div style={{color: "red", fontSize: "14px"}}>
+                    <div style={{color: "red", fontSize: "18px"}}>
                       {usersError}
                     </div>
                   ) : usersData ? (
@@ -608,14 +798,14 @@ const ManagerDashboard = () => {
                     }}
                   >
                     <Text style={metricTitleStyle}>Default Password</Text>
-                    <LockOutlined style={{fontSize: 16, color: "#f5222d"}} />
+                    <LockOutlined style={{fontSize: 18, color: "#f5222d"}} />
                   </div>
                 </div>
                 <div style={cardBodyStyle}>
                   {usersLoading ? (
                     <Spin size="small" />
                   ) : usersError ? (
-                    <div style={{color: "red", fontSize: "14px"}}>
+                    <div style={{color: "red", fontSize: "18px"}}>
                       {usersError}
                     </div>
                   ) : usersData ? (
@@ -645,11 +835,111 @@ const ManagerDashboard = () => {
               </Card>
             </Col>
           </Row>
-
-          <Divider>Healthcare Management</Divider>
         </>
       )}
+      {/* recent Admin Management */}
+      {roleName === "admin" && (
+        <>
+          <Divider>Users Activities</Divider>
+          <Row gutter={[16, 16]} style={{marginBottom: "24px"}}>
+            <Col xs={24} md={12}>
+              <Card
+                title="Recent Users Actions"
+                bordered={true}
+                style={{height: "100%"}}
+              >
+                {recentActionsLoading ? (
+                  <div style={{textAlign: "center", padding: "20px"}}>
+                    <Spin />
+                  </div>
+                ) : recentActionsError ? (
+                  <div
+                    style={{color: "red", textAlign: "center", padding: "20px"}}
+                  >
+                    {recentActionsError}
+                  </div>
+                ) : recentActions && recentActions.length > 0 ? (
+                  <Space direction="vertical" style={{width: "100%"}}>
+                    {recentActions.map((item, index) => {
+                      const actionName =
+                        item.userRecentAction.name.split(" in ")[0];
+                      const period =
+                        item.userRecentAction.name.split(" in ")[1] || "";
+                      const count = item.userRecentAction.count;
 
+                      let iconColor = "#1890ff"; // Default blue
+                      let IconComponent = UserOutlined;
+
+                      if (actionName.toLowerCase().includes("create")) {
+                        iconColor = "#52c41a"; // Green
+                        IconComponent = UserOutlined;
+                      } else if (actionName.toLowerCase().includes("update")) {
+                        iconColor = "#1890ff"; // Blue
+                        IconComponent = EditOutlined;
+                      } else if (actionName.toLowerCase().includes("reset")) {
+                        iconColor = "#fa8c16"; // Orange
+                        IconComponent = KeyOutlined;
+                      }
+
+                      return (
+                        <React.Fragment key={index}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              padding: "8px",
+                              backgroundColor:
+                                index % 2 === 0 ? "#f9f9f9" : "#ffffff",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            <Space>
+                              <IconComponent
+                                style={{fontSize: 18, color: iconColor}}
+                              />
+                              <Space direction="vertical" size={0}>
+                                <Text strong style={{fontSize: "18px"}}>
+                                  {actionName}
+                                </Text>
+                                <Text
+                                  type="secondary"
+                                  style={{fontSize: "16px"}}
+                                >
+                                  {period}
+                                </Text>
+                              </Space>
+                            </Space>
+                            <Text strong>{count}</Text>
+                          </div>
+                          {index < recentActions.length - 1 && (
+                            <Divider style={{margin: "8px 0"}} />
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </Space>
+                ) : (
+                  <div style={{textAlign: "center", padding: "20px"}}>
+                    No recent actions
+                  </div>
+                )}
+              </Card>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Card title="Actions Distribution" bordered={true}>
+                <RecentActionsChart
+                  data={recentActions}
+                  loading={recentActionsLoading}
+                  error={recentActionsError}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </>
+      )}
+      <Divider>Healthcare Management</Divider>
       {/* Key Metrics (hiển thị cho tất cả roles) */}
       <Row gutter={[16, 16]} style={{marginBottom: "24px"}}>
         {/* Total Students */}
@@ -669,7 +959,7 @@ const ManagerDashboard = () => {
               >
                 <Text style={metricTitleStyle}>Total Students</Text>
                 <UserOutlined
-                  style={{fontSize: 16, color: "rgba(0, 0, 0, 0.45)"}}
+                  style={{fontSize: 18, color: "rgba(0, 0, 0, 0.45)"}}
                 />
               </div>
             </div>
@@ -677,7 +967,7 @@ const ManagerDashboard = () => {
               {loading ? (
                 <Spin size="small" />
               ) : error ? (
-                <div style={{color: "red", fontSize: "14px"}}>{error}</div>
+                <div style={{color: "red", fontSize: "18px"}}>{error}</div>
               ) : totalStudents ? (
                 <>
                   <div style={{...metricValueStyle}}>{totalStudents.count}</div>
@@ -709,14 +999,14 @@ const ManagerDashboard = () => {
                 }}
               >
                 <Text style={metricTitleStyle}>Health Declarations</Text>
-                <FileTextOutlined style={{fontSize: 16, color: "#1890ff"}} />
+                <FileTextOutlined style={{fontSize: 18, color: "#1890ff"}} />
               </div>
             </div>
             <div style={cardBodyStyle}>
               {declarationsLoading ? (
                 <Spin size="small" />
               ) : declarationsError ? (
-                <div style={{color: "red", fontSize: "14px"}}>
+                <div style={{color: "red", fontSize: "18px"}}>
                   {declarationsError}
                 </div>
               ) : healthDeclarations ? (
@@ -762,14 +1052,14 @@ const ManagerDashboard = () => {
                 }}
               >
                 <Text style={metricTitleStyle}>Medicine Requests</Text>
-                <MedicineBoxOutlined style={{fontSize: 16, color: "#52c41a"}} />
+                <MedicineBoxOutlined style={{fontSize: 18, color: "#52c41a"}} />
               </div>
             </div>
             <div style={cardBodyStyle}>
               {medicineLoading ? (
                 <Spin size="small" />
               ) : medicineError ? (
-                <div style={{color: "red", fontSize: "14px"}}>
+                <div style={{color: "red", fontSize: "18px"}}>
                   {medicineError}
                 </div>
               ) : medicineRequests ? (
@@ -805,14 +1095,14 @@ const ManagerDashboard = () => {
                 }}
               >
                 <Text style={metricTitleStyle}>Low Stock Alerts</Text>
-                <AlertOutlined style={{fontSize: 16, color: "#f5222d"}} />
+                <AlertOutlined style={{fontSize: 18, color: "#f5222d"}} />
               </div>
             </div>
             <div style={cardBodyStyle}>
               {lowStockLoading ? (
                 <Spin size="small" />
               ) : lowStockError ? (
-                <div style={{color: "red", fontSize: "14px"}}>
+                <div style={{color: "red", fontSize: "18px"}}>
                   {lowStockError}
                 </div>
               ) : lowStockMedicals && lowStockMedicals.length > 0 ? (
@@ -876,11 +1166,13 @@ const ManagerDashboard = () => {
                               backgroundColor: "#52c41a",
                             }}
                           ></div>
-                          <Text strong>Completed</Text>
+                          <Text strong style={{fontSize: "18px"}}>
+                            Completed
+                          </Text>
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {healthChecks.completed.name}
                         </Text>
@@ -915,7 +1207,7 @@ const ManagerDashboard = () => {
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {healthChecks.pending.name}
                         </Text>
@@ -950,7 +1242,7 @@ const ManagerDashboard = () => {
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {healthChecks.failed.name}
                         </Text>
@@ -985,7 +1277,7 @@ const ManagerDashboard = () => {
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {healthChecks.declined.name}
                         </Text>
@@ -1006,55 +1298,14 @@ const ManagerDashboard = () => {
               </Card>
             </Col>
 
-            {/* Monthly Trends */}
+            {/* Health Checkups Charts */}
             <Col xs={24} lg={12}>
-              <Card title="Monthly Trends" bordered={true}>
-                <Space direction="vertical" style={{width: "100%"}}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "8px 12px",
-                      backgroundColor: "#f6ffed",
-                      borderRadius: 8,
-                      marginBottom: 12,
-                    }}
-                  >
-                    <Text>This Week</Text>
-                    <Text style={{color: "#52c41a", fontWeight: 500}}>
-                      +12.5%
-                    </Text>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "8px 12px",
-                      backgroundColor: "#e6f7ff",
-                      borderRadius: 8,
-                      marginBottom: 12,
-                    }}
-                  >
-                    <Text>This Month</Text>
-                    <Text style={{color: "#1890ff", fontWeight: 500}}>
-                      +8.3%
-                    </Text>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "8px 12px",
-                      backgroundColor: "#f9f0ff",
-                      borderRadius: 8,
-                    }}
-                  >
-                    <Text>This Year</Text>
-                    <Text style={{color: "#722ed1", fontWeight: 500}}>
-                      +15.7%
-                    </Text>
-                  </div>
-                </Space>
+              <Card title="Health Checkup Participation" bordered={true}>
+                <HealthCheckupChart
+                  data={healthChecks}
+                  loading={healthChecksLoading}
+                  error={healthChecksError}
+                />
               </Card>
             </Col>
           </Row>
@@ -1101,7 +1352,7 @@ const ManagerDashboard = () => {
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {vaccinations.completed.name}
                         </Text>
@@ -1136,7 +1387,7 @@ const ManagerDashboard = () => {
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {vaccinations.pending.name}
                         </Text>
@@ -1171,7 +1422,7 @@ const ManagerDashboard = () => {
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {vaccinations.failed.name}
                         </Text>
@@ -1206,7 +1457,7 @@ const ManagerDashboard = () => {
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {vaccinations.notQualified.name}
                         </Text>
@@ -1241,7 +1492,7 @@ const ManagerDashboard = () => {
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "12px"}}
+                          style={{marginLeft: "18px", fontSize: "16px"}}
                         >
                           {vaccinations.declined.name}
                         </Text>
@@ -1262,55 +1513,14 @@ const ManagerDashboard = () => {
               </Card>
             </Col>
 
-            {/* Vaccination Trends */}
+            {/* Vaccination Charts */}
             <Col xs={24} lg={12}>
-              <Card title="Vaccination Trends" bordered={true}>
-                <Space direction="vertical" style={{width: "100%"}}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "8px 12px",
-                      backgroundColor: "#f6ffed",
-                      borderRadius: 8,
-                      marginBottom: 12,
-                    }}
-                  >
-                    <Text>This Week</Text>
-                    <Text style={{color: "#52c41a", fontWeight: 500}}>
-                      +18.2%
-                    </Text>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "8px 12px",
-                      backgroundColor: "#e6f7ff",
-                      borderRadius: 8,
-                      marginBottom: 12,
-                    }}
-                  >
-                    <Text>This Month</Text>
-                    <Text style={{color: "#1890ff", fontWeight: 500}}>
-                      +22.1%
-                    </Text>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "8px 12px",
-                      backgroundColor: "#f9f0ff",
-                      borderRadius: 8,
-                    }}
-                  >
-                    <Text>This Year</Text>
-                    <Text style={{color: "#722ed1", fontWeight: 500}}>
-                      +28.5%
-                    </Text>
-                  </div>
-                </Space>
+              <Card title="Vaccination Status" bordered={true}>
+                <VaccinationChart
+                  data={vaccinations}
+                  loading={vaccinationsLoading}
+                  error={vaccinationsError}
+                />
               </Card>
             </Col>
           </Row>
@@ -1459,7 +1669,7 @@ const ManagerDashboard = () => {
                     }}
                   >
                     <Space direction="vertical" align="center">
-                      <CheckCircleOutlined style={{fontSize: 24}} />
+                      <CheckCircleOutlined style={{fontSize: 26}} />
                       <Text>No expiring items in the next 30 days</Text>
                     </Space>
                   </div>

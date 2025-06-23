@@ -4,7 +4,6 @@ import ManagerDashboard from "./ManagerDashboard";
 const AdminDashboard = () => {
   return (
     <>
-      
       <ManagerDashboard />
     </>
   );

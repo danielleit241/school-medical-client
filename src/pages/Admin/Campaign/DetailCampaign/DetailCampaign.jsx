@@ -75,8 +75,31 @@ const DetailCampaign = () => {
     setRoundsWithNurse(roundsData);
   };
 
+  // 1. Thêm useEffect để đọc dữ liệu từ localStorage
   useEffect(() => {
     if (scheduleId) {
+      // Load notification data from localStorage
+      try {
+        const savedToParent = localStorage.getItem(
+          `toParentData_${scheduleId}`
+        );
+        const savedToNurse = localStorage.getItem(`toNurseData_${scheduleId}`);
+
+        if (savedToParent) {
+          setToParentData(JSON.parse(savedToParent));
+        }
+
+        if (savedToNurse) {
+          setToNurseData(JSON.parse(savedToNurse));
+        }
+      } catch (error) {
+        console.error(
+          "Error loading notification data from localStorage:",
+          error
+        );
+      }
+
+      // Fetch schedule data
       axiosInstance
         .get(`/api/vaccinations/schedules/${scheduleId}`)
         .then(async (res) => {
@@ -121,10 +144,7 @@ const DetailCampaign = () => {
       .finally(() => setRoundLoading(false));
   };
 
-  const handleModalClose = () => {
-    setModalVisible(false);
-    setRoundDetail(null);
-  };
+  // Removed duplicate handleModalClose function to fix redeclaration error
 
   // Thêm state để quản lý loại modal
   const [modalType, setModalType] = useState("new"); // "new" hoặc "supplement"
@@ -186,9 +206,9 @@ const DetailCampaign = () => {
           await fetchRoundsWithNurse(scheduleRes.data.vaccinationRounds);
         }
 
-        // Reset notification data if needed
-        setToParentData([]);
-        setToNurseData([]);
+        // ĐÃ XÓA: không reset notification data nữa
+        // setToParentData([]);
+        // setToNurseData([]);
 
         // Add any other data refresh needed
       } catch (refreshErr) {
@@ -215,8 +235,21 @@ const DetailCampaign = () => {
         scheduleId
       );
       const {toParent = [], toNurse = []} = res.data || {};
+
+      // Lưu vào state
       setToParentData(toParent);
       setToNurseData(toNurse);
+
+      // Lưu vào localStorage để tránh mất dữ liệu khi refresh
+      localStorage.setItem(
+        `toParentData_${scheduleId}`,
+        JSON.stringify(toParent)
+      );
+      localStorage.setItem(
+        `toNurseData_${scheduleId}`,
+        JSON.stringify(toNurse)
+      );
+
       console.log("To Parent Data:", toParent);
       console.log("To Nurse Data:", toNurse);
       Swal.fire({
@@ -251,10 +284,13 @@ const DetailCampaign = () => {
   };
 
   // Hàm gửi notification cho nurse
-  const handleSendNotiNurse = async () => {
+  const handleSendNotiNurse = async (dataToSend = null) => {
     try {
-      if (toNurseData.length > 0) {
-        await sendNotification("nurse", toNurseData);
+      // Sử dụng dữ liệu được truyền vào hoặc từ state
+      const data = dataToSend || toNurseData;
+
+      if (data.length > 0) {
+        await sendNotification("nurse", data);
         Swal.fire({
           icon: "success",
           title: "Sent notifications to nurses successfully!",
@@ -262,6 +298,8 @@ const DetailCampaign = () => {
           timer: 1800,
         });
         setToNurseData([]);
+        // Xóa khỏi localStorage sau khi gửi thành công
+        localStorage.removeItem(`toNurseData_${scheduleId}`);
       }
     } catch (err) {
       Swal.fire({
@@ -273,10 +311,13 @@ const DetailCampaign = () => {
   };
 
   // Hàm gửi notification cho parent
-  const handleSendNotiParent = async () => {
+  const handleSendNotiParent = async (dataToSend = null) => {
     try {
-      if (toParentData.length > 0) {
-        await sendNotification("parent", toParentData);
+      // Sử dụng dữ liệu được truyền vào hoặc từ state
+      const data = dataToSend || toParentData;
+
+      if (data.length > 0) {
+        await sendNotification("parent", data);
         Swal.fire({
           icon: "success",
           title: "Sent notifications to parents successfully!",
@@ -284,6 +325,8 @@ const DetailCampaign = () => {
           timer: 1800,
         });
         setToParentData([]);
+        // Xóa khỏi localStorage sau khi gửi thành công
+        localStorage.removeItem(`toParentData_${scheduleId}`);
       }
     } catch (err) {
       Swal.fire({
@@ -294,10 +337,28 @@ const DetailCampaign = () => {
     }
   };
 
+  // 3. Sửa hàm handleModalClose để không làm mất dữ liệu thông báo
+  const handleModalClose = () => {
+    setModalVisible(false);
+    setRoundDetail(null);
+    // KHÔNG reset các state toParentData và toNurseData ở đây
+  };
+
+  // 4. Khi hàm handleShowStudentList được gọi, cần đảm bảo không mất dữ liệu thông báo
   const handleShowStudentList = (roundId) => {
     localStorage.setItem("selectedVaccinationRoundId", roundId);
+    // Lưu state hiện tại của các notification trước khi chuyển trang
+    localStorage.setItem(
+      `toParentData_${scheduleId}`,
+      JSON.stringify(toParentData)
+    );
+    localStorage.setItem(
+      `toNurseData_${scheduleId}`,
+      JSON.stringify(toNurseData)
+    );
     navigate(`/${roleName}/campaign/vaccine-round/student-list`);
   };
+
   if (loading) {
     return (
       <div style={{textAlign: "center", marginTop: 40}}>
@@ -339,7 +400,6 @@ const DetailCampaign = () => {
             Add Student
           </Button>
 
-          {/* Thay thế nút Add Round bằng Dropdown */}
           <Dropdown
             menu={{
               items: [
@@ -363,15 +423,58 @@ const DetailCampaign = () => {
 
           <Button
             type="primary"
-            onClick={handleSendNotiNurse}
-            disabled={toNurseData.length === 0}
+            onClick={() => {
+              // Đọc dữ liệu từ localStorage nếu state rỗng
+              if (toNurseData.length === 0) {
+                try {
+                  const savedData = localStorage.getItem(
+                    `toNurseData_${scheduleId}`
+                  );
+                  if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    setToNurseData(parsedData);
+                    handleSendNotiNurse(parsedData);
+                    return;
+                  }
+                } catch (error) {
+                  console.error("Error parsing nurse data:", error);
+                }
+              }
+              handleSendNotiNurse(toNurseData);
+            }}
+            disabled={
+              toNurseData.length === 0 &&
+              !localStorage.getItem(`toNurseData_${scheduleId}`)
+            }
           >
             Send to Nurse
           </Button>
+
           <Button
             type="primary"
-            onClick={handleSendNotiParent}
-            disabled={toParentData.length === 0}
+            onClick={() => {
+              // Đọc dữ liệu từ localStorage nếu state rỗng
+              if (toParentData.length === 0) {
+                try {
+                  const savedData = localStorage.getItem(
+                    `toParentData_${scheduleId}`
+                  );
+                  if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    setToParentData(parsedData);
+                    handleSendNotiParent(parsedData);
+                    return;
+                  }
+                } catch (error) {
+                  console.error("Error parsing parent data:", error);
+                }
+              }
+              handleSendNotiParent(toParentData);
+            }}
+            disabled={
+              toParentData.length === 0 &&
+              !localStorage.getItem(`toParentData_${scheduleId}`)
+            }
           >
             Send to Parent
           </Button>
