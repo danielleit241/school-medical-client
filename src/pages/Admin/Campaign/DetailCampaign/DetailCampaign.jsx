@@ -80,18 +80,23 @@ const DetailCampaign = () => {
     if (scheduleId) {
       // Load notification data from localStorage
       try {
-        const savedToParent = localStorage.getItem(`toParentData_${scheduleId}`);
+        const savedToParent = localStorage.getItem(
+          `toParentData_${scheduleId}`
+        );
         const savedToNurse = localStorage.getItem(`toNurseData_${scheduleId}`);
-        
+
         if (savedToParent) {
           setToParentData(JSON.parse(savedToParent));
         }
-        
+
         if (savedToNurse) {
           setToNurseData(JSON.parse(savedToNurse));
         }
       } catch (error) {
-        console.error("Error loading notification data from localStorage:", error);
+        console.error(
+          "Error loading notification data from localStorage:",
+          error
+        );
       }
 
       // Fetch schedule data
@@ -236,8 +241,14 @@ const DetailCampaign = () => {
       setToNurseData(toNurse);
 
       // Lưu vào localStorage để tránh mất dữ liệu khi refresh
-      localStorage.setItem(`toParentData_${scheduleId}`, JSON.stringify(toParent));
-      localStorage.setItem(`toNurseData_${scheduleId}`, JSON.stringify(toNurse));
+      localStorage.setItem(
+        `toParentData_${scheduleId}`,
+        JSON.stringify(toParent)
+      );
+      localStorage.setItem(
+        `toNurseData_${scheduleId}`,
+        JSON.stringify(toNurse)
+      );
 
       console.log("To Parent Data:", toParent);
       console.log("To Nurse Data:", toNurse);
@@ -277,7 +288,7 @@ const DetailCampaign = () => {
     try {
       // Sử dụng dữ liệu được truyền vào hoặc từ state
       const data = dataToSend || toNurseData;
-      
+
       if (data.length > 0) {
         await sendNotification("nurse", data);
         Swal.fire({
@@ -304,7 +315,7 @@ const DetailCampaign = () => {
     try {
       // Sử dụng dữ liệu được truyền vào hoặc từ state
       const data = dataToSend || toParentData;
-      
+
       if (data.length > 0) {
         await sendNotification("parent", data);
         Swal.fire({
@@ -337,8 +348,14 @@ const DetailCampaign = () => {
   const handleShowStudentList = (roundId) => {
     localStorage.setItem("selectedVaccinationRoundId", roundId);
     // Lưu state hiện tại của các notification trước khi chuyển trang
-    localStorage.setItem(`toParentData_${scheduleId}`, JSON.stringify(toParentData));
-    localStorage.setItem(`toNurseData_${scheduleId}`, JSON.stringify(toNurseData));
+    localStorage.setItem(
+      `toParentData_${scheduleId}`,
+      JSON.stringify(toParentData)
+    );
+    localStorage.setItem(
+      `toNurseData_${scheduleId}`,
+      JSON.stringify(toNurseData)
+    );
     navigate(`/${roleName}/campaign/vaccine-round/student-list`);
   };
 
@@ -410,7 +427,9 @@ const DetailCampaign = () => {
               // Đọc dữ liệu từ localStorage nếu state rỗng
               if (toNurseData.length === 0) {
                 try {
-                  const savedData = localStorage.getItem(`toNurseData_${scheduleId}`);
+                  const savedData = localStorage.getItem(
+                    `toNurseData_${scheduleId}`
+                  );
                   if (savedData) {
                     const parsedData = JSON.parse(savedData);
                     setToNurseData(parsedData);
@@ -423,7 +442,10 @@ const DetailCampaign = () => {
               }
               handleSendNotiNurse(toNurseData);
             }}
-            disabled={toNurseData.length === 0 && !localStorage.getItem(`toNurseData_${scheduleId}`)}
+            disabled={
+              toNurseData.length === 0 &&
+              !localStorage.getItem(`toNurseData_${scheduleId}`)
+            }
           >
             Send to Nurse
           </Button>
@@ -434,7 +456,9 @@ const DetailCampaign = () => {
               // Đọc dữ liệu từ localStorage nếu state rỗng
               if (toParentData.length === 0) {
                 try {
-                  const savedData = localStorage.getItem(`toParentData_${scheduleId}`);
+                  const savedData = localStorage.getItem(
+                    `toParentData_${scheduleId}`
+                  );
                   if (savedData) {
                     const parsedData = JSON.parse(savedData);
                     setToParentData(parsedData);
@@ -447,7 +471,10 @@ const DetailCampaign = () => {
               }
               handleSendNotiParent(toParentData);
             }}
-            disabled={toParentData.length === 0 && !localStorage.getItem(`toParentData_${scheduleId}`)}
+            disabled={
+              toParentData.length === 0 &&
+              !localStorage.getItem(`toParentData_${scheduleId}`)
+            }
           >
             Send to Parent
           </Button>
