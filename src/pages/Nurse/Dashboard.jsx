@@ -73,7 +73,7 @@ const SummaryCard = ({ title, count, loading, icon: Icon, gradient }) => {
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "16px", fontWeight: 600, margin: 0 }}>{title}</p>
+          <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "20px", fontWeight: 600, margin: 0 }}>{title}</p>
           <div style={{ fontSize: "40px", fontWeight: 800, marginTop: "12px" }}>
             {loading ? <LoadingSpinner /> : count}
           </div>
@@ -99,11 +99,11 @@ const TabButton = ({ tab, currentTab, onClick, icon: Icon, label }) => {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "12px",
+        gap: "16px",
         padding: "18px 32px",
         borderRadius: "12px",
-        fontWeight: "700",
-        fontSize: "22px",
+        // fontWeight: "700",
+        fontSize: "18px",
         border: isActive ? "2px solid #3b82f6" : "2px solid transparent",
         backgroundColor: isActive ? "#3b82f6" : "transparent",
         color: isActive ? "white" : "#374151",
@@ -149,42 +149,42 @@ const StatusItem = ({ item, totalCount }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "20px",
+        padding: "8px 20px", // giảm padding cho gọn
         borderRadius: "12px",
         backgroundColor: "#f9fafb",
-        marginBottom: "16px",
+        marginBottom: "12px",
         transition: "background 0.2s",
         cursor: "pointer",
       }}
       onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
       onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#f9fafb")}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
         <div
           style={{
-            width: "18px",
-            height: "18px",
+            width: "14px",
+            height: "14px",
             borderRadius: "50%",
             backgroundColor: dotColor,
           }}
         ></div>
-        <span style={{ fontWeight: 600, fontSize: "20px", color: "#374151" }}>{item.name}</span>
+        <span style={{ fontSize: "16px", color: "#374151", fontWeight: 600 }}>{item.name}</span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-        <span style={{ fontWeight: 700, fontSize: "24px", color: "#111827" }}>{item.count}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        <span style={{ fontSize: "18px", color: "#111827", fontWeight: 700 }}>{item.count}</span>
         {totalCount > 0 && (
           <div
             style={{
-              width: "120px",
+              width: "100px",
               backgroundColor: "#e5e7eb",
               borderRadius: "9999px",
-              height: "10px",
+              height: "8px",
               position: "relative",
             }}
           >
             <div
               style={{
-                height: "10px",
+                height: "8px",
                 borderRadius: "9999px",
                 width: `${percentage}%`,
                 backgroundColor: dotColor,
@@ -215,8 +215,8 @@ const VaccinationItem = ({ item }) => (
         <Syringe style={{ width: "24px", height: "24px", color: "white" }} />
       </div>
       <div>
-        <p style={{ fontWeight: 600, fontSize: "20px", color: "#1f2937", margin: 0 }}>Round: {item.roundName || "N/A"}</p>
-        <p style={{ fontSize: "16px", color: "#6b7280", margin: "6px 0 0 0" }}>Start: {item.startDate || "N/A"}</p>
+        <p style={{ fontWeight: 600, fontSize: "18px", color: "#1f2937", margin: 0 }}>Round: {item.roundName || "N/A"}</p>
+        <p style={{ fontSize: "14px", color: "#6b7280", margin: "6px 0 0 0" }}>Start: {item.startDate || "N/A"}</p>
       </div>
     </div>
     <div style={{ textAlign: "right" }}>
@@ -404,7 +404,6 @@ const Dashboard = () => {
       }}
     >
       <div style={{
-        padding: "40px 32px",
         width: "100%",
         minHeight: "100vh",
         display: "flex",
@@ -423,7 +422,7 @@ const Dashboard = () => {
           }}
         >
           <div>
-            <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#111827", marginBottom: "8px", margin: 0 }}>
+            <h1 style={{fontWeight: "700", color: "#111827", marginBottom: "8px", margin: 0 }}>
               Nurse Dashboard
             </h1>
           </div>
@@ -506,10 +505,10 @@ const Dashboard = () => {
               display: "flex",
               flexWrap: "wrap",
               gap: "16px",
-              padding: "28px",
+              padding: "18px",
               backgroundColor: "#f9fafb",
               borderBottom: "1px solid #e5e7eb",
-              fontSize: "32px",
+              fontSize: "20px",
               width: "100%",
               boxSizing: "border-box",
             }}
@@ -540,7 +539,7 @@ const Dashboard = () => {
               {React.createElement(TABS.find((t) => t.key === tab)?.icon || Activity, {
                 style: { width: "28px", height: "28px", color: "#3b82f6" },
               })}
-              <h2 style={{ fontSize: "26px", fontWeight: "700", color: "#111827", margin: 0 }}>
+              <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: 0 }}>
                 {TABS.find((t) => t.key === tab)?.label} Status
               </h2>
             </div>
