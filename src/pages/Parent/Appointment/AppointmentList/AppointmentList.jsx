@@ -17,6 +17,7 @@ const AppointmentList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [nurse, setNurse] = useState([]);
+  const [freeNurseIds, setFreeNurseIds] = useState([]);
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [step, setStep] = useState(1);
   const [dateRequest, setDateRequest] = useState(() => {
@@ -103,8 +104,17 @@ const AppointmentList = () => {
       try {
         const checking = await Checking();
         console.log("Has booked today:", checking);
-        const response = await axiosInstance.get("/api/nurses");
-        setNurse(response.data);
+        const [nurseRes, freeRes] = await Promise.all([
+          axiosInstance.get("/api/nurses"),
+          axiosInstance.get("/api/users/free-nurses"),
+        ]);
+        setNurse(nurseRes.data);
+        // Lấy danh sách id của free nurses
+        setFreeNurseIds(
+          Array.isArray(freeRes.data)
+            ? freeRes.data.map((n) => n.userId || n.staffNurseId)
+            : []
+        );
       } catch (error) {
         console.error("Error fetching nurse data:", error);
       }
@@ -467,6 +477,7 @@ const AppointmentList = () => {
                 background: "#fff",
                 borderBottomLeftRadius: 20,
                 borderBottomRightRadius: 20,
+                overflowY: "auto",
               }}
             >
               {hasBookedToday && (
@@ -492,7 +503,8 @@ const AppointmentList = () => {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
                 style={{marginTop: 10}}
               >
-                {nurse.map((n) => {
+                {nurse.map((n) => {             
+                  const isAvailable = freeNurseIds.includes(n.userId || n.staffNurseId);
                   // Shared sample info for all nurses
                   //NHẮC
                   const nurseInfo = {
@@ -518,7 +530,7 @@ const AppointmentList = () => {
                         display: "flex",
                         flexDirection: "column",
                         gap: 8,
-                        opacity: nurseInfo.available ? 1 : 0.6,
+                        opacity: isAvailable ? 1 : 0.6,
                         position: "relative",
                         minHeight: 220,
                       }}
@@ -592,30 +604,30 @@ const AppointmentList = () => {
                           position: "absolute",
                           top: 18,
                           right: 18,
-                          background: nurseInfo.available ? "#e6fff2" : "#ccc",
-                          color: nurseInfo.available ? "#1bbf7a" : "#888",
+                          background: isAvailable ? "#e6fff2" : "#fff1f0",
+                          color: isAvailable ? "#1bbf7a" : "#f5222d",
                           borderRadius: 8,
                           padding: "2px 12px",
                           fontSize: 13,
                           fontWeight: 600,
                         }}
                       >
-                        {nurseInfo.available ? "Available" : "Not available"}
+                        {isAvailable ? "Available" : "Busy"}
                       </span>
                       {!hasBookedToday && (
                     <Button
-                      disabled={!nurseInfo.available}
+                      disabled={!isAvailable}
                       style={{
                         marginTop: 12,
                         borderRadius: 8,
-                        background: nurseInfo.available ? "#355383" : "#ccc",
+                        background: isAvailable ? "#355383" : "#ccc",
                         color: "#fff",
                         fontWeight: 700,
                         fontSize: 16,
                         padding: "8px 10px",
                         width: "100%",
-                        opacity: nurseInfo.available ? 1 : 0.7,
-                        pointerEvents: nurseInfo.available ? "auto" : "none",
+                        opacity: isAvailable ? 1 : 0.7,
+                        pointerEvents: isAvailable ? "auto" : "none",
                       }}
                       onClick={() => handleSelect(n)}
                     >

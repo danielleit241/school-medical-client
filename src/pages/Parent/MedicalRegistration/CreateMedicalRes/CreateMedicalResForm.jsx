@@ -12,10 +12,12 @@ import {
   Select,
   Row,
   Col,
+  Upload,
 } from "antd";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
+import { UploadOutlined, CameraOutlined } from "@ant-design/icons";
 
 const DOSE_TIME_OPTIONS = [
   {label: "Morning", value: "Morning"},
@@ -32,10 +34,11 @@ const CreateMedicalResForm = () => {
   const [nurses, setNurses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalDosages, setTotalDosages] = useState("1");
-  // Mỗi phần tử: { doseNumber: "1", doseTime: "Morning", notes: "" }
   const [doseDetails, setDoseDetails] = useState([
     {doseNumber: "1", doseTime: "Morning", notes: ""},
   ]);
+  const [pictureUrl, setPictureUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -45,8 +48,8 @@ const CreateMedicalResForm = () => {
         );
         setStudents(response.data);
         dispatch(setListStudentParent(response.data));
-        // eslint-disable-next-line no-unused-vars
       } catch (error) {
+        console.error("Error fetching students:", error);
         setStudents([]);
       }
     };
@@ -55,16 +58,17 @@ const CreateMedicalResForm = () => {
   useEffect(() => {
     const fetchNurses = async () => {
       try {
-        const response = await axiosInstance.get("/api/nurses");
-        setNurses(response.data);
-        // eslint-disable-next-line no-unused-vars
+        const response = await axiosInstance.get("/api/users/free-nurses");
+        setNurses(Array.isArray(response.data) ? response.data : []);
+        console.log("Fetched nurses:", response.data);
       } catch (error) {
+        console.error("Error fetching nurses:", error);
         setNurses([]);
       }
     };
     fetchNurses();
   }, []);
-  // Khi chọn lại số buổi, cập nhật lại form nhỏ
+
   const handleTotalDosagesChange = (value) => {
     setTotalDosages(value);
     setDoseDetails(
@@ -76,18 +80,60 @@ const CreateMedicalResForm = () => {
     );
   };
 
-  // Khi chọn buổi cho từng dose
   const handleDoseTimeChange = (idx, val) => {
     setDoseDetails((prev) =>
       prev.map((item, i) => (i === idx ? {...item, doseTime: val} : item))
     );
   };
 
-  // Khi nhập notes cho từng buổi
   const handleDoseNoteChange = (idx, val) => {
     setDoseDetails((prev) =>
       prev.map((item, i) => (i === idx ? {...item, notes: val} : item))
     );
+  };
+
+  // Upload ảnh lên Cloudinary
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "SchoolManagement");
+    setUploading(true);
+
+    try {
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/darnrlpag/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await res.json();
+      if (!data.secure_url) throw new Error("Upload failed");
+      setPictureUrl(data.secure_url);
+
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: `Image uploaded!`,
+        showConfirmButton: false,
+        timer: 1800,
+      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Upload failed!",
+        showConfirmButton: false,
+        timer: 1800,
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const onFinish = async (values) => {
@@ -101,13 +147,13 @@ const CreateMedicalResForm = () => {
       totalDosages: String(values.totalDosages),
       notes: values.notes,
       parentConsent: values.parentConsent,
+      pictureUrl: pictureUrl, // Thêm ảnh vào đây
     };
     const medicalRegistrationDetails = doseDetails.map((item) => ({
       doseNumber: item.doseNumber,
       doseTime: item.doseTime,
       notes: item.notes,
     }));
-    console.log("Medical registration data:", medicalRegistration);
     setLoading(true);
     try {
       // Bước 1: Đăng ký thuốc
@@ -118,7 +164,6 @@ const CreateMedicalResForm = () => {
           medicalRegistrationDetails,
         }
       );
-      console.log("Medical registration response:", res.data);
       // Bước 2: Gửi thông báo cho nurse
       await axiosInstance.post(
         "/api/notifications/medical-registrations/to-nurse",
@@ -136,8 +181,8 @@ const CreateMedicalResForm = () => {
         timer: 1500,
       });
       navigate("/parent/medical-registration/list");
-      // eslint-disable-next-line no-unused-vars
     } catch (error) {
+      console.error("Error submitting registration:", error);
       Swal.fire({
         icon: "error",
         title: "Submit failed!",
@@ -274,11 +319,11 @@ const CreateMedicalResForm = () => {
               <Form.Item
                 label="Nurse"
                 name="staffNurseId"
-                rules={[{required: true, message: "Please select a nurse"}]}
+                rules={[{ required: true, message: "Please select a nurse" }]}
               >
                 <Select placeholder="Select nurse" allowClear size="large">
                   {nurses.map((n) => (
-                    <Select.Option key={n.staffNurseId} value={n.staffNurseId}>
+                    <Select.Option key={n.userId} value={n.userId}>
                       {n.fullName}
                     </Select.Option>
                   ))}
@@ -295,6 +340,48 @@ const CreateMedicalResForm = () => {
                 <Input size="large" />
               </Form.Item>
 
+              {/* Upload thuốc */}
+              <Form.Item label="Medicine Image (optional)">
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    id="medicine-upload"
+                    onChange={handleUpload}
+                    disabled={uploading}
+                  />
+                  <Button
+                    icon={<UploadOutlined />}
+                    style={{ marginRight: 8, cursor: uploading ? "not-allowed" : "pointer" }}
+                    type="default"
+                    size="middle"
+                    onClick={() => {
+                      if (!uploading) {
+                        document.getElementById("medicine-upload").click();
+                      }
+                    }}
+                  >
+                    Upload Photo
+                  </Button>
+                  {pictureUrl && (
+                    <img
+                      src={pictureUrl}
+                      alt="medicine"
+                      style={{
+                        width: 60,
+                        height: 60,
+                        objectFit: "cover",
+                        borderRadius: 8,
+                        border: "1px solid #eee",
+                      }}
+                    />
+                  )}
+                </div>
+                <div style={{ fontSize: 13, color: "#888", marginTop: 4 }}>
+                  You can select an image from your device.
+                </div>
+              </Form.Item>
               <Form.Item
                 label="Total Dosages (per day)"
                 name="totalDosages"

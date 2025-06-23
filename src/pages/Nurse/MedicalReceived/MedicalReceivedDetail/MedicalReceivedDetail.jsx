@@ -266,6 +266,25 @@ const MedicalReceivedDetail = () => {
                 <Tag color="orange">Pending</Tag>
               )}
             </Descriptions.Item>
+            <Descriptions.Item label="Medicine Image">
+              {medicalRegistration?.pictureUrl ? (
+                <img
+                  src={medicalRegistration.pictureUrl}
+                  alt="Medicine"
+                  style={{
+                    width: 160,
+                    height: 160,
+                    objectFit: "cover",
+                    borderRadius: 12,
+                    border: "1px solid #eee",
+                    background: "#fafafa",
+                    display: "block",
+                  }}
+                />
+              ) : (
+                <span style={{color: "#aaa"}}>No image</span>
+              )}
+            </Descriptions.Item>
           </Descriptions>
           <div
             style={{
@@ -281,7 +300,7 @@ const MedicalReceivedDetail = () => {
               style={{backgroundColor: "#355383"}}
               onClick={() => navigate(-1)}
             >
-              Quay lại
+              Back
             </Button>
             {!nurseApproved?.dateApproved && (
               <Button
