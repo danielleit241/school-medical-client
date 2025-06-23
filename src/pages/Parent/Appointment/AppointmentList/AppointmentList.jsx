@@ -29,6 +29,7 @@ const AppointmentList = () => {
   const [success, setSuccess] = useState("");
   const [bookedSlots, setBookedSlots] = useState([]);
   const [nurseProfile, setNurseProfile] = useState(null);
+  const [hasBookedToday, setHasBookedToday] = useState(false);
 
   const userId = useSelector((state) => state.user?.userId);
   const parentId = localStorage.getItem("parentId") || userId;
@@ -37,31 +38,47 @@ const AppointmentList = () => {
     (state) => state.listStudentParent.listStudentParent
   );
   const studentId =
-    listStudentParent.length > 0 ? listStudentParent[0].studentId : null;
+  listStudentParent.length > 0 ? listStudentParent[0].studentId : null;
 
   const [step2StartTime, setStep2StartTime] = useState("");
   const [step2EndTime, setStep2EndTime] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState(studentId);
 
   const Checking = async () => {
-    if (!userId)  return;
-    try{
-      const res = await axiosInstance.get(`/api/parents/${parentId}/appointments/has-booked`)
-      console.log("Check booked response:", res.data);
-
-    }catch (error) {
-      console.error("Error checking user ID:", error);
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        icon: "error",
-        title: "You already booked appointment today.",
-        showConfirmButton: false,
-        timer: 2500,
-        timerProgressBar: true,
-      });
+  if (!userId) return;
+  try {
+    const res = await axiosInstance.get(`/api/parents/${parentId}/appointments/has-booked`);
+    // Nếu trả về 200 và data là "User has not booked any appointments."
+    if (res.data === "User has not booked any appointments.") {
+      setHasBookedToday(false);
+      return false;
     }
+    // Trường hợp khác (phòng ngừa)
+    setHasBookedToday(false);
+    return false;
+  } catch (error) {
+    // Nếu trả về 400 và data là "User has booked appointments."
+    if (
+      error.response?.status === 400 &&
+      error.response?.data === "User has booked appointments."
+    ) {
+      setHasBookedToday(true);
+      return true;
+    }
+    setHasBookedToday(false);
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "error",
+      title: "Error checking appointment status.",
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true,
+    });
+    return true;
   }
+};
+
 
   // Tự động cập nhật ngày khi sang ngày mới
   useEffect(() => {
@@ -81,12 +98,13 @@ const AppointmentList = () => {
   }, [dateRequest]);
 
   useEffect(() => {
+    
     const fetchNurse = async () => {
       try {
+        const checking = await Checking();
+        console.log("Has booked today:", checking);
         const response = await axiosInstance.get("/api/nurses");
         setNurse(response.data);
-        const checking = await Checking();
-        console.log("Checking ss appointments:", checking);
       } catch (error) {
         console.error("Error fetching nurse data:", error);
       }
@@ -439,6 +457,7 @@ const AppointmentList = () => {
                 Parents can select a nurse to book a consultation for student
                 health and nutrition.
               </div>
+              
             </div>
             {/* Danh sách nurse */}
             <div
@@ -450,6 +469,25 @@ const AppointmentList = () => {
                 borderBottomRightRadius: 20,
               }}
             >
+              {hasBookedToday && (
+                <span
+                style={{
+                  display: "block",
+                  color: "#f5222d",
+                  background: "#fff1f0",
+                  border: "1px solid #ffd6d6",
+                  borderRadius: 8,
+                  padding: "10px 18px",
+                  marginBottom: 18,
+                  fontWeight: 600,
+                  fontSize: 16,
+                  textAlign: "center",
+                  letterSpacing: 0.2,
+                }}
+                > 
+                  *You already booked today
+                  </span>
+                )}
               <div
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
                 style={{marginTop: 10}}
@@ -564,24 +602,27 @@ const AppointmentList = () => {
                       >
                         {nurseInfo.available ? "Available" : "Not available"}
                       </span>
-                      <Button
-                        disabled={!nurseInfo.available}
-                        style={{
-                          marginTop: 12,
-                          borderRadius: 8,
-                          background: nurseInfo.available ? "#355383" : "#ccc",
-                          color: "#fff",
-                          fontWeight: 700,
-                          fontSize: 16,
-                          padding: "8px 10px",
-                          width: "100%",
-                          opacity: nurseInfo.available ? 1 : 0.7,
-                          pointerEvents: nurseInfo.available ? "auto" : "none",
-                        }}
-                        onClick={() => handleSelect(n)}
-                      >
-                        Book Now
-                      </Button>
+                      {!hasBookedToday && (
+                    <Button
+                      disabled={!nurseInfo.available}
+                      style={{
+                        marginTop: 12,
+                        borderRadius: 8,
+                        background: nurseInfo.available ? "#355383" : "#ccc",
+                        color: "#fff",
+                        fontWeight: 700,
+                        fontSize: 16,
+                        padding: "8px 10px",
+                        width: "100%",
+                        opacity: nurseInfo.available ? 1 : 0.7,
+                        pointerEvents: nurseInfo.available ? "auto" : "none",
+                      }}
+                      onClick={() => handleSelect(n)}
+                    >
+                      Book Now
+                    </Button>
+                  )}
+                      
                     </div>
                   );
                 })}
