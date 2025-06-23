@@ -401,6 +401,40 @@ const DetailMedicalRes = () => {
                     )}
                   </td>
                 </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "120px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "18px",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    Medicine Image
+                  </td>
+                  <td style={{padding: "12px 16px", fontSize: "18px", verticalAlign: "middle"}}>
+                    {medicalRegistration?.pictureUrl ? (
+                      <img
+                        src={medicalRegistration.pictureUrl}
+                        alt="Medicine"
+                        style={{
+                          width: 160,
+                          height: 160,
+                          objectFit: "cover",
+                          borderRadius: 12,
+                          border: "1px solid #eee",
+                          background: "#fafafa",
+                          display: "block",
+                        }}
+                      />
+                    ) : (
+                      <span style={{color: "#aaa"}}>No image</span>
+                    )}
+                  </td>
+                </tr>
               </tbody>
             </table>
 
