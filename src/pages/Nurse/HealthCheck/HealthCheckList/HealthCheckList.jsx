@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Input, Pagination, Empty, Spin, Row, Col, Tag, Typography } from "antd";
+import { Button, Input, Pagination, Empty, Spin, Row, Col, Tag, Typography, Progress } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { CalendarOutlined, TeamOutlined, InfoCircleOutlined } from "@ant-design/icons";
@@ -9,13 +9,15 @@ import dayjs from "dayjs";
 const HealthCheckList = () => {
   const staffNurseId = useSelector((state) => state.user?.userId);
   const [rounds, setRounds] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState(0); // total rounds for pagination
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(10);
   const [search, setSearch] = useState("");
+  const [studentCounts, setStudentCounts] = useState({});
   const navigate = useNavigate();
 
+  // Fetch rounds (list of health check rounds)
   useEffect(() => {
     if (!staffNurseId) return;
 
@@ -35,7 +37,7 @@ const HealthCheckList = () => {
           (item) => item.healthCheckRoundInformation
         );
         setRounds(mappedRounds);
-        setTotal(res.data.totalCount || mappedRounds.length);
+        setTotal(res.data.totalCount || mappedRounds.length); // total rounds for pagination
       } catch (error) {
         console.error("Error fetching health check rounds:", error);
         setRounds([]);
@@ -47,93 +49,121 @@ const HealthCheckList = () => {
     fetchRounds();
   }, [staffNurseId, pageIndex, pageSize, search]);
 
+  // Fetch student count for each round
+  useEffect(() => {
+    if (!staffNurseId || rounds.length === 0) return;
+
+    const fetchCounts = async () => {
+      const counts = {};
+      await Promise.all(
+        rounds.map(async (round) => {
+          try {
+            const res = await axiosInstance.get(
+              `/api/nurses/${staffNurseId}/health-check-rounds/${round.roundId}/students`,
+              { params: { pageIndex: 1, pageSize: 10 } } // lấy tối đa để đếm hết
+            );
+            const items = Array.isArray(res.data.items) ? res.data.items : [];
+            counts[round.roundId] = items.length;
+          } catch {
+            counts[round.roundId] = 0;
+          }
+        })
+      );
+      setStudentCounts(counts);
+    };
+
+    fetchCounts();
+  }, [staffNurseId, rounds]);
 
   return (
-      <div className="min-h-screen flex  justify-center bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div
+        className="rounded-2xl shadow-xl bg-white overflow-hidden"
+        style={{
+          width: "100%",
+          maxWidth: "100%",
+          boxShadow: "0 8px 32px 0 rgba(53,83,131,0.10)",
+          margin: 0,
+          borderRadius: 0,
+        }}
+      >
+        {/* Header gradient */}
         <div
-          className="w-[90%] rounded-2xl shadow-xl bg-white overflow-hidden"
           style={{
-            boxShadow: "0 8px 32px 0 rgba(53,83,131,0.10)",
+            width: "100%",
+            background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+            padding: "36px 0 18px 0",
+            marginBottom: "40px",
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            textAlign: "center",
           }}
         >
-          {/* Header gradient */}
-          <div
+          <h1
             style={{
-              width: "100%",
-              background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-              padding: "36px 0 18px 0",
-              marginBottom: "40px",
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              textAlign: "center",
+              fontWeight: 700,
+              fontSize: 38,
+              color: "#fff",
+              letterSpacing: 1,
+              marginBottom: 8,
+              marginTop: 0,
             }}
           >
-            <h1
-              style={{
-                fontWeight: 700,
-                fontSize: 38,
-                color: "#fff",
-                letterSpacing: 1,
-                marginBottom: 8,
-                marginTop: 0,
-              }}
-            >
-              Health Check Campaign Rounds
-            </h1>
-            <div
-              style={{
-                color: "#e0e7ff",
-                fontSize: 20,
-                fontWeight: 500,
-              }}
-            >
-              Manage and view all vaccination rounds for your school
-            </div>
-            <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
-              <Input.Search
-                placeholder="Search campaign rounds"
-                allowClear
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPageIndex(1);
-                }}
-                style={{
-                  width: 340,
-                  background: "#fff",
-                  borderRadius: 8,
-                  boxShadow: "0 2px 8px #e6f7ff",
-                  fontSize: 16,
-                }}
-              />
-            </div>
+            Health Check Campaign Rounds
+          </h1>
+          <div
+            style={{
+              color: "#e0e7ff",
+              fontSize: 20,
+              fontWeight: 500,
+            }}
+          >
+            Manage and view all health check rounds for your school
           </div>
-  
-          {/* Content */}
-          <div
-            className="px-10 py-8"
-            style={{
-              maxHeight: "650px",
-              overflowY: "auto",
-            }}
-          >
-            {loading ? (
-              <div style={{ textAlign: "center", marginTop: 80 }}>
-                <Spin size="large" />
-              </div>
-            ) : rounds && rounds.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 p-5">
-              {rounds.map((round) => {
+          <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
+            <Input.Search
+              placeholder="Search health check rounds"
+              allowClear
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPageIndex(1);
+              }}
+              style={{
+                width: 340,
+                background: "#fff",
+                borderRadius: 8,
+                boxShadow: "0 2px 8px #e6f7ff",
+                fontSize: 16,
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div
+          className="px-0 py-8"
+          style={{
+            maxHeight: "650px",
+            overflowY: "auto",
+          }}
+        >
+          {loading ? (
+            <div style={{ textAlign: "center", marginTop: 80 }}>
+              <Spin size="large" />
+            </div>
+          ) : rounds && rounds.length > 0 ? (
+            <div>
+              {rounds.map((round, idx) => {
                 const now = dayjs();
                 const startTime = round.startTime ? dayjs(round.startTime) : null;
                 const endTime = round.endTime ? dayjs(round.endTime) : null;
 
                 let statusLabel = "Unknown";
-                let statusBg = "#ef4444"; // đỏ mặc định cho Not Active
-
+                let statusBg = "#ef4444";
                 if (round.status === true) {
                   statusLabel = "Completed";
-                  statusBg = "#22c55e"; // xanh lá
+                  statusBg = "#22c55e";
                 } else if (round.status === false) {
                   if (
                     startTime && endTime &&
@@ -141,133 +171,140 @@ const HealthCheckList = () => {
                       now.isSame(endTime, "day") ||
                       (now.isAfter(startTime, "day") && now.isBefore(endTime, "day")))
                   ) {
-                    statusLabel = "In Active";
-                    statusBg = "#f59e42"; // cam
+                    statusLabel = "In Progress";
+                    statusBg = "#f59e42";
                   } else {
                     statusLabel = "Not Active";
-                    statusBg = "#ef4444"; // đỏ
+                    statusBg = "#ef4444";
                   }
-                } else {
-                  statusLabel = "Unknown";
-                  statusBg = "#ef4444";
                 }
+
+                // Use studentCounts for total students in this round
+                const percent = 0;
+                const completed = 0;
+                const total = studentCounts[round.roundId] ?? 0;
 
                 return (
                   <div
                     key={round.roundId}
-                    className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col"
-                    style={{ minHeight: 340 }}
+                    style={{
+                      background: "#fff",
+                      borderRadius: 16,
+                      boxShadow: "0 2px 8px #f0f1f2",
+                      padding: `0 48px 32px 48px`,
+                      marginBottom: 32,
+                      width: "100%",
+                      maxWidth: "100%",
+                      marginLeft: 0,
+                      marginRight: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 0,
+                    }}
                   >
-                    {/* Card Header */}
-                    <div
-                      style={{
-                        padding: "20px",
-                        background: "linear-gradient(90deg, #3058A4 0%, #3058A4 100%)",
-                        borderTopLeftRadius: 12,
-                        borderTopRightRadius: 12,
-                      }}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-                          <CalendarOutlined style={{ color: "#fff", fontWeight: 700, fontSize: 32 }} />
-                          <h3 className="text-xl font-semibold text-white" style={{ marginBottom: 4, color: "#fff", fontWeight: 700, fontSize: 25 }}>
-                            {round.roundName || "No name"}
-                          </h3>
-                        </div>
-                        <span
-                          className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow"
-                          style={{
-                            background: statusBg,
-                            color: "#fff",
-                            fontWeight: 600,
-                            minWidth: 70,
-                            textAlign: "center",
-                            border: "none",
-                            fontSize: 14,
-                            boxShadow: "0 2px 8px #3058A433",
-                            display: "inline-block"
-                          }}
-                        >
-                          {statusLabel}
-                        </span>
+                    {/* Top Row: Title, Status */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 18,
+                      marginTop: idx === 0 ? 0 : 0
+                    }}>
+                      <CalendarOutlined style={{ color: "#3058A4", fontSize: 32 }} />
+                      <span style={{ fontWeight: 700, fontSize: 26, color: "#222" }}>
+                        {round.roundName || "No name"}
+                      </span>
+                      <span
+                        style={{
+                          background: statusBg,
+                          color: "#fff",
+                          fontWeight: 600,
+                          borderRadius: 999,
+                          padding: "4px 18px",
+                          fontSize: 15,
+                          marginLeft: 8,
+                          minWidth: 90,
+                          textAlign: "center",
+                          display: "inline-block"
+                        }}
+                      >
+                        {statusLabel}
+                      </span>
+                    </div>
+                    {/* Description */}
+                    <div style={{ color: "#666", fontSize: 16, margin: "8px 0 0 0" }}>
+                      {round.description || <span style={{ color: "#aaa" }}>No description</span>}
+                    </div>
+                    {/* Info Row */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 36,
+                      margin: "18px 0 0 0",
+                      flexWrap: "wrap"
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#555" }}>
+                        <CalendarOutlined />
+                        {round.startTime ? dayjs(round.startTime).format("DD/MM/YYYY") : "N/A"}
+                        {" - "}
+                        {round.endTime ? dayjs(round.endTime).format("DD/MM/YYYY") : "N/A"}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#555" }}>
+                        <TeamOutlined />
+                        {round.location || "School medical room"}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#555" }}>
+                        <span style={{ fontWeight: 500 }}>Grade</span>
+                        {round.targetGrade || "N/A"}
                       </div>
                     </div>
-
-                    {/* Card Body */}
-                    <div className="flex-1 flex flex-col justify-between p-5">
-                      <div className="space-y-3 mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <InfoCircleOutlined className="text-blue-600" style={{ fontSize: 18 }} />
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 uppercase tracking-wide">
-                              Description
-                            </p>
-                            <p className="text-sm font-medium text-gray-800">
-                              {round.description || <span style={{ color: "#aaa" }}>No description</span>}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <CalendarOutlined className="text-blue-600" style={{ fontSize: 18 }} />
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 uppercase tracking-wide">
-                              Time
-                            </p>
-                             <p className="text-sm font-medium text-gray-800">
-                              Start:  
-                                {round.startTime
-                                ?  ` ${new Date(round.startTime).toLocaleString()}`
-                                : "N/A"}
-                            </p>
-                            <p className="text-sm font-medium text-gray-800">
-                              End: 
-                                {round.endTime
-                                ? ` ${new Date(round.endTime).toLocaleString()}`
-                                : "N/A"}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                            <TeamOutlined className="text-purple-600" style={{ fontSize: 18 }} />
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 uppercase tracking-wide">
-                              Target Grade
-                            </p>
-                            <p className="text-sm font-medium text-gray-800">
-                              {round.targetGrade || "N/A"}
-                            </p>
-                          </div>
-                        </div>
+                    {/* Progress Bar */}
+                    <div style={{ marginTop: 32, marginBottom: 8 }}>
+                      <div style={{ fontWeight: 600, fontSize: 17, marginBottom: 8 }}>Health Check Progress</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+                        <Progress
+                          percent={percent}
+                          showInfo={false}
+                          strokeColor="#222"
+                          trailColor="#f3f4f6"
+                          style={{ flex: 1, height: 18, minWidth: 200 }}
+                        />
+                        <span style={{ fontWeight: 500, color: "#222", minWidth: 120, textAlign: "right" }}>
+                          {completed}/{total} students
+                        </span>
                       </div>
-                      {/* Action Button */}
-                      <div className="flex gap-2 pt-3 border-t border-gray-100">
-                        <Button
-                          type="primary"
-                          size="large"
-                          onClick={() =>
-                            navigate(`/nurse/health-check/round-campaign`, {
-                              state: { roundId: round.roundId, roundName: round.roundName }
-                            })
-                          }
-                          style={{
-                            borderRadius: 8,
-                            fontWeight: 600,
-                            fontSize: 16,
-                            width: "100%",
-                            background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
-                            border: "none",
-                            boxShadow: "0 2px 8px #3058A433",
-                          }}
-                        >
-                          Details
-                        </Button>
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: 15,
+                        color: "#666",
+                        marginTop: 4
+                      }}>
+                        <span>Completed: {percent}%</span>
+                        <span>Remaining: {total - completed} students</span>
                       </div>
+                    </div>
+                    {/* Details Button */}
+                    <div style={{ marginTop: 24, textAlign: "right" }}>
+                      <Button
+                        type="primary"
+                        size="large"
+                        onClick={() =>
+                          navigate(`/nurse/health-check/round-campaign`, {
+                            state: { roundId: round.roundId, roundName: round.roundName }
+                          })
+                        }
+                        style={{
+                          borderRadius: 8,
+                          fontWeight: 600,
+                          fontSize: 16,
+                          minWidth: 120,
+                          background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
+                          border: "none",
+                          boxShadow: "0 2px 8px #3058A433",
+                        }}
+                      >
+                        Details
+                      </Button>
                     </div>
                   </div>
                 );
@@ -276,7 +313,7 @@ const HealthCheckList = () => {
           ) : (
             <Empty
               description={
-                <span style={{ color: "#888" }}>No campaign rounds found.</span>
+                <span style={{ color: "#888" }}>No health check rounds found.</span>
               }
               style={{ marginTop: 80, textAlign: "center" }}
             />
