@@ -270,31 +270,35 @@ const AppointmentHistory = () => {
                   paddingRight: 8,
                 }}
               >
-                <Row gutter={[24, 24]}>
+                <div
+                  style={{display: "flex", flexDirection: "column", gap: 16}}
+                >
                   {filteredAppointments.map((item) => {
                     const statusObj = getStatus(item);
                     return (
-                      <Col
-                        xs={24}
-                        sm={12}
-                        md={8}
-                        lg={8}
+                      <Card
                         key={item.appointmentId}
+                        style={{
+                          borderRadius: 12,
+                          width: "100%",
+                          boxShadow: "0 2px 8px #f0f1f2",
+                          padding: 0,
+                          border: "1px solid #f0f0f0",
+                        }}
+                        bodyStyle={{padding: 20}}
                       >
-                        <Card
+                        <div
                           style={{
-                            borderRadius: 12,
-                            minHeight: 240,
-                            boxShadow: "0 2px 8px #f0f1f2",
-                            padding: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
                           }}
-                          bodyStyle={{padding: 20}}
                         >
                           <div
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              marginBottom: 8,
+                              flex: 2,
                             }}
                           >
                             {/* Avatar gradient */}
@@ -316,13 +320,59 @@ const AppointmentHistory = () => {
                             >
                               {item.student?.fullName?.[0] || "U"}
                             </div>
-                            <div style={{flex: 1}}>
+                            <div>
                               <div style={{fontWeight: 700, fontSize: 17}}>
                                 {item.student?.fullName}
                               </div>
                               <div style={{color: "#888", fontSize: 15}}>
                                 {item.type || "Consultation"}
                               </div>
+                            </div>
+                          </div>
+
+                          {/* Date and time */}
+                          <div style={{flex: 2, padding: "0 20px"}}>
+                            <div
+                              style={{
+                                color: "#355383",
+                                fontSize: 15,
+                                marginBottom: 4,
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <span style={{marginRight: 6}}>📅</span>
+                              {item.appointmentDate}
+                            </div>
+                            <div
+                              style={{
+                                color: "#1bbf7a",
+                                fontSize: 15,
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <span style={{marginRight: 6}}>🕒</span>
+                              {item.appointmentStartTime?.slice(0, 5)} -{" "}
+                              {item.appointmentEndTime?.slice(0, 5)}
+                            </div>
+                          </div>
+
+                          {/* Nurse and status */}
+                          <div style={{flex: 2}}>
+                            <div
+                              style={{
+                                color: "#a259e6",
+                                fontSize: 15,
+                                marginBottom: 8,
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <span style={{marginRight: 6}}>👩‍⚕️</span>
+                              <span style={{fontWeight: 600}}>
+                                {getNurseName(item) || "N/A"}
+                              </span>
                             </div>
                             <Tag
                               color={statusObj.color}
@@ -334,10 +384,18 @@ const AppointmentHistory = () => {
                                 background:
                                   statusObj.color === "green"
                                     ? "#e6fff2"
+                                    : statusObj.color === "orange"
+                                    ? "#fff7e6"
+                                    : statusObj.color === "blue"
+                                    ? "#e6f7ff"
                                     : undefined,
                                 color:
                                   statusObj.color === "green"
                                     ? "#1bbf7a"
+                                    : statusObj.color === "orange"
+                                    ? "#fa8c16"
+                                    : statusObj.color === "blue"
+                                    ? "#1890ff"
                                     : undefined,
                                 border: "none",
                               }}
@@ -352,59 +410,31 @@ const AppointmentHistory = () => {
                                 : statusObj.text}
                             </Tag>
                           </div>
-                          {/* Thông tin ngày, giờ, bác sĩ/y tá */}
+
+                          {/* Topic and button */}
                           <div
                             style={{
-                              color: "#355383",
-                              fontSize: 15,
-                              marginBottom: 4,
+                              flex: 3,
                               display: "flex",
                               alignItems: "center",
+                              gap: 16,
                             }}
                           >
-                            <span style={{marginRight: 6}}>📅</span>
-                            {item.appointmentDate}
-                          </div>
-                          <div
-                            style={{
-                              color: "#1bbf7a",
-                              fontSize: 15,
-                              marginBottom: 4,
-                              display: "flex",
-                              alignItems: "center",
-                            }}
-                          >
-                            <span style={{marginRight: 6}}>🕒</span>
-                            {item.appointmentStartTime?.slice(0, 5)} -{" "}
-                            {item.appointmentEndTime?.slice(0, 5)}
-                          </div>
-                          <div
-                            style={{
-                              color: "#a259e6",
-                              fontSize: 15,
-                              marginBottom: 4,
-                              display: "flex",
-                              alignItems: "center",
-                            }}
-                          >
-                            <span style={{marginRight: 6}}>👩‍⚕️</span>
-                            {getNurseName(item) || "N/A"}
-                          </div>
-                          {/* Chủ đề */}
-                          <div
-                            style={{
-                              background: "#fafbfc",
-                              borderRadius: 10,
-                              padding: "12px 14px",
-                              margin: "14px 0 8px 0",
-                              minHeight: 44,
-                              color: "#222",
-                              fontSize: 15,
-                            }}
-                          >
-                            <b>Topic:</b> {item.topic || "No topic"}
-                          </div>
-                          <div style={{display: "flex", gap: 8, marginTop: 8}}>
+                            <div
+                              style={{
+                                borderRadius: 10,
+                                padding: "10px 14px",
+                                color: "#222",
+                                fontSize: 15,
+                                flex: 1,
+                                height: 42,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <b>Topic:</b> {item.topic || "No topic"}
+                            </div>
                             <Button
                               style={{
                                 borderRadius: 8,
@@ -413,6 +443,7 @@ const AppointmentHistory = () => {
                                 border: "1px solid #355383",
                                 fontWeight: 600,
                                 minWidth: 90,
+                                height: 42,
                               }}
                               onClick={() =>
                                 navigate("/parent/appointment-details", {
@@ -423,11 +454,11 @@ const AppointmentHistory = () => {
                               Details
                             </Button>
                           </div>
-                        </Card>
-                      </Col>
+                        </div>
+                      </Card>
                     );
                   })}
-                </Row>
+                </div>
               </div>
             )}
           </div>
