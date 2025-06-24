@@ -71,36 +71,29 @@ const MedicalEventDetail = () => {
       style={{
         minHeight: "100vh",
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
         justifyContent: "center",
-        padding: "32px 0",
+        alignItems: "center",
+        padding: "20px",
       }}
     >
-      {/* Header Banner + Main Content Container */}
+      {/* Container that takes 90% of the outlet width */}
       <div
         className="animate__animated animate__fadeIn"
-        style={{
-          width: "90%",
-          borderRadius: "20px",
-          overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(53,83,131,0.1)",
-        }}
+        style={{width: "90%", maxWidth: "1400px"}}
       >
-        {/* Header Banner */}
+        {/* Header Banner - Same width as main content */}
         <div
           style={{
             width: "100%",
+            background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+            padding: "30px",
             borderTopLeftRadius: "20px",
             borderTopRightRadius: "20px",
-            background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-            height: "100px",
-            padding: "24px 0 18px 0",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
-            zIndex: 2,
             overflow: "hidden",
           }}
         >
@@ -138,476 +131,385 @@ const MedicalEventDetail = () => {
               borderRadius: "50%",
             }}
           />
+
+          {/* Title with icon */}
+          <div
+            style={{display: "flex", alignItems: "center", marginBottom: "8px"}}
+          >
+            <div
+              style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                background: "rgba(255, 255, 255, 0.2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: "15px",
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12 8V16"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8 12H16"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <span style={{color: "white", fontSize: "28px", fontWeight: "600"}}>
+              Medical Event Details
+            </span>
+          </div>
+
+          {/* Added subtitle */}
           <div
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.2)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: "15px",
+              color: "#e0e7ff",
+              fontSize: "16px",
+              fontWeight: "500",
+              opacity: 0.9,
+              marginTop: "4px",
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12 8V16"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M8 12H16"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            Review incident details and medical response information
           </div>
-          <span style={{color: "white", fontSize: "24px", fontWeight: "600"}}>
-            Medical Event Details
-          </span>
         </div>
-        {/* Main Content Container nằm trong banner */}
+
+        {/* Main Content - Same width as header */}
         <div
           style={{
-            width: "100%",
-            background: "#fff",
-            borderBottomLeftRadius: "20px",
-            borderBottomRightRadius: "20px",
-            margin: 0,
-            marginTop: 0,
-            position: "relative",
-            zIndex: 1,
-            top: 0,
-            left: 0,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            padding: "32px 0 32px 0",
             display: "flex",
             flexDirection: "row",
-            gap: "20px",
+            background: "white",
+            borderBottomLeftRadius: "20px",
+            borderBottomRightRadius: "20px",
+            width: "100%",
           }}
         >
-          {/* Left Column - Medical Event Detail (60%) */}
-          <div style={{width: "60%", padding: "0 32px"}}>
-            <Card
-              title={
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <span style={{fontSize: "20px", fontWeight: "600"}}>
-                    Medical Event Information
-                  </span>
-                  <Tag
-                    style={{
-                      fontWeight: 600,
-                      borderRadius: 16,
-                      fontSize: 14,
-                      padding: "4px 16px",
-                      background: getSeverityColor(medicalEvent.severityLevel)
-                        .background,
-                      color: getSeverityColor(medicalEvent.severityLevel).color,
-                      border: "none",
-                    }}
-                  >
-                    Severity: {medicalEvent.severityLevel}
-                  </Tag>
-                </div>
-              }
+          {/* Left Column - Medical Event Information (65%) */}
+          <div
+            style={{
+              width: "65%",
+              padding: "30px",
+              borderRight: "1px solid #f0f0f0",
+            }}
+          >
+            <h2
               style={{
-                borderRadius: "8px",
+                fontSize: "22px",
+                fontWeight: "600",
+                marginBottom: "20px",
+                color: "#333",
               }}
             >
-              <table
+              Medical Event Information
+            </h2>
+
+            <table style={{width: "100%", borderCollapse: "collapse"}}>
+              <tbody>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Student Code
+                  </td>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                    {studentInfo?.studentCode ? (
+                      studentInfo.studentCode
+                    ) : (
+                      <span style={{color: "#999999"}}>N/A</span>
+                    )}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Full Name
+                  </td>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                    {studentInfo?.fullName ? (
+                      studentInfo.fullName
+                    ) : (
+                      <span style={{color: "#999999"}}>N/A</span>
+                    )}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Event Date
+                  </td>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                    {medicalEvent?.eventDate ? (
+                      medicalEvent.eventDate
+                    ) : (
+                      <span style={{color: "#999999"}}>N/A</span>
+                    )}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Event Type
+                  </td>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                    {medicalEvent?.eventType ? (
+                      medicalEvent.eventType
+                    ) : (
+                      <span style={{color: "#999999"}}>N/A</span>
+                    )}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Description
+                  </td>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                    {medicalEvent?.description ? (
+                      medicalEvent.description
+                    ) : (
+                      <span style={{color: "#999999"}}>N/A</span>
+                    )}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Location
+                  </td>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                    {medicalEvent?.location ? (
+                      medicalEvent.location
+                    ) : (
+                      <span style={{color: "#999999"}}>N/A</span>
+                    )}
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Severity Level
+                  </td>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                    <span
+                      style={{
+                        background: getSeverityColor(medicalEvent.severityLevel)
+                          .background,
+                        color: getSeverityColor(medicalEvent.severityLevel)
+                          .color,
+                        border: "none",
+                        borderRadius: "16px",
+                        padding: "4px 16px",
+                        fontWeight: "600",
+                        fontSize: "14px",
+                        display: "inline-block",
+                      }}
+                    >
+                      {medicalEvent?.severityLevel || ""}
+                    </span>
+                  </td>
+                </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Notes
+                  </td>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                    {medicalEvent?.notes ? (
+                      medicalEvent.notes
+                    ) : (
+                      <span style={{color: "#999999"}}>N/A</span>
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style={{marginTop: "30px"}}>
+              <Button
+                type="primary"
+                onClick={handleBack}
                 style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  border: "none",
+                  background:
+                    "linear-gradient(-90deg, #2B5DC4 0%, #355383 100%)",
+                  borderColor: "#2255c4",
+                  height: "36px",
+                  fontSize: "14px",
+                  borderRadius: "4px",
+                  boxShadow: "none",
+                  padding: "0 20px",
                 }}
               >
-                <tbody>
-                  <tr>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "70px",
-                        fontWeight: "500",
-                        width: "40%",
-                        fontSize: "17px",
-                      }}
-                    >
-                      Student Code
-                    </td>
-                    <td style={{padding: "12px 16px", fontSize: "17px"}}>
-                      {studentInfo?.studentCode || ""}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "70px",
-                        fontWeight: "500",
-                        width: "40%",
-                        fontSize: "17px",
-                      }}
-                    >
-                      Full Name
-                    </td>
-                    <td style={{padding: "12px 16px", fontSize: "17px"}}>
-                      {studentInfo?.fullName || ""}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "70px",
-                        fontWeight: "500",
-                        width: "40%",
-                        fontSize: "17px",
-                      }}
-                    >
-                      Event Date
-                    </td>
-                    <td style={{padding: "12px 16px", fontSize: "17px"}}>
-                      {medicalEvent?.eventDate || ""}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "70px",
-                        fontWeight: "500",
-                        width: "40%",
-                        fontSize: "17px",
-                      }}
-                    >
-                      Event Type
-                    </td>
-                    <td style={{padding: "12px 16px", fontSize: "17px"}}>
-                      {medicalEvent?.eventType || ""}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "70px",
-                        fontWeight: "500",
-                        width: "40%",
-                        fontSize: "17px",
-                      }}
-                    >
-                      Description
-                    </td>
-                    <td style={{padding: "12px 16px", fontSize: "17px"}}>
-                      {medicalEvent?.eventDescription || ""}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "70px",
-                        fontWeight: "500",
-                        width: "40%",
-                        fontSize: "17px",
-                      }}
-                    >
-                      Location
-                    </td>
-                    <td style={{padding: "12px 16px", fontSize: "17px"}}>
-                      {medicalEvent?.location || ""}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "70px",
-                        fontWeight: "500",
-                        width: "40%",
-                        fontSize: "17px",
-                      }}
-                    >
-                      Severity Level
-                    </td>
-                    <td style={{padding: "12px 16px", fontSize: "17px"}}>
-                      <span
-                        style={{
-                          background: getSeverityColor(
-                            medicalEvent.severityLevel
-                          ).background,
-                          color: getSeverityColor(medicalEvent.severityLevel)
-                            .color,
-                          padding: "2px 10px",
-                          borderRadius: "4px",
-                          fontSize: "14px",
-                          fontWeight: 600,
-                          display: "inline-block",
-                        }}
-                      >
-                        {medicalEvent?.severityLevel || ""}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "70px",
-                        fontWeight: "500",
-                        width: "40%",
-                        fontSize: "17px",
-                      }}
-                    >
-                      Notes
-                    </td>
-                    <td style={{padding: "12px 16px", fontSize: "17px"}}>
-                      {medicalEvent?.notes || ""}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div style={{marginTop: "24px"}}>
-                <Button
-                  onClick={handleBack}
-                  style={{
-                    background:
-                      "linear-gradient(-90deg, #2B5DC4 0%, #355383 100%)",
-                    borderColor: "#2255c4",
-                    color: "white",
-                    height: "36px",
-                    fontSize: "14px",
-                    borderRadius: "4px",
-                    boxShadow: "none",
-                    padding: "0 20px",
-                  }}
-                >
-                  Back
-                </Button>
-              </div>
-            </Card>
+                Go Back
+              </Button>
+            </div>
           </div>
-          {/* Right Column - Medical Requests and Contact (40%) */}
-          <div
-            style={{
-              width: "40%",
-              display: "flex",
-              flexDirection: "column",
-              gap: "20px",
-              padding: "0 32px 0 0",
-            }}
-          >
-            {/* Medical Requests Card */}
-            <Card
-              title={
-                <div style={{fontSize: "20px", fontWeight: "600"}}>
-                  Medical Requests
-                </div>
-              }
+
+          {/* Right Column - Medical Requests (35%) */}
+          <div style={{width: "35%", padding: "30px"}}>
+            <h2
               style={{
-                borderRadius: "8px",
+                fontSize: "22px",
+                fontWeight: "600",
+                marginBottom: "20px",
+                color: "#333",
               }}
             >
-              {medicalRequests && medicalRequests.length > 0 ? (
-                medicalRequests.map((item, index) => (
-                  <div
-                    key={item.itemId || index}
-                    style={{
-                      padding: "16px",
-                      borderBottom:
-                        index < medicalRequests.length - 1
-                          ? "1px solid #f0f0f0"
-                          : "none",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      <span style={{fontWeight: "500", fontSize: "17px"}}>
-                        Drug Name:
-                      </span>
-                      <span style={{fontWeight: "400", fontSize: "17px"}}>
-                        {item.itemName}
-                      </span>
-                    </div>
-                    <div
-                      style={{display: "flex", justifyContent: "space-between"}}
-                    >
-                      <span style={{fontWeight: "500", fontSize: "17px"}}>
-                        Quantity:
-                      </span>
-                      <span style={{fontWeight: "400", fontSize: "17px"}}>
-                        {item.requestQuantity}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
+              Medical Requests
+            </h2>
+
+            {medicalRequests && medicalRequests.length > 0 ? (
+              medicalRequests.map((item, index) => (
                 <div
-                  style={{padding: "20px", textAlign: "center", color: "#999"}}
+                  key={item.itemId || index}
+                  style={{
+                    marginBottom: "20px",
+                    borderRadius: "6px",
+                    border: "1px solid #f0f0f0",
+                    padding: "20px",
+                    background: "#fff",
+                  }}
                 >
-                  No medical requests found
+                  <div style={{marginBottom: "10px"}}>
+                    <span style={{fontWeight: "600", fontSize: "16px"}}>
+                      Drug Name:
+                    </span>{" "}
+                    <span style={{color: "#333", fontSize: "16px"}}>
+                      {item.itemName}
+                    </span>
+                  </div>
+
+                  <div style={{marginBottom: "10px", fontSize: "15px"}}>
+                    <span style={{fontWeight: "500"}}>Quantity:</span>{" "}
+                    <span style={{color: "#333"}}>{item.requestQuantity}</span>
+                  </div>
                 </div>
-              )}
-            </Card>
+              ))
+            ) : (
+              <div
+                style={{
+                  color: "#999",
+                  textAlign: "center",
+                  padding: "20px",
+                  fontSize: "16px",
+                }}
+              >
+                No medical requests found for this event.
+              </div>
+            )}
+
+            {/* Help Card */}
+            <div
+              style={{
+                background: "#f7f1ff",
+                borderRadius: 16,
+                padding: 24,
+                textAlign: "center",
+                color: "#a259e6",
+                border: "1px solid #e0d7fa",
+              }}
+            >
+              <div style={{fontSize: 32, marginBottom: 8}}>♡</div>
+              <div style={{fontWeight: 700, marginBottom: 8, fontSize: 18}}>
+                Need Help?
+              </div>
+              <div style={{marginBottom: 14, color: "#888"}}>
+                Our support team is here to assist you with your booking.
+              </div>
+              <Button
+                style={{
+                  borderRadius: 8,
+                  background: "#fff",
+                  color: "#a259e6",
+                  border: "1px solid #a259e6",
+                  fontWeight: 600,
+                  height: 42,
+                }}
+              >
+                Contact Support
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
-      {/* Floating Help Button (bottom right) */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 32,
-          right: 32,
-          zIndex: 1000,
-        }}
-      >
-        <button
-          id="help-fab"
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: "50%",
-            background: "#e3e8ef", // xám nhạt
-            color: "#355383", // xanh đậm cho icon
-            border: "none",
-            boxShadow: "0 2px 8px rgba(53, 83, 131, 0.10)",
-            fontSize: 32,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "background 0.2s",
-          }}
-          onClick={() => {
-            const card = document.getElementById("help-contact-card");
-            if (card)
-              card.style.display =
-                card.style.display === "block" ? "none" : "block";
-          }}
-          aria-label="Need Help?"
-        >
-          ?
-        </button>
-        {/* Contact Card Popup */}
-        <div
-          id="help-contact-card"
-          style={{
-            display: "none",
-            position: "absolute",
-            bottom: 70,
-            right: 0,
-            background: "#e6f3ff", // xanh nhạt
-            borderRadius: 12,
-            border: "1px solid #b6d6f6",
-            padding: 32,
-            textAlign: "center",
-            boxShadow: "0 2px 8px rgba(53, 83, 131, 0.10)",
-            minWidth: 320,
-            zIndex: 1001,
-          }}
-        >
-          <div style={{fontSize: 32, color: "#355383", marginBottom: 8}}>
-            <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
-              <path
-                d="M12 21s-7-4.35-7-10a7 7 0 0 1 14 0c0 5.65-7 10-7 10Z"
-                stroke="#355383"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"
-                stroke="#355383"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          <div
-            style={{
-              fontWeight: 700,
-              color: "#355383",
-              fontSize: 20,
-              marginBottom: 8,
-            }}
-          >
-            Need Help?
-          </div>
-          <div style={{color: "#555", fontSize: 16, marginBottom: 18}}>
-            Our support team is here to assist you with your booking.
-          </div>
-          <div
-            style={{
-              color: "#222",
-              fontSize: 16,
-              marginBottom: 10,
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-            }}
-          >
-            <span>
-              <b>Phone:</b>{" "}
-              <a href="tel:0123456789" style={{color: "#355383"}}>
-                0123 456 789
-              </a>
-            </span>
-            <span>
-              <b>Email:</b>{" "}
-              <a href="mailto:support@school.edu" style={{color: "#355383"}}>
-                support@school.edu
-              </a>
-            </span>
-          </div>
-          <button
-            style={{
-              border: "1px solid #355383",
-              color: "#355383",
-              background: "#e6f3ff",
-              borderRadius: 8,
-              padding: "8px 24px",
-              fontWeight: 600,
-              fontSize: 16,
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-            onClick={() => window.open("mailto:support@school.edu", "_blank")}
-          >
-            Contact Support
-          </button>
         </div>
       </div>
     </div>

@@ -541,111 +541,232 @@ const AppointmentList = () => {
                     >
                       <div
                         style={{
+                          position: "relative",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
                         }}
                       >
-                        {/* Left section - Name and info */}
+                        {/* Phần 1: Avatar (30%) */}
                         <div
                           style={{
+                            width: "30%",
                             display: "flex",
-                            flexDirection: "column",
-                            gap: "6px",
+                            justifyContent: "center",
                           }}
                         >
+                          <div
+                            style={{
+                              width: 300,
+                              height: 250,
+                              borderRadius: "10%",
+
+                              overflow: "hidden",
+                              border: "1px solid #eee",
+                              boxShadow: "0 2px 2px rgba(0,0,0,0.08)",
+                              position: "relative",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <img
+                              src={n.avatarUrl || LogoDefault}
+                              alt="Nurse"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Phần 2: Thông tin cơ bản (30%) */}
+                        <div
+                          style={{
+                            width: "30%",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "10px",
+                            paddingLeft: "15px",
+                            paddingRight: "15px",
+                          }}
+                        >
+                          {/* Tên y tá */}
                           <div
                             style={{
                               fontWeight: 700,
                               fontSize: 22,
                               color: "#333",
+                              marginBottom: "4px",
                             }}
                           >
                             {n.fullName}
                           </div>
-                          <div style={{color: "#666", fontSize: 16}}>
-                            {nurseInfo.specialty}
-                          </div>
+
+                          {/* Chuyên môn */}
                           <div
                             style={{
-                              color: "#777",
+                              fontSize: 16,
+                              color: "#355383",
+                              fontWeight: 600,
+                              marginBottom: "8px",
                               display: "flex",
                               alignItems: "center",
-                              fontSize: 15,
+                              gap: "6px",
                             }}
                           >
-                            <AiOutlineCalendar style={{marginRight: 8}} />
-                            {nurseInfo.workingDays}
+                            <span
+                              style={{
+                                background: "#eaf1ff",
+                                padding: "4px 10px",
+                                borderRadius: "6px",
+                                fontSize: "15px",
+                              }}
+                            >
+                              {nurseInfo.specialty}
+                            </span>
                           </div>
+
+                          {/* Thời gian làm việc */}
                           <div
                             style={{
-                              color: "#777",
+                              color: "#555",
                               display: "flex",
                               alignItems: "center",
-                              fontSize: 15,
+                              fontSize: 14,
+                              marginBottom: "4px",
                             }}
                           >
-                            <FiPhone style={{marginRight: 8}} />
-                            {n.phoneNumber}
+                            <AiOutlineCalendar
+                              style={{
+                                marginRight: 8,
+                                color: "#5b8cff",
+                                fontSize: 16,
+                              }}
+                            />
+                            <span style={{fontWeight: 500}}>
+                              {nurseInfo.workingDays}
+                            </span>
+                          </div>
+
+                          {/* Số điện thoại */}
+                          <div
+                            style={{
+                              color: "#555",
+                              display: "flex",
+                              alignItems: "center",
+                              fontSize: 14,
+                            }}
+                          >
+                            <FiPhone
+                              style={{
+                                marginRight: 8,
+                                color: "#52c41a",
+                                fontSize: 16,
+                              }}
+                            />
+                            <span style={{fontWeight: 500}}>
+                              {n.phoneNumber}
+                            </span>
                           </div>
                         </div>
 
-                        {/* Middle section - Expertise */}
-                        <div style={{flex: 1, marginLeft: 48}}>
+                        {/* Phần 3: Chuyên môn (30%) */}
+                        <div
+                          style={{
+                            width: "30%",
+                            display: "flex",
+                            flexDirection: "column",
+                            paddingLeft: "15px",
+                            paddingRight: "15px",
+                          }}
+                        >
                           <div
                             style={{
                               fontSize: 16,
                               fontWeight: 600,
-                              marginBottom: 12,
-                              color: "#555",
+                              marginBottom: 14,
+                              color: "#355383",
                             }}
                           >
-                            Expertise:
+                            Expertise
                           </div>
                           <div
-                            style={{display: "flex", gap: 10, flexWrap: "wrap"}}
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 10,
+                            }}
                           >
                             {nurseInfo.skills.map((skill, idx) => (
-                              <span
+                              <div
                                 key={idx}
                                 style={{
-                                  background: "#f0f1f7",
-                                  color: "#355383",
-                                  borderRadius: 8,
-                                  padding: "4px 12px",
-                                  fontSize: 14,
-                                  fontWeight: 500,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 8,
                                 }}
                               >
-                                {skill}
-                              </span>
+                                <div
+                                  style={{
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: "50%",
+                                    background: "#5b8cff",
+                                    flexShrink: 0,
+                                  }}
+                                ></div>
+                                <span
+                                  style={{
+                                    color: "#555",
+                                    fontSize: 15,
+                                    fontWeight: 500,
+                                    lineHeight: 1.4,
+                                  }}
+                                >
+                                  {skill}
+                                </span>
+                              </div>
                             ))}
                           </div>
                         </div>
 
-                        {/* Right section - Status and CTA */}
+                        {/* Phần 4: Trạng thái và nút (10%) */}
                         <div
                           style={{
+                            position: "absolute",
+                            top: 50,
+                            left: "calc(100% - 120px)",
+                            width: "10%",
                             display: "flex",
                             flexDirection: "column",
-                            alignItems: "flex-end",
+                            alignItems: "center",
                             justifyContent: "center",
                             gap: 12,
-                            minWidth: 140,
                           }}
                         >
                           <span
                             style={{
-                              background: isAvailable ? "#e6fff2" : "#fff1f0",
-                              color: isAvailable ? "#1bbf7a" : "#f5222d",
+                              background:
+                                isAvailable && !hasBookedToday
+                                  ? "#e6fff2"
+                                  : "#fff1f0",
+                              color:
+                                isAvailable && !hasBookedToday
+                                  ? "#1bbf7a"
+                                  : "#f5222d",
                               borderRadius: 20,
-                              padding: "6px 16px",
-                              fontSize: 15,
+                              padding: "4px 12px",
+                              fontSize: 14,
                               fontWeight: 600,
                               display: "inline-block",
+                              textAlign: "center",
+                              whiteSpace: "nowrap",
                             }}
                           >
-                            {isAvailable ? "Available" : "Busy"}
+                            {isAvailable && !hasBookedToday
+                              ? "Available"
+                              : "Already Booked"}
                           </span>
 
                           {!hasBookedToday && (
@@ -656,10 +777,10 @@ const AppointmentList = () => {
                                 background: isAvailable ? "#355383" : "#ccc",
                                 color: "#fff",
                                 fontWeight: 600,
-                                fontSize: 16,
-                                padding: "8px 12px",
-                                minWidth: 140,
-                                height: 44,
+                                fontSize: 15,
+                                padding: "6px 12px",
+                                width: "100%",
+                                height: 40,
                                 opacity: isAvailable ? 1 : 0.7,
                                 pointerEvents: isAvailable ? "auto" : "none",
                               }}

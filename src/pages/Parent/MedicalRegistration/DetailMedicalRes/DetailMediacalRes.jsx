@@ -97,6 +97,7 @@ const DetailMedicalRes = () => {
             borderTopLeftRadius: "20px",
             borderTopRightRadius: "20px",
             display: "flex",
+            flexDirection: "column", // Thay đổi từ row sang column
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
@@ -137,52 +138,71 @@ const DetailMedicalRes = () => {
               borderRadius: "50%",
             }}
           />
+
+          {/* Title với icon */}
+          <div
+            style={{display: "flex", alignItems: "center", marginBottom: "8px"}}
+          >
+            <div
+              style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                background: "rgba(255, 255, 255, 0.2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: "15px",
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M16 2V6"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8 2V6"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M3 10H21"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <span style={{color: "white", fontSize: "28px", fontWeight: "600"}}>
+              Medication Registration
+            </span>
+          </div>
+
+          {/* Subtitle mới thêm */}
           <div
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.2)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: "15px",
+              color: "#e0e7ff",
+              fontSize: "16px",
+              fontWeight: "500",
+              opacity: 0.9,
+              marginTop: "4px",
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M16 2V6"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M8 2V6"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M3 10H21"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            Review medication details and administration schedule
           </div>
-          <span style={{color: "white", fontSize: "32px", fontWeight: "600"}}>
-            Medication Registration
-          </span>
         </div>
 
         {/* Main Content - Same width as header */}
@@ -206,7 +226,7 @@ const DetailMedicalRes = () => {
           >
             <h2
               style={{
-                fontSize: "25px",
+                fontSize: "22px",
                 fontWeight: "600",
                 marginBottom: "20px",
                 color: "#333",
@@ -225,12 +245,12 @@ const DetailMedicalRes = () => {
                       height: "80px",
                       fontWeight: "600",
                       width: "40%",
-                      fontSize: "18px",
+                      fontSize: "16px",
                     }}
                   >
                     Student Name
                   </td>
-                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
                     {student?.studentFullName}
                   </td>
                 </tr>
@@ -242,12 +262,12 @@ const DetailMedicalRes = () => {
                       height: "80px",
                       fontWeight: "600",
                       width: "40%",
-                      fontSize: "18px",
+                      fontSize: "16px",
                     }}
                   >
                     Medication Name
                   </td>
-                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
                     {medicalRegistration?.medicationName}
                   </td>
                 </tr>
@@ -259,12 +279,12 @@ const DetailMedicalRes = () => {
                       height: "80px",
                       fontWeight: "600",
                       width: "40%",
-                      fontSize: "18px",
+                      fontSize: "16px",
                     }}
                   >
                     Total Dosages (per day)
                   </td>
-                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
                     {medicalRegistration?.totalDosages}
                   </td>
                 </tr>
@@ -276,12 +296,12 @@ const DetailMedicalRes = () => {
                       height: "80px",
                       fontWeight: "600",
                       width: "40%",
-                      fontSize: "18px",
+                      fontSize: "16px",
                     }}
                   >
                     Date Submitted
                   </td>
-                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
                     {medicalRegistration?.dateSubmitted}
                   </td>
                 </tr>
@@ -293,12 +313,12 @@ const DetailMedicalRes = () => {
                       height: "80px",
                       fontWeight: "600",
                       width: "40%",
-                      fontSize: "18px",
+                      fontSize: "16px",
                     }}
                   >
                     Parent Notes
                   </td>
-                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
                     {medicalRegistration?.notes}
                   </td>
                 </tr>
@@ -310,22 +330,22 @@ const DetailMedicalRes = () => {
                       height: "80px",
                       fontWeight: "600",
                       width: "40%",
-                      fontSize: "18px",
+                      fontSize: "16px",
                     }}
                   >
                     Parent Consent
                   </td>
-                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
                     {medicalRegistration?.parentConsent ? (
                       <span
                         style={{
-                          color: "#1bbf7a", // xanh lá đồng bộ Confirmed
-                          background: "#e6fff2", // nền xanh lá nhạt
+                          color: "#1bbf7a",
+                          background: "#e6fff2",
                           border: "none",
                           borderRadius: "16px",
                           padding: "4px 16px",
                           fontWeight: "600",
-                          fontSize: "15px",
+                          fontSize: "14px", // Giảm từ 15px
                           display: "inline-block",
                         }}
                       >
@@ -357,12 +377,12 @@ const DetailMedicalRes = () => {
                       height: "80px",
                       fontWeight: "600",
                       width: "40%",
-                      fontSize: "18px",
+                      fontSize: "16px",
                     }}
                   >
                     Nurse Approved
                   </td>
-                  <td style={{padding: "12px 16px", fontSize: "18px"}}>
+                  <td style={{padding: "8px 16px", fontSize: "16px"}}>
                     {nurseApproved?.dateApproved ? (
                       <>
                         <span
@@ -379,7 +399,12 @@ const DetailMedicalRes = () => {
                         >
                           Approved
                         </span>
-                        <div style={{marginTop: "4px"}}>
+                        <div
+                          style={{
+                            marginTop: "8px",
+                            marginLeft: "8px",
+                          }}
+                        >
                           <b>Date:</b> {nurseApproved?.dateApproved || ""}
                         </div>
                       </>
@@ -404,18 +429,24 @@ const DetailMedicalRes = () => {
                 <tr style={{borderBottom: "1px solid #eee"}}>
                   <td
                     style={{
-                      padding: "12px 16px",
+                      padding: "8px 16px",
                       background: "#f9f9f9",
                       height: "120px",
                       fontWeight: "600",
                       width: "40%",
-                      fontSize: "18px",
+                      fontSize: "16px",
                       verticalAlign: "middle",
                     }}
                   >
                     Medicine Image
                   </td>
-                  <td style={{padding: "12px 16px", fontSize: "18px", verticalAlign: "middle"}}>
+                  <td
+                    style={{
+                      padding: "8px 16px",
+                      fontSize: "16px",
+                      verticalAlign: "middle",
+                    }}
+                  >
                     {medicalRegistration?.pictureUrl ? (
                       <img
                         src={medicalRegistration.pictureUrl}
@@ -462,7 +493,7 @@ const DetailMedicalRes = () => {
           <div style={{width: "35%", padding: "30px"}}>
             <h2
               style={{
-                fontSize: "25px",
+                fontSize: "22px", // Giảm từ 25px
                 fontWeight: "600",
                 marginBottom: "20px",
                 color: "#333",
@@ -486,15 +517,16 @@ const DetailMedicalRes = () => {
                     }}
                   >
                     <div style={{marginBottom: "10px"}}>
-                      <span style={{fontWeight: "600", fontSize: "18px"}}>
+                      <span style={{fontWeight: "600", fontSize: "16px"}}>
                         Dose {dose.doseNumber}
                       </span>{" "}
-                      <span style={{color: "#666", fontSize: "18px"}}>
+                      <span style={{color: "#666", fontSize: "16px"}}>
+                        {" "}
                         ({dose.doseTime})
                       </span>
                     </div>
 
-                    <div style={{marginBottom: "10px", fontSize: "18px"}}>
+                    <div style={{marginBottom: "10px", fontSize: "15px"}}>
                       <span style={{fontWeight: "500"}}>Parent Notes:</span>{" "}
                       {dose.notes || (
                         <span style={{color: "#999"}}>No notes</span>
@@ -506,13 +538,13 @@ const DetailMedicalRes = () => {
                       {dose.isCompleted ? (
                         <span
                           style={{
-                            background: "#e6fff2", // xanh lá nhạt
-                            color: "#1bbf7a", // xanh lá
+                            background: "#e6fff2",
+                            color: "#1bbf7a",
                             border: "none",
                             borderRadius: "16px",
                             padding: "4px 16px",
                             fontWeight: "600",
-                            fontSize: "15px",
+                            fontSize: "14px", // Giảm từ 15px
                             display: "inline-block",
                           }}
                         >
@@ -537,7 +569,7 @@ const DetailMedicalRes = () => {
                     </div>
 
                     {dose.isCompleted && dose.dateCompleted && (
-                      <div style={{fontSize: "18px"}}>
+                      <div style={{fontSize: "16px"}}>
                         <span style={{fontWeight: "500"}}>Date Completed:</span>{" "}
                         {dose.dateCompleted}
                       </div>
@@ -550,7 +582,7 @@ const DetailMedicalRes = () => {
                     color: "#999",
                     textAlign: "center",
                     padding: "20px",
-                    fontSize: "18px",
+                    fontSize: "16px", // Giảm từ 18px
                   }}
                 >
                   No dose details available.
@@ -562,12 +594,44 @@ const DetailMedicalRes = () => {
                   color: "#999",
                   textAlign: "center",
                   padding: "20px",
-                  fontSize: "18px",
+                  fontSize: "16px", // Giảm từ 18px
                 }}
               >
                 The nurse has not approved this registration yet.
               </div>
             )}
+
+            {/* Help Card */}
+            <div
+              style={{
+                background: "#f7f1ff",
+                borderRadius: 16,
+                padding: 24,
+                textAlign: "center",
+                color: "#a259e6",
+                border: "1px solid #e0d7fa",
+              }}
+            >
+              <div style={{fontSize: 32, marginBottom: 8}}>♡</div>
+              <div style={{fontWeight: 700, marginBottom: 8, fontSize: 18}}>
+                Need Help?
+              </div>
+              <div style={{marginBottom: 14, color: "#888"}}>
+                Our support team is here to assist you with your booking.
+              </div>
+              <Button
+                style={{
+                  borderRadius: 8,
+                  background: "#fff",
+                  color: "#a259e6",
+                  border: "1px solid #a259e6",
+                  fontWeight: 600,
+                  height: 42,
+                }}
+              >
+                Contact Support
+              </Button>
+            </div>
           </div>
         </div>
       </div>
