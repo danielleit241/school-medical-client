@@ -4,7 +4,7 @@ import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import StudentModal from "./StudentModal";
-import { Search } from "lucide-react";
+import {Search, Download} from "lucide-react";
 
 const pageSize = 10;
 
@@ -87,12 +87,12 @@ const StudentList = () => {
   };
 
   const handleDownloadExcel = async () => {
-    if(students.length === 0) {
+    if (students.length === 0) {
       Swal.fire({
         icon: "error",
         title: "No students to download",
         toast: true,
-        position: "top-end", 
+        position: "top-end",
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
@@ -137,7 +137,7 @@ const StudentList = () => {
     }
   };
 
-   const openEditModal = (studentId) => {
+  const openEditModal = (studentId) => {
     setEditItemId(studentId);
     setEditModalOpen(true);
   };
@@ -149,76 +149,109 @@ const StudentList = () => {
 
   const columns = [
     {
-    title: "No",
-    key: "no",
-    render: (text, record, index) => (pageIndex - 1) * pageSize + index + 1,
-    width: 60,
-    align: "center",
+      title: "No",
+      key: "no",
+      render: (text, record, index) => (pageIndex - 1) * pageSize + index + 1,
+      width: 60,
+      align: "center",
     },
     {
       title: "Student Code",
       dataIndex: "studentCode",
       key: "studentCode",
       sorter: (a, b) => a.studentCode.localeCompare(b.studentCode),
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
-    {title: "Full Name", dataIndex: "fullName", key: "fullName"},
-   {
-    title: "Date of Birth",
-    dataIndex: "dayOfBirth",
-    key: "dayOfBirth",
-    render: (value) => {
-    if (!value || value === "0000-00-00" || value.startsWith("0001-01-01")) {
-      return "";
-    }
+    {
+      title: "Full Name",
+      dataIndex: "fullName",
+      key: "fullName",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Date of Birth",
+      dataIndex: "dayOfBirth",
+      key: "dayOfBirth",
+      render: (value) => {
+        if (
+          !value ||
+          value === "0000-00-00" ||
+          value.startsWith("0001-01-01")
+        ) {
+          return <span style={{color: "#aaa"}}>N/A</span>;
+        }
 
-    // Nếu là chuỗi hợp lệ
-    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-      return value.slice(0, 10);
-    }
+        // For valid string
+        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+          return value.slice(0, 10);
+        }
 
-    // Nếu là object Date hoặc timestamp
-    const date = new Date(value);
-    if (!isNaN(date.getTime())) {
-      const yyyy = date.getFullYear();
-      const mm = String(date.getMonth() + 1).padStart(2, "0");
-      const dd = String(date.getDate()).padStart(2, "0");
-      return `${yyyy}-${mm}-${dd}`;
-    }
+        // For Date object or timestamp
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          const yyyy = date.getFullYear();
+          const mm = String(date.getMonth() + 1).padStart(2, "0");
+          const dd = String(date.getDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        }
 
-    return "";
-  },
-  },
-  
-    {title: "Gender", dataIndex: "gender", key: "gender"},
-    {title: "Grade", dataIndex: "grade", key: "grade"},
-    {title: "Address", dataIndex: "address", key: "address"},
+        return <span style={{color: "#aaa"}}>N/A</span>;
+      },
+    },
+    {
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Grade",
+      dataIndex: "grade",
+      key: "grade",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
     {
       title: "Parent PhoneNumber",
       dataIndex: "parentPhoneNumber",
       key: "parentPhoneNumber",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
     {
       title: "Parent Email",
       dataIndex: "parentEmailAddress",
       key: "parentEmailAddress",
-    }, // Thêm dòng này
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
     {
-          title: "Action",
-          key: "action",
-          align: "center",
-          render: (item) => (
-            <>
-              <Button
-                type="primary"
-                onClick={() => openEditModal(item.studentId)}
-                style={{ marginRight: 8 }}
-              >
-                Edit
-              </Button>
-            </>
-          ),
-        },
-    
+      title: "Action",
+      key: "action",
+      align: "center",
+      render: (item) => (
+        <>
+          <Button
+            color="#355383"
+            variant="outlined"
+            onClick={() => openEditModal(item.studentId)} // Fixed: Using studentId instead of itemId
+            style={{marginRight: 8, color: "#355383"}}
+          >
+            Edit
+          </Button>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -259,7 +292,7 @@ const StudentList = () => {
           Create Account for Parent
         </Button>
         <Button
-          icon={<DownloadOutlined />}
+          icon={<Download color="#ffffff" style={{padding: 4}} />}
           onClick={handleDownloadExcel}
           style={{background: "#52c41a", color: "#fff"}}
         >
