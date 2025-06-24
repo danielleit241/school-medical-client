@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import dayjs from "dayjs";
 import {AiOutlineCalendar, AiOutlineUser} from "react-icons/ai";
-import {FiPhone} from "react-icons/fi";
+import {FiPhone, FiUser, FiMail} from "react-icons/fi";
 import LogoDefault from "../../../../assets/images/defaultlogo.svg";
 const {Option} = Select;
 
@@ -23,6 +23,7 @@ const AppointmentList = () => {
   const [dateRequest, setDateRequest] = useState(() => {
     return dayjs().format("YYYY-MM-DD");
   });
+  const [radio, setRadio] = useState("low");
   const [topic, setTopic] = useState("");
   const [appointmentStartTime, setAppointmentStartTime] = useState("");
   const [appointmentEndTime, setAppointmentEndTime] = useState("");
@@ -39,47 +40,48 @@ const AppointmentList = () => {
     (state) => state.listStudentParent.listStudentParent
   );
   const studentId =
-  listStudentParent.length > 0 ? listStudentParent[0].studentId : null;
+    listStudentParent.length > 0 ? listStudentParent[0].studentId : null;
 
   const [step2StartTime, setStep2StartTime] = useState("");
   const [step2EndTime, setStep2EndTime] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState(studentId);
 
   const Checking = async () => {
-  if (!userId) return;
-  try {
-    const res = await axiosInstance.get(`/api/parents/${parentId}/appointments/has-booked`);
-    // Nếu trả về 200 và data là "User has not booked any appointments."
-    if (res.data === "User has not booked any appointments.") {
+    if (!userId) return;
+    try {
+      const res = await axiosInstance.get(
+        `/api/parents/${parentId}/appointments/has-booked`
+      );
+      // Nếu trả về 200 và data là "User has not booked any appointments."
+      if (res.data === "User has not booked any appointments.") {
+        setHasBookedToday(false);
+        return false;
+      }
+      // Trường hợp khác (phòng ngừa)
       setHasBookedToday(false);
       return false;
-    }
-    // Trường hợp khác (phòng ngừa)
-    setHasBookedToday(false);
-    return false;
-  } catch (error) {
-    // Nếu trả về 400 và data là "User has booked appointments."
-    if (
-      error.response?.status === 400 &&
-      error.response?.data === "User has booked appointments."
-    ) {
-      setHasBookedToday(true);
+    } catch (error) {
+      // Nếu trả về 400 và data là "User has booked appointments."
+      if (
+        error.response?.status === 400 &&
+        error.response?.data === "User has booked appointments."
+      ) {
+        setHasBookedToday(true);
+        return true;
+      }
+      setHasBookedToday(false);
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Error checking appointment status.",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      });
       return true;
     }
-    setHasBookedToday(false);
-    Swal.fire({
-      toast: true,
-      position: "top-end",
-      icon: "error",
-      title: "Error checking appointment status.",
-      showConfirmButton: false,
-      timer: 2500,
-      timerProgressBar: true,
-    });
-    return true;
-  }
-};
-
+  };
 
   // Tự động cập nhật ngày khi sang ngày mới
   useEffect(() => {
@@ -99,7 +101,6 @@ const AppointmentList = () => {
   }, [dateRequest]);
 
   useEffect(() => {
-    
     const fetchNurse = async () => {
       try {
         const checking = await Checking();
@@ -397,7 +398,7 @@ const AppointmentList = () => {
               overflow: "hidden",
             }}
           >
-            {/* Header gradient */}
+            {/* Header gradient - keep as is */}
             <div
               style={{
                 width: "100%",
@@ -411,7 +412,7 @@ const AppointmentList = () => {
                 overflow: "hidden",
               }}
             >
-              {/* Decorative background elements */}
+              {/* Decorative background elements - keep as is */}
               <div
                 style={{
                   position: "absolute",
@@ -467,46 +468,54 @@ const AppointmentList = () => {
                 Parents can select a nurse to book a consultation for student
                 health and nutrition.
               </div>
-              
             </div>
-            {/* Danh sách nurse */}
+
+            {/* Danh sách nurse - Clean card layout */}
             <div
               style={{
-                height: "calc(100vh - 100px)",
                 padding: "40px 40px 40px 40px",
                 background: "#fff",
                 borderBottomLeftRadius: 20,
                 borderBottomRightRadius: 20,
                 overflowY: "auto",
+                maxHeight: "calc(100vh - 250px)",
               }}
             >
               {hasBookedToday && (
                 <span
-                style={{
-                  display: "block",
-                  color: "#f5222d",
-                  background: "#fff1f0",
-                  border: "1px solid #ffd6d6",
-                  borderRadius: 8,
-                  padding: "10px 18px",
-                  marginBottom: 18,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  textAlign: "center",
-                  letterSpacing: 0.2,
-                }}
-                > 
+                  style={{
+                    display: "block",
+                    color: "#f5222d",
+                    background: "#fff1f0",
+                    border: "1px solid #ffd6d6",
+                    borderRadius: 8,
+                    padding: "10px 18px",
+                    marginBottom: 18,
+                    fontWeight: 600,
+                    fontSize: 16,
+                    textAlign: "center",
+                    letterSpacing: 0.2,
+                  }}
+                >
                   *You already booked today
-                  </span>
-                )}
+                </span>
+              )}
+
+              {/* Clean nurse cards */}
               <div
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
-                style={{marginTop: 10}}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "16px",
+                  marginTop: 10,
+                }}
+                className="nurse-list-container"
               >
-                {nurse.map((n) => {             
-                  const isAvailable = freeNurseIds.includes(n.userId || n.staffNurseId);
+                {nurse.map((n) => {
+                  const isAvailable = freeNurseIds.includes(
+                    n.userId || n.staffNurseId
+                  );
                   // Shared sample info for all nurses
-                  //NHẮC
                   const nurseInfo = {
                     specialty: "School Nurse",
                     workingDays: "Monday - Friday (9:30 - 11:30)",
@@ -524,117 +533,143 @@ const AppointmentList = () => {
                       style={{
                         background: "#fff",
                         borderRadius: 14,
-                        boxShadow: "0 2px 8px #e0e7ef",
-                        padding: 24,
-                        border: "1px solid #e0e7ef",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 8,
-                        opacity: isAvailable ? 1 : 0.6,
-                        position: "relative",
-                        minHeight: 220,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                        padding: "20px 24px",
+                        border: "1px solid #f0f0f0",
+                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
                       }}
                     >
-                      <div
-                        style={{fontWeight: 700, fontSize: 20, marginBottom: 2}}
-                      >
-                        {n.fullName}
-                      </div>
-                      <div
-                        style={{color: "#555", fontSize: 16, marginBottom: 2}}
-                      >
-                        {nurseInfo.specialty}
-                      </div>
-                      <div
-                        style={{color: "#666", fontSize: 15, marginBottom: 2}}
-                      >
-                        <span role="img" aria-label="calendar">
-                          <AiOutlineCalendar
-                            style={{display: "inline-block", marginRight: 4}}
-                          />
-                        </span>{" "}
-                        {nurseInfo.workingDays}
-                      </div>
-                      <div
-                        style={{color: "#666", fontSize: 15, marginBottom: 2}}
-                      >
-                        <span role="img" aria-label="phone">
-                          <FiPhone
-                            style={{display: "inline-block", marginRight: 4}}
-                          />
-                        </span>{" "}
-                        {n.phoneNumber}
-                      </div>
-                      <div
-                        style={{
-                          color: "#555",
-                          fontSize: 15,
-                          margin: "6px 0 2px 0",
-                        }}
-                      >
-                        <b>Expertise:</b>
-                      </div>
                       <div
                         style={{
                           display: "flex",
-                          gap: 8,
-                          flexWrap: "wrap",
-                          marginBottom: 8,
+                          justifyContent: "space-between",
+                          alignItems: "center",
                         }}
                       >
-                        {nurseInfo.skills.map((skill, idx) => (
-                          <span
-                            key={idx}
+                        {/* Left section - Name and info */}
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "6px",
+                          }}
+                        >
+                          <div
                             style={{
-                              background: "#f0f1f7",
-                              color: "#355383",
-                              borderRadius: 8,
-                              padding: "2px 10px",
-                              fontSize: 13,
-                              fontWeight: 500,
+                              fontWeight: 700,
+                              fontSize: 22,
+                              color: "#333",
                             }}
                           >
-                            {skill}
+                            {n.fullName}
+                          </div>
+                          <div style={{color: "#666", fontSize: 16}}>
+                            {nurseInfo.specialty}
+                          </div>
+                          <div
+                            style={{
+                              color: "#777",
+                              display: "flex",
+                              alignItems: "center",
+                              fontSize: 15,
+                            }}
+                          >
+                            <AiOutlineCalendar style={{marginRight: 8}} />
+                            {nurseInfo.workingDays}
+                          </div>
+                          <div
+                            style={{
+                              color: "#777",
+                              display: "flex",
+                              alignItems: "center",
+                              fontSize: 15,
+                            }}
+                          >
+                            <FiPhone style={{marginRight: 8}} />
+                            {n.phoneNumber}
+                          </div>
+                        </div>
+
+                        {/* Middle section - Expertise */}
+                        <div style={{flex: 1, marginLeft: 48}}>
+                          <div
+                            style={{
+                              fontSize: 16,
+                              fontWeight: 600,
+                              marginBottom: 12,
+                              color: "#555",
+                            }}
+                          >
+                            Expertise:
+                          </div>
+                          <div
+                            style={{display: "flex", gap: 10, flexWrap: "wrap"}}
+                          >
+                            {nurseInfo.skills.map((skill, idx) => (
+                              <span
+                                key={idx}
+                                style={{
+                                  background: "#f0f1f7",
+                                  color: "#355383",
+                                  borderRadius: 8,
+                                  padding: "4px 12px",
+                                  fontSize: 14,
+                                  fontWeight: 500,
+                                }}
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Right section - Status and CTA */}
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-end",
+                            justifyContent: "center",
+                            gap: 12,
+                            minWidth: 140,
+                          }}
+                        >
+                          <span
+                            style={{
+                              background: isAvailable ? "#e6fff2" : "#fff1f0",
+                              color: isAvailable ? "#1bbf7a" : "#f5222d",
+                              borderRadius: 20,
+                              padding: "6px 16px",
+                              fontSize: 15,
+                              fontWeight: 600,
+                              display: "inline-block",
+                            }}
+                          >
+                            {isAvailable ? "Available" : "Busy"}
                           </span>
-                        ))}
+
+                          {!hasBookedToday && (
+                            <Button
+                              disabled={!isAvailable}
+                              style={{
+                                borderRadius: 8,
+                                background: isAvailable ? "#355383" : "#ccc",
+                                color: "#fff",
+                                fontWeight: 600,
+                                fontSize: 16,
+                                padding: "8px 12px",
+                                minWidth: 140,
+                                height: 44,
+                                opacity: isAvailable ? 1 : 0.7,
+                                pointerEvents: isAvailable ? "auto" : "none",
+                              }}
+                              onClick={() => handleSelect(n)}
+                            >
+                              Book Now
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      {/* Status */}
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 18,
-                          right: 18,
-                          background: isAvailable ? "#e6fff2" : "#fff1f0",
-                          color: isAvailable ? "#1bbf7a" : "#f5222d",
-                          borderRadius: 8,
-                          padding: "2px 12px",
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {isAvailable ? "Available" : "Busy"}
-                      </span>
-                      {!hasBookedToday && (
-                    <Button
-                      disabled={!isAvailable}
-                      style={{
-                        marginTop: 12,
-                        borderRadius: 8,
-                        background: isAvailable ? "#355383" : "#ccc",
-                        color: "#fff",
-                        fontWeight: 700,
-                        fontSize: 16,
-                        padding: "8px 10px",
-                        width: "100%",
-                        opacity: isAvailable ? 1 : 0.7,
-                        pointerEvents: isAvailable ? "auto" : "none",
-                      }}
-                      onClick={() => handleSelect(n)}
-                    >
-                      Book Now
-                    </Button>
-                  )}
-                      
                     </div>
                   );
                 })}
@@ -642,8 +677,7 @@ const AppointmentList = () => {
             </div>
           </div>
         )}
-
-        {/* Step 2: Time Slot */}
+        {/* Step 2: Time Slot - 3-column layout */}
         {step === 2 && selectedNurse && (
           <div
             style={{
@@ -652,7 +686,7 @@ const AppointmentList = () => {
               boxShadow: "0 2px 8px #f0f1f2",
               padding: 0,
               overflow: "hidden",
-              minWidth: 1100,
+              width: "100%",
               margin: "0 auto",
             }}
           >
@@ -726,141 +760,295 @@ const AppointmentList = () => {
                 Book your appointment with our healthcare professionals
               </div>
             </div>
-            {/* Nội dung chọn thời gian */}
+
+            {/* Main content area with 3-column layout */}
             <div
               style={{
-                display: "flex",
-                gap: 40,
-                padding: 40,
-                alignItems: "flex-start",
+                padding: "40px",
+                background: "#fff",
                 borderBottomLeftRadius: 20,
                 borderBottomRightRadius: 20,
-                background: "#fff",
+                display: "flex",
+                gap: 30,
+                alignItems: "flex-start",
               }}
             >
-              {/* LEFT: Nurse Profile */}
-              {nurseProfile && (
+              {/* COLUMN 1: Avatar */}
+              <div
+                style={{
+                  width: "25%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  borderRadius: 12,
+                }}
+              >
+                <img
+                  src={nurseProfile?.avatarUrl || LogoDefault}
+                  alt="Nurse avatar"
+                  style={{
+                    width: "100%",
+                    height: "350px",
+                    aspectRatio: "1/1",
+                    borderRadius: "16px",
+                    objectFit: "cover",
+                    border: "1px solid #eee",
+                    boxShadow: "0 2px 2px rgba(0,0,0,0.08)",
+                    marginBottom: 16,
+                  }}
+                />
+              </div>
+
+              {/* COLUMN 2: Nurse Information */}
+              <div
+                style={{
+                  width: "30%",
+                  background: "#fff",
+                  borderRadius: 16,
+                  border: "1px solid #eee",
+                  boxShadow: "0 2px 2px rgba(0,0,0,0.08)",
+                  overflow: "hidden",
+                }}
+              >
                 <div
                   style={{
-                    background: "#fff",
-                    borderRadius: 10,
-                    padding: 20,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    width: "40%",
-                    minWidth: 320,
-                    minHeight: 340,
-                    justifyContent: "center",
-                    boxShadow: "0 1px 5px #e0e7ef",
+                    background: "#f9fafc",
+                    padding: "16px 20px",
+                    borderBottom: "1px solid #eee",
                   }}
                 >
-                  <img
-                    src={
-                      nurseProfile.avatarUrl
-                        ? nurseProfile.avatarUrl
-                        : LogoDefault
-                    }
-                    alt="avatar"
+                  <div
                     style={{
-                      width: 200,
-                      height: 200,
-                      borderRadius: "20px",
-                      objectFit: "cover",
-                      border: "1px solid #eee",
-                      marginBottom: 18,
+                      fontSize: 18,
+                      fontWeight: 600,
+                      color: "#355383",
                     }}
-                  />
-                  <div style={{width: "100%"}}>
-                    <div style={{display: "flex", marginBottom: 8}}>
-                      <span style={{color: "#888", minWidth: 80}}>Nurse:</span>
-                      <span
+                  >
+                    Nurse Information
+                  </div>
+                </div>
+
+                <div style={{padding: "16px 20px"}}>
+                  <div style={{marginBottom: 16}}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 12,
+                        gap: 10,
+                      }}
+                    >
+                      <div
                         style={{
-                          fontWeight: 700,
-                          color: "#355383",
-                          marginLeft: 8,
+                          width: 30,
+                          color: "#666",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        {nurseProfile.fullName}
-                      </span>
+                        <FiUser size={18} />
+                      </div>
+                      <div>
+                        <div
+                          style={{fontSize: 14, color: "#888", marginBottom: 2}}
+                        >
+                          Name
+                        </div>
+                        <div style={{fontWeight: 500, fontSize: 16}}>
+                          {nurseProfile?.fullName || selectedNurse?.fullName}
+                        </div>
+                      </div>
                     </div>
-                    <div style={{display: "flex", marginBottom: 8}}>
-                      <span style={{color: "#888", minWidth: 80}}>Phone:</span>
-                      <span
-                        style={{fontWeight: 500, color: "#222", marginLeft: 8}}
+
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 12,
+                        gap: 10,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 30,
+                          color: "#666",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
-                        {nurseProfile.phoneNumber}
-                      </span>
+                        <FiPhone size={18} />
+                      </div>
+                      <div>
+                        <div
+                          style={{fontSize: 14, color: "#888", marginBottom: 2}}
+                        >
+                          Phone
+                        </div>
+                        <div style={{fontWeight: 500, fontSize: 16}}>
+                          {nurseProfile?.phoneNumber ||
+                            selectedNurse?.phoneNumber}
+                        </div>
+                      </div>
                     </div>
-                    <div style={{display: "flex", marginBottom: 8}}>
-                      <span style={{color: "#888", minWidth: 80}}>
-                        Date of Birth:
-                      </span>
-                      <span
-                        style={{fontWeight: 500, color: "#222", marginLeft: 8}}
+
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 12,
+                        gap: 10,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 30,
+                          color: "#666",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
-                        {nurseProfile.dateOfBirth}
-                      </span>
+                        <AiOutlineCalendar size={18} />
+                      </div>
+                      <div>
+                        <div
+                          style={{fontSize: 14, color: "#888", marginBottom: 2}}
+                        >
+                          Date of Birth
+                        </div>
+                        <div style={{fontWeight: 500, fontSize: 16}}>
+                          {nurseProfile?.dateOfBirth || "Not provided"}
+                        </div>
+                      </div>
                     </div>
-                    <div style={{display: "flex", marginBottom: 8}}>
-                      <span style={{color: "#888", minWidth: 80}}>Email:</span>
-                      <span
-                        style={{fontWeight: 500, color: "#222", marginLeft: 8}}
+
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 10,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 30,
+                          color: "#666",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginTop: 2,
+                        }}
                       >
-                        {nurseProfile.emailAddress}
-                      </span>
-                    </div>
-                    <div style={{display: "flex", marginBottom: 8}}>
-                      <span style={{color: "#888", minWidth: 80}}>
-                        Đánh giá:
-                      </span>
-                      {Array.from({length: 5}).map((_, idx) => (
-                        <span
-                          key={idx}
+                        <FiMail size={18} />
+                      </div>
+                      <div>
+                        <div
+                          style={{fontSize: 14, color: "#888", marginBottom: 2}}
+                        >
+                          Email
+                        </div>
+                        <div
                           style={{
-                            color: "#FFD700",
-                            fontSize: 22,
-                            marginRight: 2,
+                            fontWeight: 500,
+                            fontSize: 16,
+                            wordBreak: "break-word",
                           }}
                         >
-                          ★
-                        </span>
-                      ))}
+                          {nurseProfile?.emailAddress || "Not provided"}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {/* RIGHT: Select Time */}
-              <div style={{flex: 1}}>
+              {/* COLUMN 3: Time Slot Selection */}
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "0 20px",
+                }}
+              >
                 <div
                   style={{
-                    fontSize: 24,
-                    fontWeight: 700,
-                    marginBottom: 18,
-                    textAlign: "center",
+                    padding: "16px 20px",
+                    background: "#f8fafc",
+                    borderRadius: 12,
+                    marginBottom: 20,
+                    border: "1px solid #e0e7ef",
                   }}
                 >
-                  Choose a time slot
+                  <div style={{display: "flex", alignItems: "center"}}>
+                    <div
+                      style={{
+                        color: "#5b8cff",
+                        background: "#eaf1ff",
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginRight: 14,
+                        fontSize: 18,
+                      }}
+                    >
+                      📅
+                    </div>
+                    <div>
+                      <div
+                        style={{fontSize: 14, color: "#666", marginBottom: 2}}
+                      >
+                        Date
+                      </div>
+                      <div style={{fontWeight: 700, fontSize: 18}}>
+                        {dateRequest}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div style={{marginBottom: 16, fontSize: 16}}>
-                  <b>Date:</b> {dateRequest}
-                </div>
+
                 <Form layout="vertical" onFinish={handleDateSubmit}>
-                  <Form.Item label="Select Time Slot" required>
+                  <Form.Item
+                    label={
+                      <span
+                        style={{fontSize: 16, fontWeight: 600, color: "#333"}}
+                      >
+                        Select Time Slot
+                      </span>
+                    }
+                    required
+                    style={{marginBottom: 30}}
+                  >
                     {timeSlots.filter((slot) => !isSlotBooked(slot)).length ===
                       0 && (
                       <div
                         style={{
-                          color: "red",
+                          color: "#f5222d",
                           fontWeight: 600,
-                          marginBottom: 8,
+                          marginBottom: 16,
+                          padding: "10px 16px",
+                          background: "#fff1f0",
+                          borderRadius: 8,
+                          border: "1px solid #ffccc7",
                         }}
                       >
                         This nurse's booking is over for today.
                       </div>
                     )}
-                    <div style={{display: "flex", gap: 20, flexWrap: "wrap"}}>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 12,
+                        marginTop: 10,
+                      }}
+                    >
                       {timeSlots
                         .filter((slot) => !isSlotBooked(slot))
                         .map((slot, idx) => (
@@ -872,12 +1060,12 @@ const AppointmentList = () => {
                                 : "default"
                             }
                             style={{
-                              minWidth: 120,
+                              minWidth: 130,
+                              height: 48,
                               textAlign: "center",
                               borderRadius: 8,
-                              marginBottom: 8,
                               fontWeight: 600,
-                              fontSize: 15,
+                              fontSize: 16,
                               background:
                                 step2StartTime === slot.start
                                   ? "#355383"
@@ -903,11 +1091,13 @@ const AppointmentList = () => {
                         ))}
                     </div>
                   </Form.Item>
+
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "flex-end",
-                      gap: 12,
+                      gap: 15,
+                      marginTop: 30,
                     }}
                   >
                     <Button
@@ -918,30 +1108,39 @@ const AppointmentList = () => {
                         setStep2EndTime("");
                       }}
                       style={{
+                        height: 46,
                         borderRadius: 8,
                         background: "#fff",
                         color: "#355383",
                         border: "1px solid #355383",
                         fontWeight: 600,
+                        fontSize: 16,
+                        paddingLeft: 20,
+                        paddingRight: 20,
                       }}
                     >
                       ← Previous
                     </Button>
+
                     <Button
                       type="primary"
                       htmlType="submit"
-                      style={{
-                        borderRadius: 8,
-                        background: "#355383",
-                        color: "#fff",
-                        fontWeight: 600,
-                        minWidth: 90,
-                      }}
                       disabled={
                         !step2StartTime ||
                         timeSlots.filter((slot) => !isSlotBooked(slot))
                           .length === 0
                       }
+                      style={{
+                        height: 46,
+                        borderRadius: 8,
+                        background: "#355383",
+                        color: "#fff",
+                        fontWeight: 600,
+                        fontSize: 16,
+                        paddingLeft: 24,
+                        paddingRight: 24,
+                        minWidth: 100,
+                      }}
                     >
                       Next →
                     </Button>
@@ -955,372 +1154,610 @@ const AppointmentList = () => {
         {/* Step 3: Book Appointment */}
         {step === 3 && selectedNurse && (
           <div
-            className="animate__animated animate__fadeIn animate-delay-0.5s"
             style={{
               background: "#fff",
-              borderRadius: 14,
+              borderRadius: 20,
               boxShadow: "0 2px 8px #f0f1f2",
-              padding: 32,
-              minWidth: 1200,
+              padding: 0,
+              overflow: "hidden",
             }}
           >
-            <div style={{display: "flex", gap: 32, alignItems: "flex-start"}}>
-              {/* LEFT: FORM */}
+            {/* Header gradient */}
+            <div
+              style={{
+                width: "100%",
+                background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+                padding: "36px 0 18px 0",
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                textAlign: "center",
+                marginBottom: 0,
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {/* Decorative background elements */}
               <div
                 style={{
-                  flex: 2,
-                  background: "#fff",
-                  borderRadius: 12,
-                  padding: 32,
+                  position: "absolute",
+                  top: "-50px",
+                  right: "-50px",
+                  width: "120px",
+                  height: "120px",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  borderRadius: "50%",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "-30px",
+                  left: "-30px",
+                  width: "80px",
+                  height: "80px",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  borderRadius: "50%",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  right: "25%",
+                  width: "60px",
+                  height: "60px",
+                  background: "rgba(255, 193, 7, 0.2)",
+                  borderRadius: "50%",
+                }}
+              />
+              <h1
+                style={{
+                  fontWeight: 700,
+                  fontSize: 38,
+                  color: "#fff",
+                  letterSpacing: 1,
+                  marginBottom: 8,
+                  marginTop: 0,
                 }}
               >
-                <div style={{fontSize: 24, fontWeight: 700, marginBottom: 4}}>
-                  <h2 style={{fontWeight: 700}}>Appointment Details</h2>
-                </div>
-                <div style={{color: "#888", marginBottom: 24}}>
-                  Provide information about your visit
-                </div>
-                <Form
-                  layout="vertical"
-                  onFinish={handleBookAppointment}
-                  initialValues={{
-                    selectedStudentId,
-                    topic,
-                    appointmentReason,
+                Appointment Booking
+              </h1>
+              <div
+                style={{
+                  color: "#e0e7ff",
+                  fontSize: 20,
+                  fontWeight: 500,
+                }}
+              >
+                Book your appointment with our healthcare professionals
+              </div>
+            </div>
+
+            {/* Main content */}
+            <div
+              style={{
+                padding: "40px",
+                background: "#fff",
+                borderBottomLeftRadius: 20,
+                borderBottomRightRadius: 20,
+              }}
+            >
+              <div
+                className="animate__animated animate__fadeIn animate-delay-0.5s"
+                style={{
+                  display: "flex",
+                  gap: 32,
+                  alignItems: "flex-start",
+                }}
+              >
+                {/* LEFT: FORM */}
+                <div
+                  style={{
+                    flex: 2,
+                    background: "#fff",
+                    borderRadius: 12,
+                    padding: 32,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    border: "1px solid #f0f0f0",
                   }}
                 >
-                  <Form.Item label="Patient Name *" required>
-                    <Select
-                      value={selectedStudentId || undefined}
-                      onChange={(value) => setSelectedStudentId(value)}
-                      placeholder="Select Student"
-                      size="large"
-                    >
-                      {listStudentParent.map((student) => (
-                        <Option
-                          key={student.studentId}
-                          value={student.studentId}
-                        >
-                          {student.fullName}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item label="Consultation Topic" required>
-                    <Input
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                      size="large"
-                      placeholder="e.g., Annual check-up, Vaccination, Health concern"
-                    />
-                  </Form.Item>
-                  {/* Bạn có thể thêm các lựa chọn urgency level như ảnh mẫu */}
-                  <Form.Item label="Reason for Visit *" required>
-                    <Input.TextArea
-                      value={appointmentReason}
-                      onChange={(e) => setAppointmentReason(e.target.value)}
-                      size="large"
-                      placeholder="Please describe your symptoms, concerns, or the purpose of this appointment..."
-                      rows={3}
-                    />
-                  </Form.Item>
-                  <Form.Item label="Date">
-                    <Input value={dateRequest} readOnly size="large" />
-                  </Form.Item>
-                  <Form.Item label="Start Time">
-                    <Input
-                      value={appointmentStartTime || step2StartTime}
-                      readOnly
-                      size="large"
-                    />
-                  </Form.Item>
-                  <Form.Item label="End Time">
-                    <Input
-                      value={appointmentEndTime || step2EndTime}
-                      readOnly
-                      size="large"
-                    />
-                  </Form.Item>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 12,
+                  <Form
+                    layout="vertical"
+                    onFinish={handleBookAppointment}
+                    initialValues={{
+                      selectedStudentId,
+                      topic,
+                      appointmentReason,
                     }}
                   >
+                    <Form.Item
+                      label={
+                        <span style={{fontSize: 16, fontWeight: 600}}>
+                          Your Chilren
+                        </span>
+                      }
+                      required
+                    >
+                      <Select
+                        value={selectedStudentId || undefined}
+                        onChange={(value) => setSelectedStudentId(value)}
+                        placeholder="Select Student"
+                        size="large"
+                        style={{borderRadius: 8}}
+                      >
+                        {listStudentParent.map((student) => (
+                          <Option
+                            key={student.studentId}
+                            value={student.studentId}
+                          >
+                            {student.fullName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      label={
+                        <span style={{fontSize: 16, fontWeight: 600}}>
+                          Consultation Topic
+                        </span>
+                      }
+                      required
+                    >
+                      <Input
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        size="large"
+                        placeholder="e.g., Annual check-up, Vaccination, Health concern"
+                        style={{borderRadius: 8}}
+                      />
+                    </Form.Item>
+
+                    {/* Urgency Level */}
+                    <Form.Item
+                      label={
+                        <span style={{fontSize: 16, fontWeight: 600}}>
+                          Urgency Level
+                        </span>
+                      }
+                    >
+                      <Radio.Group defaultValue="normal" buttonStyle="solid">
+                        <Radio.Button
+                          value="low"
+                          style={{
+                            borderTopLeftRadius: 8,
+                            borderBottomLeftRadius: 8,
+                            borderColor: "#52c41a",
+                            backgroundColor:
+                              step === 3 && radio === "low"
+                                ? "#52c41a"
+                                : "#f6ffed",
+                            color:
+                              step === 3 && radio === "low"
+                                ? "#fff"
+                                : "#52c41a",
+                            fontWeight: 600,
+                            boxShadow:
+                              step === 3 && radio === "low"
+                                ? "0 2px 6px rgba(82, 196, 26, 0.4)"
+                                : "none",
+                          }}
+                          onClick={() => setRadio("low")}
+                        >
+                          Low
+                        </Radio.Button>
+                        <Radio.Button
+                          value="normal"
+                          style={{
+                            borderColor: "#1890ff",
+                            backgroundColor:
+                              step === 3 && radio === "normal"
+                                ? "#1890ff"
+                                : "#e6f7ff",
+                            color:
+                              step === 3 && radio === "normal"
+                                ? "#fff"
+                                : "#1890ff",
+                            fontWeight: 600,
+                            boxShadow:
+                              step === 3 && radio === "normal"
+                                ? "0 2px 6px rgba(24, 144, 255, 0.4)"
+                                : "none",
+                          }}
+                          onClick={() => setRadio("normal")}
+                        >
+                          Normal
+                        </Radio.Button>
+                        <Radio.Button
+                          value="high"
+                          style={{
+                            borderTopRightRadius: 8,
+                            borderBottomRightRadius: 8,
+                            borderColor: "#f5222d",
+                            backgroundColor:
+                              step === 3 && radio === "high"
+                                ? "#f5222d"
+                                : "#fff1f0",
+                            color:
+                              step === 3 && radio === "high"
+                                ? "#fff"
+                                : "#f5222d",
+                            fontWeight: 600,
+                            boxShadow:
+                              step === 3 && radio === "high"
+                                ? "0 2px 6px rgba(245, 34, 45, 0.4)"
+                                : "none",
+                          }}
+                          onClick={() => setRadio("high")}
+                        >
+                          High
+                        </Radio.Button>
+                      </Radio.Group>
+                    </Form.Item>
+
+                    <Form.Item
+                      label={
+                        <span style={{fontSize: 16, fontWeight: 600}}>
+                          Reason for Visit
+                        </span>
+                      }
+                      required
+                    >
+                      <Input.TextArea
+                        value={appointmentReason}
+                        onChange={(e) => setAppointmentReason(e.target.value)}
+                        size="large"
+                        placeholder="Please describe symptoms, concerns, or the purpose of this appointment..."
+                        rows={4}
+                        style={{borderRadius: 8, fontSize: 15}}
+                      />
+                    </Form.Item>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 24,
+                        marginTop: 24,
+                        marginBottom: 24,
+                      }}
+                    >
+                      <div style={{flex: 1}}>
+                        <Form.Item
+                          label={
+                            <span style={{fontSize: 16, fontWeight: 600}}>
+                              Date
+                            </span>
+                          }
+                        >
+                          <Input
+                            value={dateRequest}
+                            readOnly
+                            size="large"
+                            style={{
+                              borderRadius: 8,
+                              background: "#f9f9f9",
+                            }}
+                          />
+                        </Form.Item>
+                      </div>
+                      <div style={{flex: 1}}>
+                        <Form.Item
+                          label={
+                            <span style={{fontSize: 16, fontWeight: 600}}>
+                              Time
+                            </span>
+                          }
+                        >
+                          <Input
+                            value={`${
+                              appointmentStartTime || step2StartTime
+                            } - ${appointmentEndTime || step2EndTime}`}
+                            readOnly
+                            size="large"
+                            style={{
+                              borderRadius: 8,
+                              background: "#f9f9f9",
+                            }}
+                          />
+                        </Form.Item>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        marginTop: 30,
+                        padding: "20px 0 0 0",
+                        borderTop: "1px solid #f0f0f0",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          gap: 12,
+                        }}
+                      >
+                        <Button
+                          onClick={() => setStep(2)}
+                          style={{
+                            height: 46,
+                            borderRadius: 8,
+                            background: "#fff",
+                            color: "#355383",
+                            border: "1px solid #355383",
+                            fontWeight: 600,
+                            fontSize: 16,
+                            paddingLeft: 20,
+                            paddingRight: 20,
+                          }}
+                        >
+                          ← Previous
+                        </Button>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          style={{
+                            height: 46,
+                            borderRadius: 8,
+                            background: "#355383",
+                            color: "#fff",
+                            fontWeight: 600,
+                            fontSize: 16,
+                            paddingLeft: 24,
+                            paddingRight: 24,
+                            minWidth: 120,
+                          }}
+                        >
+                          Submit Booking
+                        </Button>
+                      </div>
+                    </div>
+
+                    {success && (
+                      <div
+                        style={{
+                          marginTop: 16,
+                          padding: "12px 16px",
+                          background: "#f6ffed",
+                          border: "1px solid #b7eb8f",
+                          borderRadius: 8,
+                          color: "#52c41a",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {success}
+                      </div>
+                    )}
+                  </Form>
+                </div>
+
+                {/* RIGHT COLUMN: Booking Summary and Support */}
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 20,
+                  }}
+                >
+                  {/* Booking Summary */}
+                  <div
+                    style={{
+                      background: "#E6F4FF",
+                      borderRadius: 16,
+                      padding: 28,
+                      boxShadow: "0 2px 8px #e0e7ef",
+                      minWidth: 340,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 20,
+                      }}
+                    >
+                      <span
+                        style={{
+                          background: "#355383",
+                          color: "#fff",
+                          borderRadius: "50%",
+                          width: 36,
+                          height: 36,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 20,
+                          marginRight: 12,
+                        }}
+                      >
+                        <AiOutlineUser style={{fontSize: 20}} />
+                      </span>
+                      <span
+                        style={{fontWeight: 700, fontSize: 20, color: "#222"}}
+                      >
+                        Booking Summary
+                      </span>
+                    </div>
+
+                    {/* Nurse */}
+                    <div
+                      style={{
+                        background: "#fff",
+                        borderRadius: 12,
+                        padding: "14px 18px",
+                        marginBottom: 14,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 14,
+                        boxShadow: "0 1px 2px #f0f1f2",
+                      }}
+                    >
+                      <span
+                        style={{
+                          background: "#e6fff2",
+                          color: "#1bbf7a",
+                          borderRadius: "50%",
+                          width: 32,
+                          height: 32,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 18,
+                        }}
+                      >
+                        🧑‍⚕️
+                      </span>
+                      <div style={{flex: 1}}>
+                        <div style={{fontWeight: 600, color: "#222"}}>
+                          Nurse
+                        </div>
+                        <div style={{fontWeight: 700}}>
+                          {nurseProfile?.fullName ||
+                            selectedNurse?.fullName ||
+                            "—"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Date */}
+                    <div
+                      style={{
+                        background: "#fff",
+                        borderRadius: 12,
+                        padding: "14px 18px",
+                        marginBottom: 14,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 14,
+                        boxShadow: "0 1px 2px #f0f1f2",
+                      }}
+                    >
+                      <span
+                        style={{
+                          background: "#eaf1ff",
+                          color: "#5b8cff",
+                          borderRadius: "50%",
+                          width: 32,
+                          height: 32,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 18,
+                        }}
+                      >
+                        📅
+                      </span>
+                      <div style={{flex: 1}}>
+                        <div style={{fontWeight: 600, color: "#222"}}>
+                          Date & Time
+                        </div>
+                        <div style={{fontWeight: 700}}>
+                          {dateRequest},{" "}
+                          {appointmentStartTime || step2StartTime} -{" "}
+                          {appointmentEndTime || step2EndTime}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Patient */}
+                    <div
+                      style={{
+                        background: "#fff",
+                        borderRadius: 12,
+                        padding: "14px 18px",
+                        marginBottom: 4,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 14,
+                        boxShadow: "0 1px 2px #f0f1f2",
+                      }}
+                    >
+                      <span
+                        style={{
+                          background: "#fff0f6",
+                          color: "#eb2f96",
+                          borderRadius: "50%",
+                          width: 32,
+                          height: 32,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 18,
+                        }}
+                      >
+                        👨‍🎓
+                      </span>
+                      <div style={{flex: 1}}>
+                        <div style={{fontWeight: 600, color: "#222"}}>
+                          Patient
+                        </div>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            color: selectedStudentId ? "#333" : "#888",
+                            fontStyle: !selectedStudentId ? "italic" : "normal",
+                          }}
+                        >
+                          {listStudentParent.find(
+                            (s) => s.studentId === selectedStudentId
+                          )?.fullName || (
+                            <span style={{color: "#bbb"}}>To be assigned</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Appointment ID will be generated after submission */}
+                    <div
+                      style={{
+                        borderTop: "1px solid #dde3ec",
+                        margin: "16px 0 0 0",
+                        paddingTop: 14,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        color: "#555",
+                        fontSize: 15,
+                      }}
+                    ></div>
+                  </div>
+
+                  {/* Help Card */}
+                  <div
+                    style={{
+                      background: "#f7f1ff",
+                      borderRadius: 16,
+                      padding: 24,
+                      textAlign: "center",
+                      color: "#a259e6",
+                      border: "1px solid #e0d7fa",
+                    }}
+                  >
+                    <div style={{fontSize: 32, marginBottom: 8}}>♡</div>
+                    <div
+                      style={{fontWeight: 700, marginBottom: 8, fontSize: 18}}
+                    >
+                      Need Help?
+                    </div>
+                    <div style={{marginBottom: 14, color: "#888"}}>
+                      Our support team is here to assist you with your booking.
+                    </div>
                     <Button
-                      onClick={() => setStep(2)}
                       style={{
                         borderRadius: 8,
                         background: "#fff",
-                        color: "#1976d2",
-                        border: "1px solid #1976d2",
-                        fontWeight: 600,
-                      }}
-                    >
-                      ← Previous
-                    </Button>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      style={{
-                        borderRadius: 8,
-                        background: "#355383",
-                        color: "#fff",
-                        fontWeight: 600,
-                        minWidth: 120,
-                      }}
-                    >
-                      Next →
-                    </Button>
-                  </div>
-                  {success && (
-                    <p style={{color: "green", marginTop: 16}}>{success}</p>
-                  )}
-                </Form>
-              </div>
-              {/* RIGHT: SUMMARY */}
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 18,
-                }}
-              >
-                <div
-                  style={{
-                    background: "#E6F4FF",
-                    borderRadius: 16,
-                    padding: 28,
-                    marginBottom: 0,
-                    boxShadow: "0 2px 8px #e0e7ef",
-                    minWidth: 340,
-                    fontFamily: "inherit",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginBottom: 18,
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: "#fff",
-                        borderRadius: "50%",
-                        width: 36,
-                        height: 36,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 20,
-                        marginRight: 12,
-                      }}
-                    >
-                      <i className="fa fa-user" />
-                      {/* Hoặc dùng icon react: <AiOutlineUser /> */}
-                      <AiOutlineUser style={{fontSize: 20, color: "#222"}} />
-                    </span>
-                    <span
-                      style={{fontWeight: 700, fontSize: 20, color: "#222"}}
-                    >
-                      Booking Summary
-                    </span>
-                  </div>
-
-                  {/* Nurse */}
-                  <div
-                    style={{
-                      background: "#fff",
-                      borderRadius: 12,
-                      padding: "14px 18px",
-                      marginBottom: 14,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 14,
-                      boxShadow: "0 1px 2px #f0f1f2",
-                    }}
-                  >
-                    <span
-                      style={{
-                        background: "#e6fff2",
-                        color: "#1bbf7a",
-                        borderRadius: "50%",
-                        width: 32,
-                        height: 32,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 18,
-                      }}
-                    >
-                      🧑‍⚕️
-                    </span>
-                    <div style={{flex: 1}}>
-                      <div style={{fontWeight: 600, color: "#222"}}>Nurse</div>
-                      <div style={{fontWeight: 700}}>
-                        {nurseProfile?.fullName || "—"}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Date */}
-                  <div
-                    style={{
-                      background: "#fff",
-                      borderRadius: 12,
-                      padding: "14px 18px",
-                      marginBottom: 14,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 14,
-                      boxShadow: "0 1px 2px #f0f1f2",
-                    }}
-                  >
-                    <span
-                      style={{
-                        background: "#eaf1ff",
-                        color: "#5b8cff",
-                        borderRadius: "50%",
-                        width: 32,
-                        height: 32,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 18,
-                      }}
-                    >
-                      📅
-                    </span>
-                    <div>
-                      <div style={{fontWeight: 600, color: "#222"}}>Date</div>
-                      <div style={{fontWeight: 700}}>{dateRequest}</div>
-                    </div>
-                  </div>
-
-                  {/* Time */}
-                  <div
-                    style={{
-                      background: "#fff",
-                      borderRadius: 12,
-                      padding: "14px 18px",
-                      marginBottom: 14,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 14,
-                      boxShadow: "0 1px 2px #f0f1f2",
-                    }}
-                  >
-                    <span
-                      style={{
-                        background: "#f3eaff",
                         color: "#a259e6",
-                        borderRadius: "50%",
-                        width: 32,
-                        height: 32,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 18,
+                        border: "1px solid #a259e6",
+                        fontWeight: 600,
+                        height: 42,
                       }}
                     >
-                      ⏰
-                    </span>
-                    <div>
-                      <div style={{fontWeight: 600, color: "#222"}}>Time</div>
-                      <div style={{fontWeight: 700}}>
-                        {appointmentStartTime || step2StartTime || "--:--"}
-                        {appointmentEndTime || step2EndTime
-                          ? ` - ${appointmentEndTime || step2EndTime}`
-                          : ""}
-                      </div>
-                    </div>
+                      Contact Support
+                    </Button>
                   </div>
-
-                  {/* Patient */}
-                  <div
-                    style={{
-                      background: "#fff",
-                      borderRadius: 12,
-                      padding: "14px 18px",
-                      marginBottom: 14,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 14,
-                      boxShadow: "0 1px 2px #f0f1f2",
-                    }}
-                  >
-                    <span
-                      style={{
-                        background: "#fff4e6",
-                        color: "#ff9900",
-                        borderRadius: "50%",
-                        width: 32,
-                        height: 32,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 18,
-                      }}
-                    >
-                      🧑
-                    </span>
-                    <div>
-                      <div style={{fontWeight: 600, color: "#222"}}>
-                        Patient
-                      </div>
-                      <div
-                        style={{
-                          fontWeight: 700,
-                          color: "#888",
-                          fontStyle: !selectedStudentId ? "italic" : "normal",
-                        }}
-                      >
-                        {listStudentParent.find(
-                          (s) => s.studentId === selectedStudentId
-                        )?.fullName || (
-                          <span style={{color: "#bbb"}}>To be assigned</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Booking ID (nếu có) */}
-                  {/* <div style={{borderTop: "1px solid #dde3ec", margin: "12px 0 0 0", paddingTop: 10, display: "flex", justifyContent: "space-between", color: "#555", fontSize: 15}}>
-    <span>Booking ID</span>
-    <span style={{fontWeight: 700}}>#BK-2025-001</span>
-  </div> */}
-                </div>
-                <div
-                  style={{
-                    background: "#f7f1ff",
-                    borderRadius: 12,
-                    padding: 24,
-                    textAlign: "center",
-                    color: "#a259e6",
-                    border: "1px solid #e0d7fa",
-                  }}
-                >
-                  <div style={{fontSize: 32, marginBottom: 8}}>♡</div>
-                  <div style={{fontWeight: 700, marginBottom: 8}}>
-                    Need Help?
-                  </div>
-                  <div style={{marginBottom: 12, color: "#888"}}>
-                    Our support team is here to assist you with your booking.
-                  </div>
-                  <Button
-                    style={{
-                      borderRadius: 8,
-                      background: "#fff",
-                      color: "#a259e6",
-                      border: "1px solid #a259e6",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Contact Support
-                  </Button>
                 </div>
               </div>
             </div>

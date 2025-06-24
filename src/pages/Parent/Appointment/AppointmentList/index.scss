@@ -1,0 +1,33 @@
+.nurse-scroll-container {
+  /* For WebKit browsers (Chrome, Safari) */
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #355383;
+    border-radius: 4px;
+  }
+
+  /* For Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #355383 #f0f0f0;
+
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+}
+
+.nurse-list-container {
+  .animate__fadeIn {
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      border-color: #e6e6e6;
+    }
+  }
+}
