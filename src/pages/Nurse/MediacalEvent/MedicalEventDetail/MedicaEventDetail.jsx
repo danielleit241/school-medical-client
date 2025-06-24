@@ -73,14 +73,15 @@ const MedicaEventDetail = () => {
       style={{
         minHeight: "100vh",
         background: "#f3f4f6",
-        padding: 0,
+        padding: "0 0 32px 0",
       }}
     >
       {/* Header Section - giống MedicalEventList */}
       <div
         style={{
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "48px 32px",
+          padding: "36px 0 18px 0",
+          marginBottom: "40px",
           color: "white",
           textAlign: "center",
           boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
@@ -88,7 +89,7 @@ const MedicaEventDetail = () => {
       >
         <h1
           style={{
-            fontSize: 42,
+            fontSize: 38,
             fontWeight: 800,
             margin: "0 0 16px 0",
             textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
@@ -99,7 +100,7 @@ const MedicaEventDetail = () => {
         </h1>
         <p
           style={{
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: 500,
             margin: "0 0 32px 0",
             opacity: 0.9,
@@ -155,8 +156,8 @@ const MedicaEventDetail = () => {
           maxWidth: "none",
           padding: "40px 0",
           display: "flex",
-          flexDirection: "column", // Đổi sang column để card full width
-          alignItems: "stretch",   // Đảm bảo card kéo full ngang
+          flexDirection: "column",
+          alignItems: "stretch",   
         }}
       >
         <Card
@@ -164,8 +165,8 @@ const MedicaEventDetail = () => {
             borderRadius: 20,
             boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
             background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-            width: "100%",           // Card kéo full ngang
-            maxWidth: "none",        // Không giới hạn maxWidth
+            width: "100%",           
+            maxWidth: "none",        
             minWidth: 0,
             margin: 0,
             border: `3px solid ${severityColor[medicalEvent.severityLevel]}`,

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
-import { Button, Table, Tag, Spin, Input, message, Select } from "antd";
+import { Button, Table, Tag, Spin, Input, Select } from "antd";
 import RecordFormModal from "./RecordFormModal";
 import DetailModal from "./DetailModal";
 import Swal from "sweetalert2";
@@ -24,9 +24,9 @@ const HealthCheckDetail = () => {
   const [selectedRound, setSelectedRound] = useState(null);
   const [loadingMap] = useState({});
   const [status, setStatus] = useState(false); // trạng thái round
-  const [loadingComplete, setLoadingComplete] = useState(false);
   const [dateRange, setDateRange] = useState({ start: null, end: null });
   const [statusFilter, setStatusFilter] = useState("all");
+  const [completedCount, setCompletedCount] = useState(0);
 
   const statusOptions = [
     { value: "all", label: "All Status" },
@@ -74,6 +74,30 @@ const HealthCheckDetail = () => {
     fetchStudents();
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundId, searchText, staffNurseId]);
+
+  useEffect(() => {
+  const fetchCompletedCount = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `/api/v2/nurses/${staffNurseId}/health-check-rounds/${roundId}/students`
+      );
+      // Đếm số lượng student có status "done" hoặc "cancel"
+      const studentsArr = Array.isArray(res.data) ? res.data : [];
+      let count = 0;
+      for (const item of studentsArr) {
+        const status = statusMap[item.studentsOfRoundResponse?.healthCheckResultId];
+        if (status === "done") count++;
+      }
+      setCompletedCount(count);
+    } catch {
+      setCompletedCount(0);
+    }
+  };
+  if (staffNurseId && roundId && Object.keys(statusMap).length > 0) {
+    fetchCompletedCount();
+  }
+}, [staffNurseId, roundId, statusMap]);
+
   useEffect(() => {
     const fetchRound = async () => {
       try {
@@ -140,6 +164,9 @@ const HealthCheckDetail = () => {
     setModalType("detail");
   };
 
+  const percent = students.length > 0 ? Math.round((completedCount / students.length) * 100) : 0;
+
+
   const handleModalOk = () => {
       setModalType("");
       fetchStudents();
@@ -151,23 +178,7 @@ const HealthCheckDetail = () => {
       });
     };
 
-    const handleComplete = async () => {
-    setLoadingComplete(true);
-    try {
-      const res = await axiosInstance.put(`/api/health-check-rounds/${roundId}/finished`, true);
-      setStatus(res.data);
-      console.log("Round completed successfully!", res.data);
-      Swal.fire({
-        title: "Success",
-        text: "Round completed successfully!",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-    } catch {
-      message.error("Failed to complete round!");
-    }
-    setLoadingComplete(false);
-  };
+    
 
   const isOutOfRange = (() => {
     if (!dateRange.start || !dateRange.end) return false;
@@ -291,11 +302,6 @@ const HealthCheckDetail = () => {
       },
     ];
 
-  // Hàm kiểm tra tất cả đã completed
-  const allCompleted = Array.isArray(students) && students.length > 0
-  ? students.every(student => getStatus(student)?.toLowerCase() === "done")
-  : false;
-
   // Thống kê số lượng theo trạng thái
   const statusSummary = students.reduce(
     (acc, student) => {
@@ -367,16 +373,19 @@ const HealthCheckDetail = () => {
           style={{ width: 180 }}
           onChange={setStatusFilter}
         />
-        {!status && (
-          <Button
-            type="primary"
-            onClick={handleComplete}
-            loading={loadingComplete}
-            style={{ borderRadius: 8, fontWeight: 600 }}
-            disabled={!allCompleted || isOutOfRange}
+        {!status && percent === 100 && (
+          <span
+            style={{
+              color: "#2563eb",
+              fontWeight: 600,
+              fontSize: 16,
+              background: "#e0e7ff",
+              borderRadius: 8,
+              padding: "6px 18px"
+            }}
           >
-            Complete
-          </Button>
+            Please go back to completed round
+          </span>
         )}
         {status && (
           <Tag color="green" style={{ fontSize: 16, fontWeight: 600, borderRadius: 8 }}>

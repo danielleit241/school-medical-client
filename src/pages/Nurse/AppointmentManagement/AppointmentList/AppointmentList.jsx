@@ -113,7 +113,7 @@ const AppointmentList = () => {
   }
 
   const AppointmentCard = ({ item }) => {
-    const status = getStatus(item)
+    const status = getStatus(item);
 
     return (
       <Card
@@ -126,19 +126,19 @@ const AppointmentList = () => {
           transition: "all 0.3s ease",
           background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
         }}
-        bodyStyle={{ padding: "24px 28px" }}
+        bodyStyle={{ padding: "28px 32px" }} // tăng padding cho nổi bật hơn
         hoverable
       >
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div style={{ flex: 1 }}>
             {/* Student Info */}
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: 18 }}>
               <Avatar
-                size={48}
+                size={56}
                 icon={<UserOutlined />}
                 style={{
                   backgroundColor: "#4f46e5",
-                  marginRight: 16,
+                  marginRight: 20,
                   boxShadow: "0 4px 12px rgba(79, 70, 229, 0.3)",
                 }}
               />
@@ -146,24 +146,15 @@ const AppointmentList = () => {
                 <h3
                   style={{
                     margin: 0,
-                    fontSize: 20,
-                    fontWeight: 600,
+                    fontSize: 28, // tăng font size
+                    fontWeight: 700,
                     color: "#1f2937",
                     lineHeight: 1.2,
                   }}
                 >
                   {item.student?.fullName || "No name"}
                 </h3>
-                <p
-                  style={{
-                    margin: "4px 0 0 0",
-                    color: "#6b7280",
-                    fontSize: 14,
-                    fontWeight: 500,
-                  }}
-                >
-                  Student ID: {item.student?.studentId || "N/A"}
-                </p>
+                {/* Bỏ studentId */}
               </div>
             </div>
 
@@ -171,26 +162,28 @@ const AppointmentList = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: 16,
-                marginBottom: 20,
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: 20,
+                marginBottom: 22,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <CalendarOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                <span style={{ color: "#374151", fontWeight: 500 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <CalendarOutlined style={{ color: "#4f46e5", fontSize: 22 }} />
+                <span style={{ color: "#374151", fontWeight: 600, fontSize: 17 }}>
                   {dayjs(item.appointmentDate).format("MMM DD, YYYY")}
                 </span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <ClockCircleOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                <span style={{ color: "#374151", fontWeight: 500 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <ClockCircleOutlined style={{ color: "#4f46e5", fontSize: 22 }} />
+                <span style={{ color: "#374151", fontWeight: 600, fontSize: 17 }}>
                   {item.appointmentStartTime?.slice(0, 5)} - {item.appointmentEndTime?.slice(0, 5)}
                 </span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <FileTextOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                <span style={{ color: "#374151", fontWeight: 500 }}>{item.topic || "General Consultation"}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <FileTextOutlined style={{ color: "#4f46e5", fontSize: 22 }} />
+                <span style={{ color: "#374151", fontWeight: 600, fontSize: 17 }}>
+                  {item.topic || "General Consultation"}
+                </span>
               </div>
             </div>
 
@@ -199,9 +192,9 @@ const AppointmentList = () => {
               <div
                 style={{
                   backgroundColor: "#f8fafc",
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 16,
+                  padding: 16,
+                  borderRadius: 10,
+                  marginBottom: 18,
                   border: "1px solid #e2e8f0",
                 }}
               >
@@ -209,7 +202,7 @@ const AppointmentList = () => {
                   style={{
                     margin: 0,
                     color: "#64748b",
-                    fontSize: 14,
+                    fontSize: 16,
                     fontStyle: "italic",
                   }}
                 >
@@ -224,7 +217,7 @@ const AppointmentList = () => {
           </div>
 
           {/* Status and Actions */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 18 }}>
             <Badge
               count={
                 <div
@@ -232,14 +225,14 @@ const AppointmentList = () => {
                     backgroundColor: status.bgColor,
                     color: status.color,
                     border: `2px solid ${status.color}`,
-                    borderRadius: 20,
-                    padding: "6px 16px",
-                    fontSize: 13,
-                    fontWeight: 600,
+                    borderRadius: 22,
+                    padding: "8px 20px",
+                    fontSize: 16,
+                    fontWeight: 700,
                     display: "flex",
                     alignItems: "center",
-                    gap: 6,
-                    minWidth: 100,
+                    gap: 8,
+                    minWidth: 110,
                     justifyContent: "center",
                   }}
                 >
@@ -255,11 +248,12 @@ const AppointmentList = () => {
               icon={<EyeOutlined />}
               onClick={() => handleDetail(item.appointmentId)}
               style={{
-                borderRadius: 10,
-                fontWeight: 600,
-                height: 40,
-                paddingLeft: 20,
-                paddingRight: 20,
+                borderRadius: 12,
+                fontWeight: 700,
+                height: 46,
+                fontSize: 17,
+                paddingLeft: 28,
+                paddingRight: 28,
                 background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
                 border: "none",
                 boxShadow: "0 4px 15px rgba(79, 70, 229, 0.3)",
@@ -271,7 +265,7 @@ const AppointmentList = () => {
           </div>
         </div>
       </Card>
-    )
+    );
   }
 
   const DetailView = () => {
@@ -363,16 +357,6 @@ const AppointmentList = () => {
               >
                 {selectedAppointment.student?.fullName || "Unknown Student"}
               </h1>
-              <p
-                style={{
-                  margin: "8px 0 0 0",
-                  color: "#6b7280",
-                  fontSize: 16,
-                  fontWeight: 500,
-                }}
-              >
-                Student ID: {selectedAppointment.student?.studentId || "N/A"}
-              </p>
             </div>
             <div
               style={{
@@ -412,9 +396,9 @@ const AppointmentList = () => {
             >
               <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
                 <CalendarOutlined style={{ color: "#4f46e5", fontSize: 20, marginRight: 12 }} />
-                <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#374151" }}>Appointment Date</h4>
+                <h4 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "#374151" }}>Appointment Date</h4>
               </div>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#1f2937" }}>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "#1f2937" }}>
                 {dayjs(selectedAppointment.appointmentDate).format("dddd, MMMM DD, YYYY")}
               </p>
             </div>
@@ -429,9 +413,9 @@ const AppointmentList = () => {
             >
               <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
                 <ClockCircleOutlined style={{ color: "#4f46e5", fontSize: 20, marginRight: 12 }} />
-                <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#374151" }}>Time Slot</h4>
+                <h4 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "#374151" }}>Time Slot</h4>
               </div>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#1f2937" }}>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "#1f2937" }}>
                 {selectedAppointment.appointmentStartTime?.slice(0, 5)} -{" "}
                 {selectedAppointment.appointmentEndTime?.slice(0, 5)}
               </p>
@@ -463,14 +447,14 @@ const AppointmentList = () => {
                 style={{
                   backgroundColor: "#fefce8",
                   padding: 24,
-                  borderRadius: 16,
+                  borderRadius: 15,
                   border: "2px solid #fde047",
                 }}
               >
                 <h4
                   style={{
                     margin: "0 0 12px 0",
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 600,
                     color: "#a16207",
                   }}
@@ -549,6 +533,7 @@ const AppointmentList = () => {
         </Card>
       </div>
     )
+
   }
 
   return (
@@ -571,7 +556,7 @@ const AppointmentList = () => {
       >
         <h1
           style={{
-            fontSize: 42,
+            fontSize: 38,
             fontWeight: 800,
             margin: "0 0 16px 0",
             textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
@@ -584,7 +569,7 @@ const AppointmentList = () => {
           style={{
             fontSize: 20,
             fontWeight: 500,
-            margin: "0 0 32px 0",
+            margin: "0 0 20px 0",
             opacity: 0.9,
             maxWidth: 600,
             marginLeft: "auto",
@@ -639,8 +624,6 @@ const AppointmentList = () => {
         style={{
           padding: "40px 0",
           width: "100%",
-          maxWidth: "none", // bỏ maxWidth
-          margin: 0,        // bỏ căn giữa
           display: "flex",
           flexDirection: "column",
           gap: 32,
@@ -747,14 +730,22 @@ const AppointmentList = () => {
             ) : (
               <div
                 style={{
-                  width: "100%",
-                  maxHeight: 600, // hoặc giá trị bạn muốn
+                  maxHeight: "650px",
                   overflowY: "auto",
-                  paddingRight: 8, // để tránh che mất thanh lăn
+                  padding: "32px 0",
+                  boxSizing: "border-box",
+                  
                 }}
               >
                 {appointments.map((item) => (
-                  <div style={{ width: "100%" }} key={item.appointmentId}>
+                  <div style={{ 
+                    width: "100%",
+                    padding: "0 32px",
+                    display: "flex", 
+                    flexDirection: "column",
+                    gap: 20,                  
+                    }} 
+                    key={item.appointmentId}>
                     <AppointmentCard item={item} />
                   </div>
                 ))}
@@ -765,7 +756,7 @@ const AppointmentList = () => {
           <div
             style={{
               textAlign: "center",
-              padding: "80px 0",
+              padding: "32px 0",
               backgroundColor: "white",
               borderRadius: 20,
               boxShadow: "0 8px 32px rgba(0,0,0,0.1)",

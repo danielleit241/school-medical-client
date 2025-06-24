@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
-import { Button, Table, Tag, Spin, Input, message, Select } from "antd";
+import { Button, Table, Tag, Spin, Input, Select } from "antd";
 import RecordFormModal from "./RecordFormModal";
 import ObservationModal from "./ObservationModal";
 import DetailModal from "./DetailModal";
@@ -33,7 +33,8 @@ const DetailCampaign = () => {
   const [qualifiedMap] = useState({});
   const [loadingMap] = useState({});
   const [status, setStatus] = useState(false); // trạng thái round
-  const [loadingComplete, setLoadingComplete] = useState(false);
+  const [completedCount, setCompletedCount] = useState(0);
+
   const [dateRange, setDateRange] = useState({ start: null, end: null });
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -44,6 +45,29 @@ const DetailCampaign = () => {
     { value: "cancel", label: "Does not meet the requirements" },
     { value: "not_recorded", label: "Not Yet" },
   ];
+
+  useEffect(() => {
+  const fetchCompletedCount = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `/api/v2/nurses/${staffNurseId}/vaccination-rounds/${roundId}/students`
+      );
+      // Đếm số lượng student có status "done" hoặc "cancel"
+      const studentsArr = Array.isArray(res.data) ? res.data : [];
+      let count = 0;
+      for (const item of studentsArr) {
+        const status = statusMap[item.studentsOfRoundResponse?.vaccinationResultId];
+        if (status === "done" || status === "cancel") count++;
+      }
+      setCompletedCount(count);
+    } catch {
+      setCompletedCount(0);
+    }
+  };
+  if (staffNurseId && roundId && Object.keys(statusMap).length > 0) {
+    fetchCompletedCount();
+  }
+}, [staffNurseId, roundId, statusMap]);
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -185,6 +209,8 @@ const DetailCampaign = () => {
     setModalType("detail");
   };
 
+  const percent = students.length > 0 ? Math.round((completedCount / students.length) * 100) : 0;
+
   const handleModalOk = () => {
     setModalType("");
     fetchStudents();
@@ -196,23 +222,6 @@ const DetailCampaign = () => {
     });
   };
 
-  const handleComplete = async () => {
-    setLoadingComplete(true);
-    try {
-      const res = await axiosInstance.put(`/api/vaccination-rounds/${roundId}/finished`, true);  
-      setStatus(res.data);
-      console.log("Round completed successfully!", res.data);
-      Swal.fire({
-        title: "Success",
-        text: "Round completed successfully!",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-    } catch {
-      message.error("Failed to complete round!");
-    }
-    setLoadingComplete(false);
-  };
 
   // Thống kê số lượng theo trạng thái
   const statusSummary = students.reduce(
@@ -523,16 +532,20 @@ const DetailCampaign = () => {
           style={{ width: 220 }}
           onChange={setStatusFilter}
         />
-        {!status && (
-          <Button
-            type="primary"
-            onClick={handleComplete}
-            loading={loadingComplete}
-            style={{ borderRadius: 8, fontWeight: 600 }}
-            disabled={isOutOfRange}
+        {/* Bỏ nút Complete, thay bằng thông báo */}
+        {!status && percent === 100 && (
+          <span
+            style={{
+              color: "#2563eb",
+              fontWeight: 600,
+              fontSize: 16,
+              background: "#e0e7ff",
+              borderRadius: 8,
+              padding: "6px 18px"
+            }}
           >
-            Complete
-          </Button>
+            Please go back to completed round
+          </span>
         )}
         {status && (
           <Tag color="green" style={{ fontSize: 16, fontWeight: 600, borderRadius: 8 }}>
