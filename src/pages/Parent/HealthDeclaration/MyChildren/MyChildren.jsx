@@ -221,7 +221,7 @@ const MyChildren = () => {
                     </div>
 
                     {/* Status Tag - After student info */}
-                    <div style={{position: "absolute", top: 20, left: 105}}>
+                    <div style={{position: "absolute", top: 23, left: 230}}>
                       {declarationMap[item.studentId] ? (
                         <span
                           className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
@@ -249,7 +249,7 @@ const MyChildren = () => {
 
                     {/* Date & Class - Middle Section */}
                     <div
-                      className="flex justify-center gap-12"
+                      className="flex justify-center gap-40"
                       style={{width: "45%", paddingLeft: 20}}
                     >
                       {/* Date of Birth */}
@@ -257,13 +257,20 @@ const MyChildren = () => {
                         <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
                           DATE OF BIRTH
                         </p>
-                        <div className="flex items-center">
-                          <span className="text-blue-500 mr-2">
-                            <Calendar className="w-4 h-4 text-blue-600" />
-                          </span>
-                          <p className="text-sm font-medium text-gray-800">
-                            {item.dayOfBirth}
-                          </p>
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <span className="text-blue-500 mr-2">
+                              <Calendar
+                                className="w-4 h-4 text-blue-600"
+                                size={24}
+                              />
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-[16px] font-medium text-gray-800 m-0">
+                              {item.dayOfBirth}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
@@ -272,13 +279,20 @@ const MyChildren = () => {
                         <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
                           CLASS
                         </p>
-                        <div className="flex items-center">
-                          <span className="text-purple-500 mr-2">
-                            <GraduationCap className="w-4 h-4 text-purple-600" />
-                          </span>
-                          <p className="text-sm font-medium text-gray-800">
-                            {item.grade.trim()}
-                          </p>
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <span className="text-purple-500 mr-2">
+                              <GraduationCap
+                                className="w-4 h-4 text-purple-600"
+                                size={24}
+                              />
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-[16px] font-medium text-gray-800 m-0">
+                              {item.grade.trim()}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
