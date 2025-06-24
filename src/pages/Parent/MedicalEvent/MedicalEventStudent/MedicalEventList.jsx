@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import axiosInstance from "../../../../api/axios";
-import {Card, Button, Row, Col, Tag, Pagination, Spin, Select} from "antd";
+import {Card, Button, Tag, Pagination, Spin, Select} from "antd";
 import {useNavigate, useLocation} from "react-router-dom";
 
 const MedicalEventList = () => {
@@ -17,6 +17,8 @@ const MedicalEventList = () => {
   const pageSize = 10;
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [filterSeverity, setFilterSeverity] = useState("all");
+  const [showList, setShowList] = useState(false);
+  const [dotIndex, setDotIndex] = useState(0);
 
   useEffect(() => {
     if (!selectedStudent) {
@@ -61,6 +63,28 @@ const MedicalEventList = () => {
       .finally(() => setLoadingEvents(false));
   }, [selectedStudent, pageIndex, pageSize]);
 
+  // Hiệu ứng loading với 3 dấu chấm
+  useEffect(() => {
+    setShowList(false);
+    setDotIndex(0);
+    let interval = null;
+    let timeout = null;
+
+    interval = setInterval(() => {
+      setDotIndex((prev) => (prev + 1) % 3);
+    }, 200);
+
+    timeout = setTimeout(() => {
+      setShowList(true);
+      clearInterval(interval);
+    }, 300);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []);
+
   // Filter by severity
   const filteredEvents =
     filterSeverity === "all"
@@ -69,11 +93,64 @@ const MedicalEventList = () => {
           (event) => event.medicalEvent.severityLevel === filterSeverity
         );
 
-  // Chia events thành nhiều dòng, mỗi dòng 3 phần tử
-  const rows = [];
-  for (let i = 0; i < filteredEvents.length; i += 3) {
-    rows.push(filteredEvents.slice(i, i + 3));
-  }
+  // Render severity tag
+  const renderSeverityTag = (severityLevel) => {
+    switch (severityLevel) {
+      case "Low":
+        return (
+          <Tag
+            color="green"
+            style={{
+              fontWeight: 600,
+              borderRadius: 16,
+              fontSize: 14,
+              padding: "4px 16px",
+              background: "#e6fff2",
+              color: "#1bbf7a",
+              border: "none",
+            }}
+          >
+            Severity: Low
+          </Tag>
+        );
+      case "Medium":
+        return (
+          <Tag
+            color="orange"
+            style={{
+              fontWeight: 600,
+              borderRadius: 16,
+              fontSize: 14,
+              padding: "4px 16px",
+              background: "#fffbe6",
+              color: "#faad14",
+              border: "none",
+            }}
+          >
+            Severity: Medium
+          </Tag>
+        );
+      case "High":
+        return (
+          <Tag
+            color="red"
+            style={{
+              fontWeight: 600,
+              borderRadius: 16,
+              fontSize: 14,
+              padding: "4px 16px",
+              background: "#fff1f0",
+              color: "#ff4d4f",
+              border: "none",
+            }}
+          >
+            Severity: High
+          </Tag>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div
@@ -191,203 +268,225 @@ const MedicalEventList = () => {
             Track and manage your medical event records easily
           </div>
         </div>
+
         {/* Filter */}
-        <div style={{display: "flex", flexDirection: "column"}}>
-          <div
-            style={{
-              padding: "0 32px",
-              marginBottom: 24,
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
-            }}
+        <div
+          style={{
+            padding: "0 24px",
+            marginBottom: 24,
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
+          <b>Filter: </b>
+          <Select
+            value={filterSeverity}
+            style={{width: 160}}
+            onChange={setFilterSeverity}
+            placeholder="Filter by severity"
           >
-            <b>Filter: </b>
-            <Select
-              value={filterSeverity}
-              style={{width: 160}}
-              onChange={setFilterSeverity}
+            <Select.Option value="all">All</Select.Option>
+            <Select.Option value="Low">Low</Select.Option>
+            <Select.Option value="Medium">Medium</Select.Option>
+            <Select.Option value="High">High</Select.Option>
+          </Select>
+        </div>
+
+        {/* List */}
+        <div style={{padding: "0 24px"}}>
+          {loadingEvents || !showList ? (
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 12,
+                padding: 32,
+                textAlign: "center",
+                fontSize: 30,
+                letterSpacing: 8,
+                height: 120,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 900,
+                color: "#222",
+              }}
             >
-              <Select.Option value="all">All</Select.Option>
-              <Select.Option value="Low">Low</Select.Option>
-              <Select.Option value="Medium">Medium</Select.Option>
-              <Select.Option value="High">High</Select.Option>
-            </Select>
-          </div>
-          {/* List */}
-          <div
-            style={{
-              borderRadius: 20,
-              minHeight: 300,
-              maxHeight: 520,
-              overflowY: "auto",
-              overflowX: "hidden",
-              padding: "0 32px 0 32px",
-            }}
-          >
-            {loadingEvents ? (
-              <Spin style={{marginTop: 40}} />
-            ) : filteredEvents.length === 0 ? (
-              <div
-                style={{
-                  borderRadius: 12,
-                  padding: 32,
-                  textAlign: "center",
-                  fontSize: 20,
-                  color: "#888",
-                  marginTop: 40,
-                  background: "#fff",
-                }}
-              >
-                No medical events found.
-              </div>
-            ) : (
-              rows.map((row, rowIndex) => (
-                <Row
-                  gutter={[24, 24]}
-                  key={rowIndex}
-                  style={{marginBottom: 0, width: "100%"}}
-                >
-                  {row.map((event) => (
-                    <Col
-                      xs={24}
-                      sm={12}
-                      md={8}
-                      key={event.medicalEvent.eventId}
+              <span>
+                <span style={{opacity: dotIndex === 0 ? 1 : 0.3}}>.</span>
+                <span style={{opacity: dotIndex === 1 ? 1 : 0.3}}>.</span>
+                <span style={{opacity: dotIndex === 2 ? 1 : 0.3}}>.</span>
+              </span>
+            </div>
+          ) : filteredEvents.length === 0 ? (
+            <div
+              style={{
+                borderRadius: 12,
+                padding: 32,
+                textAlign: "center",
+                fontSize: 20,
+                color: "#888",
+                marginTop: 40,
+              }}
+            >
+              No medical events found.
+            </div>
+          ) : (
+            <div
+              className="animate__animated animate__fadeIn"
+              style={{
+                borderRadius: 20,
+                overflowY: "auto",
+                overflowX: "hidden",
+                paddingRight: 8,
+                maxHeight: 520,
+              }}
+            >
+              <div style={{display: "flex", flexDirection: "column", gap: 16}}>
+                {filteredEvents.map((event) => (
+                  <Card
+                    key={event.medicalEvent.eventId}
+                    style={{
+                      borderRadius: 12,
+                      width: "100%",
+                      boxShadow: "0 2px 8px #f0f1f2",
+                      padding: 0,
+                      border: "1px solid #f0f0f0",
+                    }}
+                    bodyStyle={{padding: 20}}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
                     >
-                      <Card
+                      {/* Student Info */}
+                      <div
                         style={{
-                          borderRadius: 12,
-                          minHeight: 240,
-                          boxShadow: "0 2px 8px #f0f1f2",
-                          padding: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          flex: 2,
                         }}
-                        bodyStyle={{padding: 20}}
-                        title={
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 10,
-                            }}
-                          >
-                            <span
-                              style={{
-                                width: 40,
-                                height: 40,
-                                borderRadius: "50%",
-                                background:
-                                  "linear-gradient(180deg, #2B5DC4 0%, #2B5DC4 100%)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: "#fff",
-                                fontWeight: 700,
-                                fontSize: 20,
-                              }}
-                            >
-                              {selectedStudent?.fullName?.[0] || "U"}
-                            </span>
-                            <span style={{fontWeight: 700, fontSize: 17}}>
-                              {selectedStudent?.fullName}
-                            </span>
-                          </div>
-                        }
-                        extra={
-                          event.medicalEvent.severityLevel === "Low" ? (
-                            <Tag
-                              color="green"
-                              style={{
-                                fontWeight: 600,
-                                borderRadius: 16,
-                                fontSize: 14,
-                                padding: "4px 16px",
-                                background: "#e6fff2",
-                                color: "#1bbf7a",
-                                border: "none",
-                              }}
-                            >
-                              Severity: Low
-                            </Tag>
-                          ) : event.medicalEvent.severityLevel === "Medium" ? (
-                            <Tag
-                              color="orange"
-                              style={{
-                                fontWeight: 600,
-                                borderRadius: 16,
-                                fontSize: 14,
-                                padding: "4px 16px",
-                                background: "#fffbe6",
-                                color: "#faad14",
-                                border: "none",
-                              }}
-                            >
-                              Severity: Medium
-                            </Tag>
-                          ) : (
-                            <Tag
-                              color="red"
-                              style={{
-                                fontWeight: 600,
-                                borderRadius: 16,
-                                fontSize: 14,
-                                padding: "4px 16px",
-                                background: "#fff1f0",
-                                color: "#ff4d4f",
-                                border: "none",
-                              }}
-                            >
-                              Severity: High
-                            </Tag>
-                          )
-                        }
                       >
-                        <div style={{marginBottom: 15, fontSize: 18}}>
-                          <b style={{fontSize: 16}}>Date:</b>{" "}
+                        <div
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: "50%",
+                            background:
+                              "linear-gradient(180deg, #2B5DC4 0%, #2B5DC4 100%)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: 700,
+                            fontSize: 22,
+                            color: "#fff",
+                            marginRight: 14,
+                          }}
+                        >
+                          {selectedStudent?.fullName?.[0] || "U"}
+                        </div>
+                        <div>
+                          <div style={{fontWeight: 700, fontSize: 17}}>
+                            {selectedStudent?.fullName}
+                          </div>
+                          <div style={{color: "#888", fontSize: 15}}>
+                            {event.medicalEvent.eventType}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Date and Location */}
+                      <div style={{flex: 2, padding: "0 20px"}}>
+                        <div
+                          style={{
+                            color: "#355383",
+                            fontSize: 15,
+                            marginBottom: 4,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span style={{marginRight: 6}}>📅</span>
                           {event.medicalEvent.eventDate}
                         </div>
-                        <div style={{marginBottom: 15, fontSize: 18}}>
-                          <b style={{fontSize: 16}}>Location:</b>{" "}
+                        <div
+                          style={{
+                            color: "#1bbf7a",
+                            fontSize: 15,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span style={{marginRight: 6}}>📍</span>
                           {event.medicalEvent.location}
                         </div>
-                        <div style={{marginBottom: 15, fontSize: 18}}>
-                          <b style={{fontSize: 16}}>Event Type:</b>{" "}
-                          {event.medicalEvent.eventType}
+                      </div>
+
+                      {/* Severity */}
+                      <div style={{flex: 1.5}}>
+                        <div
+                          style={{
+                            color: "#a259e6",
+                            fontSize: 15,
+                            marginBottom: 8,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span style={{marginRight: 6}}>🏥</span>
+                          <span style={{fontWeight: 600}}>
+                            {event.medicalEvent.description?.substring(0, 20) ||
+                              "No description"}
+                            {event.medicalEvent.description?.length > 20
+                              ? "..."
+                              : ""}
+                          </span>
                         </div>
-                        <div style={{display: "flex", gap: 8, marginTop: 16}}>
-                          <Button
-                            type="primary"
-                            style={{
-                              borderRadius: 8,
-                              background:
-                                "linear-gradient(90deg, #2563ad 0%, #2563ad 100%)",
-                              border: "none",
-                              fontWeight: 600,
-                              minWidth: 90,
-                            }}
-                            onClick={() => {
-                              localStorage.setItem(
-                                "eventId",
-                                event.medicalEvent.eventId
-                              );
-                              navigate(
-                                "/parent/medical-event/children-detail",
-                                {
-                                  state: {eventId: event.medicalEvent.eventId},
-                                }
-                              );
-                            }}
-                          >
-                            Details
-                          </Button>
-                        </div>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              ))
-            )}
-          </div>
+                        {renderSeverityTag(event.medicalEvent.severityLevel)}
+                      </div>
+
+                      {/* Action */}
+                      <div
+                        style={{
+                          flex: 1.5,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "flex-end",
+                          gap: 16,
+                        }}
+                      >
+                        <Button
+                          style={{
+                            borderRadius: 8,
+                            background: "#fff",
+                            color: "#355383",
+                            border: "1px solid #355383",
+                            fontWeight: 600,
+                            minWidth: 90,
+                            height: 42,
+                          }}
+                          onClick={() => {
+                            localStorage.setItem(
+                              "eventId",
+                              event.medicalEvent.eventId
+                            );
+                            navigate("/parent/medical-event/children-detail", {
+                              state: {eventId: event.medicalEvent.eventId},
+                            });
+                          }}
+                        >
+                          Details
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div

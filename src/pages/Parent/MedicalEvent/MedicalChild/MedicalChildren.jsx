@@ -105,6 +105,7 @@ const MedicalChildren = () => {
             View your children's medical event participation
           </div>
         </div>
+
         {/* Content */}
         <div
           className="px-10 py-8"
@@ -126,72 +127,136 @@ const MedicalChildren = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 p-5">
+            <div
+              className="animate__animated animate__fadeIn"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 20,
+              }}
+            >
               {data.map((item) => (
                 <div
                   key={item.studentId}
-                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col "
-                  style={{minHeight: 320}}
+                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                  style={{
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+                    border: "1px solid #f0f0f0",
+                    margin: "0 30px",
+                    padding: "20px 24px",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
                 >
-                  {/* Card Header */}
-                  <div
-                    style={{
-                      padding: "20px",
-                      background:
-                        "linear-gradient(90deg, #3058A4 0%, #3058A4 100%)",
-                      borderTopLeftRadius: 12,
-                      borderTopRightRadius: 12,
-                    }}
-                  >
-                    <div className="flex justify-between items-start">
+                  <div className="flex items-center justify-between">
+                    {/* Student Info Section - Left Side */}
+                    <div
+                      style={{
+                        width: "25%",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 54,
+                          height: 54,
+                          borderRadius: "50%",
+                          background:
+                            "linear-gradient(135deg, #3058A4 0%, #2563eb 100%)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontWeight: 700,
+                          fontSize: 24,
+                          color: "#fff",
+                          marginRight: 16,
+                          boxShadow: "0 2px 8px rgba(43, 93, 196, 0.2)",
+                        }}
+                      >
+                        {item.fullName[0]}
+                      </div>
                       <div>
-                        <h3 className="text-xl font-semibold text-white">
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            fontSize: 16,
+                            color: "#374151",
+                            marginBottom: 4,
+                          }}
+                        >
                           {item.fullName}
-                        </h3>
-                        <p className="text-blue-100 text-[16px]">
+                        </div>
+                        <div style={{color: "#6B7280", fontSize: 13}}>
                           Student ID: {item.studentCode}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Date & Class - Middle Section */}
+                    <div
+                      className="flex justify-center gap-40"
+                      style={{width: "45%", paddingLeft: 20}}
+                    >
+                      {/* Date of Birth */}
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                          DATE OF BIRTH
                         </p>
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <span className="text-blue-500 mr-2">
+                              <Calendar className="w-4 h-4 text-blue-600" />
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-[16px] font-medium text-gray-800 m-0">
+                              {item.dayOfBirth}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Class */}
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                          CLASS
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <span className="text-purple-500 mr-2">
+                              <GraduationCap className="w-4 h-4 text-purple-600" />
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-[16px] font-medium text-gray-800 m-0">
+                              {item.grade.trim()}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {/* Card Body */}
-                  <div className="flex-1 flex flex-col justify-between p-5">
-                    <div className="space-y-3 mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Calendar className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-[12px] text-gray-500 uppercase tracking-wide">
-                            Date of Birth
-                          </p>
-                          <p className="text-[16px] font-medium text-gray-800">
-                            {item.dayOfBirth}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                          <GraduationCap className="w-4 h-4 text-purple-600" />
-                        </div>
-                        <div>
-                          <p className="text-[12px] text-gray-500 uppercase tracking-wide">
-                            Class
-                          </p>
-                          <p className="text-[16px] font-medium text-gray-800">
-                            {item.grade.trim()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Action Button */}
-                    <div className="flex gap-2 pt-3 border-t border-gray-100">
+
+                    {/* Action Button - Right Section */}
+                    <div
+                      style={{
+                        width: "30%",
+                        display: "flex",
+                        justifyContent: "flex-end",
+                      }}
+                    >
                       <button
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-md text-[16px] font-semibold transition-colors duration-200 flex items-center justify-center gap-2 shadow"
+                        className="flex items-center justify-center gap-1.5 transition-all duration-200"
                         style={{
                           background:
-                            "linear-gradient(180deg, #2B5DC4 0%, #2B5DC4 100%)",
+                            "linear-gradient(135deg, #3058A4 0%, #2563eb 100%)",
                           border: "none",
+                          borderRadius: 8,
+                          height: 42,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: "#ffffff",
+                          padding: "0 20px",
+                          boxShadow: "0 2px 10px rgba(43, 93, 196, 0.25)",
                         }}
                         onClick={() => {
                           localStorage.setItem("studentId", item.studentId);
