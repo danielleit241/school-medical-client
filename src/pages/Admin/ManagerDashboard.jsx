@@ -13,10 +13,6 @@ import {
   Spin,
   Progress,
   notification,
-  Alert,
-  Statistic,
-  Select,
-  Switch,
 } from "antd";
 import {
   Chart as ChartJS,
@@ -677,7 +673,7 @@ const ManagerDashboard = () => {
         </Tag>
       </div>
 
-      <Divider>Account Management</Divider>
+      {roleName === "admin" && <Divider>Account Management</Divider>}
       {/* Admin-specific Dashboard - chỉ hiển thị khi roleName là "admin" */}
       {roleName === "admin" && (
         <>
@@ -904,7 +900,7 @@ const ManagerDashboard = () => {
                                 </Text>
                                 <Text
                                   type="secondary"
-                                  style={{fontSize: "16px"}}
+                                  style={{fontSize: "13px"}}
                                 >
                                   {period}
                                 </Text>
@@ -967,7 +963,7 @@ const ManagerDashboard = () => {
               {loading ? (
                 <Spin size="small" />
               ) : error ? (
-                <div style={{color: "red", fontSize: "18px"}}>{error}</div>
+                <div style={{color: "red", fontSize: "13px"}}>{error}</div>
               ) : totalStudents ? (
                 <>
                   <div style={{...metricValueStyle}}>{totalStudents.count}</div>
@@ -1166,13 +1162,13 @@ const ManagerDashboard = () => {
                               backgroundColor: "#52c41a",
                             }}
                           ></div>
-                          <Text strong style={{fontSize: "18px"}}>
+                          <Text strong style={{fontSize: "16px"}}>
                             Completed
                           </Text>
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "16px"}}
+                          style={{marginLeft: "18px", fontSize: "13px"}}
                         >
                           {healthChecks.completed.name}
                         </Text>
@@ -1203,11 +1199,13 @@ const ManagerDashboard = () => {
                               backgroundColor: "#faad14",
                             }}
                           ></div>
-                          <Text strong>Pending</Text>
+                          <Text strong style={{fontSize: "16px"}}>
+                            Pending
+                          </Text>
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "16px"}}
+                          style={{marginLeft: "18px", fontSize: "13px"}}
                         >
                           {healthChecks.pending.name}
                         </Text>
@@ -1238,11 +1236,13 @@ const ManagerDashboard = () => {
                               backgroundColor: "#f5222d",
                             }}
                           ></div>
-                          <Text strong>Failed</Text>
+                          <Text strong style={{fontSize: "16px"}}>
+                            Failed
+                          </Text>
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "16px"}}
+                          style={{marginLeft: "18px", fontSize: "13px"}}
                         >
                           {healthChecks.failed.name}
                         </Text>
@@ -1273,11 +1273,13 @@ const ManagerDashboard = () => {
                               backgroundColor: "#8c8c8c",
                             }}
                           ></div>
-                          <Text strong>Declined</Text>
+                          <Text strong style={{fontSize: "16px"}}>
+                            Declined
+                          </Text>
                         </Space>
                         <Text
                           type="secondary"
-                          style={{marginLeft: "18px", fontSize: "16px"}}
+                          style={{marginLeft: "18px", fontSize: "13px"}}
                         >
                           {healthChecks.declined.name}
                         </Text>

@@ -19,6 +19,7 @@ import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import axiosInstance from "../../api/axios";
 import LogoDefault from "../../assets/images/defaultlogo.svg";
 import NotificationModal from "../Notification/NotificationModal";
+import {User, Bell} from "lucide-react";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const Header = () => {
   const unreadCountRef = useRef(0);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const notificationRef = useRef(null);
+  const avatarContainerRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -113,26 +115,12 @@ const Header = () => {
   // Dropdown menu for avatar
   const menu = (
     <Menu>
-      <Menu.Item key="notification" onClick={handleNotificationClick}>
-        <span
-          style={{
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <BellOutlined style={{color: "black", marginRight: 8}} />
-          Notification:{" "}
-          <span style={{color: "black", marginLeft: 4}}>{unreadCount}</span>
-        </span>
-      </Menu.Item>
-      <Menu.Divider />
       <Menu.Item
-        key="profile"
-        icon={<UserOutlined />}
-        onClick={() => navigate(`/${role}/profile`)}
+        key="greeting"
+        disabled
+        style={{cursor: "default", color: "#333", fontWeight: "500"}}
       >
-        User Profile
+        Hello, {role}
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item
@@ -151,7 +139,9 @@ const Header = () => {
     const handleClickOutside = (event) => {
       if (
         notificationRef.current &&
-        !notificationRef.current.contains(event.target)
+        !notificationRef.current.contains(event.target) &&
+        avatarContainerRef.current &&
+        !avatarContainerRef.current.contains(event.target)
       ) {
         setIsNotificationModalOpen(false);
       }
@@ -276,51 +266,91 @@ const Header = () => {
 
           <div className="header__bottom-button flex justify-center items-center gap-4 mr-10">
             {token && role ? (
-              <div className="flex items-center gap-3">
-                <span
-                  style={{color: "#355383", fontWeight: "bold", fontSize: 20}}
-                >
-                  Hello, {role}
-                </span>
-                <Dropdown overlay={menu} trigger={["click"]}>
+              <div className="flex items-center gap-4">
+                {/* Remove the "Hello, role" text from here as it will be in the dropdown */}
+
+                <div style={{display: "flex", alignItems: "center", gap: 16}}>
+                  {/* Notification Button */}
                   <div
+                    onClick={handleNotificationClick}
                     style={{
+                      cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      cursor: "pointer",
                       position: "relative",
+                      backgroundColor: "#fff",
+                      border: "1px solid #eee",
+                      padding: 10,
+                      borderRadius: "50%",
                     }}
                   >
-                    <Badge
-                      count={unreadCount}
-                      size="small"
-                      offset={[-5, 5]}
-                      style={{backgroundColor: "red"}}
-                    >
-                      <Avatar
-                        size={50}
-                        src={
-                          user && user.avatarUrl && user.avatarUrl.trim() !== ""
-                            ? user.avatarUrl
-                            : LogoDefault
-                        }
-                        style={{cursor: "pointer", border: "2px solid #eee"}}
-                      />
+                    <Badge count={unreadCount} size="small" offset={[-2, -2]}>
+                      <Bell size={25} color="#666" />
                     </Badge>
-                    <RiArrowDownSFill
-                      style={{
-                        fontSize: 20, // Đổi số này để tăng/giảm kích thước
-                        marginLeft: 6,
-                        color: "#aaa",
-                        position: "absolute",
-                        bottom: -5,
-                        right: -5,
-                        backgroundColor: "#F8F8F8",
-                        borderRadius: "50%",
-                      }}
-                    />
                   </div>
-                </Dropdown>
+                  {/* User Profile Button */}
+                  <div
+                    onClick={() => navigate(`/${role}/profile`)}
+                    style={{
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      backgroundColor: "#fff",
+                      border: "1px solid #eee",
+                      padding: 10,
+                      borderRadius: "50%",
+                    }}
+                  >
+                    <User size={25} color="#666" />
+                  </div>
+                  {/* Avatar with dropdown */}
+                  <div
+                    ref={avatarContainerRef}
+                    style={{
+                      display: "flex",
+                      position: "relative",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Dropdown overlay={menu} trigger={["click"]}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          position: "relative",
+                        }}
+                      >
+                        <Avatar
+                          size={50}
+                          src={
+                            user &&
+                            user.avatarUrl &&
+                            user.avatarUrl.trim() !== ""
+                              ? user.avatarUrl
+                              : LogoDefault
+                          }
+                          style={{
+                            cursor: "pointer",
+                            border: "2px solid #eee",
+                          }}
+                        />
+                        <RiArrowDownSFill
+                          style={{
+                            fontSize: 16,
+                            marginLeft: 4,
+                            color: "#aaa",
+                            position: "absolute",
+                            bottom: -3,
+                            right: 0,
+                            backgroundColor: "#F8F8F8",
+                            borderRadius: "50%",
+                          }}
+                        />
+                      </div>
+                    </Dropdown>
+                  </div>
+                </div>
               </div>
             ) : (
               <>
@@ -344,13 +374,17 @@ const Header = () => {
           className="notification-dropdown"
           style={{
             position: "absolute",
-            top: "130px", // điều chỉnh cho đúng ngay dưới avatar
-            right: 60,
-            width: 400,
+            top: 150,
+            right: 50,
+            width: 350,
             background: "#fff",
             borderRadius: 10,
             zIndex: 1000,
-            padding: 20,
+            padding: 0,
+            transition: "opacity 0.3s, transform 0.3s",
+            opacity: 1,
+            transform: "translateY(0)",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           }}
         >
           <NotificationModal />

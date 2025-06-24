@@ -28,6 +28,7 @@ import "./index.scss";
 import NotificationModal from "../Notification/NotificationModal";
 import {RiArrowDownSFill} from "react-icons/ri";
 import {LuSyringe} from "react-icons/lu";
+import {Bell, LogOut, User} from "lucide-react";
 
 const Sidebar = () => {
   const role = useSelector((state) => state.user.role);
@@ -546,26 +547,12 @@ const Sidebar = () => {
   // Dropdown menu cho avatar
   const menu = (
     <Menu>
-      <Menu.Item key="notification" onClick={handleNotificationClick}>
-        <span
-          style={{
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <BellOutlined style={{color: "black", marginRight: 8}} />
-          Notification:{" "}
-          <span style={{color: "black", marginLeft: 4}}>{unreadCount}</span>
-        </span>
-      </Menu.Item>
-      <Menu.Divider />
       <Menu.Item
-        key="profile"
-        icon={<UserOutlined />}
-        onClick={() => navigate(`/${role}/profile`)}
+        key="greeting"
+        disabled
+        style={{cursor: "default", color: "#333", fontWeight: "500"}}
       >
-        User Profile
+        Hello, {role}
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item
@@ -592,86 +579,127 @@ const Sidebar = () => {
             padding: "10px",
             borderBottom: "1px solid #eee",
             display: "flex",
-            justifyContent: "flex-start",
+            justifyContent: "flex-start", // Changed to right-align all elements
             alignItems: "center",
             gap: 12,
             position: "relative",
           }}
         >
+          {/* Remove the Hello text from here and put in dropdown */}
+
+          {/* Icons and avatar on the right */}
           <div
-            ref={avatarContainerRef}
             style={{
               display: "flex",
-              position: "relative",
               alignItems: "center",
-              cursor: "pointer",
+              gap: 16,
+              marginRight: 10,
             }}
           >
-            <Dropdown overlay={menu} trigger={["click"]}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  position: "relative",
-                }}
-              >
-                <Badge
-                  count={unreadCount}
-                  size="small"
-                  offset={[-5, 5]}
-                  style={{backgroundColor: "red"}}
+            {/* Avatar with dropdown containing Hello greeting and logout */}
+            <div
+              ref={avatarContainerRef}
+              style={{
+                display: "flex",
+                position: "relative",
+                alignItems: "center",
+                cursor: "pointer",
+              }}
+            >
+              <Dropdown overlay={menu} trigger={["click"]}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    position: "relative",
+                  }}
                 >
                   <Avatar
-                    size={55}
+                    size={50}
                     src={
                       user && user.avatarUrl && user.avatarUrl.trim() !== ""
                         ? user.avatarUrl
                         : LogoDefault
                     }
-                    style={{cursor: "pointer", border: "2px solid #eee"}}
+                    style={{
+                      cursor: "pointer",
+                      border: "2px solid #eee",
+                    }}
                   />
-                </Badge>
-                <RiArrowDownSFill
-                  style={{
-                    fontSize: 20, // Đổi số này để tăng/giảm kích thước
-                    marginLeft: 6,
-                    color: "#aaa",
-                    position: "absolute",
-                    bottom: -5,
-                    right: 0,
-                    backgroundColor: "#F8F8F8",
-                    borderRadius: "50%",
-                  }}
-                />
-              </div>
-            </Dropdown>
-            {/* Modal notification nằm sát avatar */}
-            {isNotificationModalOpen && (
-              <div
-                ref={notificationRef}
-                className="notification-dropdown"
-                style={{
-                  position: "absolute",
-                  top: 60,
-                  left: 0,
-                  width: 350,
-                  background: "#fff",
-                  borderRadius: 10,
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-                  zIndex: 1000,
-                  padding: 0,
-                  transition: "opacity 0.3s, transform 0.3s",
-                  opacity: 1,
-                  transform: "translateY(0)",
-                }}
-              >
-                <NotificationModal />
-              </div>
-            )}
+                  <RiArrowDownSFill
+                    style={{
+                      fontSize: 16,
+                      marginLeft: 4,
+                      color: "#aaa",
+                      position: "absolute",
+                      bottom: -3,
+                      right: 0,
+                      backgroundColor: "#F8F8F8",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </div>
+              </Dropdown>
+            </div>
+            {/* User Profile Button */}
+            <div
+              onClick={() => navigate(`/${role}/profile`)}
+              style={{
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: "#fff",
+                border: "1px solid #eee",
+                padding: 10,
+                borderRadius: "50%",
+              }}
+            >
+              <User size={25} color="#666" />
+            </div>
+
+            {/* Notification Button */}
+            <div
+              onClick={handleNotificationClick}
+              style={{
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                position: "relative",
+                backgroundColor: "#fff",
+                border: "1px solid #eee",
+                padding: 10,
+                borderRadius: "50%",
+              }}
+            >
+              <Badge count={unreadCount} size="small" offset={[-2, -2]}>
+                <Bell size={25} color="#666" />
+              </Badge>
+            </div>
           </div>
-          <span style={{fontWeight: "500", fontSize: "16px", marginLeft: 20}}>
-            Hello, {role}
-          </span>
+
+          {/* Keep the notification modal */}
+          {isNotificationModalOpen && (
+            <div
+              ref={notificationRef}
+              className="notification-dropdown"
+              style={{
+                position: "absolute",
+                top: 60,
+                right: 0,
+                left: 30,
+                width: 350,
+                background: "#fff",
+                borderRadius: 10,
+                zIndex: 1000,
+                padding: 0,
+                transition: "opacity 0.3s, transform 0.3s",
+                opacity: 1,
+                transform: "translateY(0)",
+              }}
+            >
+              <NotificationModal />
+            </div>
+          )}
         </div>
       )}
 

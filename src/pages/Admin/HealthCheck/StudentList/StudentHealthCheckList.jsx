@@ -28,7 +28,8 @@ const StudentHealthCheckList = () => {
   const navigate = useNavigate();
   const roleName = useSelector((state) => state.user?.role);
   const roundId = localStorage.getItem("selectedHealthCheckRoundId");
-
+  // console.log("Current roleName:", roleName);
+  console.log("Current roundId:", roundId);
   const [loading, setLoading] = useState(true);
   const [roundInfo, setRoundInfo] = useState(null);
   const [students, setStudents] = useState([]);
@@ -38,7 +39,6 @@ const StudentHealthCheckList = () => {
   const [resultModalVisible, setResultModalVisible] = useState(false);
   const [resultDetail, setResultDetail] = useState(null);
   const [resultLoading, setResultLoading] = useState(false);
-
 
   // Function to fetch students with search
   const fetchStudents = useCallback(
@@ -67,6 +67,10 @@ const StudentHealthCheckList = () => {
 
   // Fetch round details and students
   useEffect(() => {
+    // Get round ID from localStorage
+    const roundId = localStorage.getItem("selectedHealthCheckRoundId");
+    console.log("Retrieved roundId from localStorage:", roundId);
+
     if (!roundId) {
       message.error("Round ID not found");
       navigate(`/${roleName}/health-check/details`);
@@ -86,7 +90,7 @@ const StudentHealthCheckList = () => {
 
     // Fetch students list
     fetchStudents();
-  }, [roundId, navigate, roleName, fetchStudents]);
+  }, [roleName, navigate, fetchStudents]);
 
   // Handle search
   const handleSearch = () => {

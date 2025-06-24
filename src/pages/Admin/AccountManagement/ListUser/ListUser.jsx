@@ -3,6 +3,7 @@ import {Modal} from "antd";
 import axiosInstance from "../../../../api/axios";
 import CreateUser from "../CreateUser/CreateUser";
 import EditUser from "../EditUser/EditUser";
+import {Plus} from "lucide-react";
 import {
   Table,
   Select,
@@ -12,6 +13,7 @@ import {
   Input,
   Button,
   Popconfirm,
+  Tag,
 } from "antd";
 import {PlusOutlined, SearchOutlined, StopOutlined} from "@ant-design/icons";
 
@@ -71,7 +73,7 @@ function UsersByRole() {
       )
     : users;
 
-  const handleDelete = async (userId) => {
+  const handleBan = async (userId) => {
     // console.log(`Deleting user with ID: ${userId.toUpperCase()}`);
     try {
       await axiosInstance.delete(`/api/users/${userId}`, {
@@ -89,37 +91,104 @@ function UsersByRole() {
       title: "Full Name",
       dataIndex: "fullName",
       key: "fullName",
+      render: (text) => (
+        <span
+          style={{
+            fontSize: "13px",
+            color: text ? "#333" : "#aaa",
+          }}
+        >
+          {text || "N/A"}
+        </span>
+      ),
     },
     {
       title: "Email",
       dataIndex: "emailAddress",
       key: "emailAddress",
+      render: (text) => (
+        <span
+          style={{
+            fontSize: "13px",
+            color: text ? "#333" : "#aaa",
+          }}
+        >
+          {text || "N/A"}
+        </span>
+      ),
     },
     {
       title: "Phone Number",
       dataIndex: "phoneNumber",
       key: "phoneNumber",
+      render: (text) => (
+        <span
+          style={{
+            fontSize: "13px",
+            color: text ? "#333" : "#aaa",
+          }}
+        >
+          {text || "N/A"}
+        </span>
+      ),
     },
     {
       title: "Role",
       dataIndex: "roleName",
       key: "roleName",
+      render: (text) => (
+        <span
+          style={{
+            fontSize: "13px",
+            color: text ? "#333" : "#aaa",
+          }}
+        >
+          {text || "N/A"}
+        </span>
+      ),
     },
     {
       title: "Date of Birth",
       dataIndex: "dayOfBirth",
       key: "dayOfBirth",
+      render: (text) => (
+        <span
+          style={{
+            fontSize: "13px",
+            color: text ? "#333" : "#aaa",
+          }}
+        >
+          {text || "N/A"}
+        </span>
+      ),
     },
     {
       title: "Address",
       dataIndex: "address",
       key: "address",
+      render: (text) => (
+        <span
+          style={{
+            fontSize: "13px",
+            color: text ? "#333" : "#aaa",
+          }}
+        >
+          {text || "N/A"}
+        </span>
+      ),
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status) => (status ? "Active" : "Banned"),
+      render: (status) => (
+        <Tag
+          color={status ? "success" : "error"}
+          style={{minWidth: "70px", textAlign: "center"}}
+        >
+          {status ? "Active" : "Banned"}
+        </Tag>
+      ),
     },
     {
       title: "Action",
@@ -141,7 +210,7 @@ function UsersByRole() {
           )}
           <Popconfirm
             title="Are you sure you want to ban this user?"
-            onConfirm={() => handleDelete(record.userId)}
+            onConfirm={() => handleBan(record.userId)}
             okText="Yes"
             cancelText="No"
           >
@@ -150,7 +219,7 @@ function UsersByRole() {
               variant="outlined"
               size="middle"
               color="red"
-              icon={<StopOutlined />}
+              // icon={<StopOutlined />}
             >
               Ban
             </Button>
@@ -192,7 +261,7 @@ function UsersByRole() {
           type="primary"
           style={{backgroundColor: "#355383"}}
           size="middle"
-          icon={<PlusOutlined />}
+          icon={<Plus color="#ffffff" />}
           onClick={() => setShowCreateModal(true)}
         >
           Create

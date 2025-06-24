@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Table, Input, Pagination, Spin, Alert, Button, Select } from "antd";
-import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
+import React, {useState, useEffect, useCallback} from "react";
+import {Table, Input, Pagination, Spin, Alert, Button, Select} from "antd";
+import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import VaccineModal from "./VaccineModal";
 import Swal from "sweetalert2";
+import {Download} from "lucide-react";
 const pageSize = 10;
-
 
 const VaccineInventory = () => {
   const [data, setData] = useState([]);
@@ -26,11 +26,17 @@ const VaccineInventory = () => {
         PageSize: pageSize,
         Search: searchText,
       };
-      const response = await axiosInstance.get("/api/vaccination-details", { params });
+      const response = await axiosInstance.get("/api/vaccination-details", {
+        params,
+      });
       setData(response.data.items || []);
       setTotalCount(response.data.count || 0);
     } catch (err) {
-      setError(err.response?.data || err.message || "Error fetching vaccination details");
+      setError(
+        err.response?.data ||
+          err.message ||
+          "Error fetching vaccination details"
+      );
       setData([]);
       setTotalCount(0);
     } finally {
@@ -58,19 +64,19 @@ const VaccineInventory = () => {
   };
 
   const handleDownload = async () => {
-    if(data.length === 0) {
+    if (data.length === 0) {
       Swal.fire({
         icon: "error",
         title: "No items to download",
         toast: true,
-        position: "top-end", 
+        position: "top-end",
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
       });
       return;
     }
-    try{
+    try {
       const res = await axiosInstance.get("/api/vaccines/export-excel", {
         responseType: "blob",
       });
@@ -91,8 +97,7 @@ const VaccineInventory = () => {
         timer: 3000,
         timerProgressBar: true,
       });
-
-    }catch (error) {
+    } catch (error) {
       console.error("Download error:", error);
       Swal.fire({
         icon: "error",
@@ -108,7 +113,9 @@ const VaccineInventory = () => {
 
   const handleDelete = async (vaccineId) => {
     try {
-      const res = await axiosInstance.delete(`/api/vaccination-details/${vaccineId}`);
+      const res = await axiosInstance.delete(
+        `/api/vaccination-details/${vaccineId}`
+      );
       console.log("Delete response:", res.data);
       await Swal.fire({
         icon: "success",
@@ -161,33 +168,96 @@ const VaccineInventory = () => {
       width: 60,
       align: "center",
     },
-    { title: "Vaccine Code", dataIndex: "vaccineCode", key: "vaccineCode" },
-    { title: "Vaccine Name", dataIndex: "vaccineName", key: "vaccineName" },
-    { title: "Manufacturer", dataIndex: "manufacturer", key: "manufacturer" },
-    { title: "Vaccine Type", dataIndex: "vaccineType", key: "vaccineType" },
-    { title: "Age Recommendation", dataIndex: "ageRecommendation", key: "ageRecommendation" },
-    { title: "Batch Number", dataIndex: "batchNumber", key: "batchNumber" },
+    {
+      title: "Vaccine Code",
+      dataIndex: "vaccineCode",
+      key: "vaccineCode",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Vaccine Name",
+      dataIndex: "vaccineName",
+      key: "vaccineName",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Manufacturer",
+      dataIndex: "manufacturer",
+      key: "manufacturer",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Vaccine Type",
+      dataIndex: "vaccineType",
+      key: "vaccineType",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Age Recommendation",
+      dataIndex: "ageRecommendation",
+      key: "ageRecommendation",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Batch Number",
+      dataIndex: "batchNumber",
+      key: "batchNumber",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
     {
       title: "Expiration Date",
       dataIndex: "expirationDate",
       key: "expirationDate",
       width: 120,
-      render: (value) => value ? value.toString().slice(0, 10) : ""
+      render: (value) =>
+        value ? (
+          value.toString().slice(0, 10)
+        ) : (
+          <span style={{color: "#aaa"}}>N/A</span>
+        ),
     },
-    { title: "Contraindication Notes", dataIndex: "contraindicationNotes", key: "contraindicationNotes" },
-    { title: "Description", dataIndex: "description", key: "description" },
+    {
+      title: "Contraindication Notes",
+      dataIndex: "contraindicationNotes",
+      key: "contraindicationNotes",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      render: (text) =>
+        text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
+    },
     {
       title: "Created At",
       dataIndex: "createAt",
       key: "createAt",
-      render: (value) => value ? value.toString().slice(0, 10) : "",
+      render: (value) =>
+        value ? (
+          value.toString().slice(0, 10)
+        ) : (
+          <span style={{color: "#aaa"}}>N/A</span>
+        ),
       align: "center",
     },
     {
       title: "Updated At",
       dataIndex: "updateAt",
       key: "updateAt",
-      render: (value) => value ? value.toString().slice(0, 10) : "",
+      render: (value) =>
+        value ? (
+          value.toString().slice(0, 10)
+        ) : (
+          <span style={{color: "#aaa"}}>N/A</span>
+        ),
       align: "center",
     },
     {
@@ -195,19 +265,16 @@ const VaccineInventory = () => {
       key: "action",
       align: "center",
       render: (item) => (
-        <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+        <div style={{display: "flex", justifyContent: "center", gap: 8}}>
           <Button
             color="#355383"
             variant="outlined"
             onClick={() => openEditModal(item.vaccineId)}
-            style={{ marginRight: 8, color: "#355383" }}
+            style={{marginRight: 8, color: "#355383"}}
           >
             Edit
           </Button>
-          <Button
-            danger
-            onClick={() => showDeleteConfirm(item.vaccineId)}
-          >
+          <Button danger onClick={() => showDeleteConfirm(item.vaccineId)}>
             Delete
           </Button>
         </div>
@@ -226,7 +293,7 @@ const VaccineInventory = () => {
           gap: 16,
         }}
       >
-        <h2 style={{ margin: 0 }}>Vaccines Inventory List</h2>
+        <h2 style={{margin: 0}}>Vaccines Inventory List</h2>
       </div>
       <div
         style={{
@@ -241,27 +308,27 @@ const VaccineInventory = () => {
           placeholder="Search by vaccine name"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 220 }}
+          style={{width: 220}}
           allowClear
           prefix={<SearchOutlined />}
         />
-         <Button
-            icon={<DownloadOutlined />}
-            onClick={handleDownload}
-            style={{ background: "#52c41a", color: "#fff" }}
-          >
-            Download
-          </Button>
+        <Button
+          icon={<Download style={{padding: 4}} />}
+          onClick={handleDownload}
+          style={{background: "#52c41a", color: "#fff"}}
+        >
+          Download
+        </Button>
         <Button
           type="primary"
-          style={{ background: "#1677ff", color: "#fff" }}
+          style={{background: "#1677ff", color: "#fff"}}
           onClick={openCreateModal}
         >
           Add New
         </Button>
       </div>
       {error && (
-        <Alert type="error" message={error} style={{ marginBottom: 16 }} />
+        <Alert type="error" message={error} style={{marginBottom: 16}} />
       )}
       <Spin spinning={loading}>
         <Table
@@ -274,7 +341,7 @@ const VaccineInventory = () => {
           }}
         />
       </Spin>
-      <div style={{ marginTop: 16, textAlign: "right" }}>
+      <div style={{marginTop: 16, textAlign: "right"}}>
         <Pagination
           current={pageIndex}
           pageSize={pageSize}
