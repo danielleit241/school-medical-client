@@ -35,7 +35,7 @@ const MedicalReceived = () => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const pageSize = 10;
+  const pageSize = 3;
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all"); 
 
