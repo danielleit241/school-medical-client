@@ -93,65 +93,6 @@ const MedicalEventList = () => {
           (event) => event.medicalEvent.severityLevel === filterSeverity
         );
 
-  // Render severity tag
-  const renderSeverityTag = (severityLevel) => {
-    switch (severityLevel) {
-      case "Low":
-        return (
-          <Tag
-            color="green"
-            style={{
-              fontWeight: 600,
-              borderRadius: 16,
-              fontSize: 14,
-              padding: "4px 16px",
-              background: "#e6fff2",
-              color: "#1bbf7a",
-              border: "none",
-            }}
-          >
-            Severity: Low
-          </Tag>
-        );
-      case "Medium":
-        return (
-          <Tag
-            color="orange"
-            style={{
-              fontWeight: 600,
-              borderRadius: 16,
-              fontSize: 14,
-              padding: "4px 16px",
-              background: "#fffbe6",
-              color: "#faad14",
-              border: "none",
-            }}
-          >
-            Severity: Medium
-          </Tag>
-        );
-      case "High":
-        return (
-          <Tag
-            color="red"
-            style={{
-              fontWeight: 600,
-              borderRadius: 16,
-              fontSize: 14,
-              padding: "4px 16px",
-              background: "#fff1f0",
-              color: "#ff4d4f",
-              border: "none",
-            }}
-          >
-            Severity: High
-          </Tag>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <div
       style={{
@@ -265,7 +206,7 @@ const MedicalEventList = () => {
               textShadow: "0 1px 4px #2222",
             }}
           >
-            Track and manage your medical event records easily
+            Track and manage your child's medical event records easily
           </div>
         </div>
 
@@ -295,7 +236,7 @@ const MedicalEventList = () => {
 
         {/* List */}
         <div style={{padding: "0 24px"}}>
-          {loadingEvents || !showList ? (
+          {!showList || loadingEvents ? (
             <div
               style={{
                 background: "#fff",
@@ -312,6 +253,7 @@ const MedicalEventList = () => {
                 color: "#222",
               }}
             >
+              {loadingEvents && <Spin size="large" style={{marginRight: 16}} />}
               <span>
                 <span style={{opacity: dotIndex === 0 ? 1 : 0.3}}>.</span>
                 <span style={{opacity: dotIndex === 1 ? 1 : 0.3}}>.</span>
@@ -336,10 +278,7 @@ const MedicalEventList = () => {
               className="animate__animated animate__fadeIn"
               style={{
                 borderRadius: 20,
-                overflowY: "auto",
-                overflowX: "hidden",
                 paddingRight: 8,
-                maxHeight: 520,
               }}
             >
               <div style={{display: "flex", flexDirection: "column", gap: 16}}>
@@ -358,16 +297,17 @@ const MedicalEventList = () => {
                     <div
                       style={{
                         display: "flex",
-                        alignItems: "center",
                         justifyContent: "space-between",
+                        alignItems: "flex-start",
                       }}
                     >
-                      {/* Student Info */}
+                      {/* Left section with avatar and student name */}
                       <div
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          flex: 2,
+                          gap: 15,
+                          width: "30%",
                         }}
                       >
                         <div
@@ -383,90 +323,59 @@ const MedicalEventList = () => {
                             fontWeight: 700,
                             fontSize: 22,
                             color: "#fff",
-                            marginRight: 14,
                           }}
                         >
                           {selectedStudent?.fullName?.[0] || "U"}
                         </div>
                         <div>
-                          <div style={{fontWeight: 700, fontSize: 17}}>
+                          <div style={{fontWeight: 700, fontSize: 18}}>
                             {selectedStudent?.fullName}
                           </div>
-                          <div style={{color: "#888", fontSize: 15}}>
-                            {event.medicalEvent.eventType}
+                          <div style={{color: "#666", fontSize: 14}}>
+                            Student ID: {selectedStudent?.studentCode || "N/A"}
                           </div>
                         </div>
                       </div>
 
-                      {/* Date and Location */}
-                      <div style={{flex: 2, padding: "0 20px"}}>
-                        <div
-                          style={{
-                            color: "#355383",
-                            fontSize: 15,
-                            marginBottom: 4,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span style={{marginRight: 6}}>📅</span>
-                          {event.medicalEvent.eventDate}
-                        </div>
-                        <div
-                          style={{
-                            color: "#1bbf7a",
-                            fontSize: 15,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span style={{marginRight: 6}}>📍</span>
-                          {event.medicalEvent.location}
-                        </div>
-                      </div>
-
-                      {/* Severity */}
-                      <div style={{flex: 1.5}}>
-                        <div
-                          style={{
-                            color: "#a259e6",
-                            fontSize: 15,
-                            marginBottom: 8,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span style={{marginRight: 6}}>🏥</span>
-                          <span style={{fontWeight: 600}}>
-                            {event.medicalEvent.description?.substring(0, 20) ||
-                              "No description"}
-                            {event.medicalEvent.description?.length > 20
-                              ? "..."
-                              : ""}
-                          </span>
-                        </div>
-                        {renderSeverityTag(event.medicalEvent.severityLevel)}
-                      </div>
-
-                      {/* Action */}
+                      {/* Status and Details section (right aligned) */}
                       <div
                         style={{
-                          flex: 1.5,
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "flex-end",
-                          gap: 16,
+                          gap: 15,
                         }}
                       >
+                        <Tag
+                          color={
+                            event.medicalEvent.severityLevel === "Low"
+                              ? "success"
+                              : event.medicalEvent.severityLevel === "Medium"
+                              ? "warning"
+                              : "error"
+                          }
+                          style={{
+                            fontWeight: 600,
+                            borderRadius: 20,
+                            fontSize: 14,
+                            padding: "4px 16px",
+                            height: 32,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {event.medicalEvent.severityLevel}
+                        </Tag>
+
                         <Button
                           style={{
                             borderRadius: 8,
-                            background: "#fff",
-                            color: "#355383",
-                            border: "1px solid #355383",
+                            background: "#355383",
+                            color: "#fff",
                             fontWeight: 600,
                             minWidth: 90,
-                            height: 42,
+                            height: 40,
+                            border: "none",
                           }}
                           onClick={() => {
                             localStorage.setItem(
@@ -482,6 +391,84 @@ const MedicalEventList = () => {
                         </Button>
                       </div>
                     </div>
+
+                    {/* Date, Event Type, and Location sections */}
+                    <div
+                      style={{
+                        marginTop: 12,
+                        display: "flex",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {/* Date badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          backgroundColor: "#f0f7ff",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <span style={{marginRight: 8, color: "#5b8cff"}}>
+                          Date:
+                        </span>
+                        <span style={{color: "#355383", fontWeight: 500}}>
+                          {event.medicalEvent.eventDate}
+                        </span>
+                      </div>
+
+                      {/* Event Type badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          backgroundColor: "#fff9f6",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <span style={{marginRight: 8, color: "#ff7d4d"}}>
+                          Type:
+                        </span>
+                        <span style={{color: "#ff7d4d", fontWeight: 500}}>
+                          {event.medicalEvent.eventType || "Not specified"}
+                        </span>
+                      </div>
+
+                      {/* Location badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          backgroundColor: "#f6f0ff",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <span style={{marginRight: 8, color: "#a259e6"}}>
+                          Location:
+                        </span>
+                        <span style={{color: "#a259e6", fontWeight: 500}}>
+                          {event.medicalEvent.location || "Not specified"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Description section - full width at bottom */}
+                    <div
+                      style={{
+                        marginTop: 12,
+                        paddingTop: 12,
+                        borderTop: "1px solid #f0f0f0",
+                        color: "#666",
+                        fontSize: 14,
+                      }}
+                    >
+                      <span style={{fontWeight: 600}}>Description: </span>
+                      {event.medicalEvent.description || "No description provided"}
+                    </div>
                   </Card>
                 ))}
               </div>
@@ -489,6 +476,8 @@ const MedicalEventList = () => {
           )}
         </div>
       </div>
+      
+      {/* Pagination section with back button */}
       <div
         style={{
           display: "flex",
@@ -511,7 +500,10 @@ const MedicalEventList = () => {
             localStorage.removeItem("studentId");
             navigate("/parent/medical-event/children-list");
           }}
-          style={{marginLeft: 16, borderRadius: 8}}
+          style={{
+            marginLeft: 16,
+            borderRadius: 8,
+          }}
         >
           Back
         </Button>
