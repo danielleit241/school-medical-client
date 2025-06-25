@@ -128,7 +128,7 @@ const DetailCampaign = () => {
 
   const handleBack = () => {
     localStorage.removeItem("scheduleId");
-    navigate(`/${roleName}/campaign/vaccine-schedule`);
+    navigate(`/${roleName}/vaccine/vaccine-schedule`);
   };
 
   const handleRoundDetail = (roundId) => {
@@ -356,7 +356,7 @@ const DetailCampaign = () => {
       `toNurseData_${scheduleId}`,
       JSON.stringify(toNurseData)
     );
-    navigate(`/${roleName}/campaign/vaccine-round/student-list`);
+    navigate(`/${roleName}/vaccine/vaccine-round/student-list`);
   };
 
   if (loading) {

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, DatePicker, Select, Spin, message } from "antd";
+import React, {useEffect, useState} from "react";
+import {Modal, Form, Input, DatePicker, Select, Spin, message} from "antd";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -7,9 +7,9 @@ import Swal from "sweetalert2";
 
 dayjs.extend(isSameOrBefore);
 
-const { Option } = Select;
+const {Option} = Select;
 
-const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
+const EditVaccineCampaignModal = ({open, campaign, onClose}) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [vaccineList, setVaccineList] = useState([]);
@@ -105,7 +105,7 @@ const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
           <Form.Item
             label="Vaccine"
             name="vaccineId"
-            rules={[{ required: true, message: "Please select vaccine!" }]}
+            rules={[{required: true, message: "Please select vaccine!"}]}
           >
             <Select
               showSearch
@@ -127,29 +127,31 @@ const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
           <Form.Item
             label="Title"
             name="title"
-            rules={[{ required: true, message: "Please input title!" }]}
+            rules={[{required: true, message: "Please input title!"}]}
           >
             <Input />
           </Form.Item>
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={3} />
           </Form.Item>
-          <p style={{ color: "red", fontSize: 14, marginBottom: 10 }}>
-              Note: The time can start 7 days after the vaccination schedule is
-              created.
-            </p>
+          <p style={{color: "red", fontSize: 14, marginBottom: 10}}>
+            Note: The time can start 7 days after the vaccination schedule is
+            created.
+          </p>
           <Form.Item
             label="Start Date"
             name="startDate"
             rules={[
-              { required: true, message: "Please select start date!" },
+              {required: true, message: "Please select start date!"},
               {
                 validator: (_, value) => {
                   if (!value) return Promise.resolve();
                   const minDate = dayjs().add(7, "day").startOf("day");
                   if (value.isBefore(minDate)) {
                     return Promise.reject(
-                      new Error("Start date must be at least 7 days from today!")
+                      new Error(
+                        "Start date must be at least 7 days from today!"
+                      )
                     );
                   }
                   return Promise.resolve();
@@ -157,15 +159,15 @@ const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
               },
             ]}
           >
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+            <DatePicker style={{width: "100%"}} format="YYYY-MM-DD" />
           </Form.Item>
           <Form.Item
             label="End Date"
             name="endDate"
             dependencies={["startDate"]}
             rules={[
-              { required: true, message: "Please select end date!" },
-              ({ getFieldValue }) => ({
+              {required: true, message: "Please select end date!"},
+              ({getFieldValue}) => ({
                 validator(_, value) {
                   const startDate = getFieldValue("startDate");
                   if (!value || !startDate) return Promise.resolve();
@@ -176,7 +178,8 @@ const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
                     ? startDate
                     : dayjs(startDate);
 
-                  if (!end.isValid() || !start.isValid()) return Promise.resolve();
+                  if (!end.isValid() || !start.isValid())
+                    return Promise.resolve();
                   if (end.isSameOrBefore(start, "day")) {
                     return Promise.reject(
                       new Error("End date must be after start date!")
@@ -187,7 +190,7 @@ const EditVaccineCampaignModal = ({ open, campaign, onClose }) => {
               }),
             ]}
           >
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+            <DatePicker style={{width: "100%"}} format="YYYY-MM-DD" />
           </Form.Item>
         </Form>
       )}

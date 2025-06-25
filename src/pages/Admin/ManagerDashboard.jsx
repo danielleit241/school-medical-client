@@ -13,6 +13,8 @@ import {
   Spin,
   Progress,
   notification,
+  DatePicker,
+  Button,
 } from "antd";
 import {
   Chart as ChartJS,
@@ -48,9 +50,11 @@ import axiosInstance from "../../api/axios";
 import {useSelector} from "react-redux";
 import HealthCheckupChart from "./HealthCheckupChart";
 import VaccinationChart from "./VaccinationChart";
+import dayjs from "dayjs";
 
 const {Title, Text} = Typography;
 const {TabPane} = Tabs;
+const {RangePicker} = DatePicker;
 
 const ManagerDashboard = () => {
   // eslint-disable-next-line no-unused-vars
@@ -87,6 +91,10 @@ const ManagerDashboard = () => {
   const [usersData, setUsersData] = useState(null);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState(null);
+
+  // Thêm state quản lý khoảng thời gian
+  const [dateRange, setDateRange] = useState([null, null]);
+  // const [showDateFilter, setShowDateFilter] = useState(false);
 
   // Styling constants
   const cardHeadStyle = {
@@ -126,22 +134,42 @@ const ManagerDashboard = () => {
     interval: 86400000 / 2, // 1 ngày
   });
 
-  // Hàm fetch dữ liệu quan trọng
-  const fetchCriticalData = async () => {
-    await Promise.all([
-      fetchLowStockMedicals(),
-      fetchExpiringMedicals(),
-      fetchMedicineRequests(),
-    ]);
-    setLastUpdated(new Date());
+  // Hàm tạo params cho API request
+  const getDateRangeParams = () => {
+    if (!dateRange[0] || !dateRange[1]) return {};
+    return {
+      From: dateRange[0].format("YYYY-MM-DD"),
+      To: dateRange[1].format("YYYY-MM-DD"),
+    };
+  };
+
+  // Hàm để thiết lập khoảng thời gian cho tháng hiện tại
+  const setCurrentMonth = () => {
+    const now = dayjs();
+    const startOfMonth = now.startOf("month");
+    const endOfMonth = now.endOf("month");
+    setDateRange([startOfMonth, endOfMonth]);
+    return {start: startOfMonth, end: endOfMonth};
+  };
+
+  // Hàm để thiết lập khoảng thời gian cho tháng trước
+  const setPreviousMonth = () => {
+    const now = dayjs();
+    const previousMonth = now.subtract(1, "month");
+    const startOfMonth = previousMonth.startOf("month");
+    const endOfMonth = previousMonth.endOf("month");
+    setDateRange([startOfMonth, endOfMonth]);
+    return {start: startOfMonth, end: endOfMonth};
   };
 
   // Chuyển các hàm fetch thành độc lập để có thể tái sử dụng
   const fetchTotalStudents = async () => {
     try {
       setLoading(true);
+      const params = getDateRangeParams();
       const response = await axiosInstance.get(
-        "/api/managers/dashboards/students"
+        "/api/managers/dashboards/students",
+        {params}
       );
 
       if (response.data && response.data.length > 0) {
@@ -159,8 +187,10 @@ const ManagerDashboard = () => {
   const fetchHealthDeclarations = async () => {
     try {
       setDeclarationsLoading(true);
+      const params = getDateRangeParams();
       const response = await axiosInstance.get(
-        "/api/managers/dashboards/health-declarations"
+        "/api/managers/dashboards/health-declarations",
+        {params}
       );
 
       if (response.data && response.data.length > 0) {
@@ -182,8 +212,10 @@ const ManagerDashboard = () => {
   const fetchMedicineRequests = async () => {
     try {
       setMedicineLoading(true);
+      const params = getDateRangeParams();
       const response = await axiosInstance.get(
-        "/api/managers/dashboards/medical-requests"
+        "/api/managers/dashboards/medical-requests",
+        {params}
       );
 
       if (response.data && response.data.length > 0) {
@@ -201,8 +233,10 @@ const ManagerDashboard = () => {
   const fetchHealthChecks = async () => {
     try {
       setHealthChecksLoading(true);
+      const params = getDateRangeParams();
       const response = await axiosInstance.get(
-        "/api/managers/dashboards/health-checks"
+        "/api/managers/dashboards/health-checks",
+        {params}
       );
 
       if (response.data && response.data.length > 0) {
@@ -225,8 +259,10 @@ const ManagerDashboard = () => {
   const fetchVaccinations = async () => {
     try {
       setVaccinationsLoading(true);
+      const params = getDateRangeParams();
       const response = await axiosInstance.get(
-        "/api/managers/dashboards/vaccinations"
+        "/api/managers/dashboards/vaccinations",
+        {params}
       );
 
       if (response.data && response.data.length > 0) {
@@ -250,8 +286,10 @@ const ManagerDashboard = () => {
   const fetchLowStockMedicals = async () => {
     try {
       setLowStockLoading(true);
+      const params = getDateRangeParams();
       const response = await axiosInstance.get(
-        "/api/managers/dashboards/low-stock-medicals"
+        "/api/managers/dashboards/low-stock-medicals",
+        {params}
       );
 
       if (response.data && response.data.length > 0) {
@@ -268,8 +306,10 @@ const ManagerDashboard = () => {
   const fetchExpiringMedicals = async () => {
     try {
       setExpiringLoading(true);
+      const params = getDateRangeParams();
       const response = await axiosInstance.get(
-        "/api/managers/dashboards/expiring-medicals"
+        "/api/managers/dashboards/expiring-medicals",
+        {params}
       );
 
       if (response.data && Array.isArray(response.data)) {
@@ -289,8 +329,20 @@ const ManagerDashboard = () => {
     }
   };
 
-  // Fetch tất cả dữ liệu ban đầu
-  useEffect(() => {
+  // Hàm fetch dữ liệu quan trọng
+  const fetchCriticalData = async () => {
+    // eslint-disable-next-line no-unused-vars
+    const params = getDateRangeParams();
+    await Promise.all([
+      fetchLowStockMedicals(),
+      fetchExpiringMedicals(),
+      fetchMedicineRequests(),
+    ]);
+    setLastUpdated(new Date());
+  };
+
+  // Hàm để gọi tất cả API fetch
+  const fetchData = () => {
     fetchTotalStudents();
     fetchHealthDeclarations();
     fetchMedicineRequests();
@@ -298,6 +350,78 @@ const ManagerDashboard = () => {
     fetchVaccinations();
     fetchLowStockMedicals();
     fetchExpiringMedicals();
+
+    // Gọi thêm API Admin nếu role là admin
+    if (roleName === "admin") {
+      fetchAdminData();
+    }
+  };
+
+  // Tạo hàm fetchAdminData ở ngoài useEffect để có thể gọi lại khi cần
+  const fetchAdminData = async () => {
+    if (roleName !== "admin") return;
+
+    try {
+      setUsersLoading(true);
+      setRecentActionsLoading(true);
+
+      // Lấy tham số ngày từ bộ lọc
+      const params = getDateRangeParams();
+
+      // Fetch cả 2 endpoints cùng lúc với tham số ngày tháng
+      const [usersResponse, actionsResponse] = await Promise.all([
+        axiosInstance.get("/api/admins/dashboards/users", {params}),
+        axiosInstance.get("/api/admins/dashboards/recent-actions", {params}),
+      ]);
+
+      if (usersResponse.data && usersResponse.data.length > 0) {
+        const formattedData = {
+          total: usersResponse.data[0]?.item || {count: 0, name: "No data"},
+          passwordChanged: usersResponse.data[1]?.item || {
+            count: 0,
+            name: "No data",
+          },
+          defaultPassword: usersResponse.data[2]?.item || {
+            count: 0,
+            name: "No data",
+          },
+        };
+        setUsersData(formattedData);
+      }
+
+      if (actionsResponse.data) {
+        setRecentActions(actionsResponse.data);
+      }
+
+      setUsersError(null);
+      setRecentActionsError(null);
+    } catch (err) {
+      console.error("Error fetching admin data:", err);
+      if (err.config?.url.includes("users")) {
+        setUsersError("Failed to load users data");
+      }
+      if (err.config?.url.includes("recent-actions")) {
+        setRecentActionsError("Failed to load recent actions data");
+      }
+    } finally {
+      setUsersLoading(false);
+      setRecentActionsLoading(false);
+    }
+  };
+
+  // Cập nhật useEffect để chỉ gọi lần đầu, không sử dụng dateRange làm dependency
+  useEffect(() => {
+    if (roleName === "admin") {
+      fetchAdminData();
+    }
+  }, [roleName]); // Chỉ phụ thuộc vào roleName, không phụ thuộc vào dateRange
+
+  // Cập nhật useEffect để sử dụng tháng hiện tại khi component mount
+  useEffect(() => {
+    // eslint-disable-next-line no-unused-vars
+    const {start, end} = setCurrentMonth();
+    fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Polling effect cho dữ liệu quan trọng
@@ -309,11 +433,6 @@ const ManagerDashboard = () => {
     pollingConfig.enabled ? pollingConfig.interval : null,
     []
   );
-
-  //   // Cho phép người dùng tắt/bật polling và thay đổi chu kỳ
-  //   const togglePolling = () => {
-  //     setPollingConfig((prev) => ({...prev, enabled: !prev.enabled}));
-  //   };
 
   // Calculate completion rate
   const getCompletionRate = () => {
@@ -448,10 +567,13 @@ const ManagerDashboard = () => {
         setUsersLoading(true);
         setRecentActionsLoading(true);
 
-        // Fetch cả 2 endpoints cùng lúc
+        // Lấy tham số ngày từ bộ lọc
+        const params = getDateRangeParams();
+
+        // Fetch cả 2 endpoints cùng lúc với tham số ngày tháng
         const [usersResponse, actionsResponse] = await Promise.all([
-          axiosInstance.get("/api/admins/dashboards/users"),
-          axiosInstance.get("/api/admins/dashboards/recent-actions"),
+          axiosInstance.get("/api/admins/dashboards/users", {params}),
+          axiosInstance.get("/api/admins/dashboards/recent-actions", {params}),
         ]);
 
         if (usersResponse.data && usersResponse.data.length > 0) {
@@ -671,6 +793,89 @@ const ManagerDashboard = () => {
         <Tag color={roleName === "admin" ? "purple" : "blue"}>
           {roleName === "admin" ? "System Administrator" : "Healthcare Manager"}
         </Tag>
+      </div>
+
+      {/* Date Range Filter */}
+      <div style={{marginBottom: 24}}>
+        <Card
+          title={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span>Date Filter</span>
+              <Space>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    // eslint-disable-next-line no-unused-vars
+                    const {start, end} = setCurrentMonth();
+                    fetchData();
+                  }}
+                >
+                  This Month
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    // eslint-disable-next-line no-unused-vars
+                    const {start, end} = setPreviousMonth();
+                    fetchData();
+                  }}
+                >
+                  Previous Month
+                </Button>
+              </Space>
+            </div>
+          }
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <RangePicker
+              value={dateRange}
+              onChange={(dates) => {
+                setDateRange(dates);
+              }}
+              format="DD/MM/YYYY"
+              allowClear={false}
+              style={{width: "70%"}}
+            />
+            <Space>
+              <Button
+                onClick={() => {
+                  // eslint-disable-next-line no-unused-vars
+                  const {start, end} = setCurrentMonth();
+                  fetchData();
+                }}
+              >
+                Reset
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => fetchData()}
+                disabled={!dateRange[0] || !dateRange[1]}
+              >
+                Apply Filter
+              </Button>
+            </Space>
+          </div>
+          {dateRange[0] && dateRange[1] && (
+            <div style={{marginTop: 8}}>
+              <Text type="secondary">
+                Showing data from {dateRange[0].format("DD/MM/YYYY")} to{" "}
+                {dateRange[1].format("DD/MM/YYYY")}
+              </Text>
+            </div>
+          )}
+        </Card>
       </div>
 
       {roleName === "admin" && <Divider>Account Management</Divider>}
