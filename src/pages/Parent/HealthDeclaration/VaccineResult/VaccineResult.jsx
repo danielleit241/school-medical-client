@@ -235,7 +235,7 @@ const VaccineResult = () => {
                 margin: 0,
                 color: "white",
                 fontWeight: "bold",
-                fontSize: "32px",
+                fontSize: "28px", // Changed from 32px to match HealthCheckResult
                 textShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
             >
@@ -257,7 +257,7 @@ const VaccineResult = () => {
             <Text
               style={{
                 color: "rgba(255, 255, 255, 0.9)",
-                fontSize: "16px",
+                fontSize: "14px", // Changed from 16px to match HealthCheckResult
                 textAlign: "center",
               }}
             >
@@ -321,7 +321,7 @@ const VaccineResult = () => {
                   </div>
                   <div
                     style={{
-                      fontSize: "14px",
+                      fontSize: "12px", // Changed from 14px to match HealthCheckResult
                       color: "rgba(255, 255, 255, 0.8)",
                     }}
                   >
@@ -379,7 +379,7 @@ const VaccineResult = () => {
                   </div>
                   <div
                     style={{
-                      fontSize: "14px",
+                      fontSize: "12px", // Changed from 14px to match HealthCheckResult
                       color: "rgba(255, 255, 255, 0.8)",
                     }}
                   >
@@ -463,7 +463,7 @@ const VaccineResult = () => {
                     </span>
                     <Tag
                       color={actualIndex % 2 === 0 ? "green" : "blue"}
-                      style={{marginLeft: 8, fontSize: "14px"}}
+                      style={{marginLeft: 8, fontSize: "12px"}} // Changed from 14px to match HealthCheckResult
                     >
                       {item.vaccineDoseSummary.totalDoseByVaccineName} doses
                     </Tag>
@@ -600,12 +600,12 @@ const VaccineResult = () => {
           )}
 
           <style jsx="true">{`
-          .content-details {
-            font-size: 20px !important;
-          }
-          .content-details * {
-            font-size: 20px !important;
-          }
+            .content-details {
+              animation: fadeIn 0.3s ease;
+            }
+            .content-details * {
+              font-size: 16px !important; // Changed from 20px to match HealthCheckResult
+            }
             @keyframes fadeIn {
               from {
                 opacity: 0;
@@ -615,9 +615,6 @@ const VaccineResult = () => {
                 opacity: 1;
                 transform: translateY(0);
               }
-            }
-            .content-details {
-              animation: fadeIn 0.3s ease;
             }
           `}</style>
         </>

@@ -285,7 +285,7 @@ const MedicalRegistrationList = () => {
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          flex: 1.5,
+                          flex: 1,
                         }}
                       >
                         <div
@@ -310,8 +310,28 @@ const MedicalRegistrationList = () => {
                           <div style={{fontWeight: 700, fontSize: 17}}>
                             {item.student.studentFullName}
                           </div>
-                          <div style={{color: "#888", fontSize: 15}}>
-                            {item.medicalRegistration.medicationName}
+                          {/* Status badge moved here */}
+                          <div style={{marginTop: 4}}>
+                            <Tag
+                              color={
+                                isAllDoseCompleted(item) ? "blue" : "orange"
+                              }
+                              style={{
+                                fontWeight: 600,
+                                borderRadius: 16,
+                                fontSize: 13,
+                                padding: "2px 8px",
+                                background: isAllDoseCompleted(item)
+                                  ? "#e6f7ff"
+                                  : "#fff7e6",
+                                color: isAllDoseCompleted(item)
+                                  ? "#1890ff"
+                                  : "#fa8c16",
+                                border: "none",
+                              }}
+                            >
+                              {isAllDoseCompleted(item) ? "Done" : "Not Yet"}
+                            </Tag>
                           </div>
                         </div>
                       </div>
@@ -327,7 +347,6 @@ const MedicalRegistrationList = () => {
                             alignItems: "center",
                           }}
                         >
-                          <span style={{marginRight: 6}}>📋</span>
                           <b>Total Dosages:</b>{" "}
                           {item.medicalRegistration.totalDosages}
                         </div>
@@ -339,13 +358,12 @@ const MedicalRegistrationList = () => {
                             alignItems: "center",
                           }}
                         >
-                          <span style={{marginRight: 6}}>📅</span>
                           <b>Submitted:</b>{" "}
                           {item.medicalRegistration.dateSubmitted}
                         </div>
                       </div>
 
-                      {/* Status */}
+                      {/* Medication Name + Notes - Combined */}
                       <div style={{flex: 1}}>
                         <div
                           style={{
@@ -356,42 +374,57 @@ const MedicalRegistrationList = () => {
                             alignItems: "center",
                           }}
                         >
-                          <span style={{marginRight: 6}}>📝</span>
-                          <span style={{fontWeight: 600}}>Notes:</span>
+                          <span style={{fontWeight: 600}}>Medication:</span>{" "}
+                          <span
+                            style={{
+                              marginLeft: 6,
+                              color: "#444",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {item.medicalRegistration.medicationName}
+                          </span>
                         </div>
-                        <div style={{fontSize: 14, color: "#555"}}>
-                          {item.medicalRegistration.notes ||
-                            "No notes provided"}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span
+                              style={{
+                                fontWeight: 600,
+                                fontSize: 15,
+                                color: "#a259e6",
+                              }}
+                            >
+                              Notes:
+                            </span>
+                            <p
+                              style={{
+                                fontSize: 14,
+                                color: "#555",
+                                margin: 0,
+                              }}
+                            >
+                              {item.medicalRegistration.notes ||
+                                "No notes provided"}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Status + Button */}
+                      {/* Action Button - Right Section */}
                       <div
                         style={{
-                          flex: 1.5,
+                          position: "absolute",
+                          right: 50,
+                          flex: 1,
                           display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
+                          justifyContent: "flex-end",
                         }}
                       >
-                        <Tag
-                          color={isAllDoseCompleted(item) ? "blue" : "orange"}
-                          style={{
-                            fontWeight: 600,
-                            borderRadius: 16,
-                            fontSize: 14,
-                            padding: "4px 16px",
-                            background: isAllDoseCompleted(item)
-                              ? "#e6f7ff"
-                              : "#fff7e6",
-                            color: isAllDoseCompleted(item)
-                              ? "#1890ff"
-                              : "#fa8c16",
-                            border: "none",
-                          }}
-                        >
-                          {isAllDoseCompleted(item) ? "Done" : "Not Yet"}
-                        </Tag>
                         <Button
                           style={{
                             borderRadius: 8,
