@@ -46,27 +46,40 @@ const AppointmentList = () => {
   const [step2EndTime, setStep2EndTime] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState(studentId);
 
-  const Checking = async () => {
-    if (!userId) return;
+  // Update the Checking function to only check parent booking status
+  const checkParentBookingStatus = async () => {
+    if (!userId) return false;
     try {
       const res = await axiosInstance.get(
         `/api/parents/${parentId}/appointments/has-booked`
       );
-      // Nếu trả về 200 và data là "User has not booked any appointments."
+      console.log("Check booked response:", res.data);
+
+      // If returns 200 and data is "User has not booked any appointments."
       if (res.data === "User has not booked any appointments.") {
         setHasBookedToday(false);
         return false;
       }
-      // Trường hợp khác (phòng ngừa)
+      // Other cases (preventive)
       setHasBookedToday(false);
       return false;
     } catch (error) {
-      // Nếu trả về 400 và data là "User has booked appointments."
+      console.error("Error checking user ID:", error);
+      // If returns 400 and data is "User has booked appointments."
       if (
         error.response?.status === 400 &&
         error.response?.data === "User has booked appointments."
       ) {
         setHasBookedToday(true);
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "error",
+          title: "You already booked appointment today.",
+          showConfirmButton: false,
+          timer: 2500,
+          timerProgressBar: true,
+        });
         return true;
       }
       setHasBookedToday(false);
@@ -79,7 +92,7 @@ const AppointmentList = () => {
         timer: 2500,
         timerProgressBar: true,
       });
-      return true;
+      return false; // Changed to false to not wrongly prevent booking
     }
   };
 
@@ -101,16 +114,21 @@ const AppointmentList = () => {
   }, [dateRequest]);
 
   useEffect(() => {
-    const fetchNurse = async () => {
+    const fetchData = async () => {
       try {
-        const checking = await Checking();
-        console.log("Has booked today:", checking);
+        // First check if parent has already booked
+        const hasBooked = await checkParentBookingStatus();
+        console.log("Has booked today:", hasBooked);
+
+        // Then fetch all nurses and available nurses separately
         const [nurseRes, freeRes] = await Promise.all([
           axiosInstance.get("/api/nurses"),
           axiosInstance.get("/api/users/free-nurses"),
         ]);
+
         setNurse(nurseRes.data);
-        // Lấy danh sách id của free nurses
+
+        // Get list of free nurse IDs
         setFreeNurseIds(
           Array.isArray(freeRes.data)
             ? freeRes.data.map((n) => n.userId || n.staffNurseId)
@@ -120,7 +138,7 @@ const AppointmentList = () => {
         console.error("Error fetching nurse data:", error);
       }
     };
-    fetchNurse();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -512,10 +530,12 @@ const AppointmentList = () => {
                 className="nurse-list-container"
               >
                 {nurse.map((n) => {
-                  const isAvailable = freeNurseIds.includes(
+                  // Check if this specific nurse is in the free nurses list
+                  const isNurseAvailable = freeNurseIds.includes(
                     n.userId || n.staffNurseId
                   );
-                  // Shared sample info for all nurses
+
+                  // Sample info for all nurses
                   const nurseInfo = {
                     specialty: "School Nurse",
                     workingDays: "Monday - Friday (9:30 - 11:30)",
@@ -524,9 +544,10 @@ const AppointmentList = () => {
                       "Nutrition Counseling",
                       "Vaccination",
                     ],
-                    available: true,
                   };
+
                   return (
+                    //{/* Nurse card container */}
                     <div
                       key={n.staffNurseId || n.id}
                       className="animate__animated animate__fadeIn"
@@ -547,48 +568,13 @@ const AppointmentList = () => {
                           alignItems: "center",
                         }}
                       >
-                        {/* Phần 1: Avatar (30%) */}
+                        {/* Phần 1: Thông tin cơ bản (70%) */}
                         <div
                           style={{
-                            width: "30%",
-                            display: "flex",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: 300,
-                              height: 250,
-                              borderRadius: "10%",
-
-                              overflow: "hidden",
-                              border: "1px solid #eee",
-                              boxShadow: "0 2px 2px rgba(0,0,0,0.08)",
-                              position: "relative",
-                              flexShrink: 0,
-                            }}
-                          >
-                            <img
-                              src={n.avatarUrl || LogoDefault}
-                              alt="Nurse"
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Phần 2: Thông tin cơ bản (30%) */}
-                        <div
-                          style={{
-                            width: "30%",
+                            width: "70%",
                             display: "flex",
                             flexDirection: "column",
                             gap: "10px",
-                            paddingLeft: "15px",
-                            paddingRight: "15px",
                           }}
                         >
                           {/* Tên y tá */}
@@ -598,191 +584,170 @@ const AppointmentList = () => {
                               fontSize: 22,
                               color: "#333",
                               marginBottom: "4px",
-                            }}
-                          >
-                            {n.fullName}
-                          </div>
-
-                          {/* Chuyên môn */}
-                          <div
-                            style={{
-                              fontSize: 16,
-                              color: "#355383",
-                              fontWeight: 600,
-                              marginBottom: "8px",
                               display: "flex",
                               alignItems: "center",
-                              gap: "6px",
+                              gap: "12px",
                             }}
                           >
-                            <span
+                            <div
                               style={{
-                                background: "#eaf1ff",
-                                padding: "4px 10px",
-                                borderRadius: "6px",
-                                fontSize: "15px",
+                                width: 45,
+                                height: 45,
+                                borderRadius: "50%",
+                                background:
+                                  "linear-gradient(135deg, #3058A4 0%, #2563eb 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontWeight: 700,
+                                fontSize: 20,
+                                color: "#fff",
+                                boxShadow: "0 2px 8px rgba(43, 93, 196, 0.2)",
                               }}
                             >
-                              {nurseInfo.specialty}
-                            </span>
+                              {n.fullName[0]}
+                            </div>
+                            <span>{n.fullName}</span>
                           </div>
 
-                          {/* Thời gian làm việc */}
+                          {/* Thông tin liên hệ */}
                           <div
                             style={{
-                              color: "#555",
                               display: "flex",
-                              alignItems: "center",
-                              fontSize: 14,
+                              gap: "24px",
                               marginBottom: "4px",
                             }}
                           >
-                            <AiOutlineCalendar
+                            {/* Số điện thoại */}
+                            <div
                               style={{
-                                marginRight: 8,
-                                color: "#5b8cff",
-                                fontSize: 16,
+                                color: "#555",
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: 14,
                               }}
-                            />
-                            <span style={{fontWeight: 500}}>
-                              {nurseInfo.workingDays}
-                            </span>
+                            >
+                              <FiPhone
+                                style={{
+                                  marginRight: 8,
+                                  color: "#52c41a",
+                                  fontSize: 16,
+                                }}
+                              />
+                              <span style={{fontWeight: 500}}>
+                                {n.phoneNumber}
+                              </span>
+                            </div>
+
+                            {/* Thời gian làm việc */}
+                            <div
+                              style={{
+                                color: "#555",
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: 14,
+                              }}
+                            >
+                              <AiOutlineCalendar
+                                style={{
+                                  marginRight: 8,
+                                  color: "#5b8cff",
+                                  fontSize: 16,
+                                }}
+                              />
+                              <span style={{fontWeight: 500}}>
+                                {nurseInfo.workingDays}
+                              </span>
+                            </div>
                           </div>
 
-                          {/* Số điện thoại */}
-                          <div
-                            style={{
-                              color: "#555",
-                              display: "flex",
-                              alignItems: "center",
-                              fontSize: 14,
-                            }}
-                          >
-                            <FiPhone
+                          {/* Kỹ năng chính */}
+                          <div style={{marginTop: 5}}>
+                            <div
                               style={{
-                                marginRight: 8,
-                                color: "#52c41a",
-                                fontSize: 16,
+                                display: "flex",
+                                gap: 6,
+                                flexWrap: "wrap",
                               }}
-                            />
-                            <span style={{fontWeight: 500}}>
-                              {n.phoneNumber}
-                            </span>
+                            >
+                              {nurseInfo.skills.map((skill, idx) => (
+                                <span
+                                  key={idx}
+                                  style={{
+                                    background: "#f5f7fa",
+                                    color: "#5b8cff",
+                                    padding: "4px 8px",
+                                    borderRadius: 4,
+                                    fontSize: 13,
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
-                        {/* Phần 3: Chuyên môn (30%) */}
+                        {/* Phần 2: Trạng thái và nút (30%) */}
                         <div
                           style={{
                             width: "30%",
                             display: "flex",
                             flexDirection: "column",
-                            paddingLeft: "15px",
-                            paddingRight: "15px",
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 16,
-                              fontWeight: 600,
-                              marginBottom: 14,
-                              color: "#355383",
-                            }}
-                          >
-                            Expertise
-                          </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 10,
-                            }}
-                          >
-                            {nurseInfo.skills.map((skill, idx) => (
-                              <div
-                                key={idx}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 8,
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    width: 8,
-                                    height: 8,
-                                    borderRadius: "50%",
-                                    background: "#5b8cff",
-                                    flexShrink: 0,
-                                  }}
-                                ></div>
-                                <span
-                                  style={{
-                                    color: "#555",
-                                    fontSize: 15,
-                                    fontWeight: 500,
-                                    lineHeight: 1.4,
-                                  }}
-                                >
-                                  {skill}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Phần 4: Trạng thái và nút (10%) */}
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: 50,
-                            left: "calc(100% - 120px)",
-                            width: "10%",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
+                            alignItems: "flex-end",
                             justifyContent: "center",
                             gap: 12,
                           }}
                         >
+                          {/* Status tag - positioned absolutely at the top right */}
                           <span
                             style={{
-                              background:
-                                isAvailable && !hasBookedToday
-                                  ? "#e6fff2"
-                                  : "#fff1f0",
-                              color:
-                                isAvailable && !hasBookedToday
-                                  ? "#1bbf7a"
-                                  : "#f5222d",
-                              borderRadius: 20,
-                              padding: "4px 12px",
-                              fontSize: 14,
+                              position: "absolute",
+                              top: 18,
+                              right: 18,
+                              background: hasBookedToday 
+                                ? "#fff1f0"  // Red background for "Already Booked"
+                                : isNurseAvailable 
+                                  ? "#e6fff2"  // Green background for "Available"
+                                  : "#fff1f0",  // Red background for "Unavailable"
+                              color: hasBookedToday 
+                                ? "#f5222d"  // Red text for "Already Booked"
+                                : isNurseAvailable 
+                                  ? "#1bbf7a"  // Green text for "Available"
+                                  : "#f5222d",  // Red text for "Unavailable"
+                              borderRadius: 8,
+                              padding: "2px 12px",
+                              fontSize: 13,
                               fontWeight: 600,
-                              display: "inline-block",
-                              textAlign: "center",
-                              whiteSpace: "nowrap",
                             }}
                           >
-                            {isAvailable && !hasBookedToday
-                              ? "Available"
-                              : "Already Booked"}
+                            {hasBookedToday
+                              ? "You Already Booked"
+                              : isNurseAvailable
+                                ? "Available"
+                                : "Unavailable"}
                           </span>
 
+                          {/* Button - only show if parent hasn't booked */}
                           {!hasBookedToday && (
                             <Button
-                              disabled={!isAvailable}
+                              disabled={!isNurseAvailable}
                               style={{
+                                marginTop: 12,
                                 borderRadius: 8,
-                                background: isAvailable ? "#355383" : "#ccc",
+                                background: isNurseAvailable
+                                  ? "#355383"
+                                  : "#ccc",
                                 color: "#fff",
-                                fontWeight: 600,
-                                fontSize: 15,
-                                padding: "6px 12px",
-                                width: "100%",
-                                height: 40,
-                                opacity: isAvailable ? 1 : 0.7,
-                                pointerEvents: isAvailable ? "auto" : "none",
+                                fontWeight: 700,
+                                fontSize: 16,
+                                padding: "8px 10px",
+                                width: "30%",
+                                opacity: isNurseAvailable ? 1 : 0.7,
+                                pointerEvents: isNurseAvailable
+                                  ? "auto"
+                                  : "none",
                               }}
                               onClick={() => handleSelect(n)}
                             >
@@ -1956,11 +1921,11 @@ const AppointmentList = () => {
                 fontSize: 14,
               }}
             >
-              <li>Phụ huynh vui lòng đặt lịch trước khi đến tư vấn</li>
-              <li>Mỗi buổi tư vấn kéo dài tối đa 30 phút</li>
+              <li>Đặt lịch hẹn trước ít nhất 1 ngày.</li>
+              <li>Vui lòng đến đúng giờ hẹn.</li>
               <li>
-                Trường hợp khẩn cấp, vui lòng liên hệ trực tiếp qua số điện
-                thoại
+                Nếu cần thay đổi lịch hẹn, hãy thông báo trước 24 giờ để được hỗ
+                trợ.
               </li>
             </ul>
           </div>

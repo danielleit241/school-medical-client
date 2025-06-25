@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axiosInstance from "../../../../api/axios";
 import {useSelector} from "react-redux";
-import {Card, Spin, Empty, Button, Tag, Row, Col, Select} from "antd";
+import {Card, Button, Tag, Select, Pagination} from "antd";
 import "./index.scss";
 import {useNavigate} from "react-router-dom";
 
@@ -13,44 +13,62 @@ const AppointmentHistory = () => {
   const [showList, setShowList] = useState(false);
   const [dotIndex, setDotIndex] = useState(0);
 
-  const [filterStatus, setFilterStatus] = useState("Pending"); //để hiển thị all
+  // Pagination states
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+
+  const [filterStatus, setFilterStatus] = useState("Pending");
   const navigate = useNavigate();
   const nurseMap = JSON.parse(localStorage.getItem("nurseMap") || "{}");
 
+  // eslint-disable-next-line no-unused-vars
   const getNurseName = (item) => {
     // Ưu tiên lấy từ API, nếu không có thì lấy từ localStorage
     return item.nurseName || nurseMap[item.appointmentId]?.fullName || "N/A";
   };
 
-  // Fetch appointments
+  // Fetch appointments với pagination
   useEffect(() => {
     if (!userId) return;
+
     const fetchAppointments = async () => {
-      setShowList(true);
       try {
         const response = await axiosInstance.get(
           `/api/parents/${userId}/appointments`,
           {
-            params: {PageSize: 20, PageIndex: 1},
+            params: {
+              PageSize: pageSize,
+              PageIndex: pageIndex,
+              SortBy: "appointmentDate",
+              SortOrder: "desc",
+            },
           }
         );
+
         const data = response.data;
         console.log("Fetched appointments:", data);
-        const arr = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.items)
-          ? data.items
-          : [];
-        setAppointments(arr);
+
+        // Xử lý data theo định dạng API trả về
+        if (data && data.items) {
+          setAppointments(data.items);
+          setTotal(data.count || 0);
+        } else if (Array.isArray(data)) {
+          setAppointments(data);
+          setTotal(data.length);
+        } else {
+          setAppointments([]);
+          setTotal(0);
+        }
       } catch (error) {
         console.error("Error fetching appointments:", error);
         setAppointments([]);
-      } finally {
-        setShowList(false);
+        setTotal(0);
       }
     };
+
     fetchAppointments();
-  }, [userId]);
+  }, [userId, pageIndex, pageSize]);
 
   const getStatus = (item) => {
     if (item.completionStatus) return {text: "Completed", color: "blue"};
@@ -89,21 +107,23 @@ const AppointmentHistory = () => {
 
   return (
     <div
-      className="appointment-history-fullscreen"
       style={{
+        padding: "20px 0",
+        margin: "0 auto",
         width: "90%",
-        height: "100vh",
-        margin: "20px auto",
-        borderRadius: 20,
       }}
     >
       <div
+        className="animate__animated animate__fadeIn"
         style={{
-          background: "#ffffff",
-          height: "100%",
-          margin: "0 auto",
+          background: "#fff",
+          minHeight: "100vh",
+          borderRadius: "20px 20px 0 0",
+          padding: 0,
+          position: "relative",
         }}
       >
+        {/* Header gradient */}
         <div
           style={{
             width: "100%",
@@ -201,268 +221,270 @@ const AppointmentHistory = () => {
             View and manage your past and upcoming appointments easily
           </div>
         </div>
-        <>
-          <div
-            style={{
-              padding: "0 24px",
-              marginBottom: 24,
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
-            }}
+
+        {/* Filter */}
+        <div
+          style={{
+            padding: "0 24px",
+            marginBottom: 24,
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
+          <b>Filter: </b>
+          <Select
+            value={filterStatus}
+            onChange={setFilterStatus}
+            style={{width: 200}}
+            placeholder="Filter by status"
           >
-            <b>Filter: </b>
-            <Select
-              value={filterStatus}
-              onChange={setFilterStatus}
-              style={{width: 200}}
-              placeholder="Filter by status"
+            <Option value="Pending">Pending</Option>
+            <Option value="Confirmed">Confirmed</Option>
+            <Option value="Completed">Completed</Option>
+          </Select>
+        </div>
+
+        {/* List content area */}
+        <div style={{padding: "0 24px"}}>
+          {!showList ? (
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 12,
+                padding: 32,
+                textAlign: "center",
+                fontSize: 30,
+                letterSpacing: 8,
+                height: 120,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 900,
+                color: "#222",
+              }}
             >
-              <Option value="Pending">Pending</Option>
-              <Option value="Confirmed">Confirmed</Option>
-              <Option value="Completed">Completed</Option>
-            </Select>
-          </div>
-          <div style={{padding: "0 24px"}}>
-            {!showList ? (
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 12,
-                  padding: 32,
-                  textAlign: "center",
-                  fontSize: 30,
-                  letterSpacing: 8,
-                  height: 120,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 900,
-                  color: "#222",
-                }}
-              >
-                <span>
-                  <span style={{opacity: dotIndex === 0 ? 1 : 0.3}}>.</span>
-                  <span style={{opacity: dotIndex === 1 ? 1 : 0.3}}>.</span>
-                  <span style={{opacity: dotIndex === 2 ? 1 : 0.3}}>.</span>
-                </span>
-              </div>
-            ) : filteredAppointments.length === 0 ? (
-              <div
-                style={{
-                  borderRadius: 12,
-                  padding: 32,
-                  textAlign: "center",
-                  fontSize: 20,
-                  color: "#888",
-                  marginTop: 40,
-                }}
-              >
-                No appointment history found.
-              </div>
-            ) : (
-              <div
-                className="animate__animated animate__fadeIn"
-                style={{
-                  borderRadius: 20,
-                  overflowY: "auto",
-                  overflowX: "hidden",
-                  paddingRight: 8,
-                }}
-              >
-                <div
-                  style={{display: "flex", flexDirection: "column", gap: 16}}
-                >
-                  {filteredAppointments.map((item) => {
-                    const statusObj = getStatus(item);
-                    return (
-                      <Card
-                        key={item.appointmentId}
+              <span>
+                <span style={{opacity: dotIndex === 0 ? 1 : 0.3}}>.</span>
+                <span style={{opacity: dotIndex === 1 ? 1 : 0.3}}>.</span>
+                <span style={{opacity: dotIndex === 2 ? 1 : 0.3}}>.</span>
+              </span>
+            </div>
+          ) : filteredAppointments.length === 0 ? (
+            <div
+              style={{
+                borderRadius: 12,
+                padding: 32,
+                textAlign: "center",
+                fontSize: 20,
+                color: "#888",
+                marginTop: 40,
+              }}
+            >
+              No appointment history found.
+            </div>
+          ) : (
+            <div
+              className="animate__animated animate__fadeIn"
+              style={{
+                borderRadius: 20,
+                overflowX: "hidden",
+                paddingRight: 8,
+              }}
+            >
+              <div style={{display: "flex", flexDirection: "column", gap: 16}}>
+                {filteredAppointments.map((item) => (
+                  <Card
+                    key={item.appointmentId}
+                    style={{
+                      borderRadius: 12,
+                      width: "100%",
+                      boxShadow: "0 2px 8px #f0f1f2",
+                      padding: 0,
+                      border: "1px solid #f0f0f0",
+                    }}
+                    bodyStyle={{padding: 20}}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      {/* Left section with avatar and student name */}
+                      <div
                         style={{
-                          borderRadius: 12,
-                          width: "100%",
-                          boxShadow: "0 2px 8px #f0f1f2",
-                          padding: 0,
-                          border: "1px solid #f0f0f0",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 15,
+                          width: "30%",
                         }}
-                        bodyStyle={{padding: 20}}
                       >
                         <div
                           style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: "50%",
+                            background:
+                              "linear-gradient(180deg, #2B5DC4 0%, #2B5DC4 100%)",
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "space-between",
+                            justifyContent: "center",
+                            fontWeight: 700,
+                            fontSize: 22,
+                            color: "#fff",
                           }}
                         >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              flex: 2,
-                            }}
-                          >
-                            {/* Avatar gradient */}
-                            <div
-                              style={{
-                                width: 48,
-                                height: 48,
-                                borderRadius: "50%",
-                                background:
-                                  "linear-gradient(180deg, #2B5DC4 0%, #2B5DC4 100%)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: 700,
-                                fontSize: 22,
-                                color: "#fff",
-                                marginRight: 14,
-                              }}
-                            >
-                              {item.student?.fullName?.[0] || "U"}
-                            </div>
-                            <div>
-                              <div style={{fontWeight: 700, fontSize: 17}}>
-                                {item.student?.fullName}
-                              </div>
-                              <div style={{color: "#888", fontSize: 15}}>
-                                {item.type || "Consultation"}
-                              </div>
-                            </div>
+                          {item.student?.fullName?.[0] || "U"}
+                        </div>
+                        <div>
+                          <div style={{fontWeight: 700, fontSize: 18}}>
+                            {item.student?.fullName}
                           </div>
-
-                          {/* Date and time */}
-                          <div style={{flex: 2, padding: "0 20px"}}>
-                            <div
-                              style={{
-                                color: "#355383",
-                                fontSize: 15,
-                                marginBottom: 4,
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              <span style={{marginRight: 6}}>📅</span>
-                              {item.appointmentDate}
-                            </div>
-                            <div
-                              style={{
-                                color: "#1bbf7a",
-                                fontSize: 15,
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              <span style={{marginRight: 6}}>🕒</span>
-                              {item.appointmentStartTime?.slice(0, 5)} -{" "}
-                              {item.appointmentEndTime?.slice(0, 5)}
-                            </div>
-                          </div>
-
-                          {/* Nurse and status */}
-                          <div style={{flex: 2}}>
-                            <div
-                              style={{
-                                color: "#a259e6",
-                                fontSize: 15,
-                                marginBottom: 8,
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              <span style={{marginRight: 6}}>👩‍⚕️</span>
-                              <span style={{fontWeight: 600}}>
-                                {getNurseName(item) || "N/A"}
-                              </span>
-                            </div>
-                            <Tag
-                              color={statusObj.color}
-                              style={{
-                                fontWeight: 600,
-                                borderRadius: 16,
-                                fontSize: 14,
-                                padding: "4px 16px",
-                                background:
-                                  statusObj.color === "green"
-                                    ? "#e6fff2"
-                                    : statusObj.color === "orange"
-                                    ? "#fff7e6"
-                                    : statusObj.color === "blue"
-                                    ? "#e6f7ff"
-                                    : undefined,
-                                color:
-                                  statusObj.color === "green"
-                                    ? "#1bbf7a"
-                                    : statusObj.color === "orange"
-                                    ? "#fa8c16"
-                                    : statusObj.color === "blue"
-                                    ? "#1890ff"
-                                    : undefined,
-                                border: "none",
-                              }}
-                              icon={
-                                statusObj.text === "Completed" ? (
-                                  <span>✔️</span>
-                                ) : undefined
-                              }
-                            >
-                              {statusObj.text === "Completed"
-                                ? "Complete"
-                                : statusObj.text}
-                            </Tag>
-                          </div>
-
-                          {/* Topic and button */}
-                          <div
-                            style={{
-                              flex: 3,
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 16,
-                            }}
-                          >
-                            <div
-                              style={{
-                                borderRadius: 10,
-                                padding: "10px 14px",
-                                color: "#222",
-                                fontSize: 15,
-                                flex: 1,
-                                height: 42,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <b>Topic:</b> {item.topic || "No topic"}
-                            </div>
-                            <Button
-                              style={{
-                                borderRadius: 8,
-                                background: "#fff",
-                                color: "#355383",
-                                border: "1px solid #355383",
-                                fontWeight: 600,
-                                minWidth: 90,
-                                height: 42,
-                              }}
-                              onClick={() =>
-                                navigate("/parent/appointment-details", {
-                                  state: {id: item.appointmentId},
-                                })
-                              }
-                            >
-                              Details
-                            </Button>
+                          <div style={{color: "#666", fontSize: 14}}>
+                            Student ID: {item.student?.studentCode || "N/A"}
                           </div>
                         </div>
-                      </Card>
-                    );
-                  })}
-                </div>
+                      </div>
+
+                      {/* Status and Details section (right aligned) */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 15,
+                        }}
+                      >
+                        <Tag
+                          color={
+                            getStatus(item).color === "green"
+                              ? "success"
+                              : getStatus(item).color === "orange"
+                              ? "warning"
+                              : "processing"
+                          }
+                          style={{
+                            fontWeight: 600,
+                            borderRadius: 20,
+                            fontSize: 14,
+                            padding: "4px 16px",
+                            height: 32,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {getStatus(item).text}
+                        </Tag>
+
+                        <Button
+                          style={{
+                            borderRadius: 8,
+                            background: "#355383",
+                            color: "#fff",
+                            fontWeight: 600,
+                            minWidth: 90,
+                            height: 40,
+                            border: "none",
+                          }}
+                          onClick={() =>
+                            navigate("/parent/appointment-details", {
+                              state: {id: item.appointmentId},
+                            })
+                          }
+                        >
+                          Details
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Date and Topic section */}
+                    <div
+                      style={{
+                        marginTop: 12,
+                        display: "flex",
+                        gap: 12,
+                      }}
+                    >
+                      {/* Date badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          backgroundColor: "#f0f7ff",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <span style={{marginRight: 8, color: "#5b8cff"}}>
+                          Date:
+                        </span>
+                        <span style={{color: "#355383", fontWeight: 500}}>
+                          {item.appointmentDate}
+                        </span>
+                      </div>
+
+                      {/* Topic badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          backgroundColor: "#fff9f6",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <span style={{marginRight: 8, color: "#ff7d4d"}}>
+                          Topic:
+                        </span>
+                        <span style={{color: "#ff7d4d", fontWeight: 500}}>
+                          {item.topic || "No topic"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Reason section - full width at bottom */}
+                    <div
+                      style={{
+                        marginTop: 12,
+                        paddingTop: 12,
+                        borderTop: "1px solid #f0f0f0",
+                        color: "#666",
+                        fontSize: 14,
+                      }}
+                    >
+                      <span style={{fontWeight: 600}}>Description: </span>
+                      {item.appointmentReason || "No description provided"}
+                    </div>
+                  </Card>
+                ))}
               </div>
-            )}
-          </div>
-        </>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Pagination section - nằm dưới cùng ngoài container chính */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+          background: "#fff",
+          padding: "12px 0",
+          borderRadius: "0 0 20px 20px",
+        }}
+      >
+        <Pagination
+          current={pageIndex}
+          pageSize={pageSize}
+          total={total}
+          onChange={(page) => {
+            setPageIndex(page);
+          }}
+        />
       </div>
     </div>
   );

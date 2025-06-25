@@ -10,7 +10,7 @@ import {
   Button,
   Pagination,
   Space,
-  Divider,
+  // Divider,
 } from "antd";
 import {
   Calendar,
@@ -42,7 +42,7 @@ const HealthCheckResult = () => {
   const [healthResults, setHealthResults] = useState([]);
   const [expandedItems, setExpandedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 3;
+  const pageSize = 5;
 
   const student = localStorage.getItem("selectedStudent");
   const studentId = student ? JSON.parse(student).studentId : null;
@@ -91,9 +91,9 @@ const HealthCheckResult = () => {
   const getStatusLabel = (status) => {
     // For status "0", show as "Pending" instead of "Completed"
     if (status === "Pending") return "Pending";
-    if (status === "1") return "In Process";
-    if (status === "2") return "Needs Review";
-    if (status === "3") return "Completed";
+    if (status === "Declined") return "Declined";
+    if (status === "Failed") return "Failed";
+    if (status === "Completed") return "Completed";
     // Keep the original status label if it's already "Pending"
     return status;
   };

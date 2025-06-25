@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import axiosInstance from "../../../../api/axios";
-import {Card, Button, Tag, Pagination, Select} from "antd";
+import {Card, Button, Tag, Pagination, Select, Spin} from "antd";
 import {useNavigate} from "react-router-dom";
 
 const MedicalRegistrationList = () => {
@@ -14,6 +14,8 @@ const MedicalRegistrationList = () => {
   const [filterStatus, setFilterStatus] = useState("notyet"); // "notyet" | "done"
   const [showList, setShowList] = useState(false);
   const [dotIndex, setDotIndex] = useState(0);
+  const [studentsData, setStudentsData] = useState({}); // Cache for student data
+  const [loadingStudents, setLoadingStudents] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,16 +29,84 @@ const MedicalRegistrationList = () => {
             },
           }
         );
-        setData(response.data.items || []);
+        const registrationsData = response.data.items || [];
+        setData(registrationsData);
         setTotal(response.data.count || 0);
+
+        // Extract unique student IDs
+        const studentIds = [
+          ...new Set(
+            registrationsData
+              .map((item) => item.student?.studentId)
+              .filter(Boolean)
+          ),
+        ];
+
+        // Fetch student details
+        if (studentIds.length > 0) {
+          await fetchStudentDetails(studentIds);
+        }
       } catch (error) {
         setData([]);
         setTotal(0);
         console.error("Error fetching medical registrations:", error);
       }
     };
+
     if (parentId) fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parentId, pageIndex, pageSize]);
+
+  // Fetch student details for each student ID
+  const fetchStudentDetails = async (studentIds) => {
+    setLoadingStudents(true);
+    try {
+      // Create a map to store student data
+      const studentsMap = {...studentsData};
+
+      // Fetch only students that aren't in the cache
+      const promises = studentIds
+        .filter((id) => !studentsData[id])
+        .map(async (studentId) => {
+          try {
+            const response = await axiosInstance.get(
+              `/api/parents/${parentId}/students/${studentId}`
+            );
+            return {studentId, data: response.data};
+          } catch (err) {
+            console.error(
+              `Error fetching details for student ${studentId}:`,
+              err
+            );
+            return {studentId, data: null};
+          }
+        });
+
+      const results = await Promise.all(promises);
+
+      // Update the students map with new data
+      results.forEach((result) => {
+        if (result.data) {
+          studentsMap[result.studentId] = result.data;
+        }
+      });
+
+      setStudentsData(studentsMap);
+    } catch (error) {
+      console.error("Error fetching student details:", error);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  // Get student code from cache or fallback to original data
+  const getStudentCode = (item) => {
+    const studentId = item.student?.studentId;
+    if (studentId && studentsData[studentId]) {
+      return studentsData[studentId].studentCode || "N/A";
+    }
+    return item.student?.studentCode || "N/A";
+  };
 
   // Hiệu ứng loading với 3 dấu chấm
   useEffect(() => {
@@ -213,7 +283,7 @@ const MedicalRegistrationList = () => {
 
         {/* List */}
         <div style={{padding: "0 24px"}}>
-          {!showList ? (
+          {!showList || loadingStudents ? (
             <div
               style={{
                 background: "#fff",
@@ -230,6 +300,9 @@ const MedicalRegistrationList = () => {
                 color: "#222",
               }}
             >
+              {loadingStudents && (
+                <Spin size="large" style={{marginRight: 16}} />
+              )}
               <span>
                 <span style={{opacity: dotIndex === 0 ? 1 : 0.3}}>.</span>
                 <span style={{opacity: dotIndex === 1 ? 1 : 0.3}}>.</span>
@@ -254,10 +327,7 @@ const MedicalRegistrationList = () => {
               className="animate__animated animate__fadeIn"
               style={{
                 borderRadius: 20,
-                overflowY: "auto",
-                overflowX: "hidden",
                 paddingRight: 8,
-                maxHeight: 520,
               }}
             >
               <div style={{display: "flex", flexDirection: "column", gap: 16}}>
@@ -276,16 +346,17 @@ const MedicalRegistrationList = () => {
                     <div
                       style={{
                         display: "flex",
-                        alignItems: "center",
                         justifyContent: "space-between",
+                        alignItems: "flex-start",
                       }}
                     >
-                      {/* Student Info */}
+                      {/* Left section with avatar and student name */}
                       <div
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          flex: 1,
+                          gap: 15,
+                          width: "30%",
                         }}
                       >
                         <div
@@ -294,146 +365,62 @@ const MedicalRegistrationList = () => {
                             height: 48,
                             borderRadius: "50%",
                             background:
-                              "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+                              "linear-gradient(180deg, #2B5DC4 0%, #2B5DC4 100%)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             fontWeight: 700,
                             fontSize: 22,
                             color: "#fff",
-                            marginRight: 14,
                           }}
                         >
-                          {item.student.studentFullName?.[0] || "U"}
+                          {item.student?.studentFullName?.[0] || "U"}
                         </div>
                         <div>
-                          <div style={{fontWeight: 700, fontSize: 17}}>
-                            {item.student.studentFullName}
+                          <div style={{fontWeight: 700, fontSize: 18}}>
+                            {item.student?.studentFullName}
                           </div>
-                          {/* Status badge moved here */}
-                          <div style={{marginTop: 4}}>
-                            <Tag
-                              color={
-                                isAllDoseCompleted(item) ? "blue" : "orange"
-                              }
-                              style={{
-                                fontWeight: 600,
-                                borderRadius: 16,
-                                fontSize: 13,
-                                padding: "2px 8px",
-                                background: isAllDoseCompleted(item)
-                                  ? "#e6f7ff"
-                                  : "#fff7e6",
-                                color: isAllDoseCompleted(item)
-                                  ? "#1890ff"
-                                  : "#fa8c16",
-                                border: "none",
-                              }}
-                            >
-                              {isAllDoseCompleted(item) ? "Done" : "Not Yet"}
-                            </Tag>
+                          <div style={{color: "#666", fontSize: 14}}>
+                            Student ID: {getStudentCode(item)}
                           </div>
                         </div>
                       </div>
 
-                      {/* Dosage Info */}
-                      <div style={{flex: 1, padding: "0 20px"}}>
-                        <div
-                          style={{
-                            color: "#355383",
-                            fontSize: 15,
-                            marginBottom: 4,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <b>Total Dosages:</b>{" "}
-                          {item.medicalRegistration.totalDosages}
-                        </div>
-                        <div
-                          style={{
-                            color: "#1bbf7a",
-                            fontSize: 15,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <b>Submitted:</b>{" "}
-                          {item.medicalRegistration.dateSubmitted}
-                        </div>
-                      </div>
-
-                      {/* Medication Name + Notes - Combined */}
-                      <div style={{flex: 1}}>
-                        <div
-                          style={{
-                            color: "#a259e6",
-                            fontSize: 15,
-                            marginBottom: 8,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span style={{fontWeight: 600}}>Medication:</span>{" "}
-                          <span
-                            style={{
-                              marginLeft: 6,
-                              color: "#444",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {item.medicalRegistration.medicationName}
-                          </span>
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span
-                              style={{
-                                fontWeight: 600,
-                                fontSize: 15,
-                                color: "#a259e6",
-                              }}
-                            >
-                              Notes:
-                            </span>
-                            <p
-                              style={{
-                                fontSize: 14,
-                                color: "#555",
-                                margin: 0,
-                              }}
-                            >
-                              {item.medicalRegistration.notes ||
-                                "No notes provided"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Button - Right Section */}
+                      {/* Status and Details section (right aligned) */}
                       <div
                         style={{
-                          position: "absolute",
-                          right: 50,
-                          flex: 1,
                           display: "flex",
-                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          gap: 15,
                         }}
                       >
+                        <Tag
+                          color={
+                            isAllDoseCompleted(item) ? "processing" : "warning"
+                          }
+                          style={{
+                            fontWeight: 600,
+                            borderRadius: 20,
+                            fontSize: 14,
+                            padding: "4px 16px",
+                            height: 32,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {isAllDoseCompleted(item) ? "Done" : "Not Yet"}
+                        </Tag>
+
                         <Button
                           style={{
                             borderRadius: 8,
-                            background: "#fff",
-                            color: "#355383",
-                            border: "1px solid #355383",
+                            background: "#355383",
+                            color: "#fff",
                             fontWeight: 600,
                             minWidth: 90,
-                            height: 42,
+                            height: 40,
+                            border: "none",
                           }}
                           onClick={() => {
                             navigate(`/parent/medical-registration/detail`, {
@@ -448,6 +435,84 @@ const MedicalRegistrationList = () => {
                           Details
                         </Button>
                       </div>
+                    </div>
+
+                    {/* Medication and Dates section */}
+                    <div
+                      style={{
+                        marginTop: 12,
+                        display: "flex",
+                        gap: 12,
+                      }}
+                    >
+                      {/* Date badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          backgroundColor: "#f0f7ff",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <span style={{marginRight: 8, color: "#5b8cff"}}>
+                          Date:
+                        </span>
+                        <span style={{color: "#355383", fontWeight: 500}}>
+                          {item.medicalRegistration.dateSubmitted}
+                        </span>
+                      </div>
+
+                      {/* Medication badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          backgroundColor: "#fff9f6",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <span style={{marginRight: 8, color: "#ff7d4d"}}>
+                          Medication:
+                        </span>
+                        <span style={{color: "#ff7d4d", fontWeight: 500}}>
+                          {item.medicalRegistration.medicationName ||
+                            "No medication"}
+                        </span>
+                      </div>
+
+                      {/* Dosages badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          backgroundColor: "#f6f0ff",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <span style={{marginRight: 8, color: "#a259e6"}}>
+                          Dosages:
+                        </span>
+                        <span style={{color: "#a259e6", fontWeight: 500}}>
+                          {item.medicalRegistration.totalDosages}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Notes section - full width at bottom */}
+                    <div
+                      style={{
+                        marginTop: 12,
+                        paddingTop: 12,
+                        borderTop: "1px solid #f0f0f0",
+                        color: "#666",
+                        fontSize: 14,
+                      }}
+                    >
+                      <span style={{fontWeight: 600}}>Notes: </span>
+                      {item.medicalRegistration.notes || "No notes provided"}
                     </div>
                   </Card>
                 ))}
