@@ -11,7 +11,7 @@ import {
   Eye,
   CheckCircle,
 } from "lucide-react";
-
+import {format, parseISO} from "date-fns";
 const MyChildren = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -179,7 +179,7 @@ const MyChildren = () => {
                     {/* Student Info Section - Left Side */}
                     <div
                       style={{
-                        width: "25%",
+                        width: "30%",
                         display: "flex",
                         alignItems: "center",
                       }}
@@ -206,92 +206,96 @@ const MyChildren = () => {
                       <div>
                         <div
                           style={{
-                            fontWeight: 600,
-                            fontSize: 16,
-                            color: "#374151",
+                            display: "flex",
+                            alignItems: "center",
                             marginBottom: 4,
                           }}
                         >
-                          {item.fullName}
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              fontSize: 20,
+                              color: "#374151",
+                              marginRight: 8,
+                            }}
+                          >
+                            {item.fullName}
+                          </span>
+
+                          {/* Status badge moved inline with name */}
+                          {declarationMap[item.studentId] ? (
+                            <span
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium gap-1"
+                              style={{
+                                backgroundColor: "#e6fff2",
+                                color: "#10b981",
+                              }}
+                            >
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Declared
+                            </span>
+                          ) : (
+                            <span
+                              className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                              style={{
+                                backgroundColor: "#fff7ed",
+                                color: "#f97316",
+                              }}
+                            >
+                              <Shield className="w-3 h-3 mr-1" />
+                              Pending
+                            </span>
+                          )}
                         </div>
-                        <div style={{color: "#6B7280", fontSize: 13}}>
-                          Student ID: {item.studentCode}
+                        <div className="rounded-md">
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm text-gray-500 font-medium mr-2">
+                              Date of Birth:
+                            </span>
+                            <span className="text-sm font-medium text-gray-800">
+                              {item.dayOfBirth
+                                ? format(
+                                    parseISO(item.dayOfBirth),
+                                    "dd/MM/yyyy"
+                                  )
+                                : "N/A"}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Status Tag - After student info */}
-                    <div style={{position: "absolute", top: 23, left: 230}}>
-                      {declarationMap[item.studentId] ? (
-                        <span
-                          className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            backgroundColor: "#e6fff2",
-                            color: "#10b981",
-                          }}
-                        >
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Declared
-                        </span>
-                      ) : (
-                        <span
-                          className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            backgroundColor: "#fff7ed",
-                            color: "#f97316",
-                          }}
-                        >
-                          <Shield className="w-3 h-3 mr-1" />
-                          Pending
-                        </span>
-                      )}
                     </div>
 
                     {/* Date & Class - Middle Section */}
                     <div
-                      className="flex justify-center gap-40"
+                      className="flex justify-center gap-5 md:gap-10 lg:gap-40"
                       style={{width: "45%", paddingLeft: 20}}
                     >
-                      {/* Date of Birth */}
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
-                          DATE OF BIRTH
-                        </p>
+                      {/* Student ID (moved from name section) */}
+                      <div className="bg-blue-50 px-4 py-3 rounded-lg">
                         <div className="flex items-center gap-2">
-                          <div>
-                            <span className="text-blue-500 mr-2">
-                              <Calendar
-                                className="w-4 h-4 text-blue-600"
-                                size={24}
-                              />
+                          <User className="w-4 h-4 text-blue-600 mr-2" />
+                          <div className="flex items-center gap-2">
+                            <span className="text-[16px] text-gray-500 uppercase font-medium mr-2">
+                              STUDENT ID:
                             </span>
-                          </div>
-                          <div>
-                            <p className="text-[16px] font-medium text-gray-800 m-0">
-                              {item.dayOfBirth}
-                            </p>
+                            <span className="text-[16px] font-medium text-gray-800">
+                              {item.studentCode}
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Class */}
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
-                          CLASS
-                        </p>
+                      {/* Class - Remains the same */}
+                      <div className="bg-purple-50 px-4 py-3 rounded-lg">
                         <div className="flex items-center gap-2">
-                          <div>
-                            <span className="text-purple-500 mr-2">
-                              <GraduationCap
-                                className="w-4 h-4 text-purple-600"
-                                size={24}
-                              />
+                          <GraduationCap className="w-4 h-4 text-purple-600 mr-2" />
+                          <div className="flex items-center gap-2">
+                            <span className="text-[16px] text-gray-500 uppercase font-medium mr-2">
+                              CLASS:
                             </span>
-                          </div>
-                          <div>
-                            <p className="text-[16px] font-medium text-gray-800 m-0">
+                            <span className="text-[16px] font-medium text-gray-800">
                               {item.grade.trim()}
-                            </p>
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -309,7 +313,7 @@ const MyChildren = () => {
                           border: "1px solid #e5e7eb",
                           borderRadius: 8,
                           height: 36,
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: 500,
                           color: "#374151",
                           padding: "0 14px",
@@ -336,7 +340,7 @@ const MyChildren = () => {
                           border: "1px solid #e5e7eb",
                           borderRadius: 8,
                           height: 36,
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: 500,
                           color: "#374151",
                           padding: "0 14px",
@@ -363,7 +367,7 @@ const MyChildren = () => {
                           border: "1px solid #e5e7eb",
                           borderRadius: 8,
                           height: 36,
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: 500,
                           color: "#374151",
                           padding: "0 14px",
@@ -380,7 +384,7 @@ const MyChildren = () => {
                         }}
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        Health
+                        Health check
                       </button>
 
                       {!declarationMap[item.studentId] && (

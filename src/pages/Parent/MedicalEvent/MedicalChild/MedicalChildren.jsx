@@ -4,6 +4,7 @@ import axiosInstance from "../../../../api/axios";
 import {setListStudentParent} from "../../../../redux/feature/listStudentParent";
 import {useNavigate} from "react-router-dom";
 import {User, Calendar, GraduationCap, Eye} from "lucide-react";
+import {format, parseISO} from "date-fns";
 
 const MedicalChildren = () => {
   const dispatch = useDispatch();
@@ -168,7 +169,7 @@ const MedicalChildren = () => {
                           alignItems: "center",
                           justifyContent: "center",
                           fontWeight: 700,
-                          fontSize: 24,
+                          fontSize: 26,
                           color: "#fff",
                           marginRight: 16,
                           boxShadow: "0 2px 8px rgba(43, 93, 196, 0.2)",
@@ -180,57 +181,61 @@ const MedicalChildren = () => {
                         <div
                           style={{
                             fontWeight: 600,
-                            fontSize: 16,
+                            fontSize: 22,
                             color: "#374151",
                             marginBottom: 4,
                           }}
                         >
                           {item.fullName}
                         </div>
-                        <div style={{color: "#6B7280", fontSize: 13}}>
-                          Student ID: {item.studentCode}
+                        <div className="rounded-md">
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm text-gray-500 font-medium mr-2">
+                              Date of Birth:
+                            </span>
+                            <span className="text-sm font-medium text-gray-800">
+                              {item.dayOfBirth
+                                ? format(
+                                    parseISO(item.dayOfBirth),
+                                    "dd/MM/yyyy"
+                                  )
+                                : "N/A"}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                     {/* Date & Class - Middle Section */}
                     <div
-                      className="flex justify-center gap-40"
+                      className="flex justify-center gap-5 md:gap-10 lg:gap-40"
                       style={{width: "45%", paddingLeft: 20}}
                     >
-                      {/* Date of Birth */}
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
-                          DATE OF BIRTH
-                        </p>
+                      {/* Student ID (moved from name section) */}
+                      <div className="bg-blue-50 px-4 py-3 rounded-lg">
                         <div className="flex items-center gap-2">
-                          <div>
-                            <span className="text-blue-500 mr-2">
-                              <Calendar className="w-4 h-4 text-blue-600" />
+                          <User className="w-4 h-4 text-blue-600 mr-2" />
+                          <div className="flex items-center gap-2">
+                            <span className="text-[16px] text-gray-500 uppercase font-medium mr-2">
+                              STUDENT ID:
                             </span>
-                          </div>
-                          <div>
-                            <p className="text-[16px] font-medium text-gray-800 m-0">
-                              {item.dayOfBirth}
-                            </p>
+                            <span className="text-[16px] font-medium text-gray-800">
+                              {item.studentCode}
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Class */}
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
-                          CLASS
-                        </p>
+                      {/* Class - Remains the same */}
+                      <div className="bg-purple-50 px-4 py-3 rounded-lg">
                         <div className="flex items-center gap-2">
-                          <div>
-                            <span className="text-purple-500 mr-2">
-                              <GraduationCap className="w-4 h-4 text-purple-600" />
+                          <GraduationCap className="w-4 h-4 text-purple-600 mr-2" />
+                          <div className="flex items-center gap-2">
+                            <span className="text-[16px] text-gray-500 uppercase font-medium mr-2">
+                              CLASS:
                             </span>
-                          </div>
-                          <div>
-                            <p className="text-[16px] font-medium text-gray-800 m-0">
+                            <span className="text-[16px] font-medium text-gray-800">
                               {item.grade.trim()}
-                            </p>
+                            </span>
                           </div>
                         </div>
                       </div>

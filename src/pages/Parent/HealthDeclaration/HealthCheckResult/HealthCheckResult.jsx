@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
   Card,
   Row,
@@ -13,22 +13,27 @@ import {
   Divider,
 } from "antd";
 import {
-  CalendarOutlined,
-  ArrowLeftOutlined,
-  UserOutlined,
-  CheckOutlined,
-  EyeOutlined,
-  PhoneOutlined,
-  FileTextOutlined,
-  HeartOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
+  Calendar,
+  User,
+  FileText,
+  Ruler,
+  Weight,
+  Eye,
+  Ear,
+  Stethoscope,
+  HeartPulse,
+  ChevronDown,
+  ArrowLeft,
+  Check,
+  Heart,
+  Phone, // Add this import
+} from "lucide-react";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
-const { Title, Text } = Typography;
+const {Title, Text} = Typography;
 
 const HealthCheckResult = () => {
   const navigate = useNavigate();
@@ -79,7 +84,18 @@ const HealthCheckResult = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
     setExpandedItems([]);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({top: 0, behavior: "smooth"});
+  };
+
+  // Modify this function to map status codes correctly
+  const getStatusLabel = (status) => {
+    // For status "0", show as "Pending" instead of "Completed"
+    if (status === "Pending") return "Pending";
+    if (status === "1") return "In Process";
+    if (status === "2") return "Needs Review";
+    if (status === "3") return "Completed";
+    // Keep the original status label if it's already "Pending"
+    return status;
   };
 
   if (loading) {
@@ -98,7 +114,7 @@ const HealthCheckResult = () => {
   }
 
   return (
-    <div style={{ padding: "16px" }}>
+    <div style={{padding: "16px"}}>
       {/* Header */}
       <div
         style={{
@@ -149,14 +165,10 @@ const HealthCheckResult = () => {
         {/* Back button */}
         <Button
           icon={
-            <ArrowLeftOutlined
+            <ArrowLeft
+              size={18}
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
                 color: "white",
-                fontSize: "18px",
-                margin: 0,
               }}
             />
           }
@@ -207,15 +219,10 @@ const HealthCheckResult = () => {
                 backdropFilter: "blur(10px)",
               }}
             >
-              <HeartOutlined
-                size={30}
+              <Heart
+                size={24}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                   color: "white",
-                  fontSize: "18px",
-                  margin: 0,
                 }}
               />
             </div>
@@ -225,7 +232,7 @@ const HealthCheckResult = () => {
                 margin: 0,
                 color: "white",
                 fontWeight: "bold",
-                fontSize: "32px",
+                fontSize: "28px", // Changed from 32px
                 textShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
             >
@@ -243,24 +250,24 @@ const HealthCheckResult = () => {
               gap: "8px",
             }}
           >
-            <span style={{ fontSize: "18px" }}>🩺</span>
+            <span style={{fontSize: "18px"}}>🩺</span>
             <Text
               style={{
                 color: "rgba(255, 255, 255, 0.9)",
-                fontSize: "16px",
+                fontSize: "14px", // Changed from 16px
                 textAlign: "center",
               }}
             >
               Track health check history and details for your child
             </Text>
-            <span style={{ fontSize: "18px" }}>💪</span>
+            <span style={{fontSize: "18px"}}>💪</span>
           </div>
         </div>
 
         {/* Statistics Cards */}
         <Row
           gutter={16}
-          style={{ marginTop: "24px", position: "relative", zIndex: 1 }}
+          style={{marginTop: "24px", position: "relative", zIndex: 1}}
         >
           <Col xs={24} sm={12}>
             <Card
@@ -270,9 +277,9 @@ const HealthCheckResult = () => {
                 border: "none",
                 backdropFilter: "blur(10px)",
               }}
-              bodyStyle={{ padding: "16px" }}
+              bodyStyle={{padding: "16px"}}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={{display: "flex", alignItems: "center"}}>
                 <div
                   style={{
                     width: "40px",
@@ -286,15 +293,10 @@ const HealthCheckResult = () => {
                     boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)",
                   }}
                 >
-                  <CheckOutlined
+                  <Check
+                    size={24}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
                       color: "white",
-                      fontSize: "18px",
-                      margin: 0,
-                      fontWeight: "bold",
                     }}
                   />
                 </div>
@@ -311,7 +313,7 @@ const HealthCheckResult = () => {
                   </div>
                   <div
                     style={{
-                      fontSize: "14px",
+                      fontSize: "12px", // Changed from 14px
                       color: "rgba(255, 255, 255, 0.8)",
                     }}
                   >
@@ -329,9 +331,9 @@ const HealthCheckResult = () => {
                 border: "none",
                 backdropFilter: "blur(10px)",
               }}
-              bodyStyle={{ padding: "16px" }}
+              bodyStyle={{padding: "16px"}}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={{display: "flex", alignItems: "center"}}>
                 <div
                   style={{
                     width: "40px",
@@ -345,14 +347,10 @@ const HealthCheckResult = () => {
                     boxShadow: "0 2px 8px rgba(255, 193, 7, 0.3)",
                   }}
                 >
-                  <UserOutlined
+                  <User
+                    size={24}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
                       color: "white",
-                      fontSize: "18px",
-                      margin: 0,
                     }}
                   />
                 </div>
@@ -369,7 +367,7 @@ const HealthCheckResult = () => {
                   </div>
                   <div
                     style={{
-                      fontSize: "14px",
+                      fontSize: "12px", // Changed from 14px
                       color: "rgba(255, 255, 255, 0.8)",
                     }}
                   >
@@ -423,7 +421,7 @@ const HealthCheckResult = () => {
                     (e.currentTarget.style.backgroundColor = "#ffffff")
                   }
                 >
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{display: "flex", alignItems: "center"}}>
                     <div
                       style={{
                         backgroundColor: "#4CAF50",
@@ -440,15 +438,15 @@ const HealthCheckResult = () => {
                     >
                       {actualIndex + 1}
                     </div>
-                    <span style={{ fontWeight: 500, fontSize: "20px" }}>
+                    <span style={{fontWeight: 500, fontSize: "20px"}}>
                       Health Check on{" "}
                       {dayjs(item.datePerformed).format("DD/MM/YYYY")}
                     </span>
                     <Tag
-                      color="green"
-                      style={{ marginLeft: 8, fontWeight: 600, fontSize: "14px" }}
+                      color={item.status === "Pending" ? "orange" : "green"}
+                      style={{marginLeft: 8, fontWeight: 600, fontSize: "12px"}} // Changed from 14px
                     >
-                      {item.status}
+                      {getStatusLabel(item.status)}
                     </Tag>
                   </div>
                   <div
@@ -457,7 +455,7 @@ const HealthCheckResult = () => {
                       transition: "transform 0.3s",
                     }}
                   >
-                    <DownOutlined />
+                    <ChevronDown size={18} />
                   </div>
                 </div>
 
@@ -467,36 +465,35 @@ const HealthCheckResult = () => {
                     className="content-details"
                     style={{
                       padding: "16px",
-                      animation: "fadeIn 0.3s ease",  
-                                        
+                      animation: "fadeIn 0.3s ease",
                     }}
                   >
                     <Row gutter={[16, 16]}>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
-                            <CalendarOutlined style={{ marginRight: 8 }} />
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <Calendar size={16} style={{marginRight: 8}} />
                             <Text strong>Date Performed: </Text>
-                             {dayjs(item.datePerformed).format("DD/MM/YYYY")}
+                            {dayjs(item.datePerformed).format("DD/MM/YYYY")}
                           </div>
                         </Space>
                       </Col>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
-                            <UserOutlined style={{ marginRight: 8 }} />
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <User size={16} style={{marginRight: 8}} />
                             <Text strong>Recorded By: </Text>
                             {item.recordedBy?.nurseName}
                             {" - "}
-                            <PhoneOutlined style={{ marginRight: 4 }} />
+                            {/* Replace PhoneOutlined with Phone */}
                             {item.recordedBy?.nursePhone}
                           </div>
                         </Space>
                       </Col>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
-                            <FileTextOutlined style={{ marginRight: 8 }} />
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <FileText size={16} style={{marginRight: 8}} />
                             <Text strong>Notes: </Text>
                             {item.notes || "No notes"}
                           </div>
@@ -504,32 +501,35 @@ const HealthCheckResult = () => {
                       </Col>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <Ruler size={16} style={{marginRight: 8}} />
                             <Text strong>Height: </Text>
-                             {item.height} cm
+                            {item.height}
                           </div>
                         </Space>
                       </Col>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <Weight size={16} style={{marginRight: 8}} />
                             <Text strong>Weight: </Text>
-                            {item.weight} kg
+                            {item.weight}
                           </div>
                         </Space>
                       </Col>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
-                            <EyeOutlined style={{ marginRight: 8 }} />
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <Eye size={16} style={{marginRight: 8}} />
                             <Text strong>Vision: </Text>
-                            Left: {item.visionLeft}/10 - Right: {item.visionRight}/10
+                            Left: {item.visionLeft} - Right: {item.visionRight}
                           </div>
                         </Space>
                       </Col>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <Ear size={16} style={{marginRight: 8}} />
                             <Text strong>Hearing: </Text>
                             {item.hearing}
                           </div>
@@ -537,7 +537,8 @@ const HealthCheckResult = () => {
                       </Col>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <Stethoscope size={16} style={{marginRight: 8}} />
                             <Text strong>Nose: </Text>
                             {item.nose}
                           </div>
@@ -545,7 +546,8 @@ const HealthCheckResult = () => {
                       </Col>
                       <Col xs={24} md={8}>
                         <Space direction="vertical" size="small">
-                          <div>
+                          <div style={{display: "flex", alignItems: "center"}}>
+                            <HeartPulse size={16} style={{marginRight: 8}} />
                             <Text strong>Blood Pressure: </Text>
                             {item.bloodPressure}
                           </div>
@@ -560,7 +562,7 @@ const HealthCheckResult = () => {
 
           {/* Pagination */}
           {healthResults.length > pageSize && (
-            <div style={{ textAlign: "center", marginTop: 24 }}>
+            <div style={{textAlign: "center", marginTop: 24}}>
               <Pagination
                 current={currentPage}
                 pageSize={pageSize}
@@ -572,13 +574,12 @@ const HealthCheckResult = () => {
           )}
 
           <style jsx="true">{`
-          .content-details {
-            animation: fadeIn 0.3s ease;
-            font-size: 18px !important;
-          }
-          .content-details * {
-            font-size: 18px !important;
-          }
+            .content-details {
+              animation: fadeIn 0.3s ease;
+            }
+            .content-details * {
+              font-size: 16px !important; // Changed from 18px
+            }
             @keyframes fadeIn {
               from {
                 opacity: 0;
@@ -588,9 +589,6 @@ const HealthCheckResult = () => {
                 opacity: 1;
                 transform: translateY(0);
               }
-            }
-            .content-details {
-              animation: fadeIn 0.3s ease;
             }
           `}</style>
         </>
