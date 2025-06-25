@@ -37,7 +37,7 @@ const MedicalReceived = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const pageSize = 10;
   const [loading, setLoading] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("notyet"); // "notyet" | "done"
+  const [filterStatus, setFilterStatus] = useState("all"); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,92 +59,130 @@ const MedicalReceived = () => {
     fetchData();
   }, [navigate, userId, pageIndex, pageSize]);
 
-  // Hàm kiểm tra đơn đã complete hết chưa
   const isAllDoseCompleted = (item) =>
     item.medicalRegistrationDetails &&
     item.medicalRegistrationDetails.length > 0 &&
     item.medicalRegistrationDetails.every((dose) => dose.isCompleted);
 
-  // Lọc data theo filter
+
   const filteredData = data.filter((item) => {
     if (filterStatus === "done") return isAllDoseCompleted(item);
     if (filterStatus === "notyet") return !isAllDoseCompleted(item);
     return true;
   });
 
-  // Kiểm tra nếu không có dữ liệu trong filter hiện tại
   const noData = filteredData.length === 0;
 
-  // Card component giống AppointmentList
   const MedicalCard = ({ item }) => {
     const done = isAllDoseCompleted(item);
     const status = done ? statusConfig.done : statusConfig.notyet;
-    const notCompletedDoses =
-      item.medicalRegistrationDetails?.filter((dose) => !dose.isCompleted) || [];
 
     return (
       <Card
         style={{
-          marginBottom: 24,
-          borderRadius: 16,
+          marginBottom: 16,
+          borderRadius: 12,
           border: `2px solid ${status.borderColor}`,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-          background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-          transition: "all 0.3s ease",
+          boxShadow: "0 4px 16px 0 rgba(53,83,131,0.10)",
+          background: "#fff",
+          transition: "all 0.2s",
         }}
-        bodyStyle={{ padding: "32px 36px" }}
+        bodyStyle={{ padding: "18px 24px" }}
         hoverable
       >
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 32 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
           {/* Left: Student Info & Details */}
           <div style={{ flex: 1 }}>
             {/* Student Info */}
-            <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 12 }}>
               <Avatar
-                size={48}
+                size={40}
                 icon={<UserOutlined />}
                 style={{
-                  backgroundColor: "#4f46e5",
-                  marginRight: 16,
-                  boxShadow: "0 4px 12px rgba(79, 70, 229, 0.3)",
+                  backgroundColor: "#2563eb",
+                  marginRight: 12,
+                  boxShadow: "0 2px 8px rgba(37,99,235,0.13)",
                 }}
-              />              
+              />
               <div>
-                <h3 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "#1f2937", lineHeight: 1.2 }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>
                   {item.student.studentFullName}
                 </h3>
+                <p style={{ margin: "4px 0 0 0", color: "#6b7280", fontSize: 13, fontWeight: 500 }}>
+                  Student ID: {item.student.studentCode || "N/A"}
+                </p>
               </div>
             </div>
             {/* Details grid */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: 24,
-                marginBottom: 18,
-                alignItems: "center",
+                display: "flex",
+                gap: 16,
+                marginBottom: 10,
+                flexWrap: "wrap",
               }}
             >
-              <div style={{ color: "#3058A4", fontWeight: 600, fontSize: 18, wordBreak: "break-word" }}>
-                {item.medicalRegistration.medicationName}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#2563eb",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#f0f7ff",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #dbeafe"
+              }}>
+                <span style={{ fontWeight: 700 }}>📅</span>
+                <span>
+                  {item.medicalRegistration.dateSubmitted}
+                </span>
+                
               </div>
-              <div style={{ color: "#374151", fontSize: 17, fontWeight: 600 }}>
-                <span style={{ color: "#6b7280", fontWeight: 500 }}>Total Dosages:</span>{" "}
-                {item.medicalRegistration.totalDosages}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#059669",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#ecfdf5",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #a7f3d0"
+              }}>
+                <span style={{ fontWeight: 700 }}>🕒</span>
+                <span>
+                  Total Dosages: {item.medicalRegistration.totalDosages}
+                </span>
               </div>
-              <div style={{ color: "#374151", fontSize: 17, fontWeight: 600 }}>
-                <span style={{ color: "#6b7280", fontWeight: 500 }}>Date Submitted:</span>{" "}
-                {item.medicalRegistration.dateSubmitted}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#f59e42",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#fff7ed",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #fde68a"
+              }}>
+                <span style={{ fontWeight: 700 }}>💊</span>
+                <span>
+                  {item.medicalRegistration.medicationName}
+                </span>
               </div>
             </div>
-            {/* Parent Notes với background giống Description */}
+            {/* Parent Notes */}
             <div
               style={{
                 background: "#f8fafc",
-                borderRadius: 10,
-                padding: "14px 18px",
-                marginTop: 10,
-                fontSize: 16,
+                borderRadius: 8,
+                padding: "10px 12px",
+                marginTop: 8,
+                fontSize: 14,
                 fontWeight: 600,
                 color: "#374151",
                 border: "1px solid #e5e7eb",
@@ -155,45 +193,36 @@ const MedicalReceived = () => {
             </div>
           </div>
           {/* Right: Status & Actions */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 20, minWidth: 180 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, minWidth: 140 }}>
             <Tag
               style={{
                 backgroundColor: status.bgColor,
                 color: status.color,
                 border: `2px solid ${status.color}`,
-                borderRadius: 24,
-                padding: "10px 28px",
-                fontSize: 17,
+                borderRadius: 18,
+                padding: "7px 18px",
+                fontSize: 14,
                 fontWeight: 700,
-                minWidth: 120,
+                minWidth: 100,
                 textAlign: "center",
-                marginBottom: 8,
+                marginBottom: 6,
               }}
             >
               {status.text}
-              {!done && notCompletedDoses.length > 0 && (
-                <span style={{ marginLeft: 8, fontWeight: 600 }}>
-                  (
-                  {notCompletedDoses
-                    .map((dose) => `Dose ${dose.doseNumber}`)
-                    .join(", ")}
-                  )
-                </span>
-              )}
             </Tag>
             <Button
               type="primary"
               style={{
-                borderRadius: 12,
+                borderRadius: 8,
                 fontWeight: 700,
-                fontSize: 18,
-                height: 48,
-                paddingLeft: 32,
-                paddingRight: 32,
-                background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+                fontSize: 15,
+                height: 38,
+                paddingLeft: 18,
+                paddingRight: 18,
+                background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
                 border: "none",
-                boxShadow: "0 4px 15px rgba(79, 70, 229, 0.3)",
-                transition: "all 0.3s ease",
+                boxShadow: "0 2px 8px #3058A433",
+                transition: "all 0.2s",
               }}
               onClick={() => {
                 navigate(`/nurse/medical-received/medical-received-detail`, {
@@ -219,8 +248,8 @@ const MedicalReceived = () => {
         style={{
           width: "100%",
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "36px 0 18px 0",
-          marginBottom: "40px",
+          padding: "20px 0 10px 0", 
+          marginBottom: "28px",      
           textAlign: "center",
           position: "relative",
         }}
@@ -228,10 +257,10 @@ const MedicalReceived = () => {
         <h1
           style={{
             fontWeight: 700,
-            fontSize: 38,
+            fontSize: 30, 
             color: "#fff",
             letterSpacing: 1,
-            marginBottom: 8,
+            marginBottom: 4, 
             marginTop: 0,
           }}
         >
@@ -240,30 +269,32 @@ const MedicalReceived = () => {
         <div
           style={{
             color: "#e0e7ff",
-            fontSize: 20,
+            fontSize: 16, 
             fontWeight: 500,
+            marginBottom: 0, 
           }}
         >
           Manage and review all medication requests from parents
         </div>
-        {/* Filter status đưa lên header */}
+        
         <div
           style={{
-            marginTop: 24,
+            marginTop: 14, 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 16,
+            gap: 12, 
           }}
         >
-          <FilterOutlined style={{ fontSize: 18, color: "#fff" }} />
-          <span style={{ fontSize: 18, fontWeight: 500, color: "#fff" }}>Filter by status:</span>
+          <FilterOutlined style={{ fontSize: 16, color: "#fff" }} />
+          <span style={{ fontSize: 15, fontWeight: 500, color: "#fff" }}>Status:</span>
           <Select
             value={filterStatus}
-            style={{ width: 180, borderRadius: 10 }}
+            style={{ width: 120, borderRadius: 10 }}
             onChange={setFilterStatus}
             size="large"
           >
+            <Select.Option value="all">All</Select.Option>
             <Select.Option value="notyet">Not Yet</Select.Option>
             <Select.Option value="done">Done</Select.Option>
           </Select>

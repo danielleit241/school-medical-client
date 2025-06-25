@@ -144,8 +144,8 @@ const HealthCheckList = () => {
           style={{
             width: "100%",
             background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-            padding: "36px 0 18px 0",
-            marginBottom: "40px",
+            padding: "16px 0 8px 0", 
+            marginBottom: "24px",
             borderTopLeftRadius: 0,
             borderTopRightRadius: 0,
             textAlign: "center",
@@ -154,10 +154,10 @@ const HealthCheckList = () => {
           <h1
             style={{
               fontWeight: 700,
-              fontSize: 38,
+              fontSize: 26,
               color: "#fff",
               letterSpacing: 1,
-              marginBottom: 8,
+              marginBottom: 4,
               marginTop: 0,
             }}
           >
@@ -166,13 +166,14 @@ const HealthCheckList = () => {
           <div
             style={{
               color: "#e0e7ff",
-              fontSize: 20,
+              fontSize: 15,
               fontWeight: 500,
+              marginBottom: 0,
             }}
           >
             Manage and view all health check rounds for your school
           </div>
-          <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
+          <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
             <Input.Search
               placeholder="Search health check rounds"
               allowClear
@@ -182,11 +183,11 @@ const HealthCheckList = () => {
                 setPageIndex(1);
               }}
               style={{
-                width: 340,
+                width: 260,
                 background: "#fff",
                 borderRadius: 8,
                 boxShadow: "0 2px 8px #e6f7ff",
-                fontSize: 16,
+                fontSize: 14,
               }}
             />
           </div>
@@ -198,23 +199,23 @@ const HealthCheckList = () => {
           style={{
             maxHeight: "650px",
             overflowY: "auto",
-            padding: "32px 0",
+            padding: "20px 0",
             boxSizing: "border-box",
           }}
         >
           <div
             style={{
               width: "100%",
-              padding: "0 32px",
+              padding: "0 16px",
             }}
           >
             {loading ? (
-              <div style={{ textAlign: "center", marginTop: 80 }}>
+              <div style={{ textAlign: "center", marginTop: 40 }}>
                 <Spin size="large" />
               </div>
             ) : rounds && rounds.length > 0 ? (
               <div>
-                {rounds.map((round, idx) => {
+                {rounds.map((round) => {
                   const now = dayjs();
                   const startTime = round.startTime ? dayjs(round.startTime) : null;
                   const endTime = round.endTime ? dayjs(round.endTime) : null;
@@ -247,11 +248,11 @@ const HealthCheckList = () => {
                     <div
                       key={round.roundId}
                       style={{
-                        background: "#fff",
-                        borderRadius: 16,
-                        boxShadow: "0 8px 32px 0 rgba(53,83,131,0.15)",
-                        padding: `0 48px 32px 48px`,
-                        marginBottom: 32,
+                        background: "",
+                        borderRadius: 12,
+                        boxShadow: "0 4px 16px 0 rgba(53,83,131,0.10)",
+                        padding: `0 20px 18px 20px`,
+                        marginBottom: 18,
                         width: "100%",
                         maxWidth: "100%",
                         marginLeft: 0,
@@ -266,11 +267,12 @@ const HealthCheckList = () => {
                       <div style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 18,
-                        marginTop: idx === 0 ? 0 : 0
+                        gap: 12,
+                        marginTop: 0,
+                        marginBottom: 2,
                       }}>
-                        <CalendarOutlined style={{ color: "#3058A4", fontSize: 32 }} />
-                        <span style={{ fontWeight: 700, fontSize: 26, color: "#222" }}>
+                        <CalendarOutlined style={{ color: "#3058A4", fontSize: 22 }} />
+                        <span style={{ fontWeight: 700, fontSize: 18, color: "#222" }}>
                           {round.roundName || "No name"}
                         </span>
                         <span
@@ -279,10 +281,10 @@ const HealthCheckList = () => {
                             color: "#fff",
                             fontWeight: 600,
                             borderRadius: 999,
-                            padding: "4px 18px",
-                            fontSize: 15,
-                            marginLeft: 8,
-                            minWidth: 90,
+                            padding: "2px 12px",
+                            fontSize: 12,
+                            marginLeft: 6,
+                            minWidth: 70,
                             textAlign: "center",
                             display: "inline-block"
                           }}
@@ -291,41 +293,78 @@ const HealthCheckList = () => {
                         </span>
                       </div>
                       {/* Description */}
-                      <div style={{ color: "#666", fontSize: 16, margin: "8px 0 0 0" }}>
+                      <div style={{ color: "#666", fontSize: 13, margin: "4px 0 0 0" }}>
                         {round.description || <span style={{ color: "#aaa" }}>No description</span>}
                       </div>
                       {/* Info Row */}
-                      <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 36,
-                        margin: "18px 0 0 0",
-                        flexWrap: "wrap"
-                      }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#555" }}>
-                          <CalendarOutlined />
-                          {round.startTime ? dayjs(round.startTime).format("DD/MM/YYYY") : "N/A"}
-                          {" - "}
-                          {round.endTime ? dayjs(round.endTime).format("DD/MM/YYYY") : "N/A"}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 36,
+                          margin: "10px 0 0 0",
+                          flexWrap: "wrap",
+                          width: "100%",
+                          boxSizing: "border-box",
+                          justifyContent: "flex-start",
+                        }}
+                      >
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          color: "#2563eb",
+                          fontSize: 14,
+                          fontWeight: 600,
+                          background: "#f0f7ff",
+                          borderRadius: 6,
+                          padding: "4px 10px"
+                        }}>
+                          <CalendarOutlined style={{ color: "#3058A4" }} />
+                          <span>
+                            {round.startTime ? dayjs(round.startTime).format("DD/MM/YYYY") : "N/A"}
+                            {" - "}
+                            {round.endTime ? dayjs(round.endTime).format("DD/MM/YYYY") : "N/A"}
+                          </span>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#555" }}>
-                          <TeamOutlined />
-                          {round.location || "School medical room"}
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          color: "#059669",
+                          fontSize: 14,
+                          fontWeight: 600,
+                          background: "#ecfdf5",
+                          borderRadius: 6,
+                          padding: "4px 10px"
+                        }}>
+                          <TeamOutlined style={{ color: "#059669" }} />
+                          <span>{round.location || "School medical room"}</span>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#555" }}>
-                          <span style={{ fontWeight: 500 }}>Grade</span>
-                          {round.targetGrade || "N/A"}
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          color: "#f59e42",
+                          fontSize: 14,
+                          fontWeight: 600,
+                          background: "#fff7ed",
+                          borderRadius: 6,
+                          padding: "4px 10px"
+                        }}>
+                          <span style={{ fontWeight: 700 }}>Grade</span>
+                          <span>{round.targetGrade || "N/A"}</span>
                         </div>
                       </div>
                       {/* Progress Bar */}
                       <div style={{
-                        marginTop: 32,
-                        marginBottom: 8,
+                        marginTop: 14,
+                        marginBottom: 4,
                         width: "100%",
                         boxSizing: "border-box"
                       }}>
-                        <div style={{ fontWeight: 600, fontSize: 17, marginBottom: 8 }}>Health Check Progress</div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+                        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>Health Check Progress</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <Progress
                             percent={percent}
                             showInfo={false}
@@ -335,36 +374,35 @@ const HealthCheckList = () => {
                               '100%': '#3058A4'
                             }}
                             trailColor="#f3f4f6"
-                            style={{ flex: 1, height: 18, minWidth: 200 }}
+                            style={{ flex: 1, height: 12, minWidth: 120 }}
                           />
-                          <span style={{ fontWeight: 500, color: "#222", minWidth: 120, textAlign: "right" }}>
+                          <span style={{ fontWeight: 500, color: "#222", minWidth: 80, textAlign: "right", fontSize: 13 }}>
                             {completed}/{total} students
                           </span>
                         </div>
                         <div style={{
                           display: "flex",
                           justifyContent: "space-between",
-                          fontSize: 15,
+                          fontSize: 12,
                           color: "#666",
-                          marginTop: 4
+                          marginTop: 2
                         }}>
                           <span>Completed: {percent}%</span>
                           <span>Remaining: {total - completed} students</span>
                         </div>
                       </div>
-                      {/* Nút Complete */}
+                      {/* Details Button */}
                       <div style={{
-                        marginTop: 24,
+                        marginTop: 10,
                         display: "flex",
-                        gap: 12,
+                        gap: 8,
                         justifyContent: "flex-end",
                         width: "100%",
-                        boxSizing: "border-box",
-                        
+                        boxSizing: "border-box"
                       }}>
                         <Button
                           type="primary"
-                          size="large"
+                          size="middle"
                           onClick={() =>
                             navigate(`/nurse/health-check/round-campaign`, {
                               state: { roundId: round.roundId, roundName: round.roundName }
@@ -373,8 +411,8 @@ const HealthCheckList = () => {
                           style={{
                             borderRadius: 8,
                             fontWeight: 600,
-                            fontSize: 16,
-                            minWidth: 120,
+                            fontSize: 13,
+                            minWidth: 90,
                             background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
                             border: "none",
                             boxShadow: "0 2px 8px #3058A433",
@@ -382,7 +420,6 @@ const HealthCheckList = () => {
                         >
                           Details
                         </Button>
-                        {/* Nếu chưa completed và percent === 100 thì hiện nút Complete */}
                         {!round.status && percent === 100 && (
                           <Button
                             type="primary"
@@ -390,28 +427,26 @@ const HealthCheckList = () => {
                             style={{
                               borderRadius: 8,
                               fontWeight: 600,
-                              fontSize: 16,
-                              minWidth: 120,
+                              fontSize: 13,
+                              minWidth: 90,
                               background: "linear-gradient(90deg, #22c55e 0%, #16a34a 100%)",
                               border: "none",
                               boxShadow: "0 2px 8px #22c55e33",
-                              
                             }}
                             onClick={() => handleComplete(round.roundId)}
                           >
                             Complete
                           </Button>
                         )}
-                        {/* Nếu đã completed */}
                         {round.status && (
                           <span style={{
-                            marginLeft: 12,
+                            marginLeft: 8,
                             color: "#22c55e",
                             fontWeight: 600,
-                            fontSize: 16,
+                            fontSize: 13,
                             borderRadius: 8,
                             background: "#bbf7d0",
-                            padding: "6px 18px"
+                            padding: "4px 12px"
                           }}>
                             Completed
                           </span>
@@ -426,7 +461,7 @@ const HealthCheckList = () => {
                 description={
                   <span style={{ color: "#888" }}>No health check rounds found.</span>
                 }
-                style={{ marginTop: 80, textAlign: "center" }}
+                style={{ marginTop: 40, textAlign: "center" }}
               />
             )}
           </div>
@@ -436,9 +471,9 @@ const HealthCheckList = () => {
           style={{
             display: "flex",
             justifyContent: "flex-start",
-            marginTop: 40,
-            marginBottom: 32,
-            paddingLeft: 40,
+            marginTop: 24,
+            marginBottom: 18,
+            paddingLeft: 20,
           }}
         >
           <Pagination
@@ -451,7 +486,7 @@ const HealthCheckList = () => {
               background: "#fff",
               borderRadius: 8,
               boxShadow: "0 2px 8px #e6f7ff",
-              padding: "12px 24px",
+              padding: "8px 16px",
             }}
           />
         </div>
