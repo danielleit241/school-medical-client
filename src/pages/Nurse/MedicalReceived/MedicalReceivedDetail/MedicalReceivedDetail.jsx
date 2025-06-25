@@ -28,6 +28,7 @@ const MedicalReceivedDetail = () => {
   const [doseNotes, setDoseNotes] = useState({});
   const [confirmingDose, setConfirmingDose] = useState(null);
   const [approving, setApproving] = useState(false);
+  const [parentId, setParentId] = useState(null);
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -37,6 +38,8 @@ const MedicalReceivedDetail = () => {
           `/api/nurses/medical-registrations/${medicalRegistrationId}`
         );
         setDetail(response.data);
+        setParentId(response.data.parent.userId);
+        console.log("Medical Registration Details:", response.data.parent.userId);
       } catch (error) {
         console.error("Error fetching medical registration details:", error);
         Swal.fire({
@@ -67,7 +70,7 @@ const MedicalReceivedDetail = () => {
   const handleCompleteDose = async (doseIdx, dose) => {
     setConfirmingDose(doseIdx);
     try {
-      await axiosInstance.put(
+      const res = await axiosInstance.put(
         `/api/nurses/medical-registrations/${medicalRegistrationId}/completed`,
         {
           staffNurseId: nurseId,
@@ -76,6 +79,12 @@ const MedicalReceivedDetail = () => {
           notes: doseNotes[doseIdx] ?? "Medication administered on time.",
         }
       );
+      const {notificationTypeId, receiverId, senderId} = res.data
+      await axiosInstance.post(`/api/notifications/medical-registrations/completed/to-parent`,{
+        notificationTypeId,
+        senderId,
+        receiverId,
+      })
       setTimeout(async () => {
         const response = await axiosInstance.get(
           `/api/nurses/medical-registrations/${medicalRegistrationId}`
@@ -122,6 +131,11 @@ const MedicalReceivedDetail = () => {
           dateApproved: dayjs().format("YYYY-MM-DD"),
         }
       );
+      await axiosInstance.post(`/api/notifications/medical-registrations/approved/to-parent`,{
+        notificationTypeId: medicalRegistrationId,
+        senderId: nurseId,
+        receiverId: parentId,
+      })
       Swal.fire({
         icon: "success",
         title: "Registration approved!",
