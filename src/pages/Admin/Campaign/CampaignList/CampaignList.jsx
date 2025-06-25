@@ -277,7 +277,7 @@ const CampaignList = () => {
   };
 
   const handleAddNewCampaign = () => {
-    navigate(`/${roleName}/campaign/create`);
+    navigate(`/${roleName}/vaccine/create`);
   };
 
   const CampaignCard = ({record}) => {
@@ -363,7 +363,7 @@ const CampaignList = () => {
                   icon={<InfoCircleOutlined style={{margin: 0}} />}
                   onClick={() => {
                     localStorage.setItem("vaccinationScheduleId", scheduleId);
-                    navigate(`/${roleName}/campaign/vaccine-schedule-details/`);
+                    navigate(`/${roleName}/vaccine/vaccine-schedule-details/`);
                   }}
                 >
                   Details
@@ -547,7 +547,7 @@ const CampaignList = () => {
                                       round.roundId
                                     );
                                     navigate(
-                                      `/${roleName}/campaign/vaccine-round/student-list`
+                                      `/${roleName}/vaccine/vaccine-round/student-list`
                                     );
                                   }, 300);
                                 }}
@@ -587,6 +587,56 @@ const CampaignList = () => {
       </Card>
     );
   };
+  
+  useEffect(() => {
+    // Function kiểm tra và cập nhật chiến dịch đã hết hạn
+    const updateExpiredCampaigns = async () => {
+      const now = dayjs();
+
+      // Lọc các chiến dịch đã kết thúc nhưng vẫn có status=false
+      const expiredCampaigns = data.filter((record) => {
+        const status = record.vaccinationScheduleResponseDto.status;
+        const endDate = dayjs(record.vaccinationScheduleResponseDto.endDate);
+
+        // Kiểm tra nếu hôm nay là endDate + 1 ngày và status vẫn còn false
+        return (
+          status === false &&
+          now.isAfter(endDate) &&
+          now.diff(endDate, "day") === 1
+        );
+      });
+
+      // Cập nhật từng chiến dịch đã hết hạn
+      for (const campaign of expiredCampaigns) {
+        const scheduleId = campaign.vaccinationScheduleResponseDto.scheduleId;
+        try {
+          await axiosInstance.put("/api/vaccinations/schedules/finished", {
+            scheduleId: scheduleId,
+            status: true,
+          });
+          console.log(
+            `Chiến dịch ${scheduleId} đã được tự động đánh dấu là hoàn thành`
+          );
+        } catch (error) {
+          console.error(
+            `Không thể cập nhật trạng thái cho chiến dịch ${scheduleId}:`,
+            error
+          );
+        }
+      }
+
+      // Nếu có chiến dịch nào được cập nhật, tải lại dữ liệu
+      if (expiredCampaigns.length > 0) {
+        fetchData();
+      }
+    };
+
+    // Chạy kiểm tra nếu có dữ liệu
+    if (data.length > 0) {
+      updateExpiredCampaigns();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   return (
     <div style={{padding: 24, background: "#f5f7fa", minHeight: "100vh"}}>

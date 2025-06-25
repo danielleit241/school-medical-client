@@ -220,14 +220,14 @@ function App() {
           />
           <Route path="vaccine/inventoryList" element={<VaccineInventory />} />
           <Route path="vaccine/create" element={<AddVaccine />} />
-          <Route path="campaign/vaccine-schedule" element={<CampaignList />} />
-          <Route path="campaign/create-campaign" element={<CreateCampaign />} />
+          <Route path="vaccine/vaccine-schedule" element={<CampaignList />} />
+          <Route path="vaccine/create-campaign" element={<CreateCampaign />} />
           <Route
-            path="campaign/vaccine-schedule-details"
+            path="vaccine/vaccine-schedule-details"
             element={<DetailCampaign />}
           />
           <Route
-            path="campaign/vaccine-round/student-list"
+            path="vaccine/vaccine-round/student-list"
             element={<StudentVaccineList />}
           />
           <Route path="health-check/create" element={<CreateHealthCheck />} />
@@ -267,14 +267,14 @@ function App() {
           />
           <Route path="vaccine/inventoryList" element={<VaccineInventory />} />
           <Route path="vaccine/create" element={<AddVaccine />} />
-          <Route path="campaign/vaccine-schedule" element={<CampaignList />} />
-          <Route path="campaign/create-campaign" element={<CreateCampaign />} />
+          <Route path="vaccine/vaccine-schedule" element={<CampaignList />} />
+          <Route path="vaccine/create-campaign" element={<CreateCampaign />} />
           <Route
-            path="campaign/vaccine-schedule-details"
+            path="vaccine/vaccine-schedule-details"
             element={<DetailCampaign />}
           />
           <Route
-            path="campaign/vaccine-round/student-list"
+            path="vaccine/vaccine-round/student-list"
             element={<StudentVaccineList />}
           />
           <Route path="health-check/create" element={<CreateHealthCheck />} />

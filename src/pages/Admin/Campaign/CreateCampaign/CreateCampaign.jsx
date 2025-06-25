@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
   Button,
   Input,
@@ -12,12 +12,12 @@ import {
 } from "antd";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import {useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 import Swal from "sweetalert2";
 
-const { TextArea } = Input;
-const { Option } = Select;
+const {TextArea} = Input;
+const {Option} = Select;
 const CreateCampaign = () => {
   const [form] = Form.useForm();
   const userId = useSelector((state) => state.user?.userId);
@@ -178,7 +178,7 @@ const CreateCampaign = () => {
         showConfirmButton: false,
         timer: 1500,
       }).then(() => {
-        navigate(`/${roleName}/campaign/vaccine-schedule`);
+        navigate(`/${roleName}/vaccine/vaccine-schedule`);
       });
       form.resetFields();
       setRounds([
@@ -204,22 +204,21 @@ const CreateCampaign = () => {
 
   // Đặt initialValues cho Form
   useEffect(() => {
-    form.setFieldsValue({ startDate: defaultStartDate });
+    form.setFieldsValue({startDate: defaultStartDate});
   }, [form, defaultStartDate]);
 
   // Đảm bảo sau khi lấy profile từ API, bạn cũng set lại giá trị cho trường createdBy trong form:
   useEffect(() => {
     if (profile?.fullName) {
-      form.setFieldsValue({ createdBy: profile.fullName });
+      form.setFieldsValue({createdBy: profile.fullName});
     }
   }, [profile, form]);
 
   return (
     <Card
-      title="Create Vaccination Campaign"    
-      style={{ maxWidth: 1200, margin: "32px auto" }}
+      title="Create Vaccination Campaign"
+      style={{maxWidth: 1200, margin: "32px auto"}}
     >
-      
       <Form
         form={form}
         layout="vertical"
@@ -239,7 +238,7 @@ const CreateCampaign = () => {
             <Form.Item
               label="Title"
               name="title"
-              rules={[{ required: true, message: "Please input title!" }]}
+              rules={[{required: true, message: "Please input title!"}]}
             >
               <Input />
             </Form.Item>
@@ -249,7 +248,7 @@ const CreateCampaign = () => {
             <Form.Item
               label="Vaccine"
               name="vaccineId"
-              rules={[{ required: true, message: "Please select vaccine!" }]}
+              rules={[{required: true, message: "Please select vaccine!"}]}
             >
               <Select placeholder="Select vaccine">
                 {vaccines.map((vaccine) => (
@@ -269,19 +268,19 @@ const CreateCampaign = () => {
                 placeholder="Loading..."
               />
             </Form.Item>
-            <p style={{ color: "red", fontSize: 14, marginBottom: 10 }}>
+            <p style={{color: "red", fontSize: 14, marginBottom: 10}}>
               Note: The time can start 7 days after the vaccination schedule is
               created.
             </p>
             <Form.Item
               label="Start Date"
               name="startDate"
-              rules={[{ required: true }]}
+              rules={[{required: true}]}
             >
               <DatePicker
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 value={form.getFieldValue("startDate")}
-                onChange={(val) => form.setFieldsValue({ startDate: val })}
+                onChange={(val) => form.setFieldsValue({startDate: val})}
                 format="YYYY-MM-DD"
               />
             </Form.Item>
@@ -290,15 +289,16 @@ const CreateCampaign = () => {
               name="endDate"
               dependencies={["startDate"]}
               rules={[
-                { required: true, message: "Please select end date!" },
-                ({ getFieldValue }) => ({
+                {required: true, message: "Please select end date!"},
+                ({getFieldValue}) => ({
                   validator(_, value) {
                     const startDate = getFieldValue("startDate");
                     if (!value || !startDate) return Promise.resolve();
                     // Đảm bảo value và startDate là dayjs object
                     const end = dayjs(value);
                     const start = dayjs(startDate);
-                    if (!end.isValid() || !start.isValid()) return Promise.resolve();
+                    if (!end.isValid() || !start.isValid())
+                      return Promise.resolve();
                     if (end.isSameOrBefore(start, "day")) {
                       return Promise.reject(
                         new Error("End date must be after start date!")
@@ -306,25 +306,25 @@ const CreateCampaign = () => {
                     }
                     return Promise.resolve();
                   },
-               }),
+                }),
               ]}
             >
-              <DatePicker style={{ width: "100%" }} />
+              <DatePicker style={{width: "100%"}} />
             </Form.Item>
           </Col>
 
           {/* Phần round */}
           <Col span={12}>
-            <div style={{ marginBottom: 16, fontWeight: 600 }}>
+            <div style={{marginBottom: 16, fontWeight: 600}}>
               Vaccination Rounds
             </div>
-            <Space direction="vertical" style={{ width: "100%" }}>
+            <Space direction="vertical" style={{width: "100%"}}>
               {rounds.map((round, idx) => (
                 <Card
                   key={idx}
                   type="inner"
                   title={`Round ${idx + 1}`}
-                  style={{ marginBottom: 12, background: "#E6F7FF" }}
+                  style={{marginBottom: 12, background: "#E6F7FF"}}
                   extra={
                     rounds.length > 1 ? (
                       <Button
@@ -343,7 +343,7 @@ const CreateCampaign = () => {
                     onChange={(e) =>
                       handleRoundChange(idx, "roundName", e.target.value)
                     }
-                    style={{ marginBottom: 8 }}
+                    style={{marginBottom: 8}}
                   />
                   {/* Thay thế Input bằng Select cho targetGrade */}
                   <Select
@@ -353,7 +353,7 @@ const CreateCampaign = () => {
                     onChange={(value) =>
                       handleRoundChange(idx, "targetGrade", value)
                     }
-                    style={{ width: "100%", marginBottom: 8 }}
+                    style={{width: "100%", marginBottom: 8}}
                     filterOption={(input, option) =>
                       (option?.label?.toLowerCase() ?? "").includes(
                         input.toLowerCase()
@@ -373,73 +373,97 @@ const CreateCampaign = () => {
                       handleRoundChange(idx, "description", e.target.value)
                     }
                     rows={2}
-                    style={{ marginBottom: 8 }}
+                    style={{marginBottom: 8}}
                   />
                   <Form.Item
-                    style={{ marginBottom: 8 }}
+                    style={{marginBottom: 8}}
                     validateStatus={
                       round.startTime &&
-                      (
-                        !form.getFieldValue("startDate") ||
-                        dayjs(round.startTime).isBefore(form.getFieldValue("startDate"), "minute") ||
+                      (!form.getFieldValue("startDate") ||
+                        dayjs(round.startTime).isBefore(
+                          form.getFieldValue("startDate"),
+                          "minute"
+                        ) ||
                         (form.getFieldValue("endDate") &&
-                          dayjs(round.startTime).isAfter(form.getFieldValue("endDate"), "minute"))
-                      )
+                          dayjs(round.startTime).isAfter(
+                            form.getFieldValue("endDate"),
+                            "minute"
+                          )))
                         ? "error"
                         : ""
                     }
                     help={
                       round.startTime &&
-                      (
-                        !form.getFieldValue("startDate")
-                          ? "Please select campaign start date first."
-                          : dayjs(round.startTime).isBefore(form.getFieldValue("startDate"), "minute")
-                          ? "Round start time must be after or equal to campaign start date."
-                          : form.getFieldValue("endDate") &&
-                            dayjs(round.startTime).isAfter(form.getFieldValue("endDate"), "minute")
-                          ? "Round start time must be before or equal to campaign end date."
-                          : ""
-                      )
+                      (!form.getFieldValue("startDate")
+                        ? "Please select campaign start date first."
+                        : dayjs(round.startTime).isBefore(
+                            form.getFieldValue("startDate"),
+                            "minute"
+                          )
+                        ? "Round start time must be after or equal to campaign start date."
+                        : form.getFieldValue("endDate") &&
+                          dayjs(round.startTime).isAfter(
+                            form.getFieldValue("endDate"),
+                            "minute"
+                          )
+                        ? "Round start time must be before or equal to campaign end date."
+                        : "")
                     }
                   >
                     <DatePicker
                       showTime
                       placeholder="Start Time"
                       value={round.startTime}
-                      onChange={(val) => handleRoundChange(idx, "startTime", val)}
-                      style={{ width: "100%" }}
+                      onChange={(val) =>
+                        handleRoundChange(idx, "startTime", val)
+                      }
+                      style={{width: "100%"}}
                     />
                   </Form.Item>
                   <Form.Item
-                    style={{ marginBottom: 8 }}
+                    style={{marginBottom: 8}}
                     validateStatus={
                       round.endTime &&
-                      (
-                        !form.getFieldValue("startDate") ||
-                        dayjs(round.endTime).isBefore(form.getFieldValue("startDate"), "minute") ||
+                      (!form.getFieldValue("startDate") ||
+                        dayjs(round.endTime).isBefore(
+                          form.getFieldValue("startDate"),
+                          "minute"
+                        ) ||
                         (form.getFieldValue("endDate") &&
-                          dayjs(round.endTime).isAfter(form.getFieldValue("endDate"), "minute")) ||
+                          dayjs(round.endTime).isAfter(
+                            form.getFieldValue("endDate"),
+                            "minute"
+                          )) ||
                         (round.startTime &&
-                          dayjs(round.endTime).isSameOrBefore(round.startTime, "minute"))
-                      )
+                          dayjs(round.endTime).isSameOrBefore(
+                            round.startTime,
+                            "minute"
+                          )))
                         ? "error"
                         : ""
                     }
                     help={
                       round.endTime &&
-                      (
-                        !form.getFieldValue("startDate")
-                          ? "Please select campaign start date first."
-                          : dayjs(round.endTime).isBefore(form.getFieldValue("startDate"), "minute")
-                          ? "Round end time must be after or equal to campaign start date."
-                          : form.getFieldValue("endDate") &&
-                            dayjs(round.endTime).isAfter(form.getFieldValue("endDate"), "minute")
-                          ? "Round end time must be before or equal to campaign end date."
-                          : round.startTime &&
-                            dayjs(round.endTime).isSameOrBefore(round.startTime, "minute")
-                          ? "Round end time must be after round start time."
-                          : ""
-                      )
+                      (!form.getFieldValue("startDate")
+                        ? "Please select campaign start date first."
+                        : dayjs(round.endTime).isBefore(
+                            form.getFieldValue("startDate"),
+                            "minute"
+                          )
+                        ? "Round end time must be after or equal to campaign start date."
+                        : form.getFieldValue("endDate") &&
+                          dayjs(round.endTime).isAfter(
+                            form.getFieldValue("endDate"),
+                            "minute"
+                          )
+                        ? "Round end time must be before or equal to campaign end date."
+                        : round.startTime &&
+                          dayjs(round.endTime).isSameOrBefore(
+                            round.startTime,
+                            "minute"
+                          )
+                        ? "Round end time must be after round start time."
+                        : "")
                     }
                   >
                     <DatePicker
@@ -447,7 +471,7 @@ const CreateCampaign = () => {
                       placeholder="End Time"
                       value={round.endTime}
                       onChange={(val) => handleRoundChange(idx, "endTime", val)}
-                      style={{ width: "100%" }}
+                      style={{width: "100%"}}
                     />
                   </Form.Item>
                   <Select
@@ -456,7 +480,7 @@ const CreateCampaign = () => {
                     onChange={(value) =>
                       handleRoundChange(idx, "nurseId", value)
                     }
-                    style={{ width: "100%", marginBottom: 8 }}
+                    style={{width: "100%", marginBottom: 8}}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label?.toLowerCase() ?? "").includes(
@@ -470,17 +494,13 @@ const CreateCampaign = () => {
                   />
                 </Card>
               ))}
-              <Button
-                type="dashed"
-                onClick={addRound}
-                style={{ width: "100%" }}
-              >
+              <Button type="dashed" onClick={addRound} style={{width: "100%"}}>
                 + Add Round
               </Button>
             </Space>
           </Col>
         </Row>
-        <div style={{ textAlign: "center", marginTop: 24 }}>
+        <div style={{textAlign: "center", marginTop: 24}}>
           <Button type="primary" htmlType="submit" loading={loading}>
             Create Campaign
           </Button>

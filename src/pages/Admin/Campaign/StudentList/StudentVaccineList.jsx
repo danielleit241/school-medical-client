@@ -68,7 +68,7 @@ const StudentVaccineList = () => {
   useEffect(() => {
     if (!roundId) {
       message.error("Round ID not found");
-      navigate(`/${roleName}/campaign/vaccine-schedule-details/`);
+      navigate(`/${roleName}/vaccine/vaccine-schedule-details/`);
       return;
     }
 
@@ -95,7 +95,7 @@ const StudentVaccineList = () => {
   // Handle back button
   const handleBack = () => {
     localStorage.removeItem("selectedVaccinationRoundId");
-    navigate(`/${roleName}/campaign/vaccine-schedule-details/`);
+    navigate(`/${roleName}/vaccine/vaccine-schedule-details/`);
   };
 
   // Export to Excel (placeholder function)
