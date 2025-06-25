@@ -167,6 +167,12 @@ const Sidebar = () => {
         ],
       },
       {
+        label: "Medical Requests",
+        key: "medical-requests",
+        link: "/admin/medical-requests",
+        icon: <FileSearchOutlined />,
+      },
+      {
         label: "Student Management",
         key: "student-management",
         icon: <TeamOutlined />,
@@ -268,6 +274,12 @@ const Sidebar = () => {
             icon: <FileTextOutlined />,
           },
         ],
+      },
+      {
+        label: "Medical Requests",
+        key: "medical-requests",
+        link: "/manager/medical-requests",
+        icon: <FileSearchOutlined />,
       },
       {
         label: "Student Management",

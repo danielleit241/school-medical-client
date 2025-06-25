@@ -29,6 +29,7 @@ import HealthCheckDetail from "./pages/Admin/HealthCheck/HealthCheckDetail/Healt
 import HealthCheckList from "./pages/Admin/HealthCheck/HealthCheckList/HealthCheckList";
 import StudentHealthCheckList from "./pages/Admin/HealthCheck/StudentList/StudentHealthCheckList";
 import StudentVaccineList from "./pages/Admin/Campaign/StudentList/StudentVaccineList";
+import MedicalRequest from "./pages/Admin/MedicalRequest/MedicalRequest";
 import AddStudent from "./pages/Admin/StudentManagement/AddStudent/AddStudent";
 import StudentList from "./pages/Admin/StudentManagement/StudentList/StudentList";
 import UserProfileAdmin from "./pages/Admin/Profile/User/UserProfile";
@@ -237,6 +238,7 @@ function App() {
             path="health-check/details/student-list"
             element={<StudentHealthCheckList />}
           />
+          <Route path="medical-requests" element={<MedicalRequest />} />
           <Route
             path="student-management/add-student"
             element={<AddStudent />}
@@ -284,6 +286,7 @@ function App() {
             path="health-check/details/student-list"
             element={<StudentHealthCheckList />}
           />
+          <Route path="medical-requests" element={<MedicalRequest />} />
           <Route
             path="student-management/add-student"
             element={<AddStudent />}
