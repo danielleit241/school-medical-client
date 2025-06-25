@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
 import axiosInstance from "../../../../api/axios";
-import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
-import {Card, Button, Tag, Pagination, Spin, Avatar, Empty} from "antd";
-import {UserOutlined, CalendarOutlined, EnvironmentOutlined, FileTextOutlined} from "@ant-design/icons";
+import {Card, Button, Pagination, Spin, Avatar, Empty, Select} from "antd";
+import {UserOutlined, CalendarOutlined, EnvironmentOutlined, FileTextOutlined, FilterOutlined } from "@ant-design/icons";
 
 const severityColor = {
   Low: "#10b981",
@@ -30,6 +29,7 @@ const MedicalEventList = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const pageSize = 10;
   const [loading, setLoading] = useState(false);
+  const [severityFilter, setSeverityFilter] = useState("All"); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,19 +57,26 @@ const MedicalEventList = () => {
     fetchData();
   }, [navigate, pageIndex, pageSize]);
 
+  // Lọc theo severity
+  const filteredData =
+    severityFilter === "All"
+      ? data
+      : data.filter((item) => item.medicalEvent.severityLevel === severityFilter);
+
   return (
     <div
       style={{
         minHeight: "100vh",
         background: "#f3f4f6",
-        padding: 0,
+        padding: "0 0 32px 0",
       }}
     >
       {/* Header Section */}
       <div
         style={{
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "48px 32px",
+          padding: "16px 0 8px 0",
+          marginBottom: "24px",
           color: "white",
           textAlign: "center",
           boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
@@ -77,10 +84,10 @@ const MedicalEventList = () => {
       >
         <h1
           style={{
-            fontSize: 42,
+            fontSize: 26,
             fontWeight: 800,
-            margin: "0 0 16px 0",
-            textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
+            margin: "0 0 6px 0",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.18)",
             letterSpacing: "1px",
           }}
         >
@@ -88,23 +95,48 @@ const MedicalEventList = () => {
         </h1>
         <p
           style={{
-            fontSize: 20,
+            fontSize: 15,
             fontWeight: 500,
-            margin: "0 0 32px 0",
+            margin: "0 0 8px 0",
             opacity: 0.9,
-            maxWidth: 600,
+            maxWidth: 480,
             marginLeft: "auto",
             marginRight: "auto",
           }}
         >
           Manage and review student medical events efficiently
         </p>
+        {/* Filter select */}
+        <div
+          style={{
+            marginTop: 14, 
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 12, 
+          }}
+        >
+          <FilterOutlined style={{ fontSize: 16, color: "#fff" }} />
+          <span style={{ fontWeight: 500, fontSize: 15, color: "#fff" }}>Severity:  </span>
+          <Select
+            value={severityFilter}
+            onChange={setSeverityFilter}
+            style={{ width: 120, borderRadius: 10 }}
+            size="middle"
+          >
+            <Select.Option value="All">All</Select.Option>
+            <Select.Option value="Low">Low</Select.Option>
+            <Select.Option value="Medium">Medium</Select.Option>
+            <Select.Option value="High">High</Select.Option>
+          </Select>
+
+        </div>
+        
       </div>
 
       {/* Main Content */}
       <div
-        style={{
-          padding: "40px 0",
+        style={{        
           width: "100%",
           maxWidth: "none",
           margin: 0,
@@ -118,7 +150,6 @@ const MedicalEventList = () => {
           style={{
             display: "flex",
             justifyContent: "flex-start",
-            marginBottom: 32,
             gap: 20,
             flexWrap: "wrap",
             width: "100%",
@@ -205,7 +236,7 @@ const MedicalEventList = () => {
             <Spin size="large" />
             <p style={{ marginTop: 20, fontSize: 16, color: "#6b7280" }}>Loading medical events...</p>
           </div>
-        ) : data.length === 0 ? (
+        ) : filteredData.length === 0 ? (
           <div
             style={{
               backgroundColor: "white",
@@ -228,136 +259,181 @@ const MedicalEventList = () => {
         ) : (
           <div
             style={{
-              width: "100%",
-              maxHeight: 600,
+              maxHeight: "650px",
               overflowY: "auto",
-              paddingRight: 8,
+              padding: "32px 0",
+              boxSizing: "border-box",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              {data.map((item) => (
+            <div style={{
+              width: "100%",
+              padding: "0 32px",
+              display: "flex", 
+              flexDirection: "column",
+              gap: 20 
+              }}>
+              {filteredData.map((item) => (
                 <Card
                   key={item.medicalEvent.eventId}
                   style={{
                     width: "100%",
-                    borderRadius: 16,
+                    borderRadius: 12,
                     border: `2px solid ${severityBorder[item.medicalEvent.severityLevel]}`,
-                    background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                    background: "#fff",
+                    boxShadow: "0 4px 16px 0 rgba(53,83,131,0.10)",
                     marginBottom: 0,
+                    transition: "box-shadow 0.2s",
                   }}
-                  bodyStyle={{ padding: "28px 32px" }}
+                  bodyStyle={{ padding: "18px 24px" }}
                   hoverable
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-                    {/* Student Info */}
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: 16, flex: 1 }}>
-                      <Avatar
-                        size={48}
-                        icon={<UserOutlined />}
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20 }}>
+                    {/* Left: Student Info & Details */}
+                    <div style={{ flex: 1 }}>
+                      {/* Student Info */}
+                      <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 12 }}>
+                        <Avatar
+                          size={40}
+                          icon={<UserOutlined />}
+                          style={{
+                            backgroundColor: "#2563eb",
+                            marginRight: 12,
+                            boxShadow: "0 2px 8px rgba(37,99,235,0.13)",
+                          }}
+                        />
+                        <div>
+                          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>
+                            {item.studentInfo.fullName}
+                          </h3>
+                          <p style={{ margin: "4px 0 0 0", color: "#6b7280", fontSize: 13, fontWeight: 500 }}>
+                            Student ID: {item.studentInfo.studentCode || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                      {/* Details grid */}
+                      <div
                         style={{
-                          backgroundColor: "#4f46e5",
-                          marginRight: 16,
-                          boxShadow: "0 4px 12px rgba(79, 70, 229, 0.3)",
+                          display: "flex",
+                          gap: 16,
+                          marginBottom: 10,
+                          flexWrap: "wrap",
                         }}
-                      />
-                      <div>
-                        <h3
-                          style={{
-                            margin: 0,
-                            fontSize: 20,
-                            fontWeight: 600,
-                            color: "#1f2937",
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          {item.studentInfo.fullName}
-                        </h3>
-                        <p
-                          style={{
-                            margin: "4px 0 0 0",
-                            color: "#6b7280",
-                            fontSize: 14,
-                            fontWeight: 500,
-                          }}
-                        >
-                          Student ID: {item.studentInfo.studentId || "N/A"}
-                        </p>
+                      >
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          color: "#2563eb",
+                          fontWeight: 600,
+                          fontSize: 14,
+                          background: "#f0f7ff",
+                          borderRadius: 6,
+                          padding: "4px 12px",
+                          border: "1.5px solid #dbeafe"
+                        }}>
+                          <CalendarOutlined style={{ color: "#3058A4" }} />
+                          <span>
+                            {item.medicalEvent.eventDate}
+                          </span>
+                        </div>
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          color: "#059669",
+                          fontWeight: 600,
+                          fontSize: 14,
+                          background: "#ecfdf5",
+                          borderRadius: 6,
+                          padding: "4px 12px",
+                          border: "1.5px solid #a7f3d0"
+                        }}>
+                          <EnvironmentOutlined style={{ color: "#059669" }} />
+                          <span>
+                            {item.medicalEvent.location}
+                          </span>
+                        </div>
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          color: "#f59e42",
+                          fontWeight: 600,
+                          fontSize: 14,
+                          background: "#fff7ed",
+                          borderRadius: 6,
+                          padding: "4px 12px",
+                          border: "1.5px solid #fde68a"
+                        }}>
+                          <FileTextOutlined style={{ color: "#f59e42" }} />
+                          <span>
+                            {item.medicalEvent.eventType}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Description */}
+                      <div
+                        style={{
+                          background: "#f8fafc",
+                          borderRadius: 8,
+                          padding: "8px 12px",
+                          marginTop: 6,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: "#374151",
+                          border: "1px solid #e5e7eb",
+                          marginBottom: item.medicalEvent.notes ? 8 : 0,
+                        }}
+                      >
+                        <span style={{ color: "#6b7280", fontWeight: 600 }}>Description:</span>{" "}
+                        <span style={{ fontWeight: 500, fontStyle: "italic" }}>
+                          {item.medicalEvent.eventDescription}
+                        </span>
                       </div>
                     </div>
-                    {/* Severity Badge */}
-                    <div
-                      style={{
-                        backgroundColor: severityBg[item.medicalEvent.severityLevel],
-                        color: severityColor[item.medicalEvent.severityLevel],
-                        border: `2px solid ${severityColor[item.medicalEvent.severityLevel]}`,
-                        borderRadius: 20,
-                        padding: "8px 20px",
-                        fontSize: 15,
-                        fontWeight: 700,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        minWidth: 120,
-                        justifyContent: "center",
-                      }}
-                    >
-                      {item.medicalEvent.severityLevel}
+                    {/* Right: Severity & Actions */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, minWidth: 140 }}>
+                      <div
+                        style={{
+                          backgroundColor: severityBg[item.medicalEvent.severityLevel],
+                          color: severityColor[item.medicalEvent.severityLevel],
+                          border: `2px solid ${severityColor[item.medicalEvent.severityLevel]}`,
+                          borderRadius: 18,
+                          padding: "6px 18px",
+                          fontSize: 13,
+                          fontWeight: 700,
+                          minWidth: 90,
+                          textAlign: "center",
+                          marginBottom: 6,
+                        }}
+                      >
+                        {item.medicalEvent.severityLevel}
+                      </div>
+                      <Button
+                        type="primary"
+                        style={{
+                          borderRadius: 8,
+                          fontWeight: 700,
+                          fontSize: 14,
+                          height: 36,
+                          paddingLeft: 16,
+                          paddingRight: 16,
+                          background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
+                          border: "none",
+                          boxShadow: "0 2px 8px #3058A433",
+                          transition: "all 0.2s",
+                        }}
+                        onClick={() => {
+                          navigate(`/nurse/medical-event/medical-event-detail/`, {
+                            state: {
+                              eventId: item.medicalEvent.eventId,
+                            },
+                          });
+                        }}
+                      >
+                        Details
+                      </Button>
                     </div>
-                  </div>
-                  {/* Event Details */}
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                      gap: 18,
-                      marginBottom: 18,
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <CalendarOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                      <span style={{ color: "#374151", fontWeight: 500 }}>
-                        {item.medicalEvent.eventDate}
-                      </span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <EnvironmentOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                      <span style={{ color: "#374151", fontWeight: 500 }}>
-                        {item.medicalEvent.location}
-                      </span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <FileTextOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                      <span style={{ color: "#374151", fontWeight: 500 }}>
-                        {item.medicalEvent.eventType}
-                      </span>
-                    </div>
-                  </div>
-                  {/* Action */}
-                  <div style={{ display: "flex", gap: 8, marginTop: 8, justifyContent: "flex-end" }}>
-                    <Button
-                      type="primary"
-                      style={{
-                        background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-                        border: "none",
-                        borderRadius: 10,
-                        fontWeight: 600,
-                        height: 40,
-                        paddingLeft: 20,
-                        paddingRight: 20,
-                        boxShadow: "0 4px 15px rgba(79, 70, 229, 0.3)",
-                        transition: "all 0.3s ease",
-                      }}
-                      onClick={() => {
-                        navigate(`/nurse/medical-event/medical-event-detail/`, {
-                          state: {
-                            eventId: item.medicalEvent.eventId,
-                          },
-                        });
-                      }}
-                    >
-                      Details
-                    </Button>
                   </div>
                 </Card>
               ))}

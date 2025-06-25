@@ -73,25 +73,26 @@ const MedicaEventDetail = () => {
       style={{
         minHeight: "100vh",
         background: "#f3f4f6",
-        padding: 0,
+        padding: "0 0 32px 0",
       }}
     >
       {/* Header Section - giống MedicalEventList */}
       <div
         style={{
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "48px 32px",
+          padding: "20px 0 10px 0", 
+          marginBottom: "18px", 
           color: "white",
           textAlign: "center",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
         }}
       >
         <h1
           style={{
-            fontSize: 42,
+            fontSize: 28, 
             fontWeight: 800,
-            margin: "0 0 16px 0",
-            textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
+            margin: "0 0 4px 0", 
+            textShadow: "2px 2px 4px rgba(0,0,0,0.18)",
             letterSpacing: "1px",
           }}
         >
@@ -99,11 +100,11 @@ const MedicaEventDetail = () => {
         </h1>
         <p
           style={{
-            fontSize: 20,
+            fontSize: 15, 
             fontWeight: 500,
-            margin: "0 0 32px 0",
+            margin: "0 0 6px 0", // giảm margin dưới
             opacity: 0.9,
-            maxWidth: 600,
+            maxWidth: 480,
             marginLeft: "auto",
             marginRight: "auto",
           }}
@@ -113,38 +114,41 @@ const MedicaEventDetail = () => {
       </div>
 
       {/* Nút Back nằm ngoài header */}
-      <div  style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: 10,
-            marginTop: 40,
-            padding: "0 8px",
-          }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: 8,
+          marginTop: 24,
+          padding: "0 8px",
+        }}
+      >
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate(-1)}
           style={{
-              marginRight: 16,
-              borderRadius: 10,
-              height: 40,
-              paddingLeft: 16,
-              paddingRight: 16,
-              border: "2px solid #e5e7eb",
-              fontWeight: 600,
+            marginRight: 10,
+            borderRadius: 8,
+            height: 30,
+            paddingLeft: 10,
+            paddingRight: 10,
+            border: "2px solid #e5e7eb",
+            fontWeight: 600,
+            fontSize: 13,
           }}
         >
           Back to List
         </Button>
-         <h2
-            style={{
-              margin: 0,
-              fontSize: 24,
-              fontWeight: 700,
-              color: "#1f2937",
-            }}
-          >
-            Medical Event Details
-          </h2>
+        <h2
+          style={{
+            margin: 0,
+            fontSize: 15,
+            fontWeight: 700,
+            color: "#1f2937",
+          }}
+        >
+          Medical Event Details
+        </h2>
       </div>
 
       {/* Main Detail Card */}
@@ -153,49 +157,49 @@ const MedicaEventDetail = () => {
           width: "100%",
           margin: 0,
           maxWidth: "none",
-          padding: "40px 0",
+          padding: "10px 0", // giảm padding dọc
           display: "flex",
-          flexDirection: "column", // Đổi sang column để card full width
-          alignItems: "stretch",   // Đảm bảo card kéo full ngang
+          flexDirection: "column",
+          alignItems: "stretch",
         }}
       >
         <Card
           style={{
-            borderRadius: 20,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+            borderRadius: 10, // giảm bo góc
+            boxShadow: "0 2px 8px #f0f1f2", // giảm shadow
             background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-            width: "100%",           // Card kéo full ngang
-            maxWidth: "none",        // Không giới hạn maxWidth
+            width: "100%",
+            maxWidth: "none",
             minWidth: 0,
             margin: 0,
-            border: `3px solid ${severityColor[medicalEvent.severityLevel]}`,
+            border: `2px solid ${severityColor[medicalEvent.severityLevel]}`,
           }}
-          bodyStyle={{ padding: "40px 48px" }}
+          bodyStyle={{ padding: "14px 18px" }} // giảm padding trong card
         >
           {/* Student Header */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              marginBottom: 32,
-              paddingBottom: 24,
-              borderBottom: "2px solid #f1f5f9",
+              marginBottom: 18,
+              paddingBottom: 12,
+              borderBottom: "1.5px solid #f1f5f9",
             }}
           >
             <Avatar
-              size={64}
+              size={48}
               icon={<UserOutlined />}
               style={{
                 backgroundColor: "#4f46e5",
-                marginRight: 20,
-                boxShadow: "0 6px 20px rgba(79, 70, 229, 0.4)",
+                marginRight: 14,
+                boxShadow: "0 2px 8px rgba(79, 70, 229, 0.18)",
               }}
             />
             <div style={{ flex: 1 }}>
               <h1
                 style={{
                   margin: 0,
-                  fontSize: 28,
+                  fontSize: 20,
                   fontWeight: 700,
                   color: "#1f2937",
                   lineHeight: 1.2,
@@ -205,9 +209,9 @@ const MedicaEventDetail = () => {
               </h1>
               <p
                 style={{
-                  margin: "8px 0 0 0",
+                  margin: "6px 0 0 0",
                   color: "#6b7280",
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: 500,
                 }}
               >
@@ -218,14 +222,14 @@ const MedicaEventDetail = () => {
               style={{
                 backgroundColor: severityBg[medicalEvent.severityLevel],
                 color: severityColor[medicalEvent.severityLevel],
-                border: `3px solid ${severityColor[medicalEvent.severityLevel]}`,
-                borderRadius: 25,
-                padding: "12px 24px",
-                fontSize: 16,
+                border: `2px solid ${severityColor[medicalEvent.severityLevel]}`,
+                borderRadius: 18,
+                padding: "7px 16px",
+                fontSize: 13,
                 fontWeight: 700,
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
+                gap: 8,
               }}
             >
               {medicalEvent.severityLevel}
@@ -236,74 +240,74 @@ const MedicaEventDetail = () => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: 24,
-              marginBottom: 32,
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: 14,
+              marginBottom: 18,
             }}
           >
             <div
               style={{
                 backgroundColor: "#f8fafc",
-                padding: 24,
-                borderRadius: 16,
-                border: "2px solid #e2e8f0",
+                padding: 14,
+                borderRadius: 10,
+                border: "1.5px solid #e2e8f0",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-                <CalendarOutlined style={{ color: "#4f46e5", fontSize: 20, marginRight: 12 }} />
-                <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#374151" }}>Event Date</h4>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+                <CalendarOutlined style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }} />
+                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Event Date</h4>
               </div>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#1f2937" }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
                 {medicalEvent?.eventDate || ""}
               </p>
             </div>
             <div
               style={{
                 backgroundColor: "#f8fafc",
-                padding: 24,
-                borderRadius: 16,
-                border: "2px solid #e2e8f0",
+                padding: 14,
+                borderRadius: 10,
+                border: "1.5px solid #e2e8f0",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-                <FileTextOutlined style={{ color: "#4f46e5", fontSize: 20, marginRight: 12 }} />
-                <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#374151" }}>Event Type</h4>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+                <FileTextOutlined style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }} />
+                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Event Type</h4>
               </div>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#1f2937" }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
                 {medicalEvent?.eventType || ""}
               </p>
             </div>
             <div
               style={{
                 backgroundColor: "#f8fafc",
-                padding: 24,
-                borderRadius: 16,
-                border: "2px solid #e2e8f0",
+                padding: 14,
+                borderRadius: 10,
+                border: "1.5px solid #e2e8f0",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-                <EnvironmentOutlined style={{ color: "#4f46e5", fontSize: 20, marginRight: 12 }} />
-                <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#374151" }}>Location</h4>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+                <EnvironmentOutlined style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }} />
+                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Location</h4>
               </div>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#1f2937" }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
                 {medicalEvent?.location || ""}
               </p>
             </div>
           </div>
 
           {/* Description & Notes */}
-          <div style={{ marginBottom: 32 }}>
+          <div style={{ marginBottom: 18 }}>
             <div
               style={{
                 backgroundColor: "#f0f9ff",
-                padding: 24,
-                borderRadius: 16,
-                border: "2px solid #bae6fd",
-                marginBottom: 20,
+                padding: 14,
+                borderRadius: 10,
+                border: "1.5px solid #bae6fd",
+                marginBottom: 10,
               }}
             >
-              <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#0c4a6e" }}>Description</h4>
-              <p style={{ margin: 0, fontSize: 16, fontWeight: 500, color: "#0c4a6e" }}>
+              <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#0c4a6e" }}>Description</h4>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: "#0c4a6e" }}>
                 {medicalEvent?.eventDescription || ""}
               </p>
             </div>
@@ -311,15 +315,15 @@ const MedicaEventDetail = () => {
               <div
                 style={{
                   backgroundColor: "#fefce8",
-                  padding: 24,
-                  borderRadius: 16,
-                  border: "2px solid #fde047",
+                  padding: 14,
+                  borderRadius: 10,
+                  border: "1.5px solid #fde047",
                 }}
               >
                 <h4
                   style={{
-                    margin: "0 0 12px 0",
-                    fontSize: 16,
+                    margin: "0 0 8px 0",
+                    fontSize: 13,
                     fontWeight: 600,
                     color: "#a16207",
                   }}
@@ -329,7 +333,7 @@ const MedicaEventDetail = () => {
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 16,
+                    fontSize: 13,
                     lineHeight: 1.6,
                     color: "#a16207",
                     fontWeight: 500,
@@ -342,29 +346,65 @@ const MedicaEventDetail = () => {
           </div>
 
           {/* Medical Requests */}
-          <Divider orientation="left" style={{marginTop: 32, fontWeight: 700, fontSize: 18}}>
+          <Divider orientation="left" style={{marginTop: 18, fontWeight: 700, fontSize: 15}}>
             Medical Requests
           </Divider>
-          <List
-            dataSource={medicalRequests}
-            bordered
-            locale={{emptyText: "No medical requests"}}
-            renderItem={(item) => (
-              <List.Item>
-                <Descriptions column={3} size="small">
-                  <Descriptions.Item label="Item Id">
-                    {item.itemId}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Drug Name">
-                    {item.itemName}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Quantity">
-                    {item.requestQuantity}
-                  </Descriptions.Item>
-                </Descriptions>
-              </List.Item>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: 14,
+              marginBottom: 8,
+            }}
+          >
+            {medicalRequests && medicalRequests.length > 0 ? (
+              medicalRequests.map((item) => (
+                <div
+                  key={item.itemId}
+                  style={{
+                    background: "#f8fafc",
+                    border: "1.5px solid #e2e8f0",
+                    borderRadius: 10,
+                    padding: 14,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 8,
+                    minHeight: 90,
+                    boxShadow: "0 1px 4px rgba(53,93,196,0.06)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                    <FileTextOutlined style={{ color: "#4f46e5", fontSize: 17 }} />
+                    <span style={{ fontWeight: 700, color: "#1e293b", fontSize: 15 }}>
+                      {item.itemName}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 13, color: "#64748b", marginBottom: 2 }}>
+                    <b>Item ID:</b> {item.itemId}
+                  </div>
+                  <div style={{ fontSize: 13, color: "#059669" }}>
+                    <b>Quantity:</b> {item.requestQuantity}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div
+                style={{
+                  background: "#f8fafc",
+                  border: "1.5px dashed #e2e8f0",
+                  borderRadius: 10,
+                  padding: 24,
+                  color: "#94a3b8",
+                  textAlign: "center",
+                  fontWeight: 600,
+                  fontSize: 15,
+                  gridColumn: "1/-1",
+                }}
+              >
+                No medical requests
+              </div>
             )}
-          />
+          </div>
         </Card>
       </div>
     </div>

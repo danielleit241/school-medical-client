@@ -113,165 +113,175 @@ const AppointmentList = () => {
   }
 
   const AppointmentCard = ({ item }) => {
-    const status = getStatus(item)
+    const status = getStatus(item);
 
     return (
       <Card
         className="appointment-card"
         style={{
-          marginBottom: 20,
-          borderRadius: 16,
+          marginBottom: 0,
+          borderRadius: 12,
           border: `2px solid ${status.borderColor}`,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-          transition: "all 0.3s ease",
-          background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+          background: "#fff",
+          boxShadow: "0 4px 16px 0 rgba(53,83,131,0.10)",
+          transition: "box-shadow 0.2s",
         }}
-        bodyStyle={{ padding: "24px 28px" }}
+        bodyStyle={{ padding: "18px 24px" }}
         hoverable
       >
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20 }}>
+          {/* Left: Student Info & Details */}
           <div style={{ flex: 1 }}>
             {/* Student Info */}
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 12 }}>
               <Avatar
-                size={48}
+                size={40}
                 icon={<UserOutlined />}
                 style={{
-                  backgroundColor: "#4f46e5",
-                  marginRight: 16,
-                  boxShadow: "0 4px 12px rgba(79, 70, 229, 0.3)",
+                  backgroundColor: "#2563eb",
+                  marginRight: 12,
+                  boxShadow: "0 2px 8px rgba(37,99,235,0.13)",
                 }}
               />
               <div>
-                <h3
-                  style={{
-                    margin: 0,
-                    fontSize: 20,
-                    fontWeight: 600,
-                    color: "#1f2937",
-                    lineHeight: 1.2,
-                  }}
-                >
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>
                   {item.student?.fullName || "No name"}
                 </h3>
-                <p
-                  style={{
-                    margin: "4px 0 0 0",
-                    color: "#6b7280",
-                    fontSize: 14,
-                    fontWeight: 500,
-                  }}
-                >
-                  Student ID: {item.student?.studentId || "N/A"}
+                <p style={{ margin: "4px 0 0 0", color: "#6b7280", fontSize: 13, fontWeight: 500 }}>
+                  Student ID: {item.student.studentCode || "N/A"}
                 </p>
               </div>
             </div>
-
-            {/* Appointment Details */}
+            {/* Details grid */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                display: "flex",
                 gap: 16,
-                marginBottom: 20,
+                marginBottom: 10,
+                flexWrap: "wrap",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <CalendarOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                <span style={{ color: "#374151", fontWeight: 500 }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#2563eb",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#f0f7ff",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #dbeafe"
+              }}>
+                <CalendarOutlined style={{ color: "#3058A4" }} />
+                <span>
                   {dayjs(item.appointmentDate).format("MMM DD, YYYY")}
                 </span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <ClockCircleOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                <span style={{ color: "#374151", fontWeight: 500 }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#059669",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#ecfdf5",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #a7f3d0"
+              }}>
+                <ClockCircleOutlined style={{ color: "#059669" }} />
+                <span>
                   {item.appointmentStartTime?.slice(0, 5)} - {item.appointmentEndTime?.slice(0, 5)}
                 </span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <FileTextOutlined style={{ color: "#4f46e5", fontSize: 16 }} />
-                <span style={{ color: "#374151", fontWeight: 500 }}>{item.topic || "General Consultation"}</span>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#f59e42",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#fff7ed",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #fde68a"
+              }}>
+                <FileTextOutlined style={{ color: "#f59e42" }} />
+                <span>
+                  {item.topic || "General Consultation"}
+                </span>
               </div>
             </div>
-
             {/* Reason Preview */}
             {item.appointmentReason && (
               <div
                 style={{
-                  backgroundColor: "#f8fafc",
-                  padding: 12,
+                  background: "#f8fafc",
                   borderRadius: 8,
-                  marginBottom: 16,
-                  border: "1px solid #e2e8f0",
+                  padding: "8px 12px",
+                  marginTop: 6,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#374151",
+                  border: "1px solid #e5e7eb",
+                  marginBottom: 0,
                 }}
               >
-                <p
-                  style={{
-                    margin: 0,
-                    color: "#64748b",
-                    fontSize: 14,
-                    fontStyle: "italic",
-                  }}
-                >
-                  "
+                <span style={{ color: "#6b7280", fontWeight: 600 }}>Reason:</span>{" "}
+                <span style={{ fontWeight: 500, fontStyle: "italic" }}>
                   {item.appointmentReason.length > 100
                     ? item.appointmentReason.substring(0, 100) + "..."
                     : item.appointmentReason}
-                  "
-                </p>
+                </span>
               </div>
             )}
           </div>
-
-          {/* Status and Actions */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 16 }}>
-            <Badge
-              count={
-                <div
-                  style={{
-                    backgroundColor: status.bgColor,
-                    color: status.color,
-                    border: `2px solid ${status.color}`,
-                    borderRadius: 20,
-                    padding: "6px 16px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    minWidth: 100,
-                    justifyContent: "center",
-                  }}
-                >
-                  {status.icon}
-                  {status.text}
-                </div>
-              }
-              showZero
-            />
-
+          {/* Right: Status & Actions */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, minWidth: 140 }}>
+            <div
+              style={{
+                backgroundColor: status.bgColor,
+                color: status.color,
+                border: `2px solid ${status.color}`,
+                borderRadius: 18,
+                padding: "6px 18px",
+                fontSize: 13,
+                fontWeight: 700,
+                minWidth: 90,
+                textAlign: "center",
+                marginBottom: 6,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              {status.icon}
+              {status.text}
+            </div>
             <Button
               type="primary"
               icon={<EyeOutlined />}
               onClick={() => handleDetail(item.appointmentId)}
               style={{
-                borderRadius: 10,
-                fontWeight: 600,
-                height: 40,
-                paddingLeft: 20,
-                paddingRight: 20,
-                background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+                borderRadius: 8,
+                fontWeight: 700,
+                fontSize: 14,
+                height: 36,
+                paddingLeft: 16,
+                paddingRight: 16,
+                background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
                 border: "none",
-                boxShadow: "0 4px 15px rgba(79, 70, 229, 0.3)",
-                transition: "all 0.3s ease",
+                boxShadow: "0 2px 8px #3058A433",
+                transition: "all 0.2s",
               }}
             >
-              View Details
+              View
             </Button>
           </div>
         </div>
       </Card>
-    )
+    );
   }
 
   const DetailView = () => {
@@ -280,8 +290,8 @@ const AppointmentList = () => {
     return (
       <div
         style={{
-          width: "100%", // mở rộng full ngang
-          margin: 0,     // bỏ căn giữa
+          width: "100%",
+          margin: 0,
           maxWidth: "none",
         }}
       >
@@ -290,7 +300,7 @@ const AppointmentList = () => {
           style={{
             display: "flex",
             alignItems: "center",
-            marginBottom: 32,
+            marginBottom: 24, // giảm margin
             padding: "0 8px",
           }}
         >
@@ -298,21 +308,22 @@ const AppointmentList = () => {
             icon={<ArrowLeftOutlined />}
             onClick={() => setStep(1)}
             style={{
-              marginRight: 16,
-              borderRadius: 10,
-              height: 40,
-              paddingLeft: 16,
-              paddingRight: 16,
+              marginRight: 12, // giảm margin
+              borderRadius: 8,
+              height: 36,
+              paddingLeft: 12,
+              paddingRight: 12,
               border: "2px solid #e5e7eb",
               fontWeight: 600,
+              fontSize: 14,
             }}
           >
-            Back to List
+            Back
           </Button>
           <h2
             style={{
               margin: 0,
-              fontSize: 24,
+              fontSize: 20, // giảm font
               fontWeight: 700,
               color: "#1f2937",
             }}
@@ -324,38 +335,38 @@ const AppointmentList = () => {
         {/* Main Detail Card */}
         <Card
           style={{
-            borderRadius: 20,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+            borderRadius: 14,
+            boxShadow: "0 2px 8px #f0f1f2",
             background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-            width: "100%", // full width tới 2 viền xanh
+            width: "100%",
             margin: 0,
           }}
-          bodyStyle={{ padding: "40px 48px" }}
+          bodyStyle={{ padding: "20px 24px" }} // giảm padding
         >
           {/* Student Header */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              marginBottom: 32,
-              paddingBottom: 24,
-              borderBottom: "2px solid #f1f5f9",
+              marginBottom: 18, // giảm margin
+              paddingBottom: 14,
+              borderBottom: "1.5px solid #f1f5f9",
             }}
           >
             <Avatar
-              size={64}
+              size={48}
               icon={<UserOutlined />}
               style={{
                 backgroundColor: "#4f46e5",
-                marginRight: 20,
-                boxShadow: "0 6px 20px rgba(79, 70, 229, 0.4)",
+                marginRight: 14,
+                boxShadow: "0 2px 8px rgba(79, 70, 229, 0.18)",
               }}
             />
             <div style={{ flex: 1 }}>
               <h1
                 style={{
                   margin: 0,
-                  fontSize: 28,
+                  fontSize: 20,
                   fontWeight: 700,
                   color: "#1f2937",
                   lineHeight: 1.2,
@@ -363,29 +374,19 @@ const AppointmentList = () => {
               >
                 {selectedAppointment.student?.fullName || "Unknown Student"}
               </h1>
-              <p
-                style={{
-                  margin: "8px 0 0 0",
-                  color: "#6b7280",
-                  fontSize: 16,
-                  fontWeight: 500,
-                }}
-              >
-                Student ID: {selectedAppointment.student?.studentId || "N/A"}
-              </p>
             </div>
             <div
               style={{
                 backgroundColor: status.bgColor,
                 color: status.color,
-                border: `3px solid ${status.color}`,
-                borderRadius: 25,
-                padding: "12px 24px",
-                fontSize: 16,
+                border: `2px solid ${status.color}`,
+                borderRadius: 18,
+                padding: "7px 16px",
+                fontSize: 13,
                 fontWeight: 700,
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
+                gap: 8,
               }}
             >
               {status.icon}
@@ -397,24 +398,24 @@ const AppointmentList = () => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: 24,
-              marginBottom: 32,
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: 14,
+              marginBottom: 18,
             }}
           >
             <div
               style={{
                 backgroundColor: "#f8fafc",
-                padding: 24,
-                borderRadius: 16,
-                border: "2px solid #e2e8f0",
+                padding: 14,
+                borderRadius: 10,
+                border: "1.5px solid #e2e8f0",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-                <CalendarOutlined style={{ color: "#4f46e5", fontSize: 20, marginRight: 12 }} />
-                <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#374151" }}>Appointment Date</h4>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+                <CalendarOutlined style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }} />
+                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Appointment Date</h4>
               </div>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#1f2937" }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
                 {dayjs(selectedAppointment.appointmentDate).format("dddd, MMMM DD, YYYY")}
               </p>
             </div>
@@ -422,16 +423,16 @@ const AppointmentList = () => {
             <div
               style={{
                 backgroundColor: "#f8fafc",
-                padding: 24,
-                borderRadius: 16,
-                border: "2px solid #e2e8f0",
+                padding: 14,
+                borderRadius: 10,
+                border: "1.5px solid #e2e8f0",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-                <ClockCircleOutlined style={{ color: "#4f46e5", fontSize: 20, marginRight: 12 }} />
-                <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#374151" }}>Time Slot</h4>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+                <ClockCircleOutlined style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }} />
+                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Time Slot</h4>
               </div>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#1f2937" }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
                 {selectedAppointment.appointmentStartTime?.slice(0, 5)} -{" "}
                 {selectedAppointment.appointmentEndTime?.slice(0, 5)}
               </p>
@@ -439,17 +440,17 @@ const AppointmentList = () => {
           </div>
 
           {/* Topic and Reason */}
-          <div style={{ marginBottom: 32 }}>
+          <div style={{ marginBottom: 18 }}>
             <div
               style={{
                 backgroundColor: "#f0f9ff",
-                padding: 24,
-                borderRadius: 16,
-                border: "2px solid #bae6fd",
-                marginBottom: 20,
+                padding: 14,
+                borderRadius: 10,
+                border: "1.5px solid #bae6fd",
+                marginBottom: 12,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
                 <FileTextOutlined style={{ color: "#0284c7", fontSize: 20, marginRight: 12 }} />
                 <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#0c4a6e" }}>Consultation Topic</h4>
               </div>
@@ -462,15 +463,15 @@ const AppointmentList = () => {
               <div
                 style={{
                   backgroundColor: "#fefce8",
-                  padding: 24,
-                  borderRadius: 16,
-                  border: "2px solid #fde047",
+                  padding: 14,
+                  borderRadius: 15,
+                  border: "1.5px solid #fde047",
                 }}
               >
                 <h4
                   style={{
                     margin: "0 0 12px 0",
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 600,
                     color: "#a16207",
                   }}
@@ -549,6 +550,7 @@ const AppointmentList = () => {
         </Card>
       </div>
     )
+
   }
 
   return (
@@ -562,19 +564,20 @@ const AppointmentList = () => {
       {/* Header Section */}
       <div
         style={{
-          background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)", // Đồng bộ gradient xanh với CampaignList.jsx
-          padding: "48px 32px",
+          background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+          padding: "20px 0 10px 0", 
           color: "white",
           textAlign: "center",
           boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+          marginBottom: 18, 
         }}
       >
         <h1
           style={{
-            fontSize: 42,
+            fontSize: 28, 
             fontWeight: 800,
-            margin: "0 0 16px 0",
-            textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
+            margin: "0 0 8px 0", 
+            textShadow: "2px 2px 4px rgba(0,0,0,0.18)",
             letterSpacing: "1px",
           }}
         >
@@ -582,11 +585,11 @@ const AppointmentList = () => {
         </h1>
         <p
           style={{
-            fontSize: 20,
+            fontSize: 15, 
             fontWeight: 500,
-            margin: "0 0 32px 0",
+            margin: "0 0 10px 0", 
             opacity: 0.9,
-            maxWidth: 600,
+            maxWidth: 480,
             marginLeft: "auto",
             marginRight: "auto",
           }}
@@ -599,21 +602,22 @@ const AppointmentList = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              gap: 20,
+              gap: 14, 
               flexWrap: "wrap",
+              marginTop: 4, 
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <FilterOutlined style={{ fontSize: 18 }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FilterOutlined style={{ fontSize: 15 }} />
               <DatePicker
                 value={dayjs(dateRequest)}
                 format="YYYY-MM-DD"
                 onChange={(_, dateString) => setDateRequest(dateString)}
                 allowClear={false}
-                size="large"
+                size="middle"
                 style={{
-                  width: 200,
-                  borderRadius: 10,
+                  width: 160,
+                  borderRadius: 8,
                 }}
               />
             </div>
@@ -622,10 +626,10 @@ const AppointmentList = () => {
               min={1}
               value={pageIndex}
               onChange={(e) => setPageIndex(Number(e.target.value))}
-              size="large"
+              size="middle"
               style={{
-                width: 120,
-                borderRadius: 10,
+                width: 90,
+                borderRadius: 8,
               }}
               placeholder="Page #"
               prefix="📄"
@@ -639,8 +643,6 @@ const AppointmentList = () => {
         style={{
           padding: "40px 0",
           width: "100%",
-          maxWidth: "none", // bỏ maxWidth
-          margin: 0,        // bỏ căn giữa
           display: "flex",
           flexDirection: "column",
           gap: 32,
@@ -747,14 +749,22 @@ const AppointmentList = () => {
             ) : (
               <div
                 style={{
-                  width: "100%",
-                  maxHeight: 600, // hoặc giá trị bạn muốn
+                  maxHeight: "650px",
                   overflowY: "auto",
-                  paddingRight: 8, // để tránh che mất thanh lăn
+                  padding: "32px 0",
+                  boxSizing: "border-box",
+                  
                 }}
               >
                 {appointments.map((item) => (
-                  <div style={{ width: "100%" }} key={item.appointmentId}>
+                  <div style={{ 
+                    width: "100%",
+                    padding: "0 32px",
+                    display: "flex", 
+                    flexDirection: "column",
+                    gap: 20,                  
+                    }} 
+                    key={item.appointmentId}>
                     <AppointmentCard item={item} />
                   </div>
                 ))}
@@ -765,7 +775,7 @@ const AppointmentList = () => {
           <div
             style={{
               textAlign: "center",
-              padding: "80px 0",
+              padding: "32px 0",
               backgroundColor: "white",
               borderRadius: 20,
               boxShadow: "0 8px 32px rgba(0,0,0,0.1)",

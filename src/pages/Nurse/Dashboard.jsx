@@ -13,21 +13,14 @@ const TABS = [
   { key: "medicalEvents", label: "Medical Event", icon: Activity },
 ];
 
-const STATUS_COLORS = {
-  Completed: "#10b981",
-  Confirm: "#3b82f6",
-  Pending: "#f59e0b",
-  "Not Completed": "#6b7280",
-}
-
-const CHART_COLORS = [
-  "#10b981", // xanh lá
-  "#3b82f6", // xanh dương
-  "#f59e0b", // vàng
-  "#6b7280", // xám
-  "#ef4444", // đỏ
-  "#a259e6", // tím
-]
+const STATUS_COLOR_MAP = {
+  "Completed": "#10b981",
+  "Pending": "#f59e0b",
+  "Confirmed": "#3b82f6",
+  "Approved": "#3b82f6",
+  "Participated": "#3b82f6",
+  "Not Completed": "#ef4444",
+};
 
 const LoadingSpinner = () => (
   <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -490,15 +483,18 @@ const Dashboard = () => {
     statusCountMap[status] += item.count || 0;
   });
 
-  // Tùy tab, lấy đúng labels và data cho chart
+  // Tùy tab, lấy đúng labels, data và màu cho chart
   let chartLabels = [];
   let chartDataArr = [];
+  let chartColorsArr = [];
   if (tab === "medicalEvents") {
-    // Medical Event: mỗi event là một cột, tên event là label
     chartLabels = details.map((item) => item.name);
     chartDataArr = details.map((item) => item.count || 0);
+    chartColorsArr = details.map((item) => {
+      const status = normalizeStatus(item.name);
+      return STATUS_COLOR_MAP[status] || "#6b7280";
+    });
   } else {
-    // Các tab khác: status
     const mainStatus = getMainStatus(tab);
     chartLabels = ["Pending", mainStatus, "Not Completed", "Completed"];
     chartDataArr = [
@@ -507,6 +503,7 @@ const Dashboard = () => {
       statusCountMap["Not Completed"] || 0,
       statusCountMap["Completed"] || 0,
     ];
+    chartColorsArr = chartLabels.map((status) => STATUS_COLOR_MAP[status] || "#6b7280");
   }
 
 
@@ -528,7 +525,7 @@ const Dashboard = () => {
           {
             label: "Status Count",
             data: chartDataArr,
-            backgroundColor: chartLabels.map((status, idx) => CHART_COLORS[idx % CHART_COLORS.length]),
+            backgroundColor: chartColorsArr, // Sử dụng màu đã mapping
             borderRadius: 8,
             maxBarThickness: 60,
           },
@@ -561,7 +558,7 @@ const Dashboard = () => {
       }
     };
     // eslint-disable-next-line
-  }, [JSON.stringify(chartLabels), JSON.stringify(chartDataArr)]);
+  }, [JSON.stringify(chartLabels), JSON.stringify(chartDataArr), JSON.stringify(chartColorsArr)]);
 
   const getDateRange = (str) => {
     if (!str) return "";

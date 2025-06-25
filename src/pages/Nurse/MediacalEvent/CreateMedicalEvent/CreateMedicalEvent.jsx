@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -9,17 +9,18 @@ import {
   Col,
   Checkbox,
   InputNumber,
+  Spin,
 } from "antd";
 import Swal from "sweetalert2";
 import axiosInstance from "../../../../api/axios";
-import {useDispatch, useSelector} from "react-redux";
-import {useNavigate} from "react-router-dom";
-import {setListStudent} from "../../../../redux/feature/studentSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setListStudent } from "../../../../redux/feature/studentSlice";
 
 const SEVERITY_OPTIONS = [
-  {label: "Low", value: "Low"},
-  {label: "Medium", value: "Medium"},
-  {label: "High", value: "High"},
+  { label: "Low", value: "Low" },
+  { label: "Medium", value: "Medium" },
+  { label: "High", value: "High" },
 ];
 
 const CreateMedicalEvent = () => {
@@ -30,21 +31,18 @@ const CreateMedicalEvent = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [medicalRequests, setMedicalRequests] = useState([
-    {itemId: undefined, requestQuantity: 1, purpose: ""},
+    { itemId: undefined, requestQuantity: 1, purpose: "" },
   ]);
   const [parentNotified, setParentNotified] = useState(true);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     // Fetch students
     const fetchStudents = async () => {
       try {
-        setTimeout(async () => {
-          //Thay api endpoint này bằng endpoint lấy danh sách học sinh
-          const res = await axiosInstance.get("/api/students/no-paged");
-          console.log("Students: ", res.data);
-          setStudents(Array.isArray(res.data) ? res.data : []);
-          dispatch(setListStudent(Array.isArray(res.data) ? res.data : []));
-        }, 500);
+        const res = await axiosInstance.get("/api/students/no-paged");
+        setStudents(Array.isArray(res.data) ? res.data : []);
+        dispatch(setListStudent(Array.isArray(res.data) ? res.data : []));
       } catch {
         setStudents([]);
       }
@@ -52,10 +50,8 @@ const CreateMedicalEvent = () => {
     // Fetch inventory items from /api/medical-inventories
     const fetchItems = async () => {
       try {
-        setTimeout(async () => {
-          const res = await axiosInstance.get("/api/medical-inventories");
-          setItems(Array.isArray(res.data.items) ? res.data.items : []);
-        }, 500);
+        const res = await axiosInstance.get("/api/medical-inventories");
+        setItems(Array.isArray(res.data.items) ? res.data.items : []);
       } catch {
         setItems([]);
       }
@@ -68,7 +64,7 @@ const CreateMedicalEvent = () => {
   const handleAddRequest = () => {
     setMedicalRequests((prev) => [
       ...prev,
-      {itemId: undefined, requestQuantity: 1, purpose: ""},
+      { itemId: undefined, requestQuantity: 1, purpose: "" },
     ]);
   };
   const handleRemoveRequest = (idx) => {
@@ -76,7 +72,7 @@ const CreateMedicalEvent = () => {
   };
   const handleRequestChange = (idx, field, value) => {
     setMedicalRequests((prev) =>
-      prev.map((item, i) => (i === idx ? {...item, [field]: value} : item))
+      prev.map((item, i) => (i === idx ? { ...item, [field]: value } : item))
     );
   };
 
@@ -103,18 +99,13 @@ const CreateMedicalEvent = () => {
           })),
       };
 
-      // Gửi request tạo medical event
       const response = await axiosInstance.post(
         "/api/nurses/students/medical-events",
         payload
       );
-      // console.log("CreateMedicalEvent response: ", response.data);
-      // Lấy thông tin từ response
-      const {notificationTypeId, senderId, receiverId} = response.data;
+      const { notificationTypeId, senderId, receiverId } = response.data;
 
-      // Gửi notification cho parent
-      // eslint-disable-next-line no-unused-vars
-      const notificationResponse = await axiosInstance.post(
+      await axiosInstance.post(
         "/api/notifications/medical-events/to-parent",
         {
           notificationTypeId,
@@ -122,7 +113,6 @@ const CreateMedicalEvent = () => {
           receiverId,
         }
       );
-      // console.log("noti: ", notificationResponse.data);
       Swal.fire({
         icon: "success",
         title: "Medical event created!",
@@ -131,8 +121,8 @@ const CreateMedicalEvent = () => {
       });
       navigate("/nurse/medical-event/medical-event-list");
       setLoading(false);
-      // eslint-disable-next-line no-unused-vars
     } catch (error) {
+      console.error("Error creating medical event:", error);
       setTimeout(() => {
         Swal.fire({
           icon: "error",
@@ -147,184 +137,272 @@ const CreateMedicalEvent = () => {
   return (
     <div
       style={{
-        minHeight: "calc(100vh - 120px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        minHeight: "100vh",
+        background: "#f8fafc",
+        padding: "0 0 32px 0",
       }}
     >
-      <Card
-        title="Create Medical Event"
-        style={{maxWidth: 1200, width: "100%"}}
+      <div
+        style={{
+          width: "100%",
+          background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+          padding: "36px 0 18px 0",
+          marginBottom: "40px",
+          textAlign: "center",
+        }}
       >
-        <Form layout="vertical" onFinish={onFinish}>
-          <Row gutter={24}>
-            {/* Main event info */}
-            <Col xs={24} md={14}>
-              <Form.Item
-                label="Student"
-                name="studentCode"
-                rules={[{required: true, message: "Please select student"}]}
-              >
-                <Select
-                  placeholder="Select student"
-                  style={{width: "100%"}}
-                  showSearch
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    String(option.children)
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+        <h1
+          style={{
+            fontWeight: 700,
+            fontSize: 38,
+            color: "#fff",
+            letterSpacing: 1,
+            marginBottom: 8,
+            marginTop: 0,
+          }}
+        >
+          Create Medical Event
+        </h1>
+        <div
+          style={{
+            color: "#e0e7ff",
+            fontSize: 18,
+            fontWeight: 500,
+          }}
+        >
+          Record a new medical event and request medical supplies for a student
+        </div>
+      </div>
+      <div
+        style={{
+          width: "100%",
+          margin: "0 auto",
+          padding: "32px",
+        }}
+      >
+        <Card
+          style={{
+            borderRadius: 16,
+            boxShadow: "0 8px 32px 0 rgba(53,83,131,0.15)",
+            padding: "32px 0 0 0",
+            border: "none",
+            background: "#fff",
+          }}
+        >
+          <Form
+            layout="vertical"
+            form={form}
+            onFinish={onFinish}
+            style={{ width: "100%" }}
+            autoComplete="off"
+          >
+            <Row gutter={36}>
+              <Col xs={24} md={14}>
+                <Form.Item
+                  label={<span style={{ fontWeight: 600 }}>Student</span>}
+                  name="studentCode"
+                  rules={[{ required: true, message: "Please select student" }]}
                 >
-                  {students.map((student) => (
-                    <Select.Option
-                      key={student.studentCode}
-                      value={student.studentCode}
-                    >
-                      {student.fullName} ({student.studentCode})
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item
-                label="Event Type"
-                name="eventType"
-                rules={[{required: true, message: "Please enter event type"}]}
-              >
-                <Input placeholder="ex: Headache, Common cold, Mild indigestion, etc." />
-              </Form.Item>
-              <Form.Item
-                label="Event Description"
-                name="eventDescription"
-                rules={[{required: true, message: "Please enter description"}]}
-              >
-                <Input.TextArea rows={2} />
-              </Form.Item>
-              <Form.Item
-                label="Location"
-                name="location"
-                rules={[{required: true, message: "Please enter location"}]}
-              >
-                <Input placeholder="ex: Medical Center dh2T, etc." />
-              </Form.Item>
-              <Form.Item
-                label="Severity Level"
-                name="severityLevel"
-                rules={[{required: true, message: "Please select severity"}]}
-              >
-                <Select placeholder="Select severity">
-                  {SEVERITY_OPTIONS.map((opt) => (
-                    <Select.Option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Checkbox
-                  checked={parentNotified}
-                  onChange={(e) => setParentNotified(e.target.checked)}
+                  <Select
+                    placeholder="Select student"
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      String(option.children)
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    {students.map((student) => (
+                      <Select.Option
+                        key={student.studentCode}
+                        value={student.studentCode}
+                      >
+                        {student.fullName} ({student.studentCode})
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  label={<span style={{ fontWeight: 600 }}>Event Type</span>}
+                  name="eventType"
+                  rules={[{ required: true, message: "Please enter event type" }]}
                 >
-                  Parent Notified
-                </Checkbox>
-              </Form.Item>
-              <Form.Item label="Notes" name="notes">
-                <Input.TextArea rows={2} />
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={loading}
-                  style={{width: 120, backgroundColor: "#355383"}}
+                  <Input placeholder="ex: Headache, Common cold, Mild indigestion, etc." />
+                </Form.Item>
+                <Form.Item
+                  label={<span style={{ fontWeight: 600 }}>Event Description</span>}
+                  name="eventDescription"
+                  rules={[{ required: true, message: "Please enter description" }]}
                 >
-                  Submit
-                </Button>
-              </Form.Item>
-            </Col>
-            {/* Medical Requests */}
-            <Col xs={24} md={10}>
-              <div style={{fontWeight: 500, marginBottom: 12}}>
-                Medical Requests
-              </div>
-              {medicalRequests.map((req, idx) => (
+                  <Input.TextArea rows={2} />
+                </Form.Item>
+                <Form.Item>
+                  <Row gutter={16}>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<span style={{ fontWeight: 600 }}>Location</span>}
+                        name="location"
+                        rules={[{ required: true, message: "Please enter location" }]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input placeholder="ex: Medical Center dh2T, etc." />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        label={<span style={{ fontWeight: 600 }}>Severity Level</span>}
+                        name="severityLevel"
+                        rules={[{ required: true, message: "Please select severity" }]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Select placeholder="Select severity">
+                          {SEVERITY_OPTIONS.map((opt) => (
+                            <Select.Option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </Form.Item>
+                <Form.Item
+                  label={<span style={{ fontWeight: 600 }}>Notes</span>}
+                  name="notes"
+                >
+                  <Input.TextArea rows={2} />
+                </Form.Item>
+                <Form.Item>
+                  <Checkbox
+                    checked={parentNotified}
+                    onChange={(e) => setParentNotified(e.target.checked)}
+                  >
+                    Parent Notified
+                  </Checkbox>
+                </Form.Item>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={loading}
+                    style={{
+                      width: 140,
+                      fontWeight: 600,
+                      fontSize: 16,
+                      borderRadius: 8,
+                      background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
+                      border: "none",
+                      boxShadow: "0 2px 8px #3058A433",
+                    }}
+                  >
+                    Submit
+                  </Button>
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={10}>
                 <div
-                  key={idx}
                   style={{
-                    background: "#f6f6f6",
-                    padding: 12,
-                    borderRadius: 8,
+                    fontWeight: 600,
+                    fontSize: 17,
                     marginBottom: 16,
-                    border: "1px solid #e0e0e0",
+                    color: "#3058A4",
                   }}
                 >
-                  <Form.Item label="Item" required style={{marginBottom: 8}}>
-                    <Select
-                      placeholder="Select item"
-                      value={req.itemId}
-                      onChange={(val) =>
-                        handleRequestChange(idx, "itemId", val)
-                      }
-                      style={{width: "100%"}}
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        String(option.children)
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                    >
-                      {items.map((item) => (
-                        <Select.Option key={item.itemId} value={item.itemId}>
-                          {item.itemName} ({item.unitOfMeasure}) - Stock:{" "}
-                          {item.quantityInStock}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    label="Quantity"
-                    required
-                    style={{marginBottom: 8}}
-                  >
-                    <InputNumber
-                      min={1}
-                      value={req.requestQuantity}
-                      onChange={(val) =>
-                        handleRequestChange(idx, "requestQuantity", val)
-                      }
-                      style={{width: "100%"}}
-                    />
-                  </Form.Item>
-                  <Form.Item label="Purpose" style={{marginBottom: 0}}>
-                    <Input.TextArea
-                      rows={1}
-                      placeholder="Purpose for this item"
-                      value={req.purpose}
-                      onChange={(e) =>
-                        handleRequestChange(idx, "purpose", e.target.value)
-                      }
-                    />
-                  </Form.Item>
-                  {medicalRequests.length > 1 && (
-                    <Button
-                      danger
-                      style={{marginTop: 8}}
-                      onClick={() => handleRemoveRequest(idx)}
-                    >
-                      Remove
-                    </Button>
-                  )}
+                  Medical Requests
                 </div>
-              ))}
-              <Button type="dashed" onClick={handleAddRequest} block>
-                + Add Medical Request
-              </Button>
-            </Col>
-          </Row>
-        </Form>
-      </Card>
+                {medicalRequests.map((req, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      background: "#f6f6f6",
+                      padding: 16,
+                      borderRadius: 10,
+                      marginBottom: 18,
+                      border: "1px solid #e0e0e0",
+                    }}
+                  >
+                    <Form.Item
+                      label="Item"
+                      required
+                      style={{ marginBottom: 8, fontWeight: 500 }}
+                    >
+                      <Select
+                        placeholder="Select item"
+                        value={req.itemId}
+                        onChange={(val) =>
+                          handleRequestChange(idx, "itemId", val)
+                        }
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                          String(option.children)
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                      >
+                        {items.map((item) => (
+                          <Select.Option key={item.itemId} value={item.itemId}>
+                            {item.itemName} ({item.unitOfMeasure}) - Stock: {item.quantityInStock}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      label="Quantity"
+                      required
+                      style={{ marginBottom: 8, fontWeight: 500 }}
+                    >
+                      <InputNumber
+                        min={1}
+                        value={req.requestQuantity}
+                        onChange={(val) =>
+                          handleRequestChange(idx, "requestQuantity", val)
+                        }
+                        style={{ width: "100%" }}
+                      />
+                    </Form.Item>
+                    <Form.Item label="Purpose" style={{ marginBottom: 0 }}>
+                      <Input.TextArea
+                        rows={1}
+                        placeholder="Purpose for this item"
+                        value={req.purpose}
+                        onChange={(e) =>
+                          handleRequestChange(idx, "purpose", e.target.value)
+                        }
+                      />
+                    </Form.Item>
+                    {medicalRequests.length > 1 && (
+                      <Button
+                        danger
+                        style={{ marginTop: 8 }}
+                        onClick={() => handleRemoveRequest(idx)}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="dashed"
+                  onClick={handleAddRequest}
+                  block
+                  style={{ fontWeight: 600 }}
+                >
+                  + Add Medical Request
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+          {loading && (
+            <div style={{ textAlign: "center", marginTop: 24 }}>
+              <Spin size="large" />
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 };

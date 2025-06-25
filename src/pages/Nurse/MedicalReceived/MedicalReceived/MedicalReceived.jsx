@@ -1,19 +1,33 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../../api/axios";
-import Swal from "sweetalert2";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Button,
-  Row,
-  Col,
   Tag,
   Pagination,
   Spin,
   Select,
-  Alert,
+  Empty,
+  Avatar,
 } from "antd";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
+import { UserOutlined, FilterOutlined } from "@ant-design/icons";
+
+const statusConfig = {
+  done: {
+    color: "#10b981",
+    bgColor: "#ecfdf5",
+    borderColor: "#a7f3d0",
+    text: "Nurse Approved",
+  },
+  notyet: {
+    color: "#f59e0b",
+    bgColor: "#fffbeb",
+    borderColor: "#fed7aa",
+    text: "Not Yet",
+  },
+};
 
 const MedicalReceived = () => {
   const navigate = useNavigate();
@@ -23,7 +37,7 @@ const MedicalReceived = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const pageSize = 10;
   const [loading, setLoading] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("notyet"); // "notyet" | "done"
+  const [filterStatus, setFilterStatus] = useState("all"); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,8 +48,8 @@ const MedicalReceived = () => {
         );
         setData(response.data.items || []);
         setTotal(response.data.count || 0);
-        // eslint-disable-next-line no-unused-vars
       } catch (error) {
+        console.error("Error fetching medical registrations:", error);
         setData([]);
         setTotal(0);
       } finally {
@@ -45,181 +59,331 @@ const MedicalReceived = () => {
     fetchData();
   }, [navigate, userId, pageIndex, pageSize]);
 
-  if (loading) {
-    return <Spin style={{marginTop: 40}} />;
-  }
-
-  // Hàm kiểm tra đơn đã complete hết chưa
   const isAllDoseCompleted = (item) =>
     item.medicalRegistrationDetails &&
     item.medicalRegistrationDetails.length > 0 &&
     item.medicalRegistrationDetails.every((dose) => dose.isCompleted);
 
-  // Lọc data theo filter
+
   const filteredData = data.filter((item) => {
     if (filterStatus === "done") return isAllDoseCompleted(item);
     if (filterStatus === "notyet") return !isAllDoseCompleted(item);
     return true;
   });
 
-  // Kiểm tra nếu không có dữ liệu trong filter "notyet"
-  const noData = filterStatus === "notyet" && filteredData.length === 0;
+  const noData = filteredData.length === 0;
 
-  // Chia data thành 2 hàng, mỗi hàng 5 phần tử
-  const rows = [filteredData.slice(0, 5), filteredData.slice(5, 10)];
+  const MedicalCard = ({ item }) => {
+    const done = isAllDoseCompleted(item);
+    const status = done ? statusConfig.done : statusConfig.notyet;
 
-  return (
-    <div style={{padding: 24}}>
-      <div
+    return (
+      <Card
         style={{
           marginBottom: 16,
-          display: "flex",
-          gap: 12,
-          alignItems: "center",
-          justifyContent: "left",
+          borderRadius: 12,
+          border: `2px solid ${status.borderColor}`,
+          boxShadow: "0 4px 16px 0 rgba(53,83,131,0.10)",
+          background: "#fff",
+          transition: "all 0.2s",
+        }}
+        bodyStyle={{ padding: "18px 24px" }}
+        hoverable
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+          {/* Left: Student Info & Details */}
+          <div style={{ flex: 1 }}>
+            {/* Student Info */}
+            <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 12 }}>
+              <Avatar
+                size={40}
+                icon={<UserOutlined />}
+                style={{
+                  backgroundColor: "#2563eb",
+                  marginRight: 12,
+                  boxShadow: "0 2px 8px rgba(37,99,235,0.13)",
+                }}
+              />
+              <div>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>
+                  {item.student.studentFullName}
+                </h3>
+                <p style={{ margin: "4px 0 0 0", color: "#6b7280", fontSize: 13, fontWeight: 500 }}>
+                  Student ID: {item.student.studentCode || "N/A"}
+                </p>
+              </div>
+            </div>
+            {/* Details grid */}
+            <div
+              style={{
+                display: "flex",
+                gap: 16,
+                marginBottom: 10,
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#2563eb",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#f0f7ff",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #dbeafe"
+              }}>
+                <span style={{ fontWeight: 700 }}>📅</span>
+                <span>
+                  {item.medicalRegistration.dateSubmitted}
+                </span>
+                
+              </div>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#059669",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#ecfdf5",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #a7f3d0"
+              }}>
+                <span style={{ fontWeight: 700 }}>🕒</span>
+                <span>
+                  Total Dosages: {item.medicalRegistration.totalDosages}
+                </span>
+              </div>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#f59e42",
+                fontWeight: 600,
+                fontSize: 14,
+                background: "#fff7ed",
+                borderRadius: 6,
+                padding: "4px 12px",
+                border: "1.5px solid #fde68a"
+              }}>
+                <span style={{ fontWeight: 700 }}>💊</span>
+                <span>
+                  {item.medicalRegistration.medicationName}
+                </span>
+              </div>
+            </div>
+            {/* Parent Notes */}
+            <div
+              style={{
+                background: "#f8fafc",
+                borderRadius: 8,
+                padding: "10px 12px",
+                marginTop: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                color: "#374151",
+                border: "1px solid #e5e7eb",
+              }}
+            >
+              <span style={{ color: "#6b7280", fontWeight: 600 }}>Parent Notes:</span>{" "}
+              <span style={{ fontWeight: 500, fontStyle: "italic" }}>{item.medicalRegistration.notes}</span>
+            </div>
+          </div>
+          {/* Right: Status & Actions */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, minWidth: 140 }}>
+            <Tag
+              style={{
+                backgroundColor: status.bgColor,
+                color: status.color,
+                border: `2px solid ${status.color}`,
+                borderRadius: 18,
+                padding: "7px 18px",
+                fontSize: 14,
+                fontWeight: 700,
+                minWidth: 100,
+                textAlign: "center",
+                marginBottom: 6,
+              }}
+            >
+              {status.text}
+            </Tag>
+            <Button
+              type="primary"
+              style={{
+                borderRadius: 8,
+                fontWeight: 700,
+                fontSize: 15,
+                height: 38,
+                paddingLeft: 18,
+                paddingRight: 18,
+                background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
+                border: "none",
+                boxShadow: "0 2px 8px #3058A433",
+                transition: "all 0.2s",
+              }}
+              onClick={() => {
+                navigate(`/nurse/medical-received/medical-received-detail`, {
+                  state: {
+                    registrationId: item.medicalRegistration.registrationId,
+                    studentId: item.student.studentId,
+                  },
+                });
+              }}
+            >
+              Details
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      {/* Header + Filter */}
+      <div
+        style={{
+          width: "100%",
+          background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+          padding: "20px 0 10px 0", 
+          marginBottom: "28px",      
+          textAlign: "center",
+          position: "relative",
         }}
       >
+        <h1
+          style={{
+            fontWeight: 700,
+            fontSize: 30, 
+            color: "#fff",
+            letterSpacing: 1,
+            marginBottom: 4, 
+            marginTop: 0,
+          }}
+        >
+          Medical Received Requests
+        </h1>
         <div
           style={{
+            color: "#e0e7ff",
+            fontSize: 16, 
+            fontWeight: 500,
+            marginBottom: 0, 
+          }}
+        >
+          Manage and review all medication requests from parents
+        </div>
+        
+        <div
+          style={{
+            marginTop: 14, 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            gap: 12, 
           }}
         >
-          <p
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 500,
-              textAlign: "center",
-            }}
+          <FilterOutlined style={{ fontSize: 16, color: "#fff" }} />
+          <span style={{ fontSize: 15, fontWeight: 500, color: "#fff" }}>Status:</span>
+          <Select
+            value={filterStatus}
+            style={{ width: 120, borderRadius: 10 }}
+            onChange={setFilterStatus}
+            size="large"
           >
-            Filter:
-          </p>
+            <Select.Option value="all">All</Select.Option>
+            <Select.Option value="notyet">Not Yet</Select.Option>
+            <Select.Option value="done">Done</Select.Option>
+          </Select>
         </div>
-        <Select
-          value={filterStatus}
-          style={{width: 160}}
-          onChange={setFilterStatus}
-        >
-          <Select.Option value="notyet">Not Yet</Select.Option>
-          <Select.Option value="done">Done</Select.Option>
-        </Select>
       </div>
 
-      {/* Hiển thị thông báo nếu không có dữ liệu khi filter "notyet" */}
-      {noData && (
-        <Alert
-          message="Không có đơn gửi thuốc nào từ phụ huynh"
-          type="warning"
-          showIcon
-          style={{margin: "40px 0 0 40px", width: "30%"}}
-        />
-      )}
+      <div
+        style={{
+          maxHeight: "650px",
+          padding: "32px 0",
+          boxSizing: "border-box",
+        }}
+      >
+        {/* Loading & List */}
+        {loading ? (
+          <div style={{ textAlign: "center" }}>
+            <Spin size="large" />
+          </div>
+        ) : noData ? (
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: 20,
+              padding: "80px 40px",
+              textAlign: "center",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+              margin: "0 32px",
+            }}
+          >
+            <Empty
+              description={
+                <span style={{ fontSize: 18, color: "#6b7280", fontWeight: 500 }}>
+                  No medical received requests found.
+                </span>
+              }
+              style={{ fontSize: 18 }}
+            />
+          </div>
+        ) : (
+          <div
+            style={{
+              maxHeight: "650px",
+              overflowY: "auto",
+              padding: "32px 0",
+              boxSizing: "border-box",
+              
+            }}
+          >
+            {filteredData.map((item) => (
+              <div
+                style={{
+                  width: "100%",
+                  padding: "0 32px",
+                  display: "flex", 
+                  flexDirection: "column",
+                  gap: 20 
+                  
+                }}
+                key={item.medicalRegistration.registrationId}
+              >
+                <MedicalCard item={item} />
+              </div>
+            ))}
+          </div>
+        )}
 
-      {rows.map((row, rowIndex) => (
-        <Row
-          gutter={[16, 16]}
-          key={rowIndex}
+        {/* Pagination */}
+        <div
           style={{
-            marginBottom: 16,
             display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "left",
-            alignItems: "center",
-            width: "97%",
-            gap: 70,
+            justifyContent: "flex-start",
+            marginTop: 40,
+            marginBottom: 32,
           }}
         >
-          {row.map((item) => {
-            // Lấy danh sách các dose chưa complete
-            const notCompletedDoses =
-              item.medicalRegistrationDetails?.filter(
-                (dose) => !dose.isCompleted
-              ) || [];
-
-            return (
-              <Col span={4} key={item.medicalRegistration.registrationId}>
-                <Card
-                  title={item.student.studentFullName}
-                  extra={
-                    isAllDoseCompleted(item) ? (
-                      <Tag color="green">Nurse Approved</Tag>
-                    ) : (
-                      <Tag color="orange">
-                        Not Yet
-                        {notCompletedDoses.length > 0 && (
-                          <span style={{marginLeft: 8}}>
-                            (
-                            {notCompletedDoses
-                              .map((dose) => `Dose ${dose.doseNumber}`)
-                              .join(", ")}
-                            )
-                          </span>
-                        )}
-                      </Tag>
-                    )
-                  }
-                  style={{
-                    minWidth: 300,
-                    borderRadius: 8,
-                    boxShadow: "0 0px 5px rgba(0, 0, 0, 0.1)",
-                    marginBottom: 16,
-                  }}
-                >
-                  <div>
-                    <p>
-                      <b>Medication:</b>{" "}
-                      {item.medicalRegistration.medicationName}
-                    </p>
-                    <p>
-                      <b>Total Dosages:</b>{" "}
-                      {item.medicalRegistration.totalDosages}
-                    </p>
-                    <p>
-                      <b>Date Submitted:</b>{" "}
-                      {item.medicalRegistration.dateSubmitted}
-                    </p>
-                    <p>
-                      <b>Parent Notes:</b> {item.medicalRegistration.notes}
-                    </p>
-                  </div>
-                  <div style={{display: "flex", gap: 8, marginTop: 16}}>
-                    <Button
-                      type="primary"
-                      style={{backgroundColor: "#355383"}}
-                      onClick={() => {
-                        navigate(
-                          `/nurse/medical-received/medical-received-detail`,
-                          {
-                            state: {
-                              registrationId:
-                                item.medicalRegistration.registrationId,
-                              studentId: item.student.studentId,
-                            },
-                          }
-                        );
-                      }}
-                    >
-                      Details
-                    </Button>
-                  </div>
-                </Card>
-              </Col>
-            );
-          })}
-        </Row>
-      ))}
-
-      <div style={{textAlign: "center", marginTop: 24}}>
-        <Pagination
-          current={pageIndex}
-          pageSize={pageSize}
-          total={total}
-          onChange={(page) => {
-            setPageIndex(page);
-          }}
-        />
+          <Pagination
+            current={pageIndex}
+            pageSize={pageSize}
+            total={total}
+            onChange={(page) => setPageIndex(page)}
+            showSizeChanger={false}
+            style={{
+              background: "#fff",
+              borderRadius: 8,
+              boxShadow: "0 2px 8px #e6f7ff",
+              padding: "12px 24px",
+            }}
+          />
+        </div>
       </div>
     </div>
   );
