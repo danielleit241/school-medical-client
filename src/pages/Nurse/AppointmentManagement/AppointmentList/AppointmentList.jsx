@@ -59,7 +59,7 @@ const AppointmentList = () => {
       setLoading(true)
       try {
         const response = await axiosInstance.get(`/api/nurses/${staffNurseId}/appointments`, {
-          params: { dateRequest, PageSize: 10, PageIndex: pageIndex },
+          params: { dateRequest, PageSize: 3, PageIndex: pageIndex },
         })
         const data = Array.isArray(response.data) ? response.data : response.data?.items || []
         setAppointments(data)

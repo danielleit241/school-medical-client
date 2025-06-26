@@ -103,14 +103,24 @@ const CreateMedicalEvent = () => {
         "/api/nurses/students/medical-events",
         payload
       );
-      const { notificationTypeId, senderId, receiverId } = response.data;
-
+      console.log("Medical event created successfully:", response.data.toParent);
+      const { notificationTypeId, senderId, receiverId } = response.data.toParent;
+      const { notificationTypeId: managerNotificationTypeId, senderId: managerSenderId, receiverId: managerReceiverId } = response.data.toManager;
+      console.log("hi" , managerNotificationTypeId, managerSenderId, managerReceiverId)
       await axiosInstance.post(
         "/api/notifications/medical-events/to-parent",
         {
           notificationTypeId,
           senderId,
           receiverId,
+        }
+      );
+      await axiosInstance.post(
+        "/api/notifications/medical-events/to-manager",
+        {
+          notificationTypeId: managerNotificationTypeId,
+          senderId: managerSenderId,
+          receiverId: managerReceiverId,
         }
       );
       Swal.fire({
