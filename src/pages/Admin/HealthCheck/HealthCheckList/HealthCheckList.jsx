@@ -179,6 +179,7 @@ const HealthCheckList = () => {
           bgColor: "#e6f7ff",
           text: "In Progress",
           status: "inProgress",
+          icon: <PlayCircleOutlined />,
         };
       }
       // If start date is in the future
@@ -188,6 +189,7 @@ const HealthCheckList = () => {
           bgColor: "#fff7e6",
           text: "Scheduled",
           status: "scheduled",
+          icon: <ClockCircleOutlined />,
         };
       }
       // If end date has passed but status is still false
@@ -197,6 +199,7 @@ const HealthCheckList = () => {
           bgColor: "#fff1f0",
           text: "Expired",
           status: "expired",
+          icon: <ClockCircleOutlined />,
         };
       }
     }

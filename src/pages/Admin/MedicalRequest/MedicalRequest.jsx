@@ -45,7 +45,6 @@ const MedicalRequest = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [nurses, setNurses] = useState([]);
-  const [nurseProfile, setNurseProfile] = useState(null);
 
   // Fetch medical requests
   const fetchRequests = useCallback(
@@ -74,13 +73,7 @@ const MedicalRequest = () => {
         });
 
         if (response.data) {
-          // Sort by requestDate descending (newest first)
-          const sortedItems = [...response.data.items].sort((a, b) => {
-            const dateA = new Date(a.medicalInfo.requestDate);
-            const dateB = new Date(b.medicalInfo.requestDate);
-            return dateB - dateA;
-          });
-          setRequests(sortedItems);
+          setRequests(response.data.items);
           setPagination({
             current: response.data.pageIndex,
             pageSize: response.data.pageSize,
@@ -107,20 +100,6 @@ const MedicalRequest = () => {
       if (response.data) {
         setSelectedRequest(response.data);
         setDrawerVisible(true);
-        // Fetch nurse profile
-        if (response.data.nurseInfo?.nurseId) {
-          try {
-            const nurseRes = await axiosInstance.get(
-              `/api/user-profile/${response.data.nurseInfo.nurseId}`
-            );
-            setNurseProfile(nurseRes.data);
-            // eslint-disable-next-line no-unused-vars
-          } catch (err) {
-            setNurseProfile(null);
-          }
-        } else {
-          setNurseProfile(null);
-        }
       }
     } catch (error) {
       console.error("Failed to fetch request details:", error);
@@ -172,7 +151,7 @@ const MedicalRequest = () => {
       title: "Item Name",
       dataIndex: ["medicalInfo", "itemName"],
       key: "itemName",
-      // render: (text) => <Tag color="blue">{text}</Tag>,
+      render: (text) => <Tag color="blue">{text}</Tag>,
     },
     {
       title: "Requested By",
@@ -187,9 +166,7 @@ const MedicalRequest = () => {
         <Badge
           count={quantity}
           style={{
-            backgroundColor:
-              quantity > 7 ? "#f5222d" : quantity > 4 ? "#faad14" : "#1890ff",
-            padding: "0 10px",
+            backgroundColor: quantity > 5 ? "#f5222d" : "#1890ff",
             fontSize: "12px",
           }}
         />
@@ -207,9 +184,9 @@ const MedicalRequest = () => {
       render: (_, record) => (
         <Space>
           <Button
-            // icon={<EyeOutlined />}
+            icon={<EyeOutlined />}
             onClick={() => fetchRequestDetails(record.medicalInfo.requestId)}
-            size="middle"
+            size="small"
           >
             View
           </Button>
@@ -258,11 +235,8 @@ const MedicalRequest = () => {
           </Col>
           <Col span={6}>
             <Space>
-              <Button
-                style={{backgroundColor: "#355383", color: "#fff"}}
-                onClick={applyFilters}
-              >
-                Search
+              <Button type="primary" onClick={applyFilters}>
+                Apply Filters
               </Button>
               <Button
                 icon={<SyncOutlined style={{margin: 0}} />}
@@ -312,19 +286,18 @@ const MedicalRequest = () => {
               style={{marginBottom: 24}}
             >
               <Descriptions.Item label="Item Name">
-                {selectedRequest.medicalInfo.itemName}
+                <Tag color="blue" style={{fontSize: 16}}>
+                  {selectedRequest.medicalInfo.itemName}
+                </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Quantity Requested">
                 <Badge
                   count={selectedRequest.medicalInfo.requestQuantity}
                   style={{
                     backgroundColor:
-                      selectedRequest.medicalInfo.requestQuantity > 7
+                      selectedRequest.medicalInfo.requestQuantity > 5
                         ? "#f5222d"
-                        : selectedRequest.medicalInfo.requestQuantity > 4
-                        ? "#faad14"
                         : "#1890ff",
-                    padding: "0 10px",
                     fontSize: "14px",
                   }}
                 />
@@ -347,19 +320,9 @@ const MedicalRequest = () => {
                 <Space>
                   <UserOutlined />
                   <Text strong copyable>
-                    {nurseProfile?.fullName ||
-                      selectedRequest.nurseInfo.fullName}
+                    {selectedRequest.nurseInfo.fullName}
                   </Text>
                 </Space>
-              </Descriptions.Item>
-              <Descriptions.Item label="Phone Number">
-                {nurseProfile?.phoneNumber || "N/A"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Email">
-                {nurseProfile?.emailAddress || "N/A"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Address">
-                {nurseProfile?.address || "N/A"}
               </Descriptions.Item>
             </Descriptions>
           </>
