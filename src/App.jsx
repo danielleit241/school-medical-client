@@ -315,7 +315,7 @@ function App() {
             element={<AppointmentList />}
           />
           <Route
-            path="campaign/campaign-list"
+            path="vaccine/campaign-list"
             element={<NurseCampaignList />}
           />
           <Route

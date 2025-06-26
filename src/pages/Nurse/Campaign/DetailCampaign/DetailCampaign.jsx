@@ -600,7 +600,7 @@ const DetailCampaign = () => {
 
       <Button
         type="default"
-        onClick={() => navigate("/nurse/campaign/campaign-list")}
+        onClick={() => navigate("/nurse/vaccine/campaign-list")}
         style={{ marginBottom: 16 }}
       >
         Back
