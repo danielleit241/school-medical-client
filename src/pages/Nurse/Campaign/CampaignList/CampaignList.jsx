@@ -12,7 +12,7 @@ const CampaignList = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize] = useState(2);
+  const [pageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [completedByRound, setCompletedByRound] = useState({});
   const [totalByRound, setTotalByRound] = useState({});
