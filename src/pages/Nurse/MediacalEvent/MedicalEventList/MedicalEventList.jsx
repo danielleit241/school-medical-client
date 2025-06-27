@@ -2,7 +2,13 @@ import React, {useEffect, useState} from "react";
 import axiosInstance from "../../../../api/axios";
 import {useNavigate} from "react-router-dom";
 import {Card, Button, Pagination, Spin, Avatar, Empty, Select} from "antd";
-import {UserOutlined, CalendarOutlined, EnvironmentOutlined, FileTextOutlined, FilterOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  CalendarOutlined,
+  EnvironmentOutlined,
+  FileTextOutlined,
+  FilterOutlined,
+} from "@ant-design/icons";
 
 const severityColor = {
   Low: "#10b981",
@@ -29,7 +35,7 @@ const MedicalEventList = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const pageSize = 3;
   const [loading, setLoading] = useState(false);
-  const [severityFilter, setSeverityFilter] = useState("All"); 
+  const [severityFilter, setSeverityFilter] = useState("All");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,13 +67,15 @@ const MedicalEventList = () => {
   const filteredData =
     severityFilter === "All"
       ? data
-      : data.filter((item) => item.medicalEvent.severityLevel === severityFilter);
+      : data.filter(
+          (item) => item.medicalEvent.severityLevel === severityFilter
+        );
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "#f3f4f6",
+        background: "#ffffff",
         padding: "0 0 32px 0",
       }}
     >
@@ -75,16 +83,16 @@ const MedicalEventList = () => {
       <div
         style={{
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "16px 0 8px 0",
+          padding: "16px 16px",
           marginBottom: "24px",
           color: "white",
           textAlign: "center",
           boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+          borderRadius: "20px 20px 0 0",
         }}
       >
         <h1
           style={{
-            fontSize: 26,
             fontWeight: 800,
             margin: "0 0 6px 0",
             textShadow: "2px 2px 4px rgba(0,0,0,0.18)",
@@ -109,19 +117,21 @@ const MedicalEventList = () => {
         {/* Filter select */}
         <div
           style={{
-            marginTop: 14, 
+            marginTop: 14,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 12, 
+            gap: 12,
           }}
         >
-          <FilterOutlined style={{ fontSize: 16, color: "#fff" }} />
-          <span style={{ fontWeight: 500, fontSize: 15, color: "#fff" }}>Severity:  </span>
+          {/* <FilterOutlined style={{fontSize: 16, color: "#fff"}} /> */}
+          <span style={{fontWeight: 500, fontSize: 22, color: "#fff"}}>
+            Severity:{" "}
+          </span>
           <Select
             value={severityFilter}
             onChange={setSeverityFilter}
-            style={{ width: 120, borderRadius: 10 }}
+            style={{width: 120, height: 30, borderRadius: 10}}
             size="middle"
           >
             <Select.Option value="All">All</Select.Option>
@@ -129,14 +139,12 @@ const MedicalEventList = () => {
             <Select.Option value="Medium">Medium</Select.Option>
             <Select.Option value="High">High</Select.Option>
           </Select>
-
         </div>
-        
       </div>
 
       {/* Main Content */}
       <div
-        style={{        
+        style={{
           width: "100%",
           maxWidth: "none",
           margin: 0,
@@ -153,6 +161,7 @@ const MedicalEventList = () => {
             gap: 20,
             flexWrap: "wrap",
             width: "100%",
+            padding: "20px 32px",
           }}
         >
           <div
@@ -166,10 +175,19 @@ const MedicalEventList = () => {
               flex: 1,
             }}
           >
-            <h3 style={{ margin: "0 0 8px 0", fontSize: 28, fontWeight: 700, color: "#1f2937" }}>
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 28,
+                fontWeight: 700,
+                color: "#1f2937",
+              }}
+            >
               {total}
             </h3>
-            <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>Total Events</p>
+            <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
+              Total Events
+            </p>
           </div>
           <div
             style={{
@@ -182,10 +200,22 @@ const MedicalEventList = () => {
               flex: 1,
             }}
           >
-            <h3 style={{ margin: "0 0 8px 0", fontSize: 28, fontWeight: 700, color: "#10b981" }}>
-              {data.filter((item) => item.medicalEvent.severityLevel === "Low").length}
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 28,
+                fontWeight: 700,
+                color: "#10b981",
+              }}
+            >
+              {
+                data.filter((item) => item.medicalEvent.severityLevel === "Low")
+                  .length
+              }
             </h3>
-            <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>Low Severity</p>
+            <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
+              Low Severity
+            </p>
           </div>
           <div
             style={{
@@ -198,10 +228,23 @@ const MedicalEventList = () => {
               flex: 1,
             }}
           >
-            <h3 style={{ margin: "0 0 8px 0", fontSize: 28, fontWeight: 700, color: "#f59e0b" }}>
-              {data.filter((item) => item.medicalEvent.severityLevel === "Medium").length}
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 28,
+                fontWeight: 700,
+                color: "#f59e0b",
+              }}
+            >
+              {
+                data.filter(
+                  (item) => item.medicalEvent.severityLevel === "Medium"
+                ).length
+              }
             </h3>
-            <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>Medium Severity</p>
+            <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
+              Medium Severity
+            </p>
           </div>
           <div
             style={{
@@ -214,10 +257,23 @@ const MedicalEventList = () => {
               flex: 1,
             }}
           >
-            <h3 style={{ margin: "0 0 8px 0", fontSize: 28, fontWeight: 700, color: "#ef4444" }}>
-              {data.filter((item) => item.medicalEvent.severityLevel === "High").length}
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 28,
+                fontWeight: 700,
+                color: "#ef4444",
+              }}
+            >
+              {
+                data.filter(
+                  (item) => item.medicalEvent.severityLevel === "High"
+                ).length
+              }
             </h3>
-            <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>High Severity</p>
+            <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
+              High Severity
+            </p>
           </div>
         </div>
 
@@ -234,7 +290,9 @@ const MedicalEventList = () => {
             }}
           >
             <Spin size="large" />
-            <p style={{ marginTop: 20, fontSize: 16, color: "#6b7280" }}>Loading medical events...</p>
+            <p style={{marginTop: 20, fontSize: 16, color: "#6b7280"}}>
+              Loading medical events...
+            </p>
           </div>
         ) : filteredData.length === 0 ? (
           <div
@@ -249,11 +307,11 @@ const MedicalEventList = () => {
           >
             <Empty
               description={
-                <span style={{ fontSize: 18, color: "#6b7280", fontWeight: 500 }}>
+                <span style={{fontSize: 18, color: "#6b7280", fontWeight: 500}}>
                   No medical events found
                 </span>
               }
-              style={{ fontSize: 18 }}
+              style={{fontSize: 18}}
             />
           </div>
         ) : (
@@ -265,33 +323,51 @@ const MedicalEventList = () => {
               boxSizing: "border-box",
             }}
           >
-            <div style={{
-              width: "100%",
-              padding: "0 32px",
-              display: "flex", 
-              flexDirection: "column",
-              gap: 20 
-              }}>
+            <div
+              style={{
+                width: "100%",
+                padding: "0 32px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 20,
+              }}
+            >
               {filteredData.map((item) => (
                 <Card
                   key={item.medicalEvent.eventId}
                   style={{
                     width: "100%",
                     borderRadius: 12,
-                    border: `2px solid ${severityBorder[item.medicalEvent.severityLevel]}`,
+                    border: `2px solid ${
+                      severityBorder[item.medicalEvent.severityLevel]
+                    }`,
                     background: "#fff",
                     boxShadow: "0 4px 16px 0 rgba(53,83,131,0.10)",
                     marginBottom: 0,
                     transition: "box-shadow 0.2s",
                   }}
-                  bodyStyle={{ padding: "18px 24px" }}
+                  bodyStyle={{padding: "18px 24px"}}
                   hoverable
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "space-between",
+                      gap: 20,
+                    }}
+                  >
                     {/* Left: Student Info & Details */}
-                    <div style={{ flex: 1 }}>
+                    <div style={{flex: 1}}>
                       {/* Student Info */}
-                      <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 12 }}>
+                      <div
+                        style={{
+                          marginBottom: 10,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                        }}
+                      >
                         <Avatar
                           size={40}
                           icon={<UserOutlined />}
@@ -302,10 +378,25 @@ const MedicalEventList = () => {
                           }}
                         />
                         <div>
-                          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>
+                          <h3
+                            style={{
+                              margin: 0,
+                              fontSize: 18,
+                              fontWeight: 700,
+                              color: "#1e293b",
+                              lineHeight: 1.2,
+                            }}
+                          >
                             {item.studentInfo.fullName}
                           </h3>
-                          <p style={{ margin: "4px 0 0 0", color: "#6b7280", fontSize: 13, fontWeight: 500 }}>
+                          <p
+                            style={{
+                              margin: "4px 0 0 0",
+                              color: "#6b7280",
+                              fontSize: 13,
+                              fontWeight: 500,
+                            }}
+                          >
                             Student ID: {item.studentInfo.studentCode || "N/A"}
                           </p>
                         </div>
@@ -319,56 +410,56 @@ const MedicalEventList = () => {
                           flexWrap: "wrap",
                         }}
                       >
-                        <div style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "#2563eb",
-                          fontWeight: 600,
-                          fontSize: 14,
-                          background: "#f0f7ff",
-                          borderRadius: 6,
-                          padding: "4px 12px",
-                          border: "1.5px solid #dbeafe"
-                        }}>
-                          <CalendarOutlined style={{ color: "#3058A4" }} />
-                          <span>
-                            {item.medicalEvent.eventDate}
-                          </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            color: "#2563eb",
+                            fontWeight: 600,
+                            fontSize: 14,
+                            background: "#f0f7ff",
+                            borderRadius: 6,
+                            padding: "4px 12px",
+                            border: "1.5px solid #dbeafe",
+                          }}
+                        >
+                          <CalendarOutlined style={{color: "#3058A4"}} />
+                          <span>{item.medicalEvent.eventDate}</span>
                         </div>
-                        <div style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "#059669",
-                          fontWeight: 600,
-                          fontSize: 14,
-                          background: "#ecfdf5",
-                          borderRadius: 6,
-                          padding: "4px 12px",
-                          border: "1.5px solid #a7f3d0"
-                        }}>
-                          <EnvironmentOutlined style={{ color: "#059669" }} />
-                          <span>
-                            {item.medicalEvent.location}
-                          </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            color: "#059669",
+                            fontWeight: 600,
+                            fontSize: 14,
+                            background: "#ecfdf5",
+                            borderRadius: 6,
+                            padding: "4px 12px",
+                            border: "1.5px solid #a7f3d0",
+                          }}
+                        >
+                          <EnvironmentOutlined style={{color: "#059669"}} />
+                          <span>{item.medicalEvent.location}</span>
                         </div>
-                        <div style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "#f59e42",
-                          fontWeight: 600,
-                          fontSize: 14,
-                          background: "#fff7ed",
-                          borderRadius: 6,
-                          padding: "4px 12px",
-                          border: "1.5px solid #fde68a"
-                        }}>
-                          <FileTextOutlined style={{ color: "#f59e42" }} />
-                          <span>
-                            {item.medicalEvent.eventType}
-                          </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            color: "#f59e42",
+                            fontWeight: 600,
+                            fontSize: 14,
+                            background: "#fff7ed",
+                            borderRadius: 6,
+                            padding: "4px 12px",
+                            border: "1.5px solid #fde68a",
+                          }}
+                        >
+                          <FileTextOutlined style={{color: "#f59e42"}} />
+                          <span>{item.medicalEvent.eventType}</span>
                         </div>
                       </div>
                       {/* Description */}
@@ -385,19 +476,32 @@ const MedicalEventList = () => {
                           marginBottom: item.medicalEvent.notes ? 8 : 0,
                         }}
                       >
-                        <span style={{ color: "#6b7280", fontWeight: 600 }}>Description:</span>{" "}
-                        <span style={{ fontWeight: 500, fontStyle: "italic" }}>
+                        <span style={{color: "#6b7280", fontWeight: 600}}>
+                          Description:
+                        </span>{" "}
+                        <span style={{fontWeight: 500, fontStyle: "italic"}}>
                           {item.medicalEvent.eventDescription}
                         </span>
                       </div>
                     </div>
                     {/* Right: Severity & Actions */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, minWidth: 140 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        gap: 12,
+                        minWidth: 140,
+                      }}
+                    >
                       <div
                         style={{
-                          backgroundColor: severityBg[item.medicalEvent.severityLevel],
+                          backgroundColor:
+                            severityBg[item.medicalEvent.severityLevel],
                           color: severityColor[item.medicalEvent.severityLevel],
-                          border: `2px solid ${severityColor[item.medicalEvent.severityLevel]}`,
+                          border: `2px solid ${
+                            severityColor[item.medicalEvent.severityLevel]
+                          }`,
                           borderRadius: 18,
                           padding: "6px 18px",
                           fontSize: 13,
@@ -418,17 +522,21 @@ const MedicalEventList = () => {
                           height: 36,
                           paddingLeft: 16,
                           paddingRight: 16,
-                          background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
+                          background:
+                            "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
                           border: "none",
                           boxShadow: "0 2px 8px #3058A433",
                           transition: "all 0.2s",
                         }}
                         onClick={() => {
-                          navigate(`/nurse/medical-event/medical-event-detail/`, {
-                            state: {
-                              eventId: item.medicalEvent.eventId,
-                            },
-                          });
+                          navigate(
+                            `/nurse/medical-event/medical-event-detail/`,
+                            {
+                              state: {
+                                eventId: item.medicalEvent.eventId,
+                              },
+                            }
+                          );
                         }}
                       >
                         Details
@@ -441,7 +549,7 @@ const MedicalEventList = () => {
           </div>
         )}
         {/* Pagination */}
-        <div style={{ textAlign: "center", marginTop: 24 }}>
+        <div style={{textAlign: "center", marginTop: 24, padding: "0 32px"}}>
           <Pagination
             current={pageIndex}
             pageSize={pageSize}
