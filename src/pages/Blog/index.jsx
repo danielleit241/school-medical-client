@@ -1,49 +1,73 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import BlogModal from "./BlogModal"
+import {useState, useEffect, useRef} from "react";
+import BlogModal from "./BlogModal";
 
 const Blog = () => {
-  const [selectedArticle, setSelectedArticle] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [likedArticles, setLikedArticles] = useState(new Set())
-  const [bookmarkedArticles, setBookmarkedArticles] = useState(new Set())
-  const [showToast, setShowToast] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const headerRef = useRef(null)
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [likedArticles, setLikedArticles] = useState(new Set());
+  const [bookmarkedArticles, setBookmarkedArticles] = useState(new Set());
+  const [showToast, setShowToast] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [mousePosition, setMousePosition] = useState({x: 0, y: 0});
+  const headerRef = useRef(null);
 
   const categories = [
-    { id: "all", name: "All Articles", icon: "🏥" },
-    { id: "nutrition", name: "Nutrition", icon: "🥗" },
-    { id: "mental-health", name: "Mental Health", icon: "🧠" },
-    { id: "prevention", name: "Prevention", icon: "🛡️" },
-    { id: "physical", name: "Physical Health", icon: "💪" },
-    { id: "immunization", name: "Immunization", icon: "💉" },
-  ]
+    {id: "all", name: "All Articles", icon: "🏥"},
+    {id: "nutrition", name: "Nutrition", icon: "🥗"},
+    {id: "mental-health", name: "Mental Health", icon: "🧠"},
+    {id: "prevention", name: "Prevention", icon: "🛡️"},
+    {id: "physical", name: "Physical Health", icon: "💪"},
+    {id: "immunization", name: "Immunization", icon: "💉"},
+  ];
 
   const blogPosts = [
     {
       id: 1,
-      title: "The Importance of School Healthcare",
-      date: "27/05/2025",
+      title:
+        "PM chairs meeting to draft resolutions on breakthroughs in health care, education",
+      date: "18/05/2025",
       category: "prevention",
-      readTime: "5 min read",
+      readTime: "6 min read",
       excerpt:
-        "School healthcare plays a key role in protecting and improving student health. From early detection of illness, regular health monitoring, to health education programs.",
-      image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=400&fit=crop",
-      content: `School healthcare is fundamental to ensuring the wellbeing of our children during their educational journey. Healthcare professionals in schools serve as the first line of defense against illness and injury, providing immediate care and support when students need it most.
+        "Prime Minister Pham Minh Chinh chaired a meeting to discuss draft Politburo resolutions on breakthroughs in public health care and education, focusing on innovation, digital transformation, and equitable access.",
+      image:
+        "https://mediaen.vietnamplus.vn/images/6c119d271863b7ac18459c552eb952eeb505ee81f1d9131bc24cf45eff268a80d2e222b4917b7d373f08e26a34eb636811ad7b6281d70fa38f94c694bb0bf7332c763c4f7dd50e2ab2d1d5ebcfb759266820b927f7a14b68775e30b83868b0952810898e370c30f34b1abbc94cf90253f1d86198934cb94b37e380f0e880bb12/thuong-truc-chinh-phu-thao-luan-ve-phat-trien-giao-duc-va-cham-soc-suc-khoe-nhan-dan-17-3.jpg.webp",
+      content: `Hanoi (VNA) - Prime Minister Pham Minh Chinh chaired a meeting on May 17 between standing Cabinet members and ministries and central agencies to discuss the drafting of two Politburo resolutions aimed at breakthroughs in public health care and education.
 
-      Early detection of health issues is crucial for preventing more serious complications. School nurses and healthcare staff are trained to identify symptoms and signs that might indicate underlying health problems, allowing for prompt intervention and treatment.
+The draft resolution on public health care outlines breakthrough solutions to meet national development demands in the new era.
 
-      Regular health monitoring includes routine check-ups, vision and hearing screenings, and tracking of chronic conditions. This systematic approach helps ensure that health issues don't interfere with a child's ability to learn and participate fully in school activities.
+It sets out goals and a roadmap for waiving hospital fees for the public, conducting regular health check-ups, ensuring access to vaccines and immunisation, improving the quality of healthcare services, securing medical supplies, and applying science and technology effectively.
 
-      Health education programs teach students about nutrition, hygiene, mental health, and disease prevention. These programs empower children to make informed decisions about their health and develop lifelong healthy habits.`,
-      tags: ["healthcare", "school", "prevention"],
-      author: "Dr. Emily Johnson",
-      authorRole: "Pediatric Specialist",
+Key proposals include shifting the mindset in leadership and implementation of healthcare services, enhancing the capacity of the health system, particularly preventive medicine, grassroots healthcare and traditional medicine, and training high-quality human resources with special incentives for medical staff.
+
+The draft also emphasises healthcare finance reform, innovation and digital transformation, and the mobilisation of resources for private healthcare development.
+
+Following discussion, PM Chinh urged swift finalisation of the draft, drawing on existing resolutions, strategies and conclusions. He asked for a more comprehensive and inclusive approach that removes institutional bottlenecks and identifies true breakthroughs to meet public expectations.
+
+The PM underscored the need to design special mechanisms and policies, particularly for public-private partnerships, in order to advance healthcare, with decentralisation, simplified administrative procedures, and the elimination of “ask-give” mechanisms.
+
+He stressed the principle that safeguarding public health is fundamental, strategic, and long-term, while medical treatment is frequent and reactive.
+
+Special attention should be paid to implementing a two-tier local governance model for healthcare delivery, ensuring equitable access, especially in remote, border, and island areas, and among ethnic minorities, developing preventive and grassroots healthcare, tackling population ageing, and advancing the pharmaceutical and vaccine industries.
+
+The PM also urged efforts to promote health tourism, build digital and smart hospitals, and progressively waive hospital fees, starting with free treatment for children.
+
+Meanwhile, in regard to the draft resolution on education reform, PM Chinh acknowledged past achievements while also highlighting bottlenecks. He asked for the building of a resolution that modernises the education system, expands equitable access, and improves overall quality. The draft should promote vocational reform, boost workforce skills, modernise higher education, develop high-quality human resources and talent in technology, and foster research and innovation, he said.
+
+Proposed breakthrough solutions include enhancing state management and unlocking potential and creativity; overhauling finance policies and promoting effective use of the state budget; investing in modern educational facilities; advancing comprehensive digital transformation; promoting foreign language education, especially English, and digital and AI literacy; and developing skilled and high-tech workers in line with innovation-driven growth.
+
+He requested that the resolution clearly define its scope from general to vocational, higher and post-graduate education, while proposing measures to ensure equitable access, especially in remote areas. It should include a roadmap for foreign language education, and promote education in culture, arts, aesthetics and physical development to ensure well-rounded learners, he ordered.
+
+The Government leader urged the development of strategies for vocational training, improving skills, and post-graduate education in emerging fields, along with elite talent programmes. He emphasised improving teacher quality, infrastructure, and optimising the national education network.
+
+He also directed ministries to integrate stakeholder feedback and finalise key documents for timely submission to the Politburo.`,
+      tags: ["PM", "education", "healthcare", "policy"],
+      author: "VietnamPlus (VNA)",
+      authorRole: "News Agency",
     },
     {
       id: 2,
@@ -53,7 +77,8 @@ const Blog = () => {
       readTime: "4 min read",
       excerpt:
         "School meals must ensure adequate nutrition, food safety, and suit the physical needs of different age groups. Studies have shown that proper nutrition directly impacts academic performance.",
-      image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=400&fit=crop",
       content: `Proper nutrition is essential for children's physical and cognitive development. School nutrition programs play a vital role in ensuring students receive balanced, nutritious meals that support their growth and learning.
 
       Nutritional requirements vary by age group, and school meal programs must account for these differences. Elementary students need different portion sizes and nutritional profiles compared to high school students.
@@ -73,7 +98,8 @@ const Blog = () => {
       readTime: "6 min read",
       excerpt:
         "Crowded school environments can easily become hotspots for outbreaks if preventive measures are not in place. Basic practices such as proper handwashing and health screenings are essential.",
-      image: "https://images.unsplash.com/photo-1597764699510-655c8aefb1b5?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://blog.wcei.net/wp-content/uploads/2024/04/infectioncontrol-scaled-e1713195717755.jpg",
       content: `Schools, with their high concentration of students in close proximity, can be vulnerable to disease outbreaks. However, with proper preventive measures, these risks can be significantly reduced.
 
       Hand hygiene is one of the most effective ways to prevent the spread of infectious diseases. Schools should provide adequate handwashing facilities and teach proper handwashing techniques to all students and staff.
@@ -93,7 +119,8 @@ const Blog = () => {
       readTime: "7 min read",
       excerpt:
         "Stress, academic pressure, and social relationships can affect students' mental well-being. Schools should offer psychological counseling services and create supportive environments.",
-      image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=600&q=80",
+      image:
+        "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=600&q=80",
       content: `Mental health is just as important as physical health for student success and wellbeing. Schools play a crucial role in supporting students' mental health through various programs and services.
 
       Academic pressure, social challenges, and developmental changes can all impact a student's mental health. Early identification and intervention are key to preventing more serious mental health issues.
@@ -113,7 +140,8 @@ const Blog = () => {
       readTime: "5 min read",
       excerpt:
         "Physical activity is essential for maintaining health, reducing stress, and improving academic performance. School physical education and sports programs promote active lifestyles.",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
       content: `Regular physical activity is fundamental to children's physical and mental development. Schools have a unique opportunity to promote active lifestyles through structured physical education programs and recreational activities.
 
       Physical education classes provide students with the knowledge and skills needed to maintain an active lifestyle throughout their lives. These programs should be inclusive and accommodate students of all fitness levels and abilities.
@@ -133,7 +161,8 @@ const Blog = () => {
       readTime: "4 min read",
       excerpt:
         "Organizing vaccinations at school for diseases such as flu, hepatitis B, measles, mumps, rubella, etc., is an effective way to prevent illness and protect the school community.",
-      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop",
       content: `School-based immunization programs are one of the most effective public health interventions for preventing infectious diseases in educational settings. These programs help protect individual students while contributing to community immunity.
 
       Routine immunizations protect against serious diseases that can cause significant illness, disability, or death. School requirements for vaccinations help ensure high vaccination rates and protect vulnerable students who cannot be vaccinated due to medical conditions.
@@ -145,87 +174,109 @@ const Blog = () => {
       author: "Dr. Lisa Patel",
       authorRole: "Immunology Specialist",
     },
-  ]
+    {
+      id: 8,
+      title: "The Importance of School Healthcare",
+      date: "27/05/2025",
+      readTime: "5 min read",
+      excerpt:
+        "School healthcare plays a key role in protecting and improving student health. From early detection of illness, regular health monitoring, to health education programs.",
+      image:
+        "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=400&fit=crop",
+      content: `School healthcare is fundamental to ensuring the wellbeing of our children during their educational journey. Healthcare professionals in schools serve as the first line of defense against illness and injury, providing immediate care and support when students need it most.
+
+      Early detection of health issues is crucial for preventing more serious complications. School nurses and healthcare staff are trained to identify symptoms and signs that might indicate underlying health problems, allowing for prompt intervention and treatment.
+
+      Regular health monitoring includes routine check-ups, vision and hearing screenings, and tracking of chronic conditions. This systematic approach helps ensure that health issues don't interfere with a child's ability to learn and participate fully in school activities.
+
+      Health education programs teach students about nutrition, hygiene, mental health, and disease prevention. These programs empower children to make informed decisions about their health and develop lifelong healthy habits.`,
+      tags: ["healthcare", "school", "prevention"],
+      author: "Dr. Emily Johnson",
+      authorRole: "Pediatric Specialist",
+    },
+  ];
 
   useEffect(() => {
     // Simulate loading
-    setTimeout(() => setIsLoading(false), 1500)
+    setTimeout(() => setIsLoading(false), 1500);
 
     // Mouse move effect for background
     const handleMouseMove = (e) => {
-      const x = e.clientX / window.innerWidth
-      const y = e.clientY / window.innerHeight
-      setMousePosition({ x, y })
-    }
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      setMousePosition({x, y});
+    };
 
     // Parallax effect
     const handleScroll = () => {
       if (headerRef.current) {
-        const scrolled = window.pageYOffset
-        headerRef.current.style.transform = `translateY(${scrolled * 0.3}px)`
+        const scrolled = window.pageYOffset;
+        headerRef.current.style.transform = `translateY(${scrolled * 0.3}px)`;
       }
-    }
+    };
 
-    window.addEventListener("mousemove", handleMouseMove)
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove)
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [])
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const filteredPosts = blogPosts.filter((post) => {
     const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || post.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+      post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || post.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const toggleLike = (id) => {
-    const newLiked = new Set(likedArticles)
+    const newLiked = new Set(likedArticles);
     if (newLiked.has(id)) {
-      newLiked.delete(id)
-      showToastMessage("Article unliked", "info")
+      newLiked.delete(id);
+      showToastMessage("Article unliked", "info");
     } else {
-      newLiked.add(id)
-      showToastMessage("Article liked!", "success")
+      newLiked.add(id);
+      showToastMessage("Article liked!", "success");
     }
-    setLikedArticles(newLiked)
-  }
+    setLikedArticles(newLiked);
+  };
 
   const toggleBookmark = (id) => {
-    const newBookmarked = new Set(bookmarkedArticles)
+    const newBookmarked = new Set(bookmarkedArticles);
     if (newBookmarked.has(id)) {
-      newBookmarked.delete(id)
-      showToastMessage("Bookmark removed", "info")
+      newBookmarked.delete(id);
+      showToastMessage("Bookmark removed", "info");
     } else {
-      newBookmarked.add(id)
-      showToastMessage("Article bookmarked!", "success")
+      newBookmarked.add(id);
+      showToastMessage("Article bookmarked!", "success");
     }
-    setBookmarkedArticles(newBookmarked)
-  }
+    setBookmarkedArticles(newBookmarked);
+  };
 
   const showToastMessage = (message, type) => {
-    setShowToast({ message, type })
-    setTimeout(() => setShowToast(null), 3000)
-  }
+    setShowToast({message, type});
+    setTimeout(() => setShowToast(null), 3000);
+  };
 
   const openModal = (article) => {
-    setSelectedArticle(article)
-    setIsModalOpen(true)
-  }
+    setSelectedArticle(article);
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => {
-    setIsModalOpen(false)
-    setSelectedArticle(null)
-  }
+    setIsModalOpen(false);
+    setSelectedArticle(null);
+  };
 
   // Get featured article (first one)
-  const featuredArticle = filteredPosts.length > 0 ? filteredPosts[0] : null
+  const featuredArticle = filteredPosts.length > 0 ? filteredPosts[0] : null;
   // Get remaining articles
-  const remainingArticles = filteredPosts.length > 0 ? filteredPosts.slice(1) : []
+  const remainingArticles =
+    filteredPosts.length > 0 ? filteredPosts.slice(1) : [];
 
   const styles = {
     container: {
@@ -612,7 +663,7 @@ const Blog = () => {
       borderRadius: "20px",
       fontFamily: "'Helvetica', sans-serif",
     },
-  }
+  };
 
   const keyframes = `
     @keyframes spin {
@@ -629,7 +680,7 @@ const Blog = () => {
       from { opacity: 0; }
       to { opacity: 1; }
     }
-  `
+  `;
 
   if (isLoading) {
     return (
@@ -638,10 +689,18 @@ const Blog = () => {
         <div style={styles.backgroundImage}></div>
         <div style={styles.loadingContainer}>
           <div style={styles.loadingSpinner}></div>
-          <h2 style={{ color: "#2563eb", fontSize: "1.5rem", fontFamily: "'Georgia', serif" }}>Loading content...</h2>
+          <h2
+            style={{
+              color: "#2563eb",
+              fontSize: "1.5rem",
+              fontFamily: "'Georgia', serif",
+            }}
+          >
+            Loading content...
+          </h2>
         </div>
       </>
-    )
+    );
   }
 
   return (
@@ -658,7 +717,8 @@ const Blog = () => {
           <div style={styles.headerContent}>
             <h1 style={styles.headerTitle}>SCHOOL HEALTHCARE JOURNAL</h1>
             <p style={styles.headerSubtitle}>
-              The latest research, insights, and best practices for modern student healthcare
+              The latest research, insights, and best practices for modern
+              student healthcare
             </p>
           </div>
         </header>
@@ -672,10 +732,12 @@ const Blog = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={styles.searchInput}
-              onFocus={(e) => Object.assign(e.target.style, styles.searchInputFocus)}
+              onFocus={(e) =>
+                Object.assign(e.target.style, styles.searchInputFocus)
+              }
               onBlur={(e) => {
-                e.target.style.borderColor = "rgba(37, 99, 235, 0.3)"
-                e.target.style.backgroundColor = "rgba(255, 255, 255, 0.9)"
+                e.target.style.borderColor = "rgba(37, 99, 235, 0.3)";
+                e.target.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
               }}
             />
           </div>
@@ -687,19 +749,23 @@ const Blog = () => {
                 onClick={() => setSelectedCategory(category.id)}
                 style={{
                   ...styles.categoryButton,
-                  borderBottomColor: selectedCategory === category.id ? "#2563eb" : "transparent",
-                  color: selectedCategory === category.id ? "#2563eb" : "#6b7280",
+                  borderBottomColor:
+                    selectedCategory === category.id
+                      ? "#2563eb"
+                      : "transparent",
+                  color:
+                    selectedCategory === category.id ? "#2563eb" : "#6b7280",
                 }}
                 onMouseEnter={(e) => {
                   if (selectedCategory !== category.id) {
-                    e.target.style.borderBottomColor = "rgba(37, 99, 235, 0.3)"
-                    e.target.style.color = "#4b5563"
+                    e.target.style.borderBottomColor = "rgba(37, 99, 235, 0.3)";
+                    e.target.style.color = "#4b5563";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (selectedCategory !== category.id) {
-                    e.target.style.borderBottomColor = "transparent"
-                    e.target.style.color = "#6b7280"
+                    e.target.style.borderBottomColor = "transparent";
+                    e.target.style.color = "#6b7280";
                   }
                 }}
               >
@@ -716,7 +782,8 @@ const Blog = () => {
             <article style={styles.featuredArticle}>
               <div style={styles.featuredContent}>
                 <div style={styles.featuredCategory}>
-                  {categories.find((cat) => cat.id === featuredArticle.category)?.name || featuredArticle.category}
+                  {categories.find((cat) => cat.id === featuredArticle.category)
+                    ?.name || featuredArticle.category}
                 </div>
                 <h2 style={styles.featuredTitle}>{featuredArticle.title}</h2>
                 <p style={styles.featuredExcerpt}>{featuredArticle.excerpt}</p>
@@ -732,23 +799,29 @@ const Blog = () => {
                 </div>
                 <div style={styles.featuredAuthor}>
                   <div style={styles.featuredAuthorImage}>
-                    {featuredArticle.author ? featuredArticle.author.charAt(0) : "A"}
+                    {featuredArticle.author
+                      ? featuredArticle.author.charAt(0)
+                      : "A"}
                   </div>
                   <div style={styles.featuredAuthorInfo}>
-                    <div style={styles.featuredAuthorName}>{featuredArticle.author}</div>
-                    <div style={styles.featuredAuthorRole}>{featuredArticle.authorRole}</div>
+                    <div style={styles.featuredAuthorName}>
+                      {featuredArticle.author}
+                    </div>
+                    <div style={styles.featuredAuthorRole}>
+                      {featuredArticle.authorRole}
+                    </div>
                   </div>
                 </div>
                 <button
                   style={styles.readMoreButton}
                   onClick={() => openModal(featuredArticle)}
                   onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = "#2563eb"
-                    e.target.style.color = "white"
+                    e.target.style.backgroundColor = "#2563eb";
+                    e.target.style.color = "white";
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = "transparent"
-                    e.target.style.color = "#2563eb"
+                    e.target.style.backgroundColor = "transparent";
+                    e.target.style.color = "#2563eb";
                   }}
                 >
                   Read Article
@@ -777,22 +850,29 @@ const Blog = () => {
                   style={styles.articleCard}
                   onClick={() => openModal(post)}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = "0 15px 30px rgba(37, 99, 235, 0.15)"
-                    e.currentTarget.style.transform = "translateY(-8px)"
-                    const img = e.currentTarget.querySelector("img")
-                    if (img) img.style.transform = "scale(1.05)"
+                    e.currentTarget.style.boxShadow =
+                      "0 15px 30px rgba(37, 99, 235, 0.15)";
+                    e.currentTarget.style.transform = "translateY(-8px)";
+                    const img = e.currentTarget.querySelector("img");
+                    if (img) img.style.transform = "scale(1.05)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(37, 99, 235, 0.05)"
-                    e.currentTarget.style.transform = "translateY(0)"
-                    const img = e.currentTarget.querySelector("img")
-                    if (img) img.style.transform = "scale(1)"
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 12px rgba(37, 99, 235, 0.05)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    const img = e.currentTarget.querySelector("img");
+                    if (img) img.style.transform = "scale(1)";
                   }}
                 >
-                  <img src={post.image || "/placeholder.svg"} alt={post.title} style={styles.articleImage} />
+                  <img
+                    src={post.image || "/placeholder.svg"}
+                    alt={post.title}
+                    style={styles.articleImage}
+                  />
                   <div style={styles.articleContent}>
                     <div style={styles.articleCategory}>
-                      {categories.find((cat) => cat.id === post.category)?.name || post.category}
+                      {categories.find((cat) => cat.id === post.category)
+                        ?.name || post.category}
                     </div>
                     <h3 style={styles.articleTitle}>{post.title}</h3>
                     <p style={styles.articleExcerpt}>{post.excerpt}</p>
@@ -805,20 +885,27 @@ const Blog = () => {
                         <button
                           style={{
                             ...styles.actionButton,
-                            color: likedArticles.has(post.id) ? "#ef4444" : "#6b7280",
-                            backgroundColor: likedArticles.has(post.id) ? "rgba(239, 68, 68, 0.12)" : "rgba(255,255,255,0.9)", // Tô đỏ nhạt khi đã like
-                            border: likedArticles.has(post.id) ? "2px solid #ef4444" : "none", // Viền đỏ khi đã like
+                            color: likedArticles.has(post.id)
+                              ? "#ef4444"
+                              : "#6b7280",
+                            backgroundColor: likedArticles.has(post.id)
+                              ? "rgba(239, 68, 68, 0.12)"
+                              : "rgba(255,255,255,0.9)", // Tô đỏ nhạt khi đã like
+                            border: likedArticles.has(post.id)
+                              ? "2px solid #ef4444"
+                              : "none", // Viền đỏ khi đã like
                           }}
                           onClick={(e) => {
-                            e.stopPropagation()
-                            toggleLike(post.id)
+                            e.stopPropagation();
+                            toggleLike(post.id);
                           }}
                           title="Like"
                           onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = "rgba(239, 68, 68, 0.1)"
+                            e.target.style.backgroundColor =
+                              "rgba(239, 68, 68, 0.1)";
                           }}
                           onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = "transparent"
+                            e.target.style.backgroundColor = "transparent";
                           }}
                         >
                           ❤️
@@ -826,20 +913,27 @@ const Blog = () => {
                         <button
                           style={{
                             ...styles.actionButton,
-                            color: bookmarkedArticles.has(post.id) ? "#2563eb" : "#6b7280",
-                            backgroundColor: bookmarkedArticles.has(post.id) ? "rgba(239, 68, 68, 0.12)" : "rgba(255,255,255,0.9)", // Tô đỏ nhạt khi đã like
-                            border: bookmarkedArticles.has(post.id) ? "2px solid #ef4444" : "none", // Viền đỏ khi đã like
+                            color: bookmarkedArticles.has(post.id)
+                              ? "#2563eb"
+                              : "#6b7280",
+                            backgroundColor: bookmarkedArticles.has(post.id)
+                              ? "rgba(239, 68, 68, 0.12)"
+                              : "rgba(255,255,255,0.9)", // Tô đỏ nhạt khi đã like
+                            border: bookmarkedArticles.has(post.id)
+                              ? "2px solid #ef4444"
+                              : "none", // Viền đỏ khi đã like
                           }}
                           onClick={(e) => {
-                            e.stopPropagation()
-                            toggleBookmark(post.id)
+                            e.stopPropagation();
+                            toggleBookmark(post.id);
                           }}
                           title="Bookmark"
                           onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = "rgba(37, 99, 235, 0.1)"
+                            e.target.style.backgroundColor =
+                              "rgba(37, 99, 235, 0.1)";
                           }}
                           onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = "transparent"
+                            e.target.style.backgroundColor = "transparent";
                           }}
                         >
                           🔖
@@ -857,17 +951,22 @@ const Blog = () => {
           <div
             style={{
               ...styles.toast,
-              backgroundColor: showToast.type === "success" ? "rgba(37, 99, 235, 0.9)" : "rgba(59, 130, 246, 0.9)",
+              backgroundColor:
+                showToast.type === "success"
+                  ? "rgba(37, 99, 235, 0.9)"
+                  : "rgba(59, 130, 246, 0.9)",
             }}
           >
             {showToast.message}
           </div>
         )}
 
-        {isModalOpen && <BlogModal article={selectedArticle} onClose={closeModal} />}
+        {isModalOpen && (
+          <BlogModal article={selectedArticle} onClose={closeModal} />
+        )}
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Blog
+export default Blog;

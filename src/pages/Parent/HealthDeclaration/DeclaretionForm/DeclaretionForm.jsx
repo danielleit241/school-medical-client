@@ -172,7 +172,7 @@ const DeclarationForm = () => {
           showConfirmButton: false,
           timer: 1500,
         }).then(() => {
-          navigate("/parent/health-declaration/detail", {
+          navigate("/parent/health-declaration/my-children", {
             state: {studentId: studentId},
           });
         });
@@ -251,7 +251,6 @@ const DeclarationForm = () => {
                 <Input
                   size="large"
                   style={{
-                    backgroundColor: "#f4f6fa",
                     border: "1.5px solid #e0e0e0",
                     borderRadius: 12,
                     fontWeight: 500,
@@ -274,6 +273,7 @@ const DeclarationForm = () => {
                 ]}
               >
                 <DatePicker
+                  disabled
                   size="large"
                   style={{
                     width: "100%",
@@ -301,7 +301,6 @@ const DeclarationForm = () => {
                   size="large"
                   placeholder="Enter chronic diseases or 'None' if applicable"
                   style={{
-                    backgroundColor: "#f4f6fa",
                     border: "1.5px solid #e0e0e0",
                     borderRadius: 12,
                   }}
@@ -325,7 +324,6 @@ const DeclarationForm = () => {
                   size="large"
                   placeholder="Enter drug allergies or 'None' if applicable"
                   style={{
-                    backgroundColor: "#f4f6fa",
                     border: "1.5px solid #e0e0e0",
                     borderRadius: 12,
                   }}
@@ -349,7 +347,6 @@ const DeclarationForm = () => {
                   size="large"
                   placeholder="Enter food allergies or 'None' if applicable"
                   style={{
-                    backgroundColor: "#f4f6fa",
                     border: "1.5px solid #e0e0e0",
                     borderRadius: 12,
                   }}
@@ -370,7 +367,6 @@ const DeclarationForm = () => {
                   rows={3}
                   placeholder="Any additional health information..."
                   style={{
-                    backgroundColor: "#f4f6fa",
                     border: "1.5px solid #e0e0e0",
                     borderRadius: 12,
                   }}
@@ -407,18 +403,18 @@ const DeclarationForm = () => {
                   htmlType="submit"
                   size="large"
                   style={{
-                    width: 200,
-                    height: 48,
+                    width: 150,
+                    height: 40,
                     fontWeight: 600,
                     fontSize: 16,
                     background:
-                      "linear-gradient(135deg, #355383 0%, #4a6fa5 100%)",
+                      "linear-gradient(135deg, #355383 0%, #355383 100%)",
                     borderRadius: 12,
                     border: "none",
-                    boxShadow: "0 4px 12px rgba(53, 83, 131, 0.3)",
+                    boxShadow: "0 2px 2px rgba(53, 83, 131, 0.3)",
                   }}
                 >
-                  Submit Declaration
+                  Submit
                 </Button>
               </Form.Item>
             </Form>
