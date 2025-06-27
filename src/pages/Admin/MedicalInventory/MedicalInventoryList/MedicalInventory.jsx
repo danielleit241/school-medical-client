@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useCallback} from "react";
-import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
+import {Table, Input, Pagination, Spin, Alert, Button, Divider} from "antd";
 import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import "./index.scss";
+import AddInventory from "../AddInventory/AddInventory";
 import Swal from "sweetalert2";
 import MedicalInventoryModal from "./MedicalInventoryModal";
 import {Download} from "lucide-react";
@@ -310,6 +311,11 @@ const MedicalInventory = () => {
 
   return (
     <div>
+      {/* Add inventory */}
+      <div>
+        <AddInventory />
+      </div>
+      <Divider />
       <div
         style={{
           display: "flex",

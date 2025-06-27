@@ -194,21 +194,8 @@ const Sidebar = () => {
       {
         label: "Medical Inventory",
         key: "inventory",
+        link: "/admin/inventory/inventoryList",
         icon: <DatabaseOutlined />,
-        dropdown: [
-          {
-            label: "Create Inventory",
-            key: "/admin/inventory/createInventory",
-            link: "/admin/inventory/createInventory",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Inventory List",
-            key: "/admin/inventory/inventoryList",
-            link: "/admin/inventory/inventoryList",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
       {
         label: "Vaccine Management",
@@ -303,21 +290,8 @@ const Sidebar = () => {
       {
         label: "Medical Inventory",
         key: "inventory",
+        link: "/manager/inventory/inventoryList",
         icon: <AppstoreAddOutlined />,
-        dropdown: [
-          {
-            label: "Create Inventory",
-            key: "/manager/inventory/createInventory",
-            link: "/manager/inventory/createInventory",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Inventory List",
-            key: "/manager/inventory/inventoryList",
-            link: "/manager/inventory/inventoryList",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
       {
         label: "Vaccine Management",

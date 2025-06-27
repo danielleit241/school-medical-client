@@ -241,6 +241,7 @@ const HealthCheckList = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleEditModalClose = (reload = false) => {
