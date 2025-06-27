@@ -1,10 +1,20 @@
 import React, {useState, useEffect, useCallback} from "react";
-import {Table, Input, Pagination, Spin, Alert, Button, Select} from "antd";
+import {
+  Table,
+  Input,
+  Pagination,
+  Spin,
+  Alert,
+  Button,
+  Select,
+  Divider,
+} from "antd";
 import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import VaccineModal from "./VaccineModal";
 import Swal from "sweetalert2";
 import {Download} from "lucide-react";
+import AddVaccine from "../AddVaccine/AddVaccine";
 const pageSize = 10;
 
 const VaccineInventory = () => {
@@ -284,6 +294,10 @@ const VaccineInventory = () => {
 
   return (
     <div>
+      <div>
+        <AddVaccine />
+      </div>
+      <Divider />
       <div
         style={{
           display: "flex",

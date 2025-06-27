@@ -30,7 +30,6 @@ import HealthCheckList from "./pages/Admin/HealthCheck/HealthCheckList/HealthChe
 import StudentHealthCheckList from "./pages/Admin/HealthCheck/StudentList/StudentHealthCheckList";
 import StudentVaccineList from "./pages/Admin/Campaign/StudentList/StudentVaccineList";
 import MedicalRequest from "./pages/Admin/MedicalRequest/MedicalRequest";
-import AddStudent from "./pages/Admin/StudentManagement/AddStudent/AddStudent";
 import StudentList from "./pages/Admin/StudentManagement/StudentList/StudentList";
 import UserProfileAdmin from "./pages/Admin/Profile/User/UserProfile";
 import UpdateUserProfileAdmin from "./pages/Admin/Profile/Edit/UpdateUserProfile";
@@ -79,7 +78,7 @@ import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryLis
 import VaccineInventory from "./pages/Admin/VaccineList/VaccineInventory/VaccineInventory";
 import AddVaccine from "./pages/Admin/VaccineList/AddVaccine/AddVaccine";
 import SessionTimeout from "./components/SessionTimeout/SessionTimeout";
-import Timeable from "./pages/Parent/Vaccine/Timeable";
+import Timeable from "./pages/Parent/Timetable/Timeable";
 
 function App() {
   const dispatch = useDispatch();
@@ -218,7 +217,6 @@ function App() {
             element={<MedicalInventory />}
           />
           <Route path="vaccine/inventoryList" element={<VaccineInventory />} />
-          <Route path="vaccine/create" element={<AddVaccine />} />
           <Route path="vaccine/vaccine-schedule" element={<CampaignList />} />
           <Route path="vaccine/create-campaign" element={<CreateCampaign />} />
           <Route
@@ -237,10 +235,6 @@ function App() {
             element={<StudentHealthCheckList />}
           />
           <Route path="medical-requests" element={<MedicalRequest />} />
-          <Route
-            path="student-management/add-student"
-            element={<AddStudent />}
-          />
           <Route
             path="student-management/student-list"
             element={<StudentList />}
@@ -284,10 +278,6 @@ function App() {
             element={<StudentHealthCheckList />}
           />
           <Route path="medical-requests" element={<MedicalRequest />} />
-          <Route
-            path="student-management/add-student"
-            element={<AddStudent />}
-          />
           <Route
             path="student-management/student-list"
             element={<StudentList />}
