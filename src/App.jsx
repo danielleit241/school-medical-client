@@ -78,7 +78,7 @@ import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryLis
 import VaccineInventory from "./pages/Admin/VaccineList/VaccineInventory/VaccineInventory";
 import AddVaccine from "./pages/Admin/VaccineList/AddVaccine/AddVaccine";
 import SessionTimeout from "./components/SessionTimeout/SessionTimeout";
-import Timeable from "./pages/Parent/Vaccine/Timeable";
+import Timeable from "./pages/Parent/Timetable/Timeable";
 
 function App() {
   const dispatch = useDispatch();

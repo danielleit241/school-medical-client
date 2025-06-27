@@ -528,7 +528,7 @@ const Timeable = () => {
         <div className="flex flex-wrap justify-between items-center">
           <Title level={4} style={{margin: 0}}>
             <CalendarOutlined style={{marginRight: 8}} />
-            Timeable Schedules
+            Schedules
           </Title>
 
           <div className="flex flex-wrap items-center gap-4 mt-4 md:mt-0">
