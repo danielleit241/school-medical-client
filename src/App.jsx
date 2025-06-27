@@ -75,7 +75,6 @@ import ParentNotification from "./pages/Parent/Notification/Notification";
 import UserProfile from "./pages/Parent/Profile/User/UserProfile";
 import UpdateUserProfile from "./pages/Parent/Profile/Edit/UpdateUserProfile";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
-import AddInventory from "./pages/Admin/MedicalInventory/AddInventory/AddInventory";
 import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryList/MedicalInventory";
 import VaccineInventory from "./pages/Admin/VaccineList/VaccineInventory/VaccineInventory";
 import AddVaccine from "./pages/Admin/VaccineList/AddVaccine/AddVaccine";
@@ -214,7 +213,6 @@ function App() {
             }
           />
           {/* Các route còn lại cho admin */}
-          <Route path="inventory/createInventory" element={<AddInventory />} />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
@@ -262,7 +260,6 @@ function App() {
           }
         >
           <Route index element={<ManagerDashboard />} />{" "}
-          <Route path="inventory/createInventory" element={<AddInventory />} />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
@@ -314,10 +311,7 @@ function App() {
             path="appointment-management/appointment-list"
             element={<AppointmentList />}
           />
-          <Route
-            path="vaccine/campaign-list"
-            element={<NurseCampaignList />}
-          />
+          <Route path="vaccine/campaign-list" element={<NurseCampaignList />} />
           <Route
             path="campaign/round-campaign"
             element={<NurseDetailCampaign />}

@@ -414,6 +414,7 @@ const ManagerDashboard = () => {
     if (roleName === "admin") {
       fetchAdminData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleName]); // Chỉ phụ thuộc vào roleName, không phụ thuộc vào dateRange
 
   // Cập nhật useEffect để sử dụng tháng hiện tại khi component mount
