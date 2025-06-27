@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import * as XLSX from "xlsx";
-import { axiosFormData } from "../../../../api/axios";
-import { Button, Upload, Alert, Input } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import 'antd/dist/reset.css';
+import {axiosFormData} from "../../../../api/axios";
+import {Button, Upload, Alert, Input} from "antd";
+import {UploadOutlined} from "@ant-design/icons";
+import "antd/dist/reset.css";
 
 const AddStudent = () => {
   const [data, setData] = useState([]);
@@ -17,14 +17,14 @@ const AddStudent = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const Str = e.target.result;
-      const workbook = XLSX.read(Str, { type: "binary" });
+      const workbook = XLSX.read(Str, {type: "binary"});
       const worksheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[worksheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
       setData(jsonData);
 
       if (jsonData.length > 1) {
-        setEditableData(jsonData.slice(1).map(row => [...row]));
+        setEditableData(jsonData.slice(1).map((row) => [...row]));
       } else {
         setEditableData([]);
       }
@@ -41,7 +41,7 @@ const AddStudent = () => {
   };
 
   const handleInputChange = (rowIdx, colIdx, value) => {
-    setEditableData(prev => {
+    setEditableData((prev) => {
       const newData = [...prev];
       newData[rowIdx] = [...newData[rowIdx]];
       newData[rowIdx][colIdx] = value;
@@ -56,15 +56,15 @@ const AddStudent = () => {
     const utc_value = utc_days * 86400;
     const date_info = new Date(utc_value * 1000);
     const yyyy = date_info.getUTCFullYear();
-    const mm = String(date_info.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(date_info.getUTCDate()).padStart(2, '0');
+    const mm = String(date_info.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(date_info.getUTCDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
 
   // Định dạng ô trước khi upload để đảm bảo dữ liệu ngày tháng chuẩn
   const formatCellForUpload = (value, colName) => {
-    const isDateCol = ["dayofbirth", "dateofbirth", "dob", "birthdate"].some(keyword =>
-      String(colName).toLowerCase().includes(keyword)
+    const isDateCol = ["dayofbirth", "dateofbirth", "dob", "birthdate"].some(
+      (keyword) => String(colName).toLowerCase().includes(keyword)
     );
 
     if (isDateCol) {
@@ -101,15 +101,17 @@ const AddStudent = () => {
     // Nếu có chỉnh sửa
     if (data.length > 0 && editableData.length > 0) {
       const headers = data[0];
-      const formattedEditableData = editableData.map(row =>
+      const formattedEditableData = editableData.map((row) =>
         row.map((cell, colIdx) => formatCellForUpload(cell, headers[colIdx]))
       );
       const newSheet = [headers, ...formattedEditableData];
       const ws = XLSX.utils.aoa_to_sheet(newSheet);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-      const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-      const newFile = new File([wbout], fileList[0].name, { type: fileList[0].type });
+      const wbout = XLSX.write(wb, {bookType: "xlsx", type: "array"});
+      const newFile = new File([wbout], fileList[0].name, {
+        type: fileList[0].type,
+      });
 
       formData.append("file", newFile);
     } else {
@@ -119,7 +121,10 @@ const AddStudent = () => {
 
     setUploading(true);
     try {
-      const response = await axiosFormData.post("/students/upload-excel", formData);
+      const response = await axiosFormData.post(
+        "/students/upload-excel",
+        formData
+      );
       console.log("Upload response:", response);
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
@@ -136,9 +141,16 @@ const AddStudent = () => {
   };
 
   return (
-    <div className="container">
-      <h3 style={{ marginBottom: 16 }}>Import file Student here</h3>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+    <div>
+      <h2 style={{marginBottom: 16}}>Import file Student here</h2>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 8,
+        }}
+      >
         <Upload
           beforeUpload={handleBeforeUpload}
           onRemove={handleRemove}
@@ -153,13 +165,13 @@ const AddStudent = () => {
           onClick={handleUpload}
           disabled={fileList.length === 0}
           loading={uploading}
-          style={{ minWidth: 100 }}
+          style={{minWidth: 100}}
         >
           {uploading ? "Uploading..." : "Upload"}
         </Button>
         {fileList.length > 0 && (
-          <span style={{ color: "#555", fontSize: 14, wordBreak: "break-all" }}>
-            <UploadOutlined style={{ marginRight: 4, color: "#888" }} />
+          <span style={{color: "#555", fontSize: 14, wordBreak: "break-all"}}>
+            <UploadOutlined style={{marginRight: 4, color: "#888"}} />
             {fileList[0].name}
           </span>
         )}
@@ -167,36 +179,47 @@ const AddStudent = () => {
 
       {/* Bảng chỉnh sửa dữ liệu */}
       {data.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table border="1" style={{ marginTop: 16, borderCollapse: "collapse", minWidth: 600 }}>
+        <div style={{overflowX: "auto"}}>
+          <table
+            border="1"
+            style={{marginTop: 16, borderCollapse: "collapse", minWidth: 600}}
+          >
             <thead>
               <tr>
                 {data[0].map((header, idx) => (
-                  <th key={idx} style={{ padding: 6, background: "#f5f5f5" }}>{header}</th>
+                  <th key={idx} style={{padding: 6, background: "#f5f5f5"}}>
+                    {header}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {(editableData.length > 0 ? editableData : data.slice(1)).map((row, rowIdx) => (
-                <tr key={rowIdx}>
-                  {row.map((cell, colIdx) => {
-                    const header = data[0][colIdx];
-                    const isDateCol = header &&
-                      ["dayofbirth", "dateofbirth", "dob", "birthdate"].some(keyword =>
-                        String(header).toLowerCase().includes(keyword)
+              {(editableData.length > 0 ? editableData : data.slice(1)).map(
+                (row, rowIdx) => (
+                  <tr key={rowIdx}>
+                    {row.map((cell, colIdx) => {
+                      const header = data[0][colIdx];
+                      const isDateCol =
+                        header &&
+                        ["dayofbirth", "dateofbirth", "dob", "birthdate"].some(
+                          (keyword) =>
+                            String(header).toLowerCase().includes(keyword)
+                        );
+                      return (
+                        <td key={colIdx} style={{padding: 4}}>
+                          <Input
+                            value={isDateCol ? excelDateToString(cell) : cell}
+                            onChange={(e) =>
+                              handleInputChange(rowIdx, colIdx, e.target.value)
+                            }
+                            size="small"
+                          />
+                        </td>
                       );
-                    return (
-                      <td key={colIdx} style={{ padding: 4 }}>
-                        <Input
-                          value={isDateCol ? excelDateToString(cell) : cell}
-                          onChange={e => handleInputChange(rowIdx, colIdx, e.target.value)}
-                          size="small"
-                        />
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+                    })}
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
         </div>

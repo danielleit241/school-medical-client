@@ -175,21 +175,8 @@ const Sidebar = () => {
       {
         label: "Student Management",
         key: "student-management",
+        link: "/admin/student-management/student-list",
         icon: <TeamOutlined />,
-        dropdown: [
-          {
-            label: "Add Student",
-            key: "/admin/student-management/add-student",
-            link: "/admin/student-management/add-student",
-            icon: <UserOutlined />,
-          },
-          {
-            label: "Student List",
-            key: "/admin/student-management/student-list",
-            link: "/admin/student-management/student-list",
-            icon: <TeamOutlined />,
-          },
-        ],
       },
       {
         label: "Medical Inventory",
@@ -200,21 +187,8 @@ const Sidebar = () => {
       {
         label: "Vaccine Management",
         key: "vaccine-management",
+        link: "/admin/vaccine/inventoryList",
         icon: <MedicineBoxOutlined />,
-        dropdown: [
-          {
-            label: "Create Vaccine",
-            key: "/admin/vaccine/create",
-            link: "/admin/vaccine/create",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Vaccine List",
-            key: "/admin/vaccine/inventoryList",
-            link: "/admin/vaccine/inventoryList",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
     ],
     manager: [
@@ -271,21 +245,8 @@ const Sidebar = () => {
       {
         label: "Student Management",
         key: "student-management",
+        link: "/manager/student-management/student-list",
         icon: <TeamOutlined />,
-        dropdown: [
-          {
-            label: "Add Student",
-            key: "/manager/student-management/add-student",
-            link: "/manager/student-management/add-student",
-            icon: <UserOutlined />,
-          },
-          {
-            label: "Student List",
-            key: "/manager/student-management/student-list",
-            link: "/manager/student-management/student-list",
-            icon: <TeamOutlined />,
-          },
-        ],
       },
       {
         label: "Medical Inventory",
@@ -296,21 +257,8 @@ const Sidebar = () => {
       {
         label: "Vaccine Management",
         key: "vaccine-management",
+        link: "/manager/vaccine/inventoryList",
         icon: <AppstoreAddOutlined />,
-        dropdown: [
-          {
-            label: "Create Vaccine",
-            key: "/manager/vaccine/createVaccine",
-            link: "/manager/vaccine/create",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Vaccine List",
-            key: "/manager/vaccine/inventoryList",
-            link: "/manager/vaccine/inventoryList",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
     ],
     nurse: [
