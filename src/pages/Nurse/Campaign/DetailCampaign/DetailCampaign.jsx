@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {useState, useEffect} from "react";
+import {useSelector} from "react-redux";
+import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
-import { Button, Table, Tag, Spin, Input, Select } from "antd";
+import {Button, Table, Tag, Spin, Input, Select} from "antd";
 import RecordFormModal from "./RecordFormModal";
 import ObservationModal from "./ObservationModal";
 import DetailModal from "./DetailModal";
@@ -16,7 +16,6 @@ import {
   StopTwoTone,
   ExclamationCircleTwoTone,
 } from "@ant-design/icons";
-
 
 const DetailCampaign = () => {
   const location = useLocation();
@@ -35,39 +34,40 @@ const DetailCampaign = () => {
   const [status, setStatus] = useState(false); // trạng thái round
   const [completedCount, setCompletedCount] = useState(0);
 
-  const [dateRange, setDateRange] = useState({ start: null, end: null });
+  const [dateRange, setDateRange] = useState({start: null, end: null});
   const [statusFilter, setStatusFilter] = useState("all");
 
   const statusOptions = [
-    { value: "all", label: "All status" },
-    { value: "done", label: "Completed" },
-    { value: "recorded", label: "Observation" },
-    { value: "cancel", label: "Does not meet the requirements" },
-    { value: "not_recorded", label: "Not Yet" },
+    {value: "all", label: "All status"},
+    {value: "done", label: "Completed"},
+    {value: "recorded", label: "Observation"},
+    {value: "cancel", label: "Does not meet the requirements"},
+    {value: "not_recorded", label: "Not Yet"},
   ];
 
   useEffect(() => {
-  const fetchCompletedCount = async () => {
-    try {
-      const res = await axiosInstance.get(
-        `/api/v2/nurses/${staffNurseId}/vaccination-rounds/${roundId}/students`
-      );
-      // Đếm số lượng student có status "done" hoặc "cancel"
-      const studentsArr = Array.isArray(res.data) ? res.data : [];
-      let count = 0;
-      for (const item of studentsArr) {
-        const status = statusMap[item.studentsOfRoundResponse?.vaccinationResultId];
-        if (status === "done" || status === "cancel") count++;
+    const fetchCompletedCount = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `/api/v2/nurses/${staffNurseId}/vaccination-rounds/${roundId}/students`
+        );
+        // Đếm số lượng student có status "done" hoặc "cancel"
+        const studentsArr = Array.isArray(res.data) ? res.data : [];
+        let count = 0;
+        for (const item of studentsArr) {
+          const status =
+            statusMap[item.studentsOfRoundResponse?.vaccinationResultId];
+          if (status === "done" || status === "cancel") count++;
+        }
+        setCompletedCount(count);
+      } catch {
+        setCompletedCount(0);
       }
-      setCompletedCount(count);
-    } catch {
-      setCompletedCount(0);
+    };
+    if (staffNurseId && roundId && Object.keys(statusMap).length > 0) {
+      fetchCompletedCount();
     }
-  };
-  if (staffNurseId && roundId && Object.keys(statusMap).length > 0) {
-    fetchCompletedCount();
-  }
-}, [staffNurseId, roundId, statusMap]);
+  }, [staffNurseId, roundId, statusMap]);
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -80,12 +80,11 @@ const DetailCampaign = () => {
 
       const res = await axiosInstance.get(
         `/api/nurses/${staffNurseId}/vaccination-rounds/${roundId}/students`,
-        { params }
+        {params}
       );
 
-      const mappedStudents = (Array.isArray(res.data.items)
-        ? res.data.items
-        : []
+      const mappedStudents = (
+        Array.isArray(res.data.items) ? res.data.items : []
       ).map((item) => ({
         studentCode: item.studentsOfRoundResponse.studentCode,
         studentName: item.studentsOfRoundResponse.fullName,
@@ -108,16 +107,21 @@ const DetailCampaign = () => {
   useEffect(() => {
     const fetchRound = async () => {
       try {
-        const res = await axiosInstance.get(`/api/vaccination-rounds/${roundId}`);
+        const res = await axiosInstance.get(
+          `/api/vaccination-rounds/${roundId}`
+        );
         setStatus(res.data.vaccinationRoundInformation.status);
         setDateRange({
           start: res.data.vaccinationRoundInformation.startTime,
           end: res.data.vaccinationRoundInformation.endTime,
         });
-        console.log("Fetched round status:", res.data.vaccinationRoundInformation.startTime);
+        console.log(
+          "Fetched round status:",
+          res.data.vaccinationRoundInformation.startTime
+        );
       } catch {
         setStatus(false);
-        setDateRange({ start: null, end: null })
+        setDateRange({start: null, end: null});
       }
     };
     fetchRound();
@@ -126,13 +130,18 @@ const DetailCampaign = () => {
   const isOutOfRange = (() => {
     if (!dateRange.start || !dateRange.end) return false;
     const now = dayjs().startOf("day");
-    return now.isBefore(dayjs(dateRange.start).startOf("day")) || now.isAfter(dayjs(dateRange.end).endOf("day"));
+    return (
+      now.isBefore(dayjs(dateRange.start).startOf("day")) ||
+      now.isAfter(dayjs(dateRange.end).endOf("day"))
+    );
   })();
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const campaignRes = await axiosInstance.get(`/api/vaccination-rounds/${roundId}`);
+      const campaignRes = await axiosInstance.get(
+        `/api/vaccination-rounds/${roundId}`
+      );
       setSelectedRound(campaignRes.data);
     } catch {
       setSelectedRound(null);
@@ -149,19 +158,23 @@ const DetailCampaign = () => {
   const checkVaccinationResult = async (student) => {
     if (!student.vaccinationResultId) return "not_recorded";
     try {
-      const qualifiedRes = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}/health-qualified`);
+      const qualifiedRes = await axiosInstance.get(
+        `/api/vaccination-results/${student.vaccinationResultId}/health-qualified`
+      );
       const qualified =
         typeof qualifiedRes.data === "boolean"
           ? qualifiedRes.data
           : qualifiedRes.data?.qualified;
       if (qualified === false) return "cancel";
-      const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
+      const res = await axiosInstance.get(
+        `/api/vaccination-results/${student.vaccinationResultId}`
+      );
       const result = res.data;
       console.log("Vaccination result:", result);
       const hasNullInResultResponse =
         result.resultResponse &&
         typeof result.resultResponse === "object" &&
-        Object.values(result.resultResponse).some(val => val == null);
+        Object.values(result.resultResponse).some((val) => val == null);
 
       if (hasNullInResultResponse && !result.vaccinationObservation) {
         return "not_recorded";
@@ -209,7 +222,10 @@ const DetailCampaign = () => {
     setModalType("detail");
   };
 
-  const percent = students.length > 0 ? Math.round((completedCount / students.length) * 100) : 0;
+  const percent =
+    students.length > 0
+      ? Math.round((completedCount / students.length) * 100)
+      : 0;
 
   const handleModalOk = () => {
     setModalType("");
@@ -222,7 +238,6 @@ const DetailCampaign = () => {
     });
   };
 
-
   // Thống kê số lượng theo trạng thái
   const statusSummary = students.reduce(
     (acc, student) => {
@@ -233,15 +248,14 @@ const DetailCampaign = () => {
       else if (status === "cancel") acc.cancel += 1;
       return acc;
     },
-    { done: 0, notYet: 0, observating: 0, cancel: 0 }
+    {done: 0, notYet: 0, observating: 0, cancel: 0}
   );
-
 
   const statusTag = (status) => {
     switch (status) {
       case "done":
         return (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
             <CheckCircleTwoTone
               twoToneColor="#22c55e"
               style={{
@@ -274,7 +288,7 @@ const DetailCampaign = () => {
         );
       case "not_recorded":
         return (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
             <ExclamationCircleTwoTone
               twoToneColor="#eab308"
               style={{
@@ -307,7 +321,7 @@ const DetailCampaign = () => {
         );
       case "cancel":
         return (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
             <CloseCircleTwoTone
               twoToneColor="#ef4444"
               style={{
@@ -340,7 +354,7 @@ const DetailCampaign = () => {
         );
       case "recorded":
         return (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
             <CalendarTwoTone
               twoToneColor="#2563eb"
               style={{
@@ -377,12 +391,12 @@ const DetailCampaign = () => {
   };
 
   const columns = [
-    { title: "Student Code", dataIndex: "studentCode" },
-    { title: "Student Name", dataIndex: "studentName" },
-    { title: "Grade", dataIndex: "grade" },
-    { title: "Gender", dataIndex: "gender" },
-    { title: "Date of Birth", dataIndex: "dateOfBirth" },
-    { title: "Parent Phone", dataIndex: "parentPhoneNumber" },
+    {title: "Student Code", dataIndex: "studentCode"},
+    {title: "Student Name", dataIndex: "studentName"},
+    {title: "Grade", dataIndex: "grade"},
+    {title: "Gender", dataIndex: "gender"},
+    {title: "Date of Birth", dataIndex: "dateOfBirth"},
+    {title: "Parent Phone", dataIndex: "parentPhoneNumber"},
     {
       title: "Status",
       render: (_, student) => {
@@ -399,28 +413,45 @@ const DetailCampaign = () => {
         const status = getStatus(student);
 
         if (qualified === false) {
-          return <i style={{ color: "#faad14" }}>Does not meet the requirements</i>;
+          return (
+            <i style={{color: "#faad14"}}>Does not meet the requirements</i>
+          );
         }
 
-        if ((qualified === null || qualified === undefined) && status === "not_recorded") {
+        if (
+          (qualified === null || qualified === undefined) &&
+          status === "not_recorded"
+        ) {
           return (
-            <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading || isOutOfRange }>
+            <Button
+              type="primary"
+              onClick={() => openRecordModal(student)}
+              disabled={loading || isOutOfRange}
+            >
               Record Form
             </Button>
           );
         }
 
-        if ( status === "recorded") {
+        if (status === "recorded") {
           return (
-            <Button type="primary" onClick={() => openObservationModal(student)} disabled={loading || isOutOfRange}>
+            <Button
+              type="primary"
+              onClick={() => openObservationModal(student)}
+              disabled={loading || isOutOfRange}
+            >
               Observation
             </Button>
           );
         }
 
-        if ( status === "done") {
+        if (status === "done") {
           return (
-            <Button type="primary" onClick={() => openDetailModal(student)} disabled={loading || isOutOfRange}>
+            <Button
+              type="primary"
+              onClick={() => openDetailModal(student)}
+              disabled={loading || isOutOfRange}
+            >
               Detail
             </Button>
           );
@@ -429,7 +460,11 @@ const DetailCampaign = () => {
         // Trường hợp qualified === true && status === "not_recorded"
         if (qualified === true && status === "not_recorded") {
           return (
-            <Button type="primary" onClick={() => openRecordModal(student)} disabled={loading || isOutOfRange}>
+            <Button
+              type="primary"
+              onClick={() => openRecordModal(student)}
+              disabled={loading || isOutOfRange}
+            >
               Record Form
             </Button>
           );
@@ -451,85 +486,110 @@ const DetailCampaign = () => {
   return (
     <div>
       {/* Summary Cards */}
-      <div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
-        <div style={{
-          flex: 1,
-          background: "#f6ffed",
-          border: "1px solid #b7eb8f",
-          borderRadius: 12,
-          padding: 16,
-          display: "flex",
-          alignItems: "center",
-          gap: 12
-        }}>
-          <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: 32 }} />
+      <div style={{display: "flex", gap: 24, marginBottom: 32}}>
+        <div
+          style={{
+            flex: 1,
+            background: "#f6ffed",
+            border: "1px solid #b7eb8f",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <CheckCircleTwoTone twoToneColor="#52c41a" style={{fontSize: 32}} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 22 }}>{statusSummary.done}</div>
-            <div style={{ color: "#389e0d", fontWeight: 500 }}>Completed</div>
+            <div style={{fontWeight: 700, fontSize: 22}}>
+              {statusSummary.done}
+            </div>
+            <div style={{color: "#389e0d", fontWeight: 500}}>Completed</div>
           </div>
         </div>
-        <div style={{
-          flex: 1,
-          background: "#fffbe6",
-          border: "1px solid #ffe58f",
-          borderRadius: 12,
-          padding: 16,
-          display: "flex",
-          alignItems: "center",
-          gap: 12
-        }}>
-          <ClockCircleTwoTone twoToneColor="#faad14" style={{ fontSize: 32 }} />
+        <div
+          style={{
+            flex: 1,
+            background: "#fffbe6",
+            border: "1px solid #ffe58f",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <ClockCircleTwoTone twoToneColor="#faad14" style={{fontSize: 32}} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 22 }}>{statusSummary.notYet}</div>
-            <div style={{ color: "#d48806", fontWeight: 500 }}>Not Yet</div>
+            <div style={{fontWeight: 700, fontSize: 22}}>
+              {statusSummary.notYet}
+            </div>
+            <div style={{color: "#d48806", fontWeight: 500}}>Not Yet</div>
           </div>
         </div>
-        <div style={{
-          flex: 1,
-          background: "#e6f4ff",
-          border: "1px solid #91d5ff",
-          borderRadius: 12,
-          padding: 16,
-          display: "flex",
-          alignItems: "center",
-          gap: 12
-        }}>
-          <CalendarTwoTone twoToneColor="#1677ff" style={{ fontSize: 32 }} />
+        <div
+          style={{
+            flex: 1,
+            background: "#e6f4ff",
+            border: "1px solid #91d5ff",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <CalendarTwoTone twoToneColor="#1677ff" style={{fontSize: 32}} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 22 }}>{statusSummary.observating}</div>
-            <div style={{ color: "#1677ff", fontWeight: 500 }}>Observating</div>
+            <div style={{fontWeight: 700, fontSize: 22}}>
+              {statusSummary.observating}
+            </div>
+            <div style={{color: "#1677ff", fontWeight: 500}}>Observating</div>
           </div>
         </div>
-        <div style={{
-          flex: 1,
-          background: "#fff1f0",
-          border: "1px solid #ffa39e",
-          borderRadius: 12,
-          padding: 16,
-          display: "flex",
-          alignItems: "center",
-          gap: 12
-        }}>
-          <StopTwoTone twoToneColor="#ff4d4f" style={{ fontSize: 32 }} />
+        <div
+          style={{
+            flex: 1,
+            background: "#fff1f0",
+            border: "1px solid #ffa39e",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <StopTwoTone twoToneColor="#ff4d4f" style={{fontSize: 32}} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 22 }}>{statusSummary.cancel}</div>
-            <div style={{ color: "#cf1322", fontWeight: 500 }}>Does not meet the requirements</div>
+            <div style={{fontWeight: 700, fontSize: 22}}>
+              {statusSummary.cancel}
+            </div>
+            <div style={{color: "#cf1322", fontWeight: 500}}>
+              Does not meet the requirements
+            </div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
         <Input.Search
           placeholder="Search students"
           allowClear
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 320, marginRight: 8 }}
+          style={{width: 320, marginRight: 8}}
         />
         <Select
           value={statusFilter}
           options={statusOptions}
-          style={{ width: 220 }}
+          style={{width: 220}}
           onChange={setStatusFilter}
         />
         {/* Bỏ nút Complete, thay bằng thông báo */}
@@ -541,20 +601,31 @@ const DetailCampaign = () => {
               fontSize: 16,
               background: "#e0e7ff",
               borderRadius: 8,
-              padding: "6px 18px"
+              padding: "6px 18px",
             }}
           >
             Please go back to completed round
           </span>
         )}
         {status && (
-          <Tag color="green" style={{ fontSize: 16, fontWeight: 600, borderRadius: 8 }}>
+          <Tag
+            color="green"
+            style={{fontSize: 16, fontWeight: 600, borderRadius: 8}}
+          >
             Round Completed
           </Tag>
         )}
+
+        <Button
+          type="default"
+          onClick={() => navigate("/nurse/vaccine/campaign-list")}
+          style={{marginBottom: 0}}
+        >
+          Back
+        </Button>
       </div>
       {isOutOfRange && (
-        <div style={{ color: "#eab308", fontWeight: 600, marginBottom: 16 }}>
+        <div style={{color: "#eab308", fontWeight: 600, marginBottom: 16}}>
           It's not allowed at this time. Please check the round date range.
         </div>
       )}
@@ -569,7 +640,7 @@ const DetailCampaign = () => {
           loading={loading}
           pagination={false}
           bordered
-          style={{ background: "#fff", borderRadius: 12 }}
+          style={{background: "#fff", borderRadius: 12}}
         />
       )}
 
@@ -597,14 +668,6 @@ const DetailCampaign = () => {
           setModalType("");
         }}
       />
-
-      <Button
-        type="default"
-        onClick={() => navigate("/nurse/vaccine/campaign-list")}
-        style={{ marginBottom: 16 }}
-      >
-        Back
-      </Button>
     </div>
   );
 };

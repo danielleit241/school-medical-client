@@ -30,7 +30,6 @@ import HealthCheckList from "./pages/Admin/HealthCheck/HealthCheckList/HealthChe
 import StudentHealthCheckList from "./pages/Admin/HealthCheck/StudentList/StudentHealthCheckList";
 import StudentVaccineList from "./pages/Admin/Campaign/StudentList/StudentVaccineList";
 import MedicalRequest from "./pages/Admin/MedicalRequest/MedicalRequest";
-import AddStudent from "./pages/Admin/StudentManagement/AddStudent/AddStudent";
 import StudentList from "./pages/Admin/StudentManagement/StudentList/StudentList";
 import UserProfileAdmin from "./pages/Admin/Profile/User/UserProfile";
 import UpdateUserProfileAdmin from "./pages/Admin/Profile/Edit/UpdateUserProfile";
@@ -75,12 +74,11 @@ import ParentNotification from "./pages/Parent/Notification/Notification";
 import UserProfile from "./pages/Parent/Profile/User/UserProfile";
 import UpdateUserProfile from "./pages/Parent/Profile/Edit/UpdateUserProfile";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
-import AddInventory from "./pages/Admin/MedicalInventory/AddInventory/AddInventory";
 import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryList/MedicalInventory";
 import VaccineInventory from "./pages/Admin/VaccineList/VaccineInventory/VaccineInventory";
 import AddVaccine from "./pages/Admin/VaccineList/AddVaccine/AddVaccine";
 import SessionTimeout from "./components/SessionTimeout/SessionTimeout";
-import Timeable from "./pages/Parent/Vaccine/Timeable";
+import Timeable from "./pages/Parent/Timetable/Timeable";
 
 function App() {
   const dispatch = useDispatch();
@@ -214,13 +212,11 @@ function App() {
             }
           />
           {/* Các route còn lại cho admin */}
-          <Route path="inventory/createInventory" element={<AddInventory />} />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
           />
           <Route path="vaccine/inventoryList" element={<VaccineInventory />} />
-          <Route path="vaccine/create" element={<AddVaccine />} />
           <Route path="vaccine/vaccine-schedule" element={<CampaignList />} />
           <Route path="vaccine/create-campaign" element={<CreateCampaign />} />
           <Route
@@ -239,10 +235,6 @@ function App() {
             element={<StudentHealthCheckList />}
           />
           <Route path="medical-requests" element={<MedicalRequest />} />
-          <Route
-            path="student-management/add-student"
-            element={<AddStudent />}
-          />
           <Route
             path="student-management/student-list"
             element={<StudentList />}
@@ -262,7 +254,6 @@ function App() {
           }
         >
           <Route index element={<ManagerDashboard />} />{" "}
-          <Route path="inventory/createInventory" element={<AddInventory />} />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
@@ -287,10 +278,6 @@ function App() {
             element={<StudentHealthCheckList />}
           />
           <Route path="medical-requests" element={<MedicalRequest />} />
-          <Route
-            path="student-management/add-student"
-            element={<AddStudent />}
-          />
           <Route
             path="student-management/student-list"
             element={<StudentList />}
@@ -314,10 +301,7 @@ function App() {
             path="appointment-management/appointment-list"
             element={<AppointmentList />}
           />
-          <Route
-            path="vaccine/campaign-list"
-            element={<NurseCampaignList />}
-          />
+          <Route path="vaccine/campaign-list" element={<NurseCampaignList />} />
           <Route
             path="campaign/round-campaign"
             element={<NurseDetailCampaign />}

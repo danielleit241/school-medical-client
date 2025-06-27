@@ -19,7 +19,7 @@ import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import axiosInstance from "../../api/axios";
 import LogoDefault from "../../assets/images/defaultlogo.svg";
 import NotificationModal from "../Notification/NotificationModal";
-import {User, Bell} from "lucide-react";
+import {User, Bell, ShieldQuestion} from "lucide-react";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -269,7 +269,26 @@ const Header = () => {
               <div className="flex items-center gap-4">
                 {/* Remove the "Hello, role" text from here as it will be in the dropdown */}
 
-                <div style={{display: "flex", alignItems: "center", gap: 16}}>
+                <div style={{display: "flex", alignItems: "center", gap: 12}}>
+                  {/* Guide */}
+                  {role === "parent" && (
+                    <div
+                      onClick={() => navigate(`/guide`)}
+                      style={{
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        backgroundColor: "#fff",
+                        border: "1px solid #eee",
+                        padding: 10,
+                        borderRadius: "50%",
+                      }}
+                    >
+                      <ShieldQuestion size={25} color="#666" />
+                      {/* <User size={25} color="#666" /> */}
+                    </div>
+                  )}
+
                   {/* Notification Button */}
                   <div
                     onClick={handleNotificationClick}
@@ -288,6 +307,7 @@ const Header = () => {
                       <Bell size={25} color="#666" />
                     </Badge>
                   </div>
+
                   {/* User Profile Button */}
                   <div
                     onClick={() => navigate(`/${role}/profile`)}
@@ -303,6 +323,7 @@ const Header = () => {
                   >
                     <User size={25} color="#666" />
                   </div>
+
                   {/* Avatar with dropdown */}
                   <div
                     ref={avatarContainerRef}

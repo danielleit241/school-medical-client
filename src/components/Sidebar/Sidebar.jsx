@@ -175,59 +175,20 @@ const Sidebar = () => {
       {
         label: "Student Management",
         key: "student-management",
+        link: "/admin/student-management/student-list",
         icon: <TeamOutlined />,
-        dropdown: [
-          {
-            label: "Add Student",
-            key: "/admin/student-management/add-student",
-            link: "/admin/student-management/add-student",
-            icon: <UserOutlined />,
-          },
-          {
-            label: "Student List",
-            key: "/admin/student-management/student-list",
-            link: "/admin/student-management/student-list",
-            icon: <TeamOutlined />,
-          },
-        ],
       },
       {
         label: "Medical Inventory",
         key: "inventory",
+        link: "/admin/inventory/inventoryList",
         icon: <DatabaseOutlined />,
-        dropdown: [
-          {
-            label: "Create Inventory",
-            key: "/admin/inventory/createInventory",
-            link: "/admin/inventory/createInventory",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Inventory List",
-            key: "/admin/inventory/inventoryList",
-            link: "/admin/inventory/inventoryList",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
       {
         label: "Vaccine Management",
         key: "vaccine-management",
+        link: "/admin/vaccine/inventoryList",
         icon: <MedicineBoxOutlined />,
-        dropdown: [
-          {
-            label: "Create Vaccine",
-            key: "/admin/vaccine/create",
-            link: "/admin/vaccine/create",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Vaccine List",
-            key: "/admin/vaccine/inventoryList",
-            link: "/admin/vaccine/inventoryList",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
     ],
     manager: [
@@ -284,59 +245,20 @@ const Sidebar = () => {
       {
         label: "Student Management",
         key: "student-management",
+        link: "/manager/student-management/student-list",
         icon: <TeamOutlined />,
-        dropdown: [
-          {
-            label: "Add Student",
-            key: "/manager/student-management/add-student",
-            link: "/manager/student-management/add-student",
-            icon: <UserOutlined />,
-          },
-          {
-            label: "Student List",
-            key: "/manager/student-management/student-list",
-            link: "/manager/student-management/student-list",
-            icon: <TeamOutlined />,
-          },
-        ],
       },
       {
         label: "Medical Inventory",
         key: "inventory",
+        link: "/manager/inventory/inventoryList",
         icon: <AppstoreAddOutlined />,
-        dropdown: [
-          {
-            label: "Create Inventory",
-            key: "/manager/inventory/createInventory",
-            link: "/manager/inventory/createInventory",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Inventory List",
-            key: "/manager/inventory/inventoryList",
-            link: "/manager/inventory/inventoryList",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
       {
         label: "Vaccine Management",
         key: "vaccine-management",
+        link: "/manager/vaccine/inventoryList",
         icon: <AppstoreAddOutlined />,
-        dropdown: [
-          {
-            label: "Create Vaccine",
-            key: "/manager/vaccine/createVaccine",
-            link: "/manager/vaccine/create",
-            icon: <FileAddOutlined />,
-          },
-          {
-            label: "Vaccine List",
-            key: "/manager/vaccine/inventoryList",
-            link: "/manager/vaccine/inventoryList",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
     ],
     nurse: [
@@ -355,28 +277,14 @@ const Sidebar = () => {
       {
         label: "Vaccine Campaign",
         key: "vaccine-campaign",
+        link: "/nurse/vaccine/campaign-list",
         icon: <CalendarOutlined />,
-        dropdown: [
-          {
-            label: "Vaccine Campaign List",
-            key: "/nurse/vaccine/campaign-list",
-            link: "/nurse/vaccine/campaign-list",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
       {
         label: "Health Check",
         key: "health-check",
+        link: "/nurse/health-check/list",
         icon: <CalendarOutlined />,
-        dropdown: [
-          {
-            label: "Health Check Campaign",
-            key: "/nurse/health-check/list",
-            link: "/nurse/health-check/list",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
       {
         label: "Medical Event",

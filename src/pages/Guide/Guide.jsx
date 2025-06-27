@@ -34,7 +34,9 @@ const {Title, Paragraph, Text} = Typography;
 const {Step} = Steps;
 
 const colors = {
-  primary: "#4A90E2", // Xanh dương dịu
+  white: "#FFFFFF", // Trắng
+  black: "#000000", // Đen
+  primary: "#5068A9", // Xanh dương dịu
   primaryLight: "#B3D4FC", // Xanh dương nhạt
   primaryLighter: "#EAF4FF", // Xanh dương rất nhạt
   default: "#F8F8F8", // Xanh dương đậm
@@ -389,55 +391,6 @@ export default function Guide() {
             3 simple steps to start using medical services
           </Paragraph>
         </div>
-        {/* Quick Overview
-        <Card
-          style={{
-            marginBottom: 24,
-            borderColor: colors.primaryLight,
-            background: `${colors.primaryLighter}`,
-          }}
-        >
-          <Row gutter={16}>
-            {steps.map((step, index) => (
-              <Col key={step.id} xs={24} md={8}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    marginBottom: 8,
-                  }}
-                >
-                  <div
-                    style={{
-                      padding: 8,
-                      borderRadius: "50%",
-                      background:
-                        currentStep >= index ? colors.primary : colors.default,
-                      color: currentStep >= index ? "#fff" : colors.primary,
-                    }}
-                  >
-                    {step.icon}
-                  </div>
-                  <div>
-                    <Tag
-                      color={currentStep >= index ? colors.primary : "default"}
-                    >
-                      Step {step.id}
-                    </Tag>
-                  </div>
-                </div>
-                <div style={{marginLeft: 40}}>
-                  <Text strong style={{color: colors.primary}}>
-                    {step.title}
-                  </Text>
-                  <br />
-                  <Text type="secondary">{step.description}</Text>
-                </div>
-              </Col>
-            ))}
-          </Row>
-        </Card> */}
         {/* Content Row - Step Content & Navigation Guide side by side */}
         <Row gutter={16} style={{marginBottom: 24}}>
           {/* Current Step Content - Left Side */}
@@ -479,7 +432,15 @@ export default function Guide() {
                         key={step.id}
                         type={currentStep === index ? "primary" : "default"}
                         onClick={() => setCurrentStep(index)}
-                        icon={step.icon}
+                        icon={React.cloneElement(step.icon, {
+                          style: {
+                            ...step.icon.props.style,
+                            color:
+                              currentStep === index
+                                ? colors.white
+                                : colors.primary,
+                          },
+                        })}
                         style={
                           currentStep === index
                             ? {

@@ -243,7 +243,7 @@ const MyChildren = () => {
                               }}
                             >
                               <Shield className="w-3 h-3 mr-1" />
-                              Pending
+                              Not Declared
                             </span>
                           )}
                         </div>
@@ -306,88 +306,8 @@ const MyChildren = () => {
                       className="flex items-center justify-end gap-2"
                       style={{width: "30%"}}
                     >
-                      <button
-                        className="flex items-center justify-center gap-1.5 transition-all duration-200 hover:bg-gray-50"
-                        style={{
-                          background: "#ffffff",
-                          border: "1px solid #e5e7eb",
-                          borderRadius: 8,
-                          height: 36,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                          padding: "0 14px",
-                        }}
-                        onClick={() => {
-                          localStorage.setItem(
-                            "selectedStudent",
-                            JSON.stringify({
-                              studentId: item.studentId,
-                              fullName: item.fullName,
-                            })
-                          );
-                          navigate(`/parent/health-declaration/detail`);
-                        }}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        Details
-                      </button>
-
-                      <button
-                        className="flex items-center justify-center gap-1.5 transition-all duration-200 hover:bg-gray-50"
-                        style={{
-                          background: "#ffffff",
-                          border: "1px solid #e5e7eb",
-                          borderRadius: 8,
-                          height: 36,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                          padding: "0 14px",
-                        }}
-                        onClick={() => {
-                          localStorage.setItem(
-                            "selectedStudent",
-                            JSON.stringify({
-                              studentId: item.studentId,
-                              fullName: item.fullName,
-                            })
-                          );
-                          navigate(`/parent/vaccine/result`);
-                        }}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        Vaccine
-                      </button>
-
-                      <button
-                        className="flex items-center justify-center gap-1.5 transition-all duration-200 hover:bg-gray-50"
-                        style={{
-                          background: "#ffffff",
-                          border: "1px solid #e5e7eb",
-                          borderRadius: 8,
-                          height: 36,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                          padding: "0 14px",
-                        }}
-                        onClick={() => {
-                          localStorage.setItem(
-                            "selectedStudent",
-                            JSON.stringify({
-                              studentId: item.studentId,
-                              fullName: item.fullName,
-                            })
-                          );
-                          navigate(`/parent/healthcheck/result`);
-                        }}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        Health check
-                      </button>
-
-                      {!declarationMap[item.studentId] && (
+                      {!declarationMap[item.studentId] ? (
+                        // Nếu CHƯA khai báo, chỉ hiện nút Declare
                         <button
                           className="flex items-center justify-center gap-1.5 transition-all duration-200"
                           style={{
@@ -399,9 +319,6 @@ const MyChildren = () => {
                             fontWeight: 500,
                             color: "#374151",
                             padding: "0 14px",
-                            position: "absolute",
-                            top: 20,
-                            right: 24,
                           }}
                           onClick={() => {
                             localStorage.setItem(
@@ -425,6 +342,90 @@ const MyChildren = () => {
                           <Shield className="w-3.5 h-3.5" />
                           Declare
                         </button>
+                      ) : (
+                        // Nếu ĐÃ khai báo, hiện 3 nút còn lại
+                        <>
+                          <button
+                            className="flex items-center justify-center gap-1.5 transition-all duration-200 hover:bg-gray-50"
+                            style={{
+                              background: "#ffffff",
+                              border: "1px solid #e5e7eb",
+                              borderRadius: 8,
+                              height: 36,
+                              fontSize: 14,
+                              fontWeight: 500,
+                              color: "#374151",
+                              padding: "0 14px",
+                            }}
+                            onClick={() => {
+                              localStorage.setItem(
+                                "selectedStudent",
+                                JSON.stringify({
+                                  studentId: item.studentId,
+                                  fullName: item.fullName,
+                                })
+                              );
+                              navigate(`/parent/health-declaration/detail`);
+                            }}
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            Details
+                          </button>
+
+                          <button
+                            className="flex items-center justify-center gap-1.5 transition-all duration-200 hover:bg-gray-50"
+                            style={{
+                              background: "#ffffff",
+                              border: "1px solid #e5e7eb",
+                              borderRadius: 8,
+                              height: 36,
+                              fontSize: 14,
+                              fontWeight: 500,
+                              color: "#374151",
+                              padding: "0 14px",
+                            }}
+                            onClick={() => {
+                              localStorage.setItem(
+                                "selectedStudent",
+                                JSON.stringify({
+                                  studentId: item.studentId,
+                                  fullName: item.fullName,
+                                })
+                              );
+                              navigate(`/parent/vaccine/result`);
+                            }}
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            Vaccine
+                          </button>
+
+                          <button
+                            className="flex items-center justify-center gap-1.5 transition-all duration-200 hover:bg-gray-50"
+                            style={{
+                              background: "#ffffff",
+                              border: "1px solid #e5e7eb",
+                              borderRadius: 8,
+                              height: 36,
+                              fontSize: 14,
+                              fontWeight: 500,
+                              color: "#374151",
+                              padding: "0 14px",
+                            }}
+                            onClick={() => {
+                              localStorage.setItem(
+                                "selectedStudent",
+                                JSON.stringify({
+                                  studentId: item.studentId,
+                                  fullName: item.fullName,
+                                })
+                              );
+                              navigate(`/parent/healthcheck/result`);
+                            }}
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            Health check
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>

@@ -1,10 +1,11 @@
 import React, {useState, useEffect, useCallback} from "react";
-import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
+import {Table, Input, Pagination, Spin, Alert, Button, Divider} from "antd";
 import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import StudentModal from "./StudentModal";
 import {Search, Download} from "lucide-react";
+import AddStudent from "../AddStudent/AddStudent";
 
 const pageSize = 10;
 
@@ -256,6 +257,10 @@ const StudentList = () => {
 
   return (
     <div>
+      <div>
+        <AddStudent />
+      </div>
+      <Divider />
       <div
         style={{
           display: "flex",

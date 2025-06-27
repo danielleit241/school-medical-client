@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
   Form,
   Input,
@@ -13,14 +13,23 @@ import {
 } from "antd";
 import Swal from "sweetalert2";
 import axiosInstance from "../../../../api/axios";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { setListStudent } from "../../../../redux/feature/studentSlice";
+import {useDispatch, useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
+import {setListStudent} from "../../../../redux/feature/studentSlice";
 
 const SEVERITY_OPTIONS = [
-  { label: "Low", value: "Low" },
-  { label: "Medium", value: "Medium" },
-  { label: "High", value: "High" },
+  {label: "Low", value: "Low"},
+  {label: "Medium", value: "Medium"},
+  {label: "High", value: "High"},
+];
+
+const EVENT_TYPE_OPTIONS = [
+  {label: "Accident/Injury", value: "Accident/Injury"},
+  {label: "Headache", value: "Headache"},
+  {label: "Fever", value: "Fever"},
+  {label: "Stomachache", value: "Stomachache"},
+  {label: "Common Cold", value: "Common Cold"},
+  {label: "Mild Indigestion", value: "Mild Indigestion"},
 ];
 
 const CreateMedicalEvent = () => {
@@ -31,7 +40,7 @@ const CreateMedicalEvent = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [medicalRequests, setMedicalRequests] = useState([
-    { itemId: undefined, requestQuantity: 1, purpose: "" },
+    {itemId: undefined, requestQuantity: 1, purpose: ""},
   ]);
   const [parentNotified, setParentNotified] = useState(true);
   const [form] = Form.useForm();
@@ -64,7 +73,7 @@ const CreateMedicalEvent = () => {
   const handleAddRequest = () => {
     setMedicalRequests((prev) => [
       ...prev,
-      { itemId: undefined, requestQuantity: 1, purpose: "" },
+      {itemId: undefined, requestQuantity: 1, purpose: ""},
     ]);
   };
   const handleRemoveRequest = (idx) => {
@@ -72,7 +81,7 @@ const CreateMedicalEvent = () => {
   };
   const handleRequestChange = (idx, field, value) => {
     setMedicalRequests((prev) =>
-      prev.map((item, i) => (i === idx ? { ...item, [field]: value } : item))
+      prev.map((item, i) => (i === idx ? {...item, [field]: value} : item))
     );
   };
 
@@ -103,26 +112,32 @@ const CreateMedicalEvent = () => {
         "/api/nurses/students/medical-events",
         payload
       );
-      console.log("Medical event created successfully:", response.data.toParent);
-      const { notificationTypeId, senderId, receiverId } = response.data.toParent;
-      const { notificationTypeId: managerNotificationTypeId, senderId: managerSenderId, receiverId: managerReceiverId } = response.data.toManager;
-      console.log("hi" , managerNotificationTypeId, managerSenderId, managerReceiverId)
-      await axiosInstance.post(
-        "/api/notifications/medical-events/to-parent",
-        {
-          notificationTypeId,
-          senderId,
-          receiverId,
-        }
+      console.log(
+        "Medical event created successfully:",
+        response.data.toParent
       );
-      await axiosInstance.post(
-        "/api/notifications/medical-events/to-manager",
-        {
-          notificationTypeId: managerNotificationTypeId,
-          senderId: managerSenderId,
-          receiverId: managerReceiverId,
-        }
+      const {notificationTypeId, senderId, receiverId} = response.data.toParent;
+      const {
+        notificationTypeId: managerNotificationTypeId,
+        senderId: managerSenderId,
+        receiverId: managerReceiverId,
+      } = response.data.toManager;
+      console.log(
+        "hi",
+        managerNotificationTypeId,
+        managerSenderId,
+        managerReceiverId
       );
+      await axiosInstance.post("/api/notifications/medical-events/to-parent", {
+        notificationTypeId,
+        senderId,
+        receiverId,
+      });
+      await axiosInstance.post("/api/notifications/medical-events/to-manager", {
+        notificationTypeId: managerNotificationTypeId,
+        senderId: managerSenderId,
+        receiverId: managerReceiverId,
+      });
       Swal.fire({
         icon: "success",
         title: "Medical event created!",
@@ -148,7 +163,7 @@ const CreateMedicalEvent = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "#f8fafc",
+        background: "#ffffff",
         padding: "0 0 32px 0",
       }}
     >
@@ -158,13 +173,13 @@ const CreateMedicalEvent = () => {
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
           padding: "36px 0 18px 0",
           marginBottom: "40px",
+          borderRadius: "20px 20px 0 0",
           textAlign: "center",
         }}
       >
         <h1
           style={{
-            fontWeight: 700,
-            fontSize: 38,
+            fontWeight: 800,
             color: "#fff",
             letterSpacing: 1,
             marginBottom: 8,
@@ -203,19 +218,19 @@ const CreateMedicalEvent = () => {
             layout="vertical"
             form={form}
             onFinish={onFinish}
-            style={{ width: "100%" }}
+            style={{width: "100%"}}
             autoComplete="off"
           >
             <Row gutter={36}>
               <Col xs={24} md={14}>
                 <Form.Item
-                  label={<span style={{ fontWeight: 600 }}>Student</span>}
+                  label={<span style={{fontWeight: 600}}>Student</span>}
                   name="studentCode"
-                  rules={[{ required: true, message: "Please select student" }]}
+                  rules={[{required: true, message: "Please select student"}]}
                 >
                   <Select
                     placeholder="Select student"
-                    style={{ width: "100%" }}
+                    style={{width: "100%"}}
                     showSearch
                     optionFilterProp="children"
                     filterOption={(input, option) =>
@@ -235,16 +250,26 @@ const CreateMedicalEvent = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  label={<span style={{ fontWeight: 600 }}>Event Type</span>}
+                  label={<span style={{fontWeight: 600}}>Event Type</span>}
                   name="eventType"
-                  rules={[{ required: true, message: "Please enter event type" }]}
+                  rules={[{required: true, message: "Please enter event type"}]}
                 >
-                  <Input placeholder="ex: Headache, Common cold, Mild indigestion, etc." />
+                  <Select placeholder="Select event type">
+                    {EVENT_TYPE_OPTIONS.map((opt) => (
+                      <Select.Option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
                 <Form.Item
-                  label={<span style={{ fontWeight: 600 }}>Event Description</span>}
+                  label={
+                    <span style={{fontWeight: 600}}>Event Description</span>
+                  }
                   name="eventDescription"
-                  rules={[{ required: true, message: "Please enter description" }]}
+                  rules={[
+                    {required: true, message: "Please enter description"},
+                  ]}
                 >
                   <Input.TextArea rows={2} />
                 </Form.Item>
@@ -252,20 +277,26 @@ const CreateMedicalEvent = () => {
                   <Row gutter={16}>
                     <Col xs={24} md={12}>
                       <Form.Item
-                        label={<span style={{ fontWeight: 600 }}>Location</span>}
+                        label={<span style={{fontWeight: 600}}>Location</span>}
                         name="location"
-                        rules={[{ required: true, message: "Please enter location" }]}
-                        style={{ marginBottom: 0 }}
+                        rules={[
+                          {required: true, message: "Please enter location"},
+                        ]}
+                        style={{marginBottom: 0}}
                       >
                         <Input placeholder="ex: Medical Center dh2T, etc." />
                       </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
                       <Form.Item
-                        label={<span style={{ fontWeight: 600 }}>Severity Level</span>}
+                        label={
+                          <span style={{fontWeight: 600}}>Severity Level</span>
+                        }
                         name="severityLevel"
-                        rules={[{ required: true, message: "Please select severity" }]}
-                        style={{ marginBottom: 0 }}
+                        rules={[
+                          {required: true, message: "Please select severity"},
+                        ]}
+                        style={{marginBottom: 0}}
                       >
                         <Select placeholder="Select severity">
                           {SEVERITY_OPTIONS.map((opt) => (
@@ -279,7 +310,7 @@ const CreateMedicalEvent = () => {
                   </Row>
                 </Form.Item>
                 <Form.Item
-                  label={<span style={{ fontWeight: 600 }}>Notes</span>}
+                  label={<span style={{fontWeight: 600}}>Notes</span>}
                   name="notes"
                 >
                   <Input.TextArea rows={2} />
@@ -302,7 +333,8 @@ const CreateMedicalEvent = () => {
                       fontWeight: 600,
                       fontSize: 16,
                       borderRadius: 8,
-                      background: "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
+                      background:
+                        "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
                       border: "none",
                       boxShadow: "0 2px 8px #3058A433",
                     }}
@@ -336,7 +368,7 @@ const CreateMedicalEvent = () => {
                     <Form.Item
                       label="Item"
                       required
-                      style={{ marginBottom: 8, fontWeight: 500 }}
+                      style={{marginBottom: 8, fontWeight: 500}}
                     >
                       <Select
                         placeholder="Select item"
@@ -344,7 +376,7 @@ const CreateMedicalEvent = () => {
                         onChange={(val) =>
                           handleRequestChange(idx, "itemId", val)
                         }
-                        style={{ width: "100%" }}
+                        style={{width: "100%"}}
                         showSearch
                         optionFilterProp="children"
                         filterOption={(input, option) =>
@@ -355,7 +387,8 @@ const CreateMedicalEvent = () => {
                       >
                         {items.map((item) => (
                           <Select.Option key={item.itemId} value={item.itemId}>
-                            {item.itemName} ({item.unitOfMeasure}) - Stock: {item.quantityInStock}
+                            {item.itemName} ({item.unitOfMeasure}) - Stock:{" "}
+                            {item.quantityInStock}
                           </Select.Option>
                         ))}
                       </Select>
@@ -363,7 +396,7 @@ const CreateMedicalEvent = () => {
                     <Form.Item
                       label="Quantity"
                       required
-                      style={{ marginBottom: 8, fontWeight: 500 }}
+                      style={{marginBottom: 8, fontWeight: 500}}
                     >
                       <InputNumber
                         min={1}
@@ -371,10 +404,10 @@ const CreateMedicalEvent = () => {
                         onChange={(val) =>
                           handleRequestChange(idx, "requestQuantity", val)
                         }
-                        style={{ width: "100%" }}
+                        style={{width: "100%"}}
                       />
                     </Form.Item>
-                    <Form.Item label="Purpose" style={{ marginBottom: 0 }}>
+                    <Form.Item label="Purpose" style={{marginBottom: 0}}>
                       <Input.TextArea
                         rows={1}
                         placeholder="Purpose for this item"
@@ -387,7 +420,7 @@ const CreateMedicalEvent = () => {
                     {medicalRequests.length > 1 && (
                       <Button
                         danger
-                        style={{ marginTop: 8 }}
+                        style={{marginTop: 8}}
                         onClick={() => handleRemoveRequest(idx)}
                       >
                         Remove
@@ -399,7 +432,7 @@ const CreateMedicalEvent = () => {
                   type="dashed"
                   onClick={handleAddRequest}
                   block
-                  style={{ fontWeight: 600 }}
+                  style={{fontWeight: 600}}
                 >
                   + Add Medical Request
                 </Button>
@@ -407,7 +440,7 @@ const CreateMedicalEvent = () => {
             </Row>
           </Form>
           {loading && (
-            <div style={{ textAlign: "center", marginTop: 24 }}>
+            <div style={{textAlign: "center", marginTop: 24}}>
               <Spin size="large" />
             </div>
           )}
