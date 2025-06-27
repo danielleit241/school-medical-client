@@ -15,6 +15,7 @@ const ChangePassword = () => {
   const [step, setStep] = useState(1);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [stepAnimation, setStepAnimation] = useState("fade-in");
+  const [sendingOtp, setSendingOtp] = useState(false);
   const [passwordWarning, setPasswordWarning] = useState({
     length: false,
     uppercase: false,
@@ -34,6 +35,7 @@ const ChangePassword = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setSendingOtp(true);
     try {
       await axiosInstance.post("/api/auth/forgot-password/send-otp", {
         phoneNumber,
@@ -44,11 +46,13 @@ const ChangePassword = () => {
         setSuccess("OTP sent successfully. Please check your email.");
         setStep(2);
         setStepAnimation("fade-in");
+        setSendingOtp(false);
       }, 300);
     } catch (err) {
       setError(
         err.response?.data?.message || "Check again your email or phone number."
       );
+      setSendingOtp(false);
     }
   };
 
@@ -183,9 +187,7 @@ const ChangePassword = () => {
     const paste = e.clipboardData.getData("text").replace(/[^0-9]/g, "");
     if (paste) {
       const arr = paste.split("").slice(0, OTP_LENGTH);
-      setOtpArray((prev) =>
-        prev.map((_, i) => arr[i] || "")
-      );
+      setOtpArray((prev) => prev.map((_, i) => arr[i] || ""));
       setTimeout(() => {
         const next = arr.length < OTP_LENGTH ? arr.length : OTP_LENGTH - 1;
         otpInputs.current[next].focus();
@@ -259,14 +261,15 @@ const ChangePassword = () => {
                 required
               />
             </div>
-            <button type="submit">Send OTP</button>
+            <button type="submit" disabled={sendingOtp}>
+              {sendingOtp ? "Sending..." : "Send OTP"}
+            </button>
           </form>
         )}
 
         {step === 2 && (
           <form onSubmit={handleVerifyOtp} className={stepAnimation}>
             <div className="reset_form__input" style={{marginBottom: 24}}>
-             
               <div
                 style={{
                   display: "flex",
@@ -279,13 +282,13 @@ const ChangePassword = () => {
                 {otpArray.map((num, idx) => (
                   <input
                     key={idx}
-                    ref={el => otpInputs.current[idx] = el}
+                    ref={(el) => (otpInputs.current[idx] = el)}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
                     value={num}
-                    onChange={e => handleOtpChange(e, idx)}
-                    onKeyDown={e => handleOtpKeyDown(e, idx)}
+                    onChange={(e) => handleOtpChange(e, idx)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, idx)}
                     onPaste={handlePasteOtp}
                     style={{
                       width: 44,
@@ -293,7 +296,8 @@ const ChangePassword = () => {
                       textAlign: "center",
                       fontSize: 24,
                       border: "none",
-                      borderBottom: "3px solid " + (num ? "#1890ff" : "#d9d9d9"),
+                      borderBottom:
+                        "3px solid " + (num ? "#1890ff" : "#d9d9d9"),
                       outline: "none",
                       background: "transparent",
                       color: "#222",
@@ -345,10 +349,7 @@ const ChangePassword = () => {
                 )}
               </div>
             </div>
-            <button
-              type="submit">
-              Verify OTP
-            </button>
+            <button type="submit">Verify OTP</button>
           </form>
         )}
 

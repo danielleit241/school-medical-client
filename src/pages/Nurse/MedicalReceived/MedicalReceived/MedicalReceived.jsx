@@ -1,18 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import axiosInstance from "../../../../api/axios";
-import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  Button,
-  Tag,
-  Pagination,
-  Spin,
-  Select,
-  Empty,
-  Avatar,
-} from "antd";
-import { useSelector } from "react-redux";
-import { UserOutlined, FilterOutlined } from "@ant-design/icons";
+import {useNavigate} from "react-router-dom";
+import {Card, Button, Tag, Pagination, Spin, Select, Empty, Avatar} from "antd";
+import {useSelector} from "react-redux";
+import {UserOutlined, FilterOutlined} from "@ant-design/icons";
 
 const statusConfig = {
   done: {
@@ -37,7 +28,7 @@ const MedicalReceived = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const pageSize = 3;
   const [loading, setLoading] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("all"); 
+  const [filterStatus, setFilterStatus] = useState("all");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,7 +55,6 @@ const MedicalReceived = () => {
     item.medicalRegistrationDetails.length > 0 &&
     item.medicalRegistrationDetails.every((dose) => dose.isCompleted);
 
-
   const filteredData = data.filter((item) => {
     if (filterStatus === "done") return isAllDoseCompleted(item);
     if (filterStatus === "notyet") return !isAllDoseCompleted(item);
@@ -73,7 +63,7 @@ const MedicalReceived = () => {
 
   const noData = filteredData.length === 0;
 
-  const MedicalCard = ({ item }) => {
+  const MedicalCard = ({item}) => {
     const done = isAllDoseCompleted(item);
     const status = done ? statusConfig.done : statusConfig.notyet;
 
@@ -87,14 +77,28 @@ const MedicalReceived = () => {
           background: "#fff",
           transition: "all 0.2s",
         }}
-        bodyStyle={{ padding: "18px 24px" }}
+        bodyStyle={{padding: "18px 24px"}}
         hoverable
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 24,
+          }}
+        >
           {/* Left: Student Info & Details */}
-          <div style={{ flex: 1 }}>
+          <div style={{flex: 1}}>
             {/* Student Info */}
-            <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                marginBottom: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
               <Avatar
                 size={40}
                 icon={<UserOutlined />}
@@ -105,10 +109,25 @@ const MedicalReceived = () => {
                 }}
               />
               <div>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: "#1e293b",
+                    lineHeight: 1.2,
+                  }}
+                >
                   {item.student.studentFullName}
                 </h3>
-                <p style={{ margin: "4px 0 0 0", color: "#6b7280", fontSize: 13, fontWeight: 500 }}>
+                <p
+                  style={{
+                    margin: "4px 0 0 0",
+                    color: "#6b7280",
+                    fontSize: 13,
+                    fontWeight: 500,
+                  }}
+                >
                   Student ID: {item.student.studentCode || "N/A"}
                 </p>
               </div>
@@ -122,57 +141,58 @@ const MedicalReceived = () => {
                 flexWrap: "wrap",
               }}
             >
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                color: "#2563eb",
-                fontWeight: 600,
-                fontSize: 14,
-                background: "#f0f7ff",
-                borderRadius: 6,
-                padding: "4px 12px",
-                border: "1.5px solid #dbeafe"
-              }}>
-                <span style={{ fontWeight: 700 }}>📅</span>
-                <span>
-                  {item.medicalRegistration.dateSubmitted}
-                </span>
-                
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  color: "#2563eb",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  background: "#f0f7ff",
+                  borderRadius: 6,
+                  padding: "4px 12px",
+                  border: "1.5px solid #dbeafe",
+                }}
+              >
+                <span style={{fontWeight: 700}}>📅</span>
+                <span>{item.medicalRegistration.dateSubmitted}</span>
               </div>
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                color: "#059669",
-                fontWeight: 600,
-                fontSize: 14,
-                background: "#ecfdf5",
-                borderRadius: 6,
-                padding: "4px 12px",
-                border: "1.5px solid #a7f3d0"
-              }}>
-                <span style={{ fontWeight: 700 }}>🕒</span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  color: "#059669",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  background: "#ecfdf5",
+                  borderRadius: 6,
+                  padding: "4px 12px",
+                  border: "1.5px solid #a7f3d0",
+                }}
+              >
+                <span style={{fontWeight: 700}}>🕒</span>
                 <span>
                   Total Dosages: {item.medicalRegistration.totalDosages}
                 </span>
               </div>
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                color: "#f59e42",
-                fontWeight: 600,
-                fontSize: 14,
-                background: "#fff7ed",
-                borderRadius: 6,
-                padding: "4px 12px",
-                border: "1.5px solid #fde68a"
-              }}>
-                <span style={{ fontWeight: 700 }}>💊</span>
-                <span>
-                  {item.medicalRegistration.medicationName}
-                </span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  color: "#f59e42",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  background: "#fff7ed",
+                  borderRadius: 6,
+                  padding: "4px 12px",
+                  border: "1.5px solid #fde68a",
+                }}
+              >
+                <span style={{fontWeight: 700}}>💊</span>
+                <span>{item.medicalRegistration.medicationName}</span>
               </div>
             </div>
             {/* Parent Notes */}
@@ -188,12 +208,24 @@ const MedicalReceived = () => {
                 border: "1px solid #e5e7eb",
               }}
             >
-              <span style={{ color: "#6b7280", fontWeight: 600 }}>Parent Notes:</span>{" "}
-              <span style={{ fontWeight: 500, fontStyle: "italic" }}>{item.medicalRegistration.notes}</span>
+              <span style={{color: "#6b7280", fontWeight: 600}}>
+                Parent Notes:
+              </span>{" "}
+              <span style={{fontWeight: 500, fontStyle: "italic"}}>
+                {item.medicalRegistration.notes}
+              </span>
             </div>
           </div>
           {/* Right: Status & Actions */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, minWidth: 140 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 12,
+              minWidth: 140,
+            }}
+          >
             <Tag
               style={{
                 backgroundColor: status.bgColor,
@@ -242,25 +274,25 @@ const MedicalReceived = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-white py-8">
       {/* Header + Filter */}
       <div
         style={{
           width: "100%",
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "20px 0 10px 0", 
-          marginBottom: "28px",      
+          padding: "20px 0 10px 0",
+          marginBottom: "28px",
           textAlign: "center",
           position: "relative",
+          borderRadius: "20px 20px 0 0",
         }}
       >
         <h1
           style={{
-            fontWeight: 700,
-            fontSize: 30, 
+            fontWeight: 800,
             color: "#fff",
             letterSpacing: 1,
-            marginBottom: 4, 
+            marginBottom: 4,
             marginTop: 0,
           }}
         >
@@ -269,28 +301,30 @@ const MedicalReceived = () => {
         <div
           style={{
             color: "#e0e7ff",
-            fontSize: 16, 
+            fontSize: 16,
             fontWeight: 500,
-            marginBottom: 0, 
+            marginBottom: 0,
           }}
         >
           Manage and review all medication requests from parents
         </div>
-        
+
         <div
           style={{
-            marginTop: 14, 
+            marginTop: 14,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 12, 
+            gap: 12,
           }}
         >
-          <FilterOutlined style={{ fontSize: 16, color: "#fff" }} />
-          <span style={{ fontSize: 15, fontWeight: 500, color: "#fff" }}>Status:</span>
+          {/* <FilterOutlined style={{fontSize: 16, color: "#ffffff"}} /> */}
+          <span style={{fontSize: 22, fontWeight: 500, color: "#ffffff"}}>
+            Status:
+          </span>
           <Select
             value={filterStatus}
-            style={{ width: 120, borderRadius: 10 }}
+            style={{width: 120, height: 30, borderRadius: 10}}
             onChange={setFilterStatus}
             size="large"
           >
@@ -306,11 +340,12 @@ const MedicalReceived = () => {
           maxHeight: "650px",
           padding: "32px 0",
           boxSizing: "border-box",
+          position: "relative",
         }}
       >
         {/* Loading & List */}
         {loading ? (
-          <div style={{ textAlign: "center" }}>
+          <div style={{textAlign: "center"}}>
             <Spin size="large" />
           </div>
         ) : noData ? (
@@ -326,11 +361,11 @@ const MedicalReceived = () => {
           >
             <Empty
               description={
-                <span style={{ fontSize: 18, color: "#6b7280", fontWeight: 500 }}>
+                <span style={{fontSize: 18, color: "#6b7280", fontWeight: 500}}>
                   No medical received requests found.
                 </span>
               }
-              style={{ fontSize: 18 }}
+              style={{fontSize: 18}}
             />
           </div>
         ) : (
@@ -340,7 +375,6 @@ const MedicalReceived = () => {
               overflowY: "auto",
               padding: "32px 0",
               boxSizing: "border-box",
-              
             }}
           >
             {filteredData.map((item) => (
@@ -348,10 +382,9 @@ const MedicalReceived = () => {
                 style={{
                   width: "100%",
                   padding: "0 32px",
-                  display: "flex", 
+                  display: "flex",
                   flexDirection: "column",
-                  gap: 20 
-                  
+                  gap: 20,
                 }}
                 key={item.medicalRegistration.registrationId}
               >
@@ -364,8 +397,9 @@ const MedicalReceived = () => {
         {/* Pagination */}
         <div
           style={{
-            display: "flex",
-            justifyContent: "flex-start",
+            position: "absolute",
+            bottom: -150,
+            width: "100%",
             marginTop: 40,
             marginBottom: 32,
           }}

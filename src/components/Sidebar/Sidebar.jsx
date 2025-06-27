@@ -277,28 +277,14 @@ const Sidebar = () => {
       {
         label: "Vaccine Campaign",
         key: "vaccine-campaign",
+        link: "/nurse/vaccine/campaign-list",
         icon: <CalendarOutlined />,
-        dropdown: [
-          {
-            label: "Vaccine Campaign List",
-            key: "/nurse/vaccine/campaign-list",
-            link: "/nurse/vaccine/campaign-list",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
       {
         label: "Health Check",
         key: "health-check",
+        link: "/nurse/health-check/list",
         icon: <CalendarOutlined />,
-        dropdown: [
-          {
-            label: "Health Check Campaign",
-            key: "/nurse/health-check/list",
-            link: "/nurse/health-check/list",
-            icon: <FileTextOutlined />,
-          },
-        ],
       },
       {
         label: "Medical Event",

@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {useState, useEffect} from "react";
+import {useSelector} from "react-redux";
+import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
-import { Button, Table, Tag, Spin, Input, Select } from "antd";
+import {Button, Table, Tag, Spin, Input, Select} from "antd";
 import RecordFormModal from "./RecordFormModal";
 import DetailModal from "./DetailModal";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
-import { CheckCircleTwoTone, ExclamationCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
+import {
+  CheckCircleTwoTone,
+  ExclamationCircleTwoTone,
+  CloseCircleTwoTone,
+} from "@ant-design/icons";
 
 const HealthCheckDetail = () => {
   const location = useLocation();
@@ -24,14 +28,14 @@ const HealthCheckDetail = () => {
   const [selectedRound, setSelectedRound] = useState(null);
   const [loadingMap] = useState({});
   const [status, setStatus] = useState(false); // trạng thái round
-  const [dateRange, setDateRange] = useState({ start: null, end: null });
+  const [dateRange, setDateRange] = useState({start: null, end: null});
   const [statusFilter, setStatusFilter] = useState("all");
   const [completedCount, setCompletedCount] = useState(0);
 
   const statusOptions = [
-    { value: "all", label: "All Status" },
-    { value: "not_recorded", label: "Not Yet" },
-    { value: "done", label: "Completed" },
+    {value: "all", label: "All Status"},
+    {value: "not_recorded", label: "Not Yet"},
+    {value: "done", label: "Completed"},
   ];
 
   const fetchStudents = async () => {
@@ -45,12 +49,11 @@ const HealthCheckDetail = () => {
 
       const res = await axiosInstance.get(
         `/api/nurses/${staffNurseId}/health-check-rounds/${roundId}/students`,
-        { params }
+        {params}
       );
 
-      const mappedStudents = (Array.isArray(res.data.items)
-        ? res.data.items
-        : []
+      const mappedStudents = (
+        Array.isArray(res.data.items) ? res.data.items : []
       ).map((item) => ({
         studentCode: item.studentsOfRoundResponse.studentCode,
         studentName: item.studentsOfRoundResponse.fullName,
@@ -76,44 +79,53 @@ const HealthCheckDetail = () => {
   }, [roundId, searchText, staffNurseId]);
 
   useEffect(() => {
-  const fetchCompletedCount = async () => {
-    try {
-      const res = await axiosInstance.get(
-        `/api/v2/nurses/${staffNurseId}/health-check-rounds/${roundId}/students`
-      );
-      // Đếm số lượng student có status "done" hoặc "cancel"
-      const studentsArr = Array.isArray(res.data) ? res.data : [];
-      let count = 0;
-      for (const item of studentsArr) {
-        const status = statusMap[item.studentsOfRoundResponse?.healthCheckResultId];
-        if (status === "done") count++;
+    const fetchCompletedCount = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `/api/v2/nurses/${staffNurseId}/health-check-rounds/${roundId}/students`
+        );
+        // Đếm số lượng student có status "done" hoặc "cancel"
+        const studentsArr = Array.isArray(res.data) ? res.data : [];
+        let count = 0;
+        for (const item of studentsArr) {
+          const status =
+            statusMap[item.studentsOfRoundResponse?.healthCheckResultId];
+          if (status === "done") count++;
+        }
+        setCompletedCount(count);
+      } catch {
+        setCompletedCount(0);
       }
-      setCompletedCount(count);
-    } catch {
-      setCompletedCount(0);
+    };
+    if (staffNurseId && roundId && Object.keys(statusMap).length > 0) {
+      fetchCompletedCount();
     }
-  };
-  if (staffNurseId && roundId && Object.keys(statusMap).length > 0) {
-    fetchCompletedCount();
-  }
-}, [staffNurseId, roundId, statusMap]);
+  }, [staffNurseId, roundId, statusMap]);
 
   useEffect(() => {
     const fetchRound = async () => {
       try {
-        const res = await axiosInstance.get(`/api/health-check-rounds/${roundId}`);
+        const res = await axiosInstance.get(
+          `/api/health-check-rounds/${roundId}`
+        );
         setStatus(res.data.healthCheckRoundInformation.status);
-        console.log("Round status:", res.data.healthCheckRoundInformation.status);
+        console.log(
+          "Round status:",
+          res.data.healthCheckRoundInformation.status
+        );
         setSelectedRound(res.data.healthCheckRoundInformation);
         setDateRange({
           start: res.data.healthCheckRoundInformation.startTime,
           end: res.data.healthCheckRoundInformation.endTime,
         });
-        console.log("Fetched round information:", res.data.healthCheckRoundInformation.startTime);
+        console.log(
+          "Fetched round information:",
+          res.data.healthCheckRoundInformation.startTime
+        );
       } catch {
         setStatus(false);
         setSelectedRound(null);
-        setDateRange({ start: null, end: null });
+        setDateRange({start: null, end: null});
       }
     };
     fetchRound();
@@ -130,23 +142,22 @@ const HealthCheckDetail = () => {
         return "not_recorded";
       }
       return "done";
-
     } catch (error) {
       console.error("Error checking health check result:", error);
       return "not_recorded";
     }
-  }
+  };
   useEffect(() => {
-      const fetchStatuses = async () => {
-        const newStatusMap = {};
-        for (const student of students) {
-          const status = await checkHealthCheckResult(student);
-          newStatusMap[student.healthCheckResultId] = status;
-        }
-        setStatusMap(newStatusMap);
-      };
-      fetchStatuses();
-    }, [students]);
+    const fetchStatuses = async () => {
+      const newStatusMap = {};
+      for (const student of students) {
+        const status = await checkHealthCheckResult(student);
+        newStatusMap[student.healthCheckResultId] = status;
+      }
+      setStatusMap(newStatusMap);
+    };
+    fetchStatuses();
+  }, [students]);
 
   const getStatus = (student) => {
     const status = statusMap[student.healthCheckResultId];
@@ -159,38 +170,41 @@ const HealthCheckDetail = () => {
     setModalType("record");
   };
 
-   const openDetailModal = (student) => {
+  const openDetailModal = (student) => {
     setSelectedStudent(student);
     setModalType("detail");
   };
 
-  const percent = students.length > 0 ? Math.round((completedCount / students.length) * 100) : 0;
-
+  const percent =
+    students.length > 0
+      ? Math.round((completedCount / students.length) * 100)
+      : 0;
 
   const handleModalOk = () => {
-      setModalType("");
-      fetchStudents();
-      Swal.fire({
-        title: "Success",
-        text: "Completed successfully!",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-    };
-
-    
+    setModalType("");
+    fetchStudents();
+    Swal.fire({
+      title: "Success",
+      text: "Completed successfully!",
+      icon: "success",
+      confirmButtonText: "OK",
+    });
+  };
 
   const isOutOfRange = (() => {
     if (!dateRange.start || !dateRange.end) return false;
     const now = dayjs().startOf("day");
-    return now.isBefore(dayjs(dateRange.start).startOf("day")) || now.isAfter(dayjs(dateRange.end).endOf("day"));
+    return (
+      now.isBefore(dayjs(dateRange.start).startOf("day")) ||
+      now.isAfter(dayjs(dateRange.end).endOf("day"))
+    );
   })();
 
   // Hàm render status đẹp như mẫu, dùng icon TwoTone
   const statusTag = (status) => {
     if (status === "done") {
       return (
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
           <CheckCircleTwoTone
             twoToneColor="#34d399"
             style={{
@@ -224,7 +238,7 @@ const HealthCheckDetail = () => {
     }
     // Not Yet
     return (
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
         <ExclamationCircleTwoTone
           twoToneColor="#eab308"
           style={{
@@ -258,49 +272,53 @@ const HealthCheckDetail = () => {
   };
 
   const columns = [
-      { title: "Student Code", dataIndex: "studentCode" },
-      { title: "Student Name", dataIndex: "studentName" },
-      { title: "Grade", dataIndex: "grade" },
-      { title: "Gender", dataIndex: "gender" },
-      { title: "Date of Birth", dataIndex: "dateOfBirth" },
-      { title: "Parent Phone", dataIndex: "parentPhoneNumber" },
-      {
-        title: "Status",
-        render: (_, student) => {
-          const status = getStatus(student);
-          return statusTag(status);
-        },
+    {title: "Student Code", dataIndex: "studentCode"},
+    {title: "Student Name", dataIndex: "studentName"},
+    {title: "Grade", dataIndex: "grade"},
+    {title: "Gender", dataIndex: "gender"},
+    {title: "Date of Birth", dataIndex: "dateOfBirth"},
+    {title: "Parent Phone", dataIndex: "parentPhoneNumber"},
+    {
+      title: "Status",
+      render: (_, student) => {
+        const status = getStatus(student);
+        return statusTag(status);
       },
-      {
-        title: "Action",
-        render: (_, student) => {
-          const id = student.healthCheckResultId;
-          const loading = loadingMap[id];
-          const status = getStatus(student);
+    },
+    {
+      title: "Action",
+      render: (_, student) => {
+        const id = student.healthCheckResultId;
+        const loading = loadingMap[id];
+        const status = getStatus(student);
 
-          if (status === "not_recorded") {
-            return (
-              <Button
-                type="primary"
-                onClick={() => openRecordModal(student)}
-                disabled={loading || isOutOfRange}
-              >
-                Record Form
-              </Button>
-            );
-          }
+        if (status === "not_recorded") {
+          return (
+            <Button
+              type="primary"
+              onClick={() => openRecordModal(student)}
+              disabled={loading || isOutOfRange}
+            >
+              Record Form
+            </Button>
+          );
+        }
 
-          if (status === "done") {
-            return (
-              <Button type="primary" onClick={() => openDetailModal(student)} disabled={loading}>
-                Detail
-              </Button>
-            );
-          }
-          return null;
-        },
+        if (status === "done") {
+          return (
+            <Button
+              type="primary"
+              onClick={() => openDetailModal(student)}
+              disabled={loading}
+            >
+              Detail
+            </Button>
+          );
+        }
+        return null;
       },
-    ];
+    },
+  ];
 
   // Thống kê số lượng theo trạng thái
   const statusSummary = students.reduce(
@@ -310,7 +328,7 @@ const HealthCheckDetail = () => {
       else acc.notYet += 1;
       return acc;
     },
-    { done: 0, notYet: 0 }
+    {done: 0, notYet: 0}
   );
 
   const filteredStudents = Array.isArray(students)
@@ -321,56 +339,71 @@ const HealthCheckDetail = () => {
       })
     : [];
 
- return (
+  return (
     <div>
       {/* Summary Cards */}
-      <div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
-        <div style={{
-          flex: 1,
-          background: "#f6ffed",
-          border: "1px solid #b7eb8f",
-          borderRadius: 12,
-          padding: 16,
-          display: "flex",
-          alignItems: "center",
-          gap: 12
-        }}>
-          <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: 32 }} />
+      <div style={{display: "flex", gap: 24, marginBottom: 32}}>
+        <div
+          style={{
+            flex: 1,
+            background: "#f6ffed",
+            border: "1px solid #b7eb8f",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <CheckCircleTwoTone twoToneColor="#52c41a" style={{fontSize: 32}} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 22 }}>{statusSummary.done}</div>
-            <div style={{ color: "#389e0d", fontWeight: 500 }}>Completed</div>
+            <div style={{fontWeight: 700, fontSize: 22}}>
+              {statusSummary.done}
+            </div>
+            <div style={{color: "#389e0d", fontWeight: 500}}>Completed</div>
           </div>
         </div>
-        <div style={{
-          flex: 1,
-          background: "#fffbe6",
-          border: "1px solid #ffe58f",
-          borderRadius: 12,
-          padding: 16,
-          display: "flex",
-          alignItems: "center",
-          gap: 12
-        }}>
-          <CloseCircleTwoTone twoToneColor="#faad14" style={{ fontSize: 32 }} />
+        <div
+          style={{
+            flex: 1,
+            background: "#fffbe6",
+            border: "1px solid #ffe58f",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <CloseCircleTwoTone twoToneColor="#faad14" style={{fontSize: 32}} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 22 }}>{statusSummary.notYet}</div>
-            <div style={{ color: "#d48806", fontWeight: 500 }}>Not Yet</div>
+            <div style={{fontWeight: 700, fontSize: 22}}>
+              {statusSummary.notYet}
+            </div>
+            <div style={{color: "#d48806", fontWeight: 500}}>Not Yet</div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
         <Input.Search
           placeholder="Search students"
           allowClear
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 320, marginRight: 8 }}
+          style={{width: 320, marginRight: 8}}
         />
         <Select
           value={statusFilter}
           options={statusOptions}
-          style={{ width: 180 }}
+          style={{width: 180}}
           onChange={setStatusFilter}
         />
         {!status && percent === 100 && (
@@ -381,21 +414,31 @@ const HealthCheckDetail = () => {
               fontSize: 16,
               background: "#e0e7ff",
               borderRadius: 8,
-              padding: "6px 18px"
+              padding: "6px 18px",
             }}
           >
             Please go back to completed round
           </span>
         )}
         {status && (
-          <Tag color="green" style={{ fontSize: 16, fontWeight: 600, borderRadius: 8 }}>
+          <Tag
+            color="green"
+            style={{fontSize: 16, fontWeight: 600, borderRadius: 8}}
+          >
             Round Completed
           </Tag>
         )}
+        <Button
+          type="default"
+          onClick={() => navigate("/nurse/health-check/list")}
+          style={{marginBottom: 0}}
+        >
+          Back
+        </Button>
       </div>
 
       {isOutOfRange && (
-        <div style={{ color: "#eab308", fontWeight: 600, marginBottom: 16 }}>
+        <div style={{color: "#eab308", fontWeight: 600, marginBottom: 16}}>
           It's not allowed at this time. Please check the round date range.
         </div>
       )}
@@ -430,14 +473,6 @@ const HealthCheckDetail = () => {
           setModalType("");
         }}
       />
-
-      <Button
-        type="default"
-        onClick={() => navigate("/nurse/health-check/list")}
-        style={{ marginBottom: 16 }}
-      >
-        Back
-      </Button>
     </div>
   );
 };
