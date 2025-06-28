@@ -291,6 +291,7 @@ const ManagerDashboard = () => {
         "/api/managers/dashboards/low-stock-medicals",
         {params}
       );
+      console.log("Low stock response:", response.data);
 
       if (response.data && response.data.length > 0) {
         setLowStockMedicals(response.data);

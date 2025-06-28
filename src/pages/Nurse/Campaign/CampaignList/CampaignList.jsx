@@ -70,49 +70,55 @@ const CampaignList = () => {
             totalObj[round.roundId] = students.length;
 
             let completed = 0;
+            // Lấy tất cả vaccinationResultId
+            const vaccinationResultIds = students
+              .map((student) => student.studentsOfRoundResponse?.vaccinationResultId)
+              .filter(Boolean);
+
             await Promise.all(
-              students.map(async (student) => {
-                const vaccinationResultId =
-                  student.studentsOfRoundResponse?.vaccinationResultId;
-                if (!vaccinationResultId) return;
-
-                let isCompleted = false;
-
-                // Kiểm tra health-qualified
+              vaccinationResultIds.map(async (vaccinationResultId) => {
                 try {
-                  const qualifiedRes = await axiosInstance.get(
-                    `/api/vaccination-results/${vaccinationResultId}/health-qualified`
+                  // Gọi API lấy chi tiết result
+                  const result = await axiosInstance.get(
+                    `/api/vaccination-results/${vaccinationResultId}`
                   );
-                  const qualified =
-                    typeof qualifiedRes.data === "boolean"
-                      ? qualifiedRes.data
-                      : qualifiedRes.data?.qualified;
-                  if (qualified === false) {
-                    isCompleted = true;
-                  }
-                } catch {
-                  return;
-                }
-
-                if (!isCompleted) {
-                  try {
-                    const result = await axiosInstance.get(
-                      `/api/vaccination-results/${vaccinationResultId}`
-                    );
-                    const resultRes = result.data;
-                    if (
-                      resultRes &&
-                      resultRes.vaccinationObservation &&
-                      resultRes.vaccinationObservation.reactionType != null
-                    ) {
-                      isCompleted = true;
-                    }
-                  } catch {
+                  const resultRes = result.data;
+                  // Nếu resultResponse.status === "Failed" thì cũng tính là completed
+                  if (
+                    resultRes &&
+                    resultRes.resultResponse &&
+                    resultRes.resultResponse.status === "Failed"
+                  ) {
+                    completed += 1;
                     return;
                   }
+                  // Nếu đã có observation và reactionType != null thì cũng tính là completed
+                  if (
+                    resultRes &&
+                    resultRes.vaccinationObservation &&
+                    resultRes.vaccinationObservation.reactionType != null
+                  ) {
+                    completed += 1;
+                    return;
+                  }
+                  // Nếu health-qualified là false cũng tính là completed
+                  try {
+                    const qualifiedRes = await axiosInstance.get(
+                      `/api/vaccination-results/${vaccinationResultId}/health-qualified`
+                    );
+                    const qualified =
+                      typeof qualifiedRes.data === "boolean"
+                        ? qualifiedRes.data
+                        : qualifiedRes.data?.qualified;
+                    if (qualified === false) {
+                      completed += 1;
+                    }
+                  } catch {
+                    // Bỏ qua nếu lỗi
+                  }
+                } catch {
+                  // Bỏ qua nếu lỗi
                 }
-
-                if (isCompleted) completed += 1;
               })
             );
             completedObj[round.roundId] = completed;

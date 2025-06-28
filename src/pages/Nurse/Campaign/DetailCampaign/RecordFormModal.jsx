@@ -135,14 +135,21 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
     if (!student?.vaccinationResultId) return;
     setLoading(true);
     try {
-      await axiosInstance.put(
+      const res = await axiosInstance.put(
         `/api/vaccination-results/${student.vaccinationResultId}/health-qualified`,
         isQualified
       );
       if (!isQualified) {
         message.info("Student is not qualified for vaccination.");
         if (onReload) await onReload();
+        const {notificationTypeId, senderId, receiverId} = res.data;
+        await axiosInstance.post(`/api/notifications/vaccinations/results/to-parent`, {
+          notificationTypeId,
+          senderId,
+          receiverId,
+        });
         onCancel();
+
         return;
       }
       setTimeout(async () => {
@@ -227,19 +234,23 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
 
       const payload = {
         vaccinationResultId,
-        vaccinatedDate: vaccinationDate.format("YYYY-MM-DD"), 
+        vaccinatedDate: vaccinatedDate.format("YYYY-MM-DD"),
         vaccinatedTime: vaccinatedDateTime,
         vaccinated: values.vaccinated,
         injectionSite: values.injectionSite,
         notes: values.notes,
-        status: "Completed",
+        status: values.vaccinated ? "Completed" : "Failed", // <-- Sửa ở đây
       };
 
-      await axiosInstance.post("/api/vaccination-results", payload);
-      setTimeout(() => {
+      const res = await axiosInstance.post("/api/vaccination-results", payload);    
         form.resetFields();
         onOk();
-      }, 1000);
+        const {notificationTypeId, senderId, receiverId} = res.data;
+        await axiosInstance.post(`/api/notifications/vaccinations/results/to-parent`, {
+          notificationTypeId,
+          senderId,
+          receiverId,
+        });
     } finally {
       setLoading(false);
     }
@@ -400,34 +411,54 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   allowClear={false}
                 />
               </Form.Item>
-              <Form.Item
-                label="Vaccinated"
-                name="vaccinated"
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-              <Form.Item
-                label="Injection Site"
-                name="injectionSite"
-                rules={[
-                  {required: true, message: "Please enter injection site"},
-                ]}
-              >
-                <Select placeholder="Select injection site">
-                  <Select.Option value="Left Deltoid">Left Deltoid</Select.Option>
-                  <Select.Option value="Right Deltoid">Right Deltoid</Select.Option>
-                </Select>
-              </Form.Item>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label="Vaccinated"
+                    name="vaccinated"
+                    valuePropName="checked"
+                  >
+                    <Switch />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label="Injection Site"
+                    name="injectionSite"
+                    initialValue="None"
+                    rules={[
+                      { required: true, message: "Please enter injection site" },
+                    ]}
+                  >
+                    <Select placeholder="Select injection site">
+                      <Select.Option value="Left Deltoid">Left Deltoid</Select.Option>
+                      <Select.Option value="Right Deltoid">Right Deltoid</Select.Option>
+                      <Select.Option value="None">None</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
               <Form.Item label="Notes" name="notes">
                 <Input.TextArea rows={3} />
               </Form.Item>
               <Form.Item
                 label="Status"
-                name="status"
-                initialValue="Completed"
-                >
-                <Input readOnly style={{ color: "#22c55e", fontWeight: 600 }} />
+                shouldUpdate={(prev, curr) => prev.vaccinated !== curr.vaccinated}
+              >
+                {({ getFieldValue }) => {
+                  const vaccinated = getFieldValue("vaccinated");
+                  const status = vaccinated ? "Completed" : "Failed";
+                  return (
+                    <Input
+                      readOnly
+                      value={status}
+                      style={{
+                        color: vaccinated ? "#22c55e" : "#ef4444",
+                        fontWeight: 600,
+                      }}
+                    />
+                  );
+                }}
               </Form.Item>
               <Form.Item>
                 <Button

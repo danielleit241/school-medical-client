@@ -41,7 +41,8 @@ const DetailCampaign = () => {
     {value: "all", label: "All status"},
     {value: "done", label: "Completed"},
     {value: "recorded", label: "Observation"},
-    {value: "cancel", label: "Does not meet the requirements"},
+    {value: "cancel", label: "Not Qualified"},
+    {value: "failed", label: "Failed"},
     {value: "not_recorded", label: "Not Yet"},
   ];
 
@@ -51,13 +52,12 @@ const DetailCampaign = () => {
         const res = await axiosInstance.get(
           `/api/v2/nurses/${staffNurseId}/vaccination-rounds/${roundId}/students`
         );
-        // Đếm số lượng student có status "done" hoặc "cancel"
         const studentsArr = Array.isArray(res.data) ? res.data : [];
         let count = 0;
         for (const item of studentsArr) {
           const status =
             statusMap[item.studentsOfRoundResponse?.vaccinationResultId];
-          if (status === "done" || status === "cancel") count++;
+          if (status === "done" || status === "cancel" || status === "failed") count++;
         }
         setCompletedCount(count);
       } catch {
@@ -170,7 +170,15 @@ const DetailCampaign = () => {
         `/api/vaccination-results/${student.vaccinationResultId}`
       );
       const result = res.data;
-      console.log("Vaccination result:", result);
+      // Nếu status là Failed hoặc resultResponse.status là Failed thì trả về failed
+      if (
+        (result.status && result.status.toLowerCase() === "failed") ||
+        (result.resultResponse &&
+          result.resultResponse.status &&
+          result.resultResponse.status.toLowerCase() === "failed")
+      ) {
+        return "failed";
+      }
       const hasNullInResultResponse =
         result.resultResponse &&
         typeof result.resultResponse === "object" &&
@@ -206,6 +214,7 @@ const DetailCampaign = () => {
     if (status === "recorded") return "recorded";
     if (status === "done") return "done";
     if (status === "cancel") return "cancel";
+    if (status === "failed") return "failed";
   };
 
   const openRecordModal = (student) => {
@@ -246,9 +255,10 @@ const DetailCampaign = () => {
       else if (status === "not_recorded") acc.notYet += 1;
       else if (status === "recorded") acc.observating += 1;
       else if (status === "cancel") acc.cancel += 1;
+      else if (status === "failed") acc.failed += 1;
       return acc;
     },
-    {done: 0, notYet: 0, observating: 0, cancel: 0}
+    {done: 0, notYet: 0, observating: 0, cancel: 0, failed: 0}
   );
 
   const statusTag = (status) => {
@@ -323,7 +333,7 @@ const DetailCampaign = () => {
         return (
           <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
             <CloseCircleTwoTone
-              twoToneColor="#ef4444"
+              twoToneColor="#ff9800"
               style={{
                 background: "#fff",
                 borderRadius: "50%",
@@ -337,8 +347,8 @@ const DetailCampaign = () => {
             />
             <span
               style={{
-                background: "#fecaca",
-                color: "#dc2626",
+                background: "#fff3e0",
+                color: "#ff9800",
                 borderRadius: 8,
                 padding: "2px 12px",
                 fontWeight: 600,
@@ -348,7 +358,7 @@ const DetailCampaign = () => {
                 textAlign: "center",
               }}
             >
-              Does not meet the requirements
+              Not Qualified
             </span>
           </span>
         );
@@ -385,6 +395,39 @@ const DetailCampaign = () => {
             </span>
           </span>
         );
+      case "failed":
+        return (
+          <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
+            <CloseCircleTwoTone
+              twoToneColor="#d7263d"
+              style={{
+                background: "#fff",
+                borderRadius: "50%",
+                fontSize: 18,
+                padding: 2,
+                marginRight: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            />
+            <span
+              style={{
+                background: "#fff0f6",
+                color: "#d7263d",
+                borderRadius: 8,
+                padding: "2px 12px",
+                fontWeight: 600,
+                fontSize: 15,
+                display: "inline-block",
+                minWidth: 90,
+                textAlign: "center",
+              }}
+            >
+              Failed
+            </span>
+          </span>
+        );
       default:
         return null;
     }
@@ -413,7 +456,7 @@ const DetailCampaign = () => {
         const status = getStatus(student);
 
         // Nếu không đạt yêu cầu ("cancel") thì vẫn cho hiện nút Detail
-        if (status === "cancel") {
+        if (status === "cancel" || status === "failed" || status === "done") {
           return (
             <Button
               type="primary"
@@ -427,7 +470,7 @@ const DetailCampaign = () => {
 
         if (qualified === false) {
           return (
-            <i style={{ color: "#faad14" }}>Does not meet the requirements</i>
+            <i style={{ color: "#faad14" }}>Not Qualified</i>
           );
         }
 
@@ -563,8 +606,8 @@ const DetailCampaign = () => {
         <div
           style={{
             flex: 1,
-            background: "#fff1f0",
-            border: "1px solid #ffa39e",
+            background: "#fff3e0", 
+            border: "1px solid #ff9800", 
             borderRadius: 12,
             padding: 16,
             display: "flex",
@@ -572,14 +615,34 @@ const DetailCampaign = () => {
             gap: 12,
           }}
         >
-          <StopTwoTone twoToneColor="#ff4d4f" style={{fontSize: 32}} />
+          <StopTwoTone twoToneColor="#ff9800" style={{fontSize: 32}} />
           <div>
             <div style={{fontWeight: 700, fontSize: 22}}>
               {statusSummary.cancel}
             </div>
-            <div style={{color: "#cf1322", fontWeight: 500}}>
-              Does not meet the requirements
+            <div style={{color: "#ff9800", fontWeight: 500}}>
+              Not Qualified
             </div>
+          </div>
+        </div>
+        <div
+          style={{
+            flex: 1,
+            background: "#fff0f6",
+            border: "1px solid #ffadd2",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <CloseCircleTwoTone twoToneColor="#d7263d" style={{fontSize: 32}} />
+          <div>
+            <div style={{fontWeight: 700, fontSize: 22}}>
+              {statusSummary.failed}
+            </div>
+            <div style={{color: "#d7263d", fontWeight: 500}}>Failed</div>
           </div>
         </div>
       </div>
@@ -631,11 +694,27 @@ const DetailCampaign = () => {
 
         <Button
           type="default"
-          onClick={() => navigate("/nurse/vaccine/campaign-list")}
+          onClick={async () => {
+            if (statusSummary.observating > 0) {
+              const result = await Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `There are currently ${statusSummary.observating} students still in Observating status. Do you want to exit?`,
+                showCancelButton: true,
+                confirmButtonText: "Back",
+                cancelButtonText: "No",
+              });
+              if (result.isConfirmed) {
+                navigate("/nurse/vaccine/campaign-list");
+              }
+            } else {
+              navigate("/nurse/vaccine/campaign-list");
+            }
+          }}
           style={{marginBottom: 0}}
         >
           Back
-        </Button>
+      </Button>
       </div>
       {isOutOfRange && (
         <div style={{color: "#eab308", fontWeight: 600, marginBottom: 16}}>
@@ -675,6 +754,7 @@ const DetailCampaign = () => {
       />
       <DetailModal
         open={modalType === "detail"}
+        roundId={roundId}
         student={selectedStudent}
         onOk={handleModalOk}
         onCancel={() => {
