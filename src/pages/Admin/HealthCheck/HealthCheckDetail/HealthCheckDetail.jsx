@@ -14,7 +14,11 @@ import {
   Modal,
   Space,
   message,
-  Popconfirm,
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  Dropdown,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -22,8 +26,8 @@ import {
   TeamOutlined,
   UserOutlined,
   PhoneOutlined,
-  UserAddOutlined,
   PlusOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
@@ -42,10 +46,16 @@ const HealthCheckDetail = () => {
   // Modal states
   const [roundDetail, setRoundDetail] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [addRoundModalVisible, setAddRoundModalVisible] = useState(false);
+  const [addRoundLoading, setAddRoundLoading] = useState(false);
+  const [modalType, setModalType] = useState("new"); // "new" hoặc "supplement"
+  const [formAddRound] = Form.useForm();
 
   // Notification data states
   const [toParentData, setToParentData] = useState([]);
   const [toNurseData, setToNurseData] = useState([]);
+  const [nurses, setNurses] = useState([]);
+  const [classes, setClasses] = useState([]);
 
   const updateExpiredHealthCheckCampaigns = useCallback(async () => {
     if (!rounds || rounds.length === 0) return;
@@ -67,7 +77,9 @@ const HealthCheckDetail = () => {
           `Health check schedule ${scheduleId} has been automatically marked as completed`
         );
 
-        message.success("Health check schedule automatically marked as completed!");
+        message.success(
+          "Health check schedule automatically marked as completed!"
+        );
       } catch (error) {
         console.error(
           `Cannot update status for health check schedule ${scheduleId}:`,
@@ -228,6 +240,56 @@ const HealthCheckDetail = () => {
     navigate(`/${roleName}/health-check/schedules`);
   };
 
+  useEffect(() => {
+    axiosInstance.get("/api/nurses").then((res) => setNurses(res.data || []));
+    axiosInstance
+      .get("/api/students/classes")
+      .then((res) => setClasses(res.data.map((cls) => cls.trim())))
+      .catch(() => setClasses([]));
+  }, []);
+
+  const openAddRoundModal = (type) => {
+    setModalType(type);
+    setAddRoundModalVisible(true);
+    if (type === "supplement") {
+      formAddRound.setFieldsValue({
+        roundName: "Supplement Round",
+        targetGrade: "Supplement",
+      });
+    } else {
+      formAddRound.resetFields();
+    }
+  };
+
+  const handleAddRound = async () => {
+    try {
+      setAddRoundLoading(true);
+      const values = await formAddRound.validateFields();
+      await axiosInstance.post("/api/schedules/health-check-rounds", {
+        scheduleId,
+        roundName: values.roundName,
+        targetGrade: values.targetGrade,
+        description: values.description,
+        startTime: values.startTime.toISOString(),
+        endTime: values.endTime.toISOString(),
+        nurseId: values.nurseId,
+      });
+      message.success("Add round successfully!");
+      setAddRoundModalVisible(false);
+      formAddRound.resetFields();
+      // Reload rounds
+      const updated = await axiosInstance.get(
+        `/api/health-checks/schedules/${scheduleId}`
+      );
+      setRounds(updated.data || []);
+      // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      message.error("Add round failed!");
+    } finally {
+      setAddRoundLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -260,6 +322,26 @@ const HealthCheckDetail = () => {
       style={{margin: 24}}
       extra={
         <Space>
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: "1",
+                  label: "Add New Round",
+                  onClick: () => openAddRoundModal("new"),
+                },
+                {
+                  key: "2",
+                  label: "Add Supplement Round",
+                  onClick: () => openAddRoundModal("supplement"),
+                },
+              ],
+            }}
+          >
+            <Button type="dashed" icon={<PlusOutlined />}>
+              Add Round <DownOutlined />
+            </Button>
+          </Dropdown>
           <Button
             type="dashed"
             icon={<PlusOutlined />}
@@ -429,6 +511,89 @@ const HealthCheckDetail = () => {
             {roundDetail?.nurse?.phoneNumber || "N/A"}
           </Descriptions.Item>
         </Descriptions>
+      </Modal>
+
+      {/* Add Round Modal */}
+      <Modal
+        open={addRoundModalVisible}
+        title={
+          modalType === "new"
+            ? "Add New Health Check Round"
+            : "Add Supplement Health Check Round"
+        }
+        onCancel={() => setAddRoundModalVisible(false)}
+        onOk={handleAddRound}
+        confirmLoading={addRoundLoading}
+        okText="Add"
+        width={600}
+      >
+        <Form form={formAddRound} layout="vertical">
+          <Form.Item
+            label="Round Name"
+            name="roundName"
+            rules={[{required: true, message: "Please input round name!"}]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Target Grade"
+            name="targetGrade"
+            rules={[{required: true, message: "Please select target grade!"}]}
+          >
+            {modalType === "new" ? (
+              <Select
+                placeholder="Select class"
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.value ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              >
+                {classes.map((cls) => (
+                  <Select.Option key={cls} value={cls}>
+                    {cls}
+                  </Select.Option>
+                ))}
+              </Select>
+            ) : (
+              <Input disabled={true} />
+            )}
+          </Form.Item>
+          <Form.Item label="Description" name="description">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Form.Item
+            label="Start Time"
+            name="startTime"
+            rules={[{required: true, message: "Please select start time!"}]}
+          >
+            <DatePicker showTime style={{width: "100%"}} />
+          </Form.Item>
+          <Form.Item
+            label="End Time"
+            name="endTime"
+            rules={[{required: true, message: "Please select end time!"}]}
+          >
+            <DatePicker showTime style={{width: "100%"}} />
+          </Form.Item>
+          <Form.Item
+            label="Nurse"
+            name="nurseId"
+            rules={[{required: true, message: "Please select nurse!"}]}
+          >
+            <Select placeholder="Select nurse">
+              {nurses.map((nurse) => (
+                <Select.Option
+                  key={nurse.staffNurseId}
+                  value={nurse.staffNurseId}
+                >
+                  {nurse.fullName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
       </Modal>
     </Card>
   );
