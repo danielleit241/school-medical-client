@@ -505,12 +505,14 @@ const ManagerDashboard = () => {
   };
 
   // Hàm để tính tổng số thiết bị/thuốc thiếu
+  // eslint-disable-next-line no-unused-vars
   const getLowStockCount = () => {
     if (!lowStockMedicals || lowStockMedicals.length === 0) return 0;
     return lowStockMedicals.length;
   };
 
   // Hàm để lấy mức cảnh báo dựa vào số lượng tồn kho
+  // eslint-disable-next-line no-unused-vars
   const getStockAlertLevel = (quantity) => {
     if (quantity <= 5) return "critical";
     if (quantity <= 10) return "warning";
@@ -1311,7 +1313,7 @@ const ManagerDashboard = () => {
               ) : lowStockMedicals && lowStockMedicals.length > 0 ? (
                 <>
                   <div style={{...metricValueStyle, color: "#f5222d"}}>
-                    {getLowStockCount()}
+                    {lowStockMedicals.length}
                   </div>
                   <div style={metricSubtitleStyle}>Items require attention</div>
                 </>
@@ -1761,19 +1763,25 @@ const ManagerDashboard = () => {
                 ) : lowStockMedicals && lowStockMedicals.length > 0 ? (
                   <Space direction="vertical" style={{width: "100%"}}>
                     {lowStockMedicals.map((item, index) => {
+                      // Lấy tên thuốc/thiết bị và info
                       const itemName = Object.keys(item)[0];
-                      const quantity = item[itemName];
-                      const alertLevel = getStockAlertLevel(quantity);
+                      const info = item[itemName];
+                      const quantity = info.quantityInStock;
+                      const minLevel = info.minimumStockLevel;
 
-                      let bgColor = "#fffbe6"; // Default color (yellow-light)
+                      // Đánh giá mức cảnh báo
+                      let bgColor = "#fffbe6"; // Default yellow-light
                       let badgeColor = "#faad14";
+                      let alertText = "Warning";
 
-                      if (alertLevel === "critical") {
+                      if (quantity <= minLevel) {
                         bgColor = "#fff1f0"; // Red-light
                         badgeColor = "#f5222d";
-                      } else if (alertLevel === "warning") {
+                        alertText = "Critical";
+                      } else if (quantity <= minLevel + 5) {
                         bgColor = "#fff7e6"; // Orange-light
                         badgeColor = "#fa8c16";
+                        alertText = "Low";
                       }
 
                       return (
@@ -1782,6 +1790,7 @@ const ManagerDashboard = () => {
                           style={{
                             display: "flex",
                             justifyContent: "space-between",
+                            alignItems: "center",
                             padding: "8px 12px",
                             backgroundColor: bgColor,
                             borderRadius: 8,
@@ -1789,22 +1798,22 @@ const ManagerDashboard = () => {
                               index < lowStockMedicals.length - 1 ? 12 : 0,
                           }}
                         >
-                          <Text>{itemName}</Text>
-                          {alertLevel === "critical" ? (
-                            <Badge
-                              count={quantity}
-                              style={{backgroundColor: badgeColor}}
-                            />
-                          ) : (
-                            <Badge
-                              count={quantity}
-                              style={{
-                                backgroundColor: "#fff",
-                                color: badgeColor,
-                                boxShadow: `0 0 0 1px ${badgeColor} inset`,
-                              }}
-                            />
-                          )}
+                          <div>
+                            <Text strong>{itemName}</Text>
+                            <div style={{fontSize: 12, color: "#888"}}>
+                              In stock: <b>{quantity}</b> (Min: {minLevel})
+                            </div>
+                          </div>
+                          <Badge
+                            count={quantity}
+                            style={{
+                              backgroundColor: badgeColor,
+                              color: "#fff",
+                              fontWeight: 700,
+                              boxShadow: `0 0 0 1px ${badgeColor} inset`,
+                            }}
+                            title={alertText}
+                          />
                         </div>
                       );
                     })}

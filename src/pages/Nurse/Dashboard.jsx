@@ -826,13 +826,17 @@ const Dashboard = () => {
     });
     return () => {
       if (chartRef.current && chartRef.current._chartInstance) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         chartRef.current._chartInstance.destroy();
       }
     };
     // eslint-disable-next-line
   }, [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(chartLabels),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(chartDataArr),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(chartColorsArr),
   ]);
 
