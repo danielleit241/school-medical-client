@@ -26,7 +26,6 @@ const DetailModal = ({ open, onCancel, student, roundId }) => {
           .map((item) => item.studentsOfRoundResponse?.vaccinationResultId)
           .filter(Boolean);
 
-        // Check which ids have resultResponse.status === "Failed"
         const failedIds = [];
         await Promise.all(
           ids.map(async (resultId) => {
@@ -84,7 +83,6 @@ const DetailModal = ({ open, onCancel, student, roundId }) => {
         );
         console.log("Vaccination result detail:", response.data);
         setDetailData(response.data);
-        // Lấy staffNurseId từ recorderId
         setDynamicStaffNurseId(response.data.resultResponse.recorderId);
         const res = await axiosInstance.get(
           `/api/user-profile/${response.data.resultResponse.recorderId}`
@@ -99,7 +97,6 @@ const DetailModal = ({ open, onCancel, student, roundId }) => {
     fetchDetail();
   }, [open, student?.vaccinationResultId]);
 
-  // Helper: nếu trường null và id nằm trong failedResultIds thì trả về "Failed"
   const showValue = (value) => {
     if (
       value == null &&

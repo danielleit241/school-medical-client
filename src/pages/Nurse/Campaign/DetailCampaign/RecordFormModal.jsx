@@ -239,7 +239,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
         vaccinated: values.vaccinated,
         injectionSite: values.injectionSite,
         notes: values.notes,
-        status: values.vaccinated ? "Completed" : "Failed", // <-- Sửa ở đây
+        status: values.vaccinated ? "Completed" : "Failed", 
       };
 
       const res = await axiosInstance.post("/api/vaccination-results", payload);    

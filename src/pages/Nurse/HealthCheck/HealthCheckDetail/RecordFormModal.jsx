@@ -16,33 +16,28 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
 
   useEffect(() => {
     if (open) {
+      form.resetFields();
       setNoseOrderValue("");
       setHearingOrderValue("");
-      form.resetFields();
-    }
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  useEffect(() => {
-    if (open) {
       form.setFieldsValue({
         status:
-          student && typeof student.status !== "string"
-            ? student.status === true
-              ? "Completed"
-              : student.status === false
-              ? "Pending"
-              : "Completed"
-            : "Completed",
+          typeof student?.status === "string"
+            ? student.status
+            : student?.status === true
+            ? "Completed"
+            : student?.status === false
+            ? "Pending"
+            : "Failed", 
       });
     }
   }, [open, student, form]);
+
 
   const handleFinish = async (values) => {
     setLoading(true);
     try {
       const { healthCheckResultId } = student;
-      console.log("Health Check Result ID:", healthCheckResultId);
+      const bloodPressure = `${values.systolic}/${values.diastolic}`;
       const payload = {
         healthCheckResultId,
         datePerformed: values.datePerformed.format("YYYY-MM-DD"),
@@ -52,8 +47,8 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
         visionRight: Number(values.visionRight),
         hearing: values.hearing === "order" ? values.hearingOrderDetail : values.hearing,
         nose: values.nose === "order" ? values.noseOrderDetail : values.nose,
-        bloodPressure: values.bloodPressure,
-        status: "Completed", 
+        bloodPressure, 
+        status: values.status, 
         notes: values.notes,
       };    
       const res = await axiosInstance.post("/api/health-check-results", payload);
@@ -109,9 +104,46 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
               onFinish={handleFinish}
               initialValues={{
                 datePerformed: dayjs(),
-                status: true,
-                hearing: "normal",
-                nose: "normal",
+                status: "Failed",
+                hearing: "no",
+                nose: "no",
+                bloodPressure: "0/0",
+                height: 0,
+                weight: 0,
+                visionLeft: 0,
+                visionRight: 0,
+                systolic: 0,
+                diastolic: 0,
+              }}
+              onValuesChange={() => {
+                const values = form.getFieldsValue();
+                const isFailed =
+                  Number(values.height) === 0 &&
+                  Number(values.weight) === 0 &&
+                  Number(values.visionLeft) === 0 &&
+                  Number(values.visionRight) === 0 &&
+                  (Number(values.systolic) === 0 || Number(values.diastolic) === 0) &&
+                  (values.hearing === "no" || !values.hearing) &&
+                  (values.nose === "no" || !values.nose);
+
+                if (isFailed) {
+                  form.setFieldsValue({ status: "Failed" });
+                } else {
+                  const isCompleted =
+                    Number(values.height) > 0 &&
+                    Number(values.weight) > 0 &&
+                    Number(values.visionLeft) > 0 &&
+                    Number(values.visionRight) > 0 &&
+                    Number(values.systolic) > 0 &&
+                    Number(values.diastolic) > 0 &&
+                    values.hearing &&
+                    values.hearing !== "no" &&
+                    values.nose &&
+                    values.nose !== "no";
+                  if (isCompleted) {
+                    form.setFieldsValue({ status: "Completed" });
+                  }
+                }
               }}
             >
               <Row gutter={32}>
@@ -188,6 +220,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                         }
                       }}
                       options={[
+                        { label: "None", value: "no" },
                         { label: "Normal", value: "normal" },
                         { label: hearingOrderValue || "Order", value: "order" },
                       ]}
@@ -236,6 +269,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                         }
                       }}
                       options={[
+                        { label: "None", value: "no" },
                         { label: "Normal", value: "normal" },
                         { label: noseOrderValue || "Order", value: "order" },
                       ]}
@@ -269,25 +303,88 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                       </Form.Item>
                     </Form>
                   </Modal>
-                  <Form.Item
-                    label="Blood Pressure (mg)"
-                    name="bloodPressure"
-                    rules={[
-                      { required: true, message: "Please enter blood pressure" },
-                      { pattern: /^\d+\/\d+$/, message: "Format: number/number" },
-                    ]}
-                  >
-                    <Input suffix="mg" placeholder="120/80" style={{ borderRadius: 8 }} />
+                  <Form.Item label="Blood Pressure">
+                    <Input.Group compact>
+                      <Form.Item
+                        name="systolic"
+                        noStyle
+                        rules={[
+                          { required: true, message: "Enter systolic" },
+                          { pattern: /^\d+$/, message: "Must be a number" },
+                        ]}
+                      >
+                        <Input
+                          style={{
+                            width: 70,
+                            textAlign: "center",
+                            borderRadius: 8,
+                            marginRight: 1, 
+                          }}
+                          placeholder="SYS"
+                          maxLength={3}
+                        />
+                      </Form.Item>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: 18,
+                          textAlign: "center",
+                          fontWeight: 600,
+                          fontSize: 18,
+                          background: "none", 
+                          border: "none",     
+                          lineHeight: "32px",
+                          marginRight: 1,     
+                          marginLeft: 1,      
+                        }}
+                      >/</span>
+                      <Form.Item
+                        name="diastolic"
+                        noStyle
+                        rules={[
+                          { required: true, message: "Enter diastolic" },
+                          { pattern: /^\d+$/, message: "Must be a number" },
+                        ]}
+                      >
+                        <Input
+                          style={{
+                            width: 70,
+                            textAlign: "center",
+                            borderRadius: 8,
+                            borderLeft: 0,
+                          }}
+                          placeholder="DIA"
+                          maxLength={3}
+                        />
+                      </Form.Item>
+                      <span style={{ marginLeft: 8, color: "#555" }}>mmHg</span>
+                    </Input.Group>
                   </Form.Item>
                   <Form.Item label="Notes" name="notes">
                     <Input.TextArea rows={3} style={{ borderRadius: 8 }} />
                   </Form.Item>
                   <Form.Item
                     label="Status"
-                    name="status"
-                    initialValue="Completed"
+                    shouldUpdate={(prev, curr) => prev.status !== curr.status}
                   >
-                    <Input readOnly style={{ color: "#22c55e", fontWeight: 600 }} />
+                    {({ getFieldValue }) => {
+                      const status = getFieldValue("status");
+                      return (
+                        <Typography.Text
+                          strong
+                          style={{
+                            color: status === "Completed" ? "#22c55e" : "#ef4444",
+                            fontWeight: 600,
+                            fontSize: 16,
+                          }}
+                        >
+                          {status}
+                        </Typography.Text>
+                      );
+                    }}
+                  </Form.Item>
+                  <Form.Item name="status" hidden>
+                    <Input />
                   </Form.Item>
                   <Form.Item>
                     <Button

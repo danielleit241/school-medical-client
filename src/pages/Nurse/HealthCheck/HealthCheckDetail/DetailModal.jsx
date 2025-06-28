@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Spin, Typography, Table, Row, Col } from "antd";
+import { Modal, Spin, Typography, Table, Row, Col, Tag } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import axiosInstance from '../../../../api/axios';
 
@@ -32,18 +32,83 @@ const DetailModal = ({ open, onCancel, student }) => {
     fetchDetail();
   }, [open, student?.healthCheckResultId]);
 
+  const renderFailed = (value, status) => {
+    if (
+      status === "Failed" &&
+      (value === null ||
+        value === undefined ||
+        value === 0 ||
+        value === "0" ||
+        value === "no" ||
+        value === "")
+    ) {
+      return (
+        <Tag color="error" style={{ fontWeight: 600, fontSize: 15, borderRadius: 8 }}>
+          Failed
+        </Tag>
+      );
+    }
+    return value;
+  };
+
   const tableData = detailData
     ? [
-        { key: "datePerformed", label: "Date Performed", value: detailData.datePerformed || "N/A" },
-        { key: "height", label: "Height", value: detailData.height || "N/A" },
-        { key: "weight", label: "Weight", value: detailData.weight || "N/A" },
-        { key: "nurseName", label: "Nurse Name", value: nurseName || "Unknown Nurse" },
-        { key: "visionLeft", label: "Vision Left", value: detailData.visionLeft ? detailData.visionLeft + "/10" : "N/A" },
-        { key: "visionRight", label: "Vision Right", value: detailData.visionRight ? detailData.visionRight + "/10" : "N/A" },
-        { key: "hearing", label: "Hearing", value: detailData.hearing || "N/A" },
-        { key: "nose", label: "Nose", value: detailData.nose || "N/A" },
-        { key: "bloodPressure", label: "Blood Pressure", value: detailData.bloodPressure || "N/A" },
-        { key: "notes", label: "Notes", value: detailData.notes || "N/A" },
+        {
+          key: "datePerformed",
+          label: "Date Performed",
+          value: renderFailed(detailData.datePerformed, detailData.status),
+        },
+        {
+          key: "height",
+          label: "Height",
+          value: renderFailed(detailData.height, detailData.status),
+        },
+        {
+          key: "weight",
+          label: "Weight",
+          value: renderFailed(detailData.weight, detailData.status),
+        },
+        {
+          key: "nurseName",
+          label: "Nurse Name",
+          value: renderFailed(nurseName, detailData.status),
+        },
+        {
+          key: "visionLeft",
+          label: "Vision Left",
+          value: renderFailed(
+            detailData.visionLeft != null ? detailData.visionLeft + "/10" : null,
+            detailData.status
+          ),
+        },
+        {
+          key: "visionRight",
+          label: "Vision Right",
+          value: renderFailed(
+            detailData.visionRight != null ? detailData.visionRight + "/10" : null,
+            detailData.status
+          ),
+        },
+        {
+          key: "hearing",
+          label: "Hearing",
+          value: renderFailed(detailData.hearing, detailData.status),
+        },
+        {
+          key: "nose",
+          label: "Nose",
+          value: renderFailed(detailData.nose, detailData.status),
+        },
+        {
+          key: "bloodPressure",
+          label: "Blood Pressure",
+          value: renderFailed(detailData.bloodPressure, detailData.status),
+        },
+        {
+          key: "notes",
+          label: "Notes",
+          value: renderFailed(detailData.notes, detailData.status),
+        },
       ]
     : [];
 
