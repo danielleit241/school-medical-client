@@ -179,7 +179,13 @@ const validateReactionStartTime = (_, value) => {
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        initialValues={initialValues}
+        initialValues={{
+          reactionType: "normal",
+          severityLevel: "normal",
+          immediateReaction: "no",
+          intervention: "no",
+          ...initialValues,
+        }}
       >
         <Row gutter={16}>
           <Col xs={24} sm={12}>

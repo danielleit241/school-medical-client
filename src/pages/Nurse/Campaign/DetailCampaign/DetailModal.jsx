@@ -1,15 +1,58 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Spin, Typography, Tag, Divider, Card, Table } from "antd";
+import { Modal, Spin, Typography, Tag, Card, Table } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import axiosInstance from '../../../../api/axios';
 
 const { Title } = Typography;
 
-const DetailModal = ({ open, onCancel, student }) => {
+const DetailModal = ({ open, onCancel, student, roundId }) => {
   const [detailData, setDetailData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [healthDeclaration, setHealthDeclaration] = useState(null);
   const [nurseName, setNurseName] = useState("");
+  const [dynamicStaffNurseId, setDynamicStaffNurseId] = useState("");
+  const [failedResultIds, setFailedResultIds] = useState([]);
+
+  // Fetch all failed vaccinationResultIds for this round
+  useEffect(() => {
+    const fetchFailedIds = async () => {
+      if (!open || !dynamicStaffNurseId || !roundId) return;
+      try {
+        const res = await axiosInstance.get(
+          `/api/v2/nurses/${dynamicStaffNurseId}/vaccination-rounds/${roundId}/students`
+        );
+        const studentsArr = Array.isArray(res.data) ? res.data : [];
+        const ids = studentsArr
+          .map((item) => item.studentsOfRoundResponse?.vaccinationResultId)
+          .filter(Boolean);
+
+        // Check which ids have resultResponse.status === "Failed"
+        const failedIds = [];
+        await Promise.all(
+          ids.map(async (resultId) => {
+            try {
+              const resultRes = await axiosInstance.get(
+                `/api/vaccination-results/${resultId}`
+              );
+              if (
+                resultRes.data &&
+                resultRes.data.resultResponse &&
+                resultRes.data.resultResponse.status === "Failed"
+              ) {
+                failedIds.push(resultId);
+              }
+            } catch {
+              return;
+            }
+          })
+        );
+        setFailedResultIds(failedIds);
+      } catch {
+        setFailedResultIds([]);
+      }
+    };
+    fetchFailedIds();
+  }, [open, dynamicStaffNurseId, roundId]);
 
   useEffect(() => {
     const fetchHealthDeclaration = async () => {
@@ -19,8 +62,7 @@ const DetailModal = ({ open, onCancel, student }) => {
             `/api/students/${student.studentsOfRoundResponse.studentId}/health-declarations`
           );
           setHealthDeclaration(response.data?.healthDeclaration || null);
-        } catch (error) {
-          console.error("Error fetching health declaration:", error);
+        } catch {
           setHealthDeclaration(null);
         }
       }
@@ -37,12 +79,18 @@ const DetailModal = ({ open, onCancel, student }) => {
     const fetchDetail = async () => {
       try {
         if (!student?.vaccinationResultId) return;
-        const response = await axiosInstance.get(`/api/vaccination-results/${student?.vaccinationResultId}`);
+        const response = await axiosInstance.get(
+          `/api/vaccination-results/${student?.vaccinationResultId}`
+        );
+        console.log("Vaccination result detail:", response.data);
         setDetailData(response.data);
-        const res = await axiosInstance.get(`/api/user-profile/${response.data.resultResponse.recorderId}`);
+        // Lấy staffNurseId từ recorderId
+        setDynamicStaffNurseId(response.data.resultResponse.recorderId);
+        const res = await axiosInstance.get(
+          `/api/user-profile/${response.data.resultResponse.recorderId}`
+        );
         setNurseName(res.data?.fullName || "Unknown Nurse");
-      } catch (error) {
-        console.error("Error fetching vaccination result detail:", error);
+      } catch {
         setDetailData(null);
       } finally {
         setLoading(false);
@@ -51,22 +99,36 @@ const DetailModal = ({ open, onCancel, student }) => {
     fetchDetail();
   }, [open, student?.vaccinationResultId]);
 
+  // Helper: nếu trường null và id nằm trong failedResultIds thì trả về "Failed"
+  const showValue = (value) => {
+    if (
+      value == null &&
+      failedResultIds.includes(student?.vaccinationResultId)
+    ) {
+      return <Tag color="red">Failed</Tag>;
+    }
+    if (value == null) {
+      return <Tag color="orange">Not Qualified</Tag>;
+    }
+    return value;
+  };
+
   // Table data
   const healthProfileData = [
     {
       key: "chronicDiseases",
       label: "Chronic Diseases",
-      value: healthDeclaration?.chronicDiseases ?? "Not Qualified",
+      value: showValue(healthDeclaration?.chronicDiseases),
     },
     {
       key: "drugAllergies",
       label: "Drug Allergies",
-      value: healthDeclaration?.drugAllergies ?? "Not Qualified",
+      value: showValue(healthDeclaration?.drugAllergies),
     },
     {
       key: "foodAllergies",
       label: "Food Allergies",
-      value: healthDeclaration?.foodAllergies ?? "Not Qualified",
+      value: showValue(healthDeclaration?.foodAllergies),
     },
   ];
 
@@ -75,57 +137,55 @@ const DetailModal = ({ open, onCancel, student }) => {
     {
       key: "nurseName",
       label: "Nurse Name",
-      value: nurseName || "Not Qualified",
+      value: showValue(nurseName),
     },
     {
       key: "vaccinatedDate",
       label: "Vaccinated Date",
-      value: vaccinationResult.vaccinatedDate ?? "Not Qualified",
+      value: showValue(vaccinationResult.vaccinatedDate),
     },
     {
       key: "notes",
       label: "Notes",
-      value: detailData?.notes ?? "Not Qualified",
+      value: showValue(detailData?.notes),
     },
     {
       key: "parentConfirmed",
       label: "Parent Confirmed",
-      value: (
-        <Tag color={vaccinationResult.parentConfirmed === null ? "red" : vaccinationResult.parentConfirmed ? "green" : "red"}>
-          {vaccinationResult.parentConfirmed === null
-            ? "Not Qualified"
-            : vaccinationResult.parentConfirmed
-            ? "Yes"
-            : "No"}
-        </Tag>
+      value: showValue(
+        vaccinationResult.parentConfirmed == null
+          ? null
+          : vaccinationResult.parentConfirmed
+          ? <Tag color="green">Yes</Tag>
+          : <Tag color="red">No</Tag>
       ),
     },
     {
       key: "vaccinated",
       label: "Vaccinated",
-      value: (
-        <Tag color={vaccinationResult.vaccinated === null ? "red" : vaccinationResult.vaccinated ? "green" : "red"}>
-          {vaccinationResult.vaccinated === null
-            ? "Not Qualified"
-            : vaccinationResult.vaccinated
-            ? "Yes"
-            : "No"}
-        </Tag>
+      value: showValue(
+        vaccinationResult.vaccinated == null
+          ? null
+          : vaccinationResult.vaccinated
+          ? <Tag color="green">Yes</Tag>
+          : <Tag color="red">No</Tag>
       ),
     },
     {
       key: "status",
       label: "Status",
-      value: (
-        <Tag color={vaccinationResult.status == null ? "red" : "blue"} style={{ textTransform: "capitalize" }}>
-          {vaccinationResult.status == null ? "Not Qualified" : vaccinationResult.status}
-        </Tag>
+      value: showValue(
+        vaccinationResult.status == null
+          ? null
+          : <Tag color="blue" style={{ textTransform: "capitalize" }}>
+              {vaccinationResult.status}
+            </Tag>
       ),
     },
     {
       key: "injectionSite",
       label: "Injection Site",
-      value: vaccinationResult.injectionSite ?? "Not Qualified",
+      value: showValue(vaccinationResult.injectionSite),
     },
   ];
 
@@ -134,53 +194,47 @@ const DetailModal = ({ open, onCancel, student }) => {
     {
       key: "observationStartTime",
       label: "Observation Start Time",
-      value: observation?.observationStartTime ?? "Not Qualified",
+      value: showValue(observation?.observationStartTime),
     },
     {
       key: "observationEndTime",
       label: "Observation End Time",
-      value: observation?.observationEndTime ?? "Not Qualified",
+      value: showValue(observation?.observationEndTime),
     },
     {
       key: "reactionStartTime",
       label: "Reaction Start Time",
-      value: observation?.reactionStartTime ?? "Not Qualified",
+      value: showValue(observation?.reactionStartTime),
     },
     {
       key: "reactionType",
       label: "Reaction Type",
-      value: observation?.reactionType ?? "Not Qualified",
+      value: showValue(observation?.reactionType),
     },
     {
       key: "severityLevel",
       label: "Severity Level",
-      value: (
-        <Tag color={observation?.severityLevel == null ? "red" : "red"}>
-          {observation?.severityLevel == null
-            ? "Not Qualified"
-            : observation?.severityLevel}
-        </Tag>
-      ),
+      value: showValue(observation?.severityLevel),
     },
     {
       key: "immediateReaction",
       label: "Immediate Reaction",
-      value: observation?.immediateReaction ?? "Not Qualified",
+      value: showValue(observation?.immediateReaction),
     },
     {
       key: "intervention",
       label: "Intervention",
-      value: observation?.intervention ?? "Not Qualified",
+      value: showValue(observation?.intervention),
     },
     {
       key: "observedBy",
       label: "Observed By",
-      value: observation?.observedBy ?? "Not Qualified",
+      value: showValue(observation?.observedBy),
     },
     {
       key: "notes",
       label: "Notes",
-      value: observation?.notes ?? "Not Qualified",
+      value: showValue(observation?.notes),
     },
   ];
 
@@ -271,8 +325,10 @@ const DetailModal = ({ open, onCancel, student }) => {
               rowKey="key"
               bordered
             />
+          ) : failedResultIds.includes(student?.vaccinationResultId) ? (
+            <Tag color="red" style={{ fontSize: 16, padding: "4px 16px" }}>Failed</Tag>
           ) : (
-            <p>Is it not qualified.</p>
+            <Tag color="orange" style={{ fontSize: 16, padding: "4px 16px" }}>Not Qualified</Tag>
           )}
         </Card>
       ) : (

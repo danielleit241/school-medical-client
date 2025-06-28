@@ -755,7 +755,10 @@ const Dashboard = () => {
   let chartDataArr = [];
   let chartColorsArr = [];
   if (tab === "medicalEvents") {
-    chartLabels = details.map((item) => item.name);
+    chartLabels = details.map((item) => {
+    const idx = item.name.indexOf("Events");
+    return idx !== -1 ? item.name.slice(0, idx).trim() : item.name;
+  });
     chartDataArr = details.map((item) => item.count || 0);
     chartColorsArr = details.map((item) => {
       const status = normalizeStatus(item.name);
