@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 // API public - không cần token
 const axiosInstance = axios.create({
-  baseURL: "https://localhost:7009",
+  baseURL: baseURL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -20,7 +22,7 @@ axiosInstance.interceptors.request.use(
 );
 
 export const axiosFormData = axios.create({
-  baseURL: "https://localhost:7009/api",
+  baseURL: `${baseURL}/api`,
 });
 
 axiosFormData.interceptors.request.use(
@@ -35,16 +37,4 @@ axiosFormData.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-
 export default axiosInstance;
-
-
-// API protected - tự động đính kèm token Authorization
-// const axiosPrivate = axios.create({
-//   baseURL: "https://localhost:7009/api",
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-// });
-
-// // Interceptor tự động đính kèm token từ localStorage vào header
