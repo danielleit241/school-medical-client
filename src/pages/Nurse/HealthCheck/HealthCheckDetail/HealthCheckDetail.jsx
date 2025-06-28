@@ -11,6 +11,7 @@ import {
   CheckCircleTwoTone,
   ExclamationCircleTwoTone,
   CloseCircleTwoTone,
+  CloseSquareTwoTone, // thêm icon đỏ cho Failed
 } from "@ant-design/icons";
 
 const HealthCheckDetail = () => {
@@ -84,13 +85,12 @@ const HealthCheckDetail = () => {
         const res = await axiosInstance.get(
           `/api/v2/nurses/${staffNurseId}/health-check-rounds/${roundId}/students`
         );
-        // Đếm số lượng student có status "done" hoặc "cancel"
         const studentsArr = Array.isArray(res.data) ? res.data : [];
         let count = 0;
         for (const item of studentsArr) {
           const status =
             statusMap[item.studentsOfRoundResponse?.healthCheckResultId];
-          if (status === "done") count++;
+          if (status === "done" || status === "failed") count++;
         }
         setCompletedCount(count);
       } catch {
@@ -137,11 +137,12 @@ const HealthCheckDetail = () => {
       const res = await axiosInstance.get(
         `/api/health-check-results/${student.healthCheckResultId}`
       );
-      console.log("Health check result response:", res.data.datePerformed);
       if (!res.data.datePerformed) {
         return "not_recorded";
       }
-      return "done";
+      if (res.data.status === "Failed") return "failed";
+      if (res.data.status === "Completed") return "done";
+      return "not_recorded";
     } catch (error) {
       console.error("Error checking health check result:", error);
       return "not_recorded";
@@ -163,6 +164,7 @@ const HealthCheckDetail = () => {
     const status = statusMap[student.healthCheckResultId];
     if (status === "not_recorded") return "not_recorded";
     if (status === "done") return "done";
+    if (status === "failed") return "failed"; 
   };
 
   const openRecordModal = (student) => {
@@ -200,7 +202,6 @@ const HealthCheckDetail = () => {
     );
   })();
 
-  // Hàm render status đẹp như mẫu, dùng icon TwoTone
   const statusTag = (status) => {
     if (status === "done") {
       return (
@@ -232,6 +233,40 @@ const HealthCheckDetail = () => {
             }}
           >
             Completed
+          </span>
+        </span>
+      );
+    }
+    if (status === "failed") {
+      return (
+        <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
+          <CloseCircleTwoTone
+            twoToneColor="#ef4444"
+            style={{
+              background: "#fff",
+              borderRadius: "50%",
+              fontSize: 18,
+              padding: 2,
+              marginRight: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          />
+          <span
+            style={{
+              background: "#fee2e2",
+              color: "#ef4444",
+              borderRadius: 8,
+              padding: "2px 12px",
+              fontWeight: 600,
+              fontSize: 15,
+              display: "inline-block",
+              minWidth: 90,
+              textAlign: "center",
+            }}
+          >
+            Failed
           </span>
         </span>
       );
@@ -304,7 +339,7 @@ const HealthCheckDetail = () => {
           );
         }
 
-        if (status === "done") {
+        if (status === "done" || status === "failed") {
           return (
             <Button
               type="primary"
@@ -320,15 +355,15 @@ const HealthCheckDetail = () => {
     },
   ];
 
-  // Thống kê số lượng theo trạng thái
   const statusSummary = students.reduce(
     (acc, student) => {
       const status = getStatus(student);
       if (status === "done") acc.done += 1;
+      else if (status === "failed") acc.failed += 1;
       else acc.notYet += 1;
       return acc;
     },
-    {done: 0, notYet: 0}
+    {done: 0, failed: 0, notYet: 0}
   );
 
   const filteredStudents = Array.isArray(students)
@@ -381,6 +416,26 @@ const HealthCheckDetail = () => {
               {statusSummary.notYet}
             </div>
             <div style={{color: "#d48806", fontWeight: 500}}>Not Yet</div>
+          </div>
+        </div>
+        <div
+          style={{
+            flex: 1,
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <CloseCircleTwoTone twoToneColor="#ef4444" style={{fontSize: 32}} />
+          <div>
+            <div style={{fontWeight: 700, fontSize: 22}}>
+              {statusSummary.failed}
+            </div>
+            <div style={{color: "#ef4444", fontWeight: 500}}>Failed</div>
           </div>
         </div>
       </div>

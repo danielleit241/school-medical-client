@@ -31,7 +31,7 @@ const DetailCampaign = () => {
   const [selectedRound, setSelectedRound] = useState(null);
   const [qualifiedMap] = useState({});
   const [loadingMap] = useState({});
-  const [status, setStatus] = useState(false); // trạng thái round
+  const [status, setStatus] = useState(false); 
   const [completedCount, setCompletedCount] = useState(0);
 
   const [dateRange, setDateRange] = useState({start: null, end: null});
@@ -170,7 +170,6 @@ const DetailCampaign = () => {
         `/api/vaccination-results/${student.vaccinationResultId}`
       );
       const result = res.data;
-      // Nếu status là Failed hoặc resultResponse.status là Failed thì trả về failed
       if (
         (result.status && result.status.toLowerCase() === "failed") ||
         (result.resultResponse &&
@@ -247,7 +246,6 @@ const DetailCampaign = () => {
     });
   };
 
-  // Thống kê số lượng theo trạng thái
   const statusSummary = students.reduce(
     (acc, student) => {
       const status = getStatus(student);
@@ -455,7 +453,6 @@ const DetailCampaign = () => {
         const loading = loadingMap[id];
         const status = getStatus(student);
 
-        // Nếu không đạt yêu cầu ("cancel") thì vẫn cho hiện nút Detail
         if (status === "cancel" || status === "failed" || status === "done") {
           return (
             <Button

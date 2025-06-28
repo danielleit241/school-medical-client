@@ -40,7 +40,6 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
     fetchNurseName();
   }, [nurseId]);
 
-  // Fetch vaccinatedDate khi mở modal
   useEffect(() => {
     const fetchVaccinatedDate = async () => {
       if (!student?.vaccinationResultId) {
@@ -70,7 +69,7 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
   const handleFinish = async (values) => {
     setLoading(true);
     try {
-      const baseDate = dayjs(vaccinatedDate); // ngày tiêm chủng
+      const baseDate = dayjs(vaccinatedDate); 
 
       const observationStartTime = baseDate
         .hour(values.observationStartTime.hour())

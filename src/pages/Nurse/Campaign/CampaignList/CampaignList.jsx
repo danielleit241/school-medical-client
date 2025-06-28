@@ -78,12 +78,10 @@ const CampaignList = () => {
             await Promise.all(
               vaccinationResultIds.map(async (vaccinationResultId) => {
                 try {
-                  // Gọi API lấy chi tiết result
                   const result = await axiosInstance.get(
                     `/api/vaccination-results/${vaccinationResultId}`
                   );
                   const resultRes = result.data;
-                  // Nếu resultResponse.status === "Failed" thì cũng tính là completed
                   if (
                     resultRes &&
                     resultRes.resultResponse &&
@@ -92,7 +90,6 @@ const CampaignList = () => {
                     completed += 1;
                     return;
                   }
-                  // Nếu đã có observation và reactionType != null thì cũng tính là completed
                   if (
                     resultRes &&
                     resultRes.vaccinationObservation &&
@@ -101,7 +98,6 @@ const CampaignList = () => {
                     completed += 1;
                     return;
                   }
-                  // Nếu health-qualified là false cũng tính là completed
                   try {
                     const qualifiedRes = await axiosInstance.get(
                       `/api/vaccination-results/${vaccinationResultId}/health-qualified`
@@ -114,10 +110,10 @@ const CampaignList = () => {
                       completed += 1;
                     }
                   } catch {
-                    // Bỏ qua nếu lỗi
+                    return;
                   }
                 } catch {
-                  // Bỏ qua nếu lỗi
+                  return
                 }
               })
             );
@@ -148,13 +144,11 @@ const CampaignList = () => {
         `/api/vaccination-rounds/${roundId}/finished`,
         true
       );
-      // Sau khi hoàn thành, reload rounds
       setRounds((prev) =>
         prev.map((r) => (r.roundId === roundId ? {...r, status: true} : r))
       );
     } catch {
       console.error("Error completing round:", roundId);
-      // Có thể hiển thị thông báo lỗi cho người dùng ở đây
     }
     setLoadingComplete((prev) => ({...prev, [roundId]: false}));
   };
@@ -350,12 +344,12 @@ const CampaignList = () => {
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 36, // tăng gap để dàn đều hơn theo chiều ngang
+                          gap: 36, 
                           margin: "10px 0 0 0",
                           flexWrap: "wrap",
                           width: "100%",
                           boxSizing: "border-box",
-                          justifyContent: "flex-start", // dàn đều sang ngang
+                          justifyContent: "flex-start", 
                         }}
                       >
                         <div

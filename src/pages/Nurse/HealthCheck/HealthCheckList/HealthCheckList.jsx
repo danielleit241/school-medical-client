@@ -114,7 +114,7 @@ const HealthCheckList = () => {
                     `/api/health-check-results/${healthCheckResultId}`
                   );
                   const status = resultRes.data?.status;
-                  if (status === true || status === "Completed") {
+                  if (status === true || status === "Completed" || status === "Failed") {
                     completed += 1;
                   }
                 } catch {
