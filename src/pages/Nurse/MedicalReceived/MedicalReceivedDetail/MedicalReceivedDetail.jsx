@@ -3,13 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import {
   Card,
-  Descriptions,
   Tag,
   Spin,
   Button,
   Input,
-  Row,
-  Col,
   Avatar,
   Divider,
 } from "antd";

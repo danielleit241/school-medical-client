@@ -16,7 +16,9 @@ import {
   ArrowLeftOutlined,
   SearchOutlined,
   FileExcelOutlined,
+  DownloadOutlined
 } from "@ant-design/icons";
+import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
 import axiosInstance from "../../../../api/axios";
@@ -39,6 +41,7 @@ const StudentHealthCheckList = () => {
   const [resultModalVisible, setResultModalVisible] = useState(false);
   const [resultDetail, setResultDetail] = useState(null);
   const [resultLoading, setResultLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
 
   // Function to fetch students with search
   const fetchStudents = useCallback(
@@ -129,6 +132,42 @@ const StudentHealthCheckList = () => {
       })
       .finally(() => {
         setResultLoading(false);
+      });
+  };
+
+  // Download result as Excel file
+  const handleDownloadResult = () => {
+    if (!resultDetail?.resultId) {
+      message.error("Result ID not found");
+      return;
+    }
+    setDownloadLoading(true);
+    axiosInstance
+      .get(`/api/health-check-results/export-excel`, {
+        params: {id: resultDetail.resultId},
+        responseType: "blob",
+      })
+      .then((res) => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "HealthCheckResult.xlsx");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        message.success("Download successful!");
+        Swal.fire({
+        icon: "success",
+        title: "Download successful!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      })
+      .catch(() => {
+        message.error("Download failed");
+      })
+      .finally(() => {
+        setDownloadLoading(false);
       });
   };
 
@@ -299,6 +338,17 @@ const StudentHealthCheckList = () => {
               setResultDetail(null);
             }}
             footer={[
+              <Button
+                key="download"
+                icon={<DownloadOutlined />}
+                type="primary"
+                onClick={handleDownloadResult}
+                disabled={!resultDetail?.resultId}
+                loading={downloadLoading}
+                style={{background: "#52c41a", borderColor: "#52c41a"}}
+              >
+                Download
+              </Button>,
               <Button
                 key="close"
                 onClick={() => {

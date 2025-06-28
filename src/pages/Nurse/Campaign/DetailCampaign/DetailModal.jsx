@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Spin, Typography, Tag, Divider, Card, Row, Col } from "antd";
+import { Modal, Spin, Typography, Tag, Divider, Card, Table } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import axiosInstance from '../../../../api/axios';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const DetailModal = ({ open, onCancel, student }) => {
   const [detailData, setDetailData] = useState(null);
@@ -11,63 +11,204 @@ const DetailModal = ({ open, onCancel, student }) => {
   const [healthDeclaration, setHealthDeclaration] = useState(null);
   const [nurseName, setNurseName] = useState("");
 
-
-
   useEffect(() => {
-  const fetchHealthDeclaration = async () => {
-    if (open && student?.studentsOfRoundResponse?.studentId) {
-      try {
-        const response = await axiosInstance.get(
-          `/api/students/${student.studentsOfRoundResponse.studentId}/health-declarations`
-        );
-        setHealthDeclaration(response.data?.healthDeclaration || null);
-        console.log("Health Declaration:", response.data?.healthDeclaration);
-      } catch (error) {
-        console.error("Error fetching health declaration:", error);
-        setHealthDeclaration(null);
-      } 
-    }
-  };
-  fetchHealthDeclaration();
-}, [open, student?.studentsOfRoundResponse?.studentId]);
+    const fetchHealthDeclaration = async () => {
+      if (open && student?.studentsOfRoundResponse?.studentId) {
+        try {
+          const response = await axiosInstance.get(
+            `/api/students/${student.studentsOfRoundResponse.studentId}/health-declarations`
+          );
+          setHealthDeclaration(response.data?.healthDeclaration || null);
+        } catch (error) {
+          console.error("Error fetching health declaration:", error);
+          setHealthDeclaration(null);
+        }
+      }
+    };
+    fetchHealthDeclaration();
+  }, [open, student?.studentsOfRoundResponse?.studentId]);
 
   useEffect(() => {
     if (!open && !student?.vaccinationResultId) {
       setLoading(false);
-      setDetailData(null);     
+      setDetailData(null);
     }
     setLoading(true);
-    try {
-      const fetchDetail = async () => {
+    const fetchDetail = async () => {
+      try {
         if (!student?.vaccinationResultId) return;
         const response = await axiosInstance.get(`/api/vaccination-results/${student?.vaccinationResultId}`);
         setDetailData(response.data);
-        console.log("Vaccination Result Detail:", response.data);
         const res = await axiosInstance.get(`/api/user-profile/${response.data.resultResponse.recorderId}`);
         setNurseName(res.data?.fullName || "Unknown Nurse");
+      } catch (error) {
+        console.error("Error fetching vaccination result detail:", error);
+        setDetailData(null);
+      } finally {
         setLoading(false);
-      };
-      fetchDetail();
-    } catch (error) {
-      console.error("Error fetching vaccination result detail:", error);
-      setDetailData(null);
-    }
+      }
+    };
+    fetchDetail();
   }, [open, student?.vaccinationResultId]);
+
+  // Table data
+  const healthProfileData = [
+    {
+      key: "chronicDiseases",
+      label: "Chronic Diseases",
+      value: healthDeclaration?.chronicDiseases ?? "Not Qualified",
+    },
+    {
+      key: "drugAllergies",
+      label: "Drug Allergies",
+      value: healthDeclaration?.drugAllergies ?? "Not Qualified",
+    },
+    {
+      key: "foodAllergies",
+      label: "Food Allergies",
+      value: healthDeclaration?.foodAllergies ?? "Not Qualified",
+    },
+  ];
+
+  const vaccinationResult = detailData?.resultResponse || {};
+  const vaccinationResultData = [
+    {
+      key: "nurseName",
+      label: "Nurse Name",
+      value: nurseName || "Not Qualified",
+    },
+    {
+      key: "vaccinatedDate",
+      label: "Vaccinated Date",
+      value: vaccinationResult.vaccinatedDate ?? "Not Qualified",
+    },
+    {
+      key: "notes",
+      label: "Notes",
+      value: detailData?.notes ?? "Not Qualified",
+    },
+    {
+      key: "parentConfirmed",
+      label: "Parent Confirmed",
+      value: (
+        <Tag color={vaccinationResult.parentConfirmed === null ? "red" : vaccinationResult.parentConfirmed ? "green" : "red"}>
+          {vaccinationResult.parentConfirmed === null
+            ? "Not Qualified"
+            : vaccinationResult.parentConfirmed
+            ? "Yes"
+            : "No"}
+        </Tag>
+      ),
+    },
+    {
+      key: "vaccinated",
+      label: "Vaccinated",
+      value: (
+        <Tag color={vaccinationResult.vaccinated === null ? "red" : vaccinationResult.vaccinated ? "green" : "red"}>
+          {vaccinationResult.vaccinated === null
+            ? "Not Qualified"
+            : vaccinationResult.vaccinated
+            ? "Yes"
+            : "No"}
+        </Tag>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      value: (
+        <Tag color={vaccinationResult.status == null ? "red" : "blue"} style={{ textTransform: "capitalize" }}>
+          {vaccinationResult.status == null ? "Not Qualified" : vaccinationResult.status}
+        </Tag>
+      ),
+    },
+    {
+      key: "injectionSite",
+      label: "Injection Site",
+      value: vaccinationResult.injectionSite ?? "Not Qualified",
+    },
+  ];
+
+  const observation = detailData?.vaccinationObservation;
+  const observationData = [
+    {
+      key: "observationStartTime",
+      label: "Observation Start Time",
+      value: observation?.observationStartTime ?? "Not Qualified",
+    },
+    {
+      key: "observationEndTime",
+      label: "Observation End Time",
+      value: observation?.observationEndTime ?? "Not Qualified",
+    },
+    {
+      key: "reactionStartTime",
+      label: "Reaction Start Time",
+      value: observation?.reactionStartTime ?? "Not Qualified",
+    },
+    {
+      key: "reactionType",
+      label: "Reaction Type",
+      value: observation?.reactionType ?? "Not Qualified",
+    },
+    {
+      key: "severityLevel",
+      label: "Severity Level",
+      value: (
+        <Tag color={observation?.severityLevel == null ? "red" : "red"}>
+          {observation?.severityLevel == null
+            ? "Not Qualified"
+            : observation?.severityLevel}
+        </Tag>
+      ),
+    },
+    {
+      key: "immediateReaction",
+      label: "Immediate Reaction",
+      value: observation?.immediateReaction ?? "Not Qualified",
+    },
+    {
+      key: "intervention",
+      label: "Intervention",
+      value: observation?.intervention ?? "Not Qualified",
+    },
+    {
+      key: "observedBy",
+      label: "Observed By",
+      value: observation?.observedBy ?? "Not Qualified",
+    },
+    {
+      key: "notes",
+      label: "Notes",
+      value: observation?.notes ?? "Not Qualified",
+    },
+  ];
+
+  const columns = [
+    {
+      title: "Field",
+      dataIndex: "label",
+      key: "label",
+      width: 200,
+      render: (text) => <b>{text}</b>,
+    },
+    {
+      title: "Value",
+      dataIndex: "value",
+      key: "value",
+    },
+  ];
 
   return (
     <Modal
       open={open}
       title={
-        <Row align="middle" gutter={12}>
-          <Col>
-            <InfoCircleOutlined style={{ color: "#1677ff", fontSize: 24 }} />
-          </Col>
-          <Col>
-            <Title level={4} style={{ margin: 0, color: "#1677ff" }}>
-              Vaccination Result Detail
-            </Title>
-          </Col>
-        </Row>
+        <span>
+          <InfoCircleOutlined style={{ color: "#1677ff", fontSize: 24, marginRight: 8 }} />
+          <Title level={4} style={{ margin: 0, color: "#1677ff", display: "inline" }}>
+            Vaccination Result Detail
+          </Title>
+        </span>
       }
       onCancel={onCancel}
       footer={null}
@@ -77,7 +218,7 @@ const DetailModal = ({ open, onCancel, student }) => {
         background: "#f4f8fb",
         padding: 32,
       }}
-      width={600}
+      width={650}
       centered
     >
       {loading ? (
@@ -90,78 +231,49 @@ const DetailModal = ({ open, onCancel, student }) => {
             borderRadius: 16,
             boxShadow: "0 4px 16px #e6f7ff",
           }}
-          bodyStyle={{ padding: 28 }}
+          bodyStyle={{ padding: 20 }}
         >
-          <Title level={5} style={{ marginBottom: 16, color: "#52c41a" }}>
-            General Information
+          <Title level={5} style={{ marginBottom: 12, color: "#52c41a" }}>
+            Health Profile
           </Title>
-          <Row gutter={[0, 12]}>
-            <Col span={12}><Text type="secondary">Chronic Diseases:</Text></Col>
-            <Col span={12}><Text>{healthDeclaration?.chronicDiseases || "N/A"}</Text></Col>
-            <Col span={12}><Text type="secondary">Drug Allergies:</Text></Col>
-            <Col span={12}><Text>{healthDeclaration?.drugAllergies || "N/A"}</Text></Col>
-            <Col span={12}><Text type="secondary">Food Allergies:</Text></Col>
-            <Col span={12}><Text>{healthDeclaration?.foodAllergies || "N/A"}</Text></Col>
-          </Row>
-          <Row>
-            <Col span={12}><Text type="secondary">Nurse Name:</Text></Col>
-            <Col span={12}><Text>{nurseName || "Unknown Nurse"}</Text></Col>
-          </Row>
-          <Row gutter={[0, 12]}>                                   
-            <Col span={12}><Text type="secondary">Vaccinated Date:</Text></Col>
-            <Col span={12}><Text>{detailData.resultResponse.vaccinatedDate}</Text></Col>
-            <Col span={12}><Text type="secondary">Notes:</Text></Col>
-            <Col span={12}><Text>{detailData.notes || <span style={{ color: "#aaa" }}>No notes</span>}</Text></Col>          
-            <Col span={12}><Text type="secondary">Parent Confirmed:</Text></Col>
-            <Col span={12}>
-              <Tag color={detailData.resultResponse.parentConfirmed ? "green" : "red"}>
-                {detailData.resultResponse.parentConfirmed ? "Yes" : "No"}
-              </Tag>
-            </Col>
-            <Col span={12}><Text type="secondary">Vaccinated:</Text></Col>
-            <Col span={12}>
-              <Tag color={detailData.resultResponse.vaccinated ? "green" : "red"}>
-                {detailData.resultResponse.vaccinated ? "Yes" : "No"}
-              </Tag>
-            </Col>
-            <Col span={12}><Text type="secondary">Status:</Text></Col>
-            <Col span={12}>
-              <Tag color="blue" style={{ textTransform: "capitalize" }}>
-                {detailData.resultResponse.status}
-              </Tag>
-            </Col>
-            <Col span={12}><Text type="secondary">Injection Site:</Text></Col>
-            <Col span={12}><Text>{detailData.resultResponse.injectionSite}</Text></Col>
-          </Row>
+          <Table
+            columns={columns}
+            dataSource={healthProfileData}
+            pagination={false}
+            size="small"
+            rowKey="key"
+            style={{ marginBottom: 24 }}
+            bordered
+          />
 
-          {detailData.vaccinationObservation && (
-            <>
-              <Divider orientation="left" style={{ marginTop: 32 }}>
-                <b>Observation</b>
-              </Divider>
-              <Row gutter={[0, 12]}>
-                <Col span={12}><Text type="secondary">Observation Start Time:</Text></Col>
-                <Col span={12}><Text>{detailData.vaccinationObservation.observationStartTime}</Text></Col>
-                <Col span={12}><Text type="secondary">Observation End Time:</Text></Col>
-                <Col span={12}><Text>{detailData.vaccinationObservation.observationEndTime}</Text></Col>
-                <Col span={12}><Text type="secondary">Reaction Start Time:</Text></Col>
-                <Col span={12}><Text>{detailData.vaccinationObservation.reactionStartTime}</Text></Col>
-                <Col span={12}><Text type="secondary">Reaction Type:</Text></Col>
-                <Col span={12}><Text>{detailData.vaccinationObservation.reactionType}</Text></Col>
-                <Col span={12}><Text type="secondary">Severity Level:</Text></Col>
-                <Col span={12}><Tag color="red">{detailData.vaccinationObservation.severityLevel}</Tag></Col>
-                <Col span={12}><Text type="secondary">Immediate Reaction:</Text></Col>
-                <Col span={12}><Text>{detailData.vaccinationObservation.immediateReaction}</Text></Col>
-                <Col span={12}><Text type="secondary">Intervention:</Text></Col>
-                <Col span={12}><Text>{detailData.vaccinationObservation.intervention}</Text></Col>
-                <Col span={12}><Text type="secondary">Observed By:</Text></Col>
-                <Col span={12}><Text>{detailData.vaccinationObservation.observedBy}</Text></Col>
-                <Col span={12}><Text type="secondary">Notes:</Text></Col>
-                <Col span={12}><Text>{detailData.vaccinationObservation.notes}</Text></Col>
-              </Row>
-            </>
+          <Title level={5} style={{ marginBottom: 12, color: "#1677ff" }}>
+            Vaccination Result
+          </Title>
+          <Table
+            columns={columns}
+            dataSource={vaccinationResultData}
+            pagination={false}
+            size="small"
+            rowKey="key"
+            style={{ marginBottom: 24 }}
+            bordered
+          />
+
+          <Title level={5} style={{ marginBottom: 12, color: "#faad14" }}>
+            Observation
+          </Title>
+          {detailData.vaccinationObservation ? (
+            <Table
+              columns={columns}
+              dataSource={observationData}
+              pagination={false}
+              size="small"
+              rowKey="key"
+              bordered
+            />
+          ) : (
+            <p>Is it not qualified.</p>
           )}
-          
         </Card>
       ) : (
         <p>No data.</p>

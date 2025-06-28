@@ -16,7 +16,9 @@ import {
   ArrowLeftOutlined,
   SearchOutlined,
   FileExcelOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
+import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
 import axiosInstance from "../../../../api/axios";
@@ -38,6 +40,7 @@ const StudentVaccineList = () => {
   const [resultModalVisible, setResultModalVisible] = useState(false);
   const [resultDetail, setResultDetail] = useState(null);
   const [resultLoading, setResultLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false); // Thêm state cho nút tải excel
 
   // Function to fetch students with search
   const fetchStudents = useCallback(
@@ -101,6 +104,45 @@ const StudentVaccineList = () => {
   // Export to Excel (placeholder function)
   const handleExport = () => {
     message.info("Export functionality will be implemented here");
+  };
+
+  // Hàm tải file excel
+  const handleDownloadExcel = async () => {
+    if (!resultDetail?.resultResponse?.vaccinationResultId) {
+      message.error("Vaccination result ID not found");
+      return;
+    }
+    setDownloading(true);
+    try {
+      const response = await axiosInstance.get(
+        "/api/vaccination-results/export-excel",
+        {
+          params: {
+            vaccinationResultId: resultDetail.resultResponse.vaccinationResultId,
+          },
+          responseType: "blob",
+        }
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "vaccination-result.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      Swal.fire({
+        icon: "success",
+        title: "Download successful!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } catch (err) {
+      console.error("Error downloading Excel file:", err);
+      message.error("Download failed!");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   // Handle view detail of vaccination result
@@ -296,6 +338,17 @@ const StudentVaccineList = () => {
             }}
             footer={[
               <Button
+                key="download"
+                icon={<DownloadOutlined />}
+                loading={downloading}
+                onClick={handleDownloadExcel}
+                disabled={!resultDetail?.resultResponse?.vaccinationResultId}
+                type="primary"
+                style={{background: "#52c41a", borderColor: "#52c41a"}}
+              >
+                Download
+              </Button>,
+              <Button
                 key="close"
                 onClick={() => {
                   setResultModalVisible(false);
@@ -342,6 +395,8 @@ const StudentVaccineList = () => {
                         ? "green"
                         : resultDetail.resultResponse.status === "Pending"
                         ? "orange"
+                        : resultDetail.resultResponse.status === "Not Qualified"
+                        ? "red"
                         : "blue"
                     }
                   >
@@ -351,35 +406,104 @@ const StudentVaccineList = () => {
                 <Descriptions.Item label="Vaccinated">
                   <Tag
                     color={
-                      resultDetail.resultResponse.vaccinated
+                      resultDetail.resultResponse.vaccinated === null
+                        ? "red"
+                        : resultDetail.resultResponse.vaccinated
                         ? "green"
                         : "orange"
                     }
                   >
-                    {resultDetail.resultResponse.vaccinated ? "Yes" : "No"}
+                    {resultDetail.resultResponse.status === "Not Qualified"
+                      ? "Not Qualified"
+                      : resultDetail.resultResponse.vaccinated === null
+                      ? "Not Qualified"
+                      : resultDetail.resultResponse.vaccinated
+                      ? "Yes"
+                      : "No"}
                   </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="Vaccinated Date">
-                  {resultDetail.resultResponse.vaccinatedDate
+                  {resultDetail.resultResponse.status === "Not Qualified"
+                    ? "Not Qualified"
+                    : resultDetail.resultResponse.vaccinatedDate
                     ? dayjs(resultDetail.resultResponse.vaccinatedDate).format(
                         "DD/MM/YYYY"
                       )
                     : "Not vaccinated yet"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Vaccinated Time">
-                  {resultDetail.resultResponse.vaccinatedTime ||
-                    "Not vaccinated yet"}
+                  {resultDetail.resultResponse.status === "Not Qualified"
+                    ? "Not Qualified"
+                    : resultDetail.resultResponse.vaccinatedTime ||
+                      "Not vaccinated yet"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Injection Site">
-                  {resultDetail.resultResponse.injectionSite || "Not specified"}
+                  {resultDetail.resultResponse.status === "Not Qualified"
+                    ? "Not Qualified"
+                    : resultDetail.resultResponse.injectionSite || "Not specified"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Observation">
-                  {resultDetail.vaccinationObservation
-                    ? resultDetail.vaccinationObservation
+                  {resultDetail.resultResponse.status === "Not Qualified"
+                    ? "Not Qualified"
+                    : resultDetail.vaccinationObservation
+                    ? (
+                        <div>
+                          <div>
+                            <b>Observation Start Time:</b>{" "}
+                            {resultDetail.vaccinationObservation.observationStartTime ??
+                              "Not Qualified"}
+                          </div>
+                          <div>
+                            <b>Observation End Time:</b>{" "}
+                            {resultDetail.vaccinationObservation.observationEndTime ??
+                              "Not Qualified"}
+                          </div>
+                          <div>
+                            <b>Reaction Start Time:</b>{" "}
+                            {resultDetail.vaccinationObservation.reactionStartTime ??
+                              "Not Qualified"}
+                          </div>
+                          <div>
+                            <b>Reaction Type:</b>{" "}
+                            {resultDetail.vaccinationObservation.reactionType ??
+                              "Not Qualified"}
+                          </div>
+                          <div>
+                            <b>Severity Level:</b>{" "}
+                            <Tag color={resultDetail.vaccinationObservation.severityLevel == null ? "red" : "red"}>
+                              {resultDetail.vaccinationObservation.severityLevel == null
+                                ? "Not Qualified"
+                                : resultDetail.vaccinationObservation.severityLevel}
+                            </Tag>
+                          </div>
+                          <div>
+                            <b>Immediate Reaction:</b>{" "}
+                            {resultDetail.vaccinationObservation.immediateReaction ??
+                              "Not Qualified"}
+                          </div>
+                          <div>
+                            <b>Intervention:</b>{" "}
+                            {resultDetail.vaccinationObservation.intervention ??
+                              "Not Qualified"}
+                          </div>
+                          <div>
+                            <b>Observed By:</b>{" "}
+                            {resultDetail.vaccinationObservation.observedBy ??
+                              "Not Qualified"}
+                          </div>
+                          <div>
+                            <b>Notes:</b>{" "}
+                            {resultDetail.vaccinationObservation.notes ??
+                              "Not Qualified"}
+                          </div>
+                        </div>
+                      )
                     : "No observations recorded"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Notes">
-                  {resultDetail.resultResponse.notes || "No notes"}
+                  {resultDetail.resultResponse.status === "Not Qualified"
+                    ? "Not Qualified"
+                    : resultDetail.resultResponse.notes || "No notes"}
                 </Descriptions.Item>
               </Descriptions>
             ) : (
