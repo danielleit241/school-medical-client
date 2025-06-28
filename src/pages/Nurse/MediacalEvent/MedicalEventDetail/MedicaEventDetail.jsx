@@ -380,7 +380,7 @@ const MedicaEventDetail = () => {
                     </span>
                   </div>
                   <div style={{ fontSize: 13, color: "#64748b", marginBottom: 2 }}>
-                    <b>Item ID:</b> {item.itemId}
+                    <b>Item Name:</b> {item.itemName}
                   </div>
                   <div style={{ fontSize: 13, color: "#059669" }}>
                     <b>Quantity:</b> {item.requestQuantity}

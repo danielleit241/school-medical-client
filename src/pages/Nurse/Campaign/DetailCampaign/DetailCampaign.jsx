@@ -412,9 +412,22 @@ const DetailCampaign = () => {
         const loading = loadingMap[id];
         const status = getStatus(student);
 
+        // Nếu không đạt yêu cầu ("cancel") thì vẫn cho hiện nút Detail
+        if (status === "cancel") {
+          return (
+            <Button
+              type="primary"
+              onClick={() => openDetailModal(student)}
+              disabled={loading || isOutOfRange}
+            >
+              Detail
+            </Button>
+          );
+        }
+
         if (qualified === false) {
           return (
-            <i style={{color: "#faad14"}}>Does not meet the requirements</i>
+            <i style={{ color: "#faad14" }}>Does not meet the requirements</i>
           );
         }
 

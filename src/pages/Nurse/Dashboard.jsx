@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Calendar,
   Users,
@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import axiosInstance from "../../api/axios";
 import dayjs from "dayjs";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 import {
   Chart as ChartJS,
   BarElement,
@@ -20,14 +20,14 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import {Divider, Tag} from "antd";
+import { Divider, Tag, Modal, Table, Button } from "antd";
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const TABS = [
-  {key: "rounds", label: "Rounds", icon: Syringe},
-  {key: "appointments", label: "Appointment", icon: Calendar},
-  {key: "medicalRegistrations", label: "Medical Registration", icon: Users},
-  {key: "medicalEvents", label: "Medical Event", icon: Activity},
+  { key: "rounds", label: "Rounds", icon: Syringe },
+  { key: "appointments", label: "Appointment", icon: Calendar },
+  { key: "medicalRegistrations", label: "Medical Registration", icon: Users },
+  { key: "medicalEvents", label: "Medical Event", icon: Activity },
 ];
 
 const STATUS_COLOR_MAP = {
@@ -40,9 +40,7 @@ const STATUS_COLOR_MAP = {
 };
 
 const LoadingSpinner = () => (
-  <div
-    style={{display: "flex", alignItems: "center", justifyContent: "center"}}
-  >
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
     <div
       style={{
         width: "24px",
@@ -62,9 +60,8 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// SummaryCard: style inline
 // eslint-disable-next-line no-unused-vars
-const SummaryCard = ({title, count, loading, icon: Icon, gradient}) => {
+const SummaryCard = ({ title, count, loading, icon: Icon, gradient }) => {
   const gradientStyles = {
     "from-blue-500 to-blue-600":
       "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
@@ -78,28 +75,18 @@ const SummaryCard = ({title, count, loading, icon: Icon, gradient}) => {
       style={{
         position: "relative",
         overflow: "hidden",
-        borderRadius: "16px", // giảm từ 20px
+        borderRadius: "16px",
         background:
           gradientStyles[gradient] ||
           gradientStyles["from-blue-500 to-blue-600"],
-        padding: "24px", // giảm từ 32px
+        padding: "24px",
         color: "white",
         boxShadow:
-          "0 6px 12px -3px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04)", // nhẹ hơn
+          "0 6px 12px -3px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04)",
         transition: "all 0.3s",
-        minHeight: "100px", // giảm từ 120px
+        minHeight: "100px",
         cursor: "pointer",
-        marginBottom: "0", // loại bỏ margin thừa
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-4px)";
-        e.currentTarget.style.boxShadow =
-          "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow =
-          "0 6px 12px -3px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04)";
+        marginBottom: "0",
       }}
     >
       <div
@@ -121,7 +108,7 @@ const SummaryCard = ({title, count, loading, icon: Icon, gradient}) => {
           >
             {title}
           </p>
-          <div style={{fontSize: "26px", fontWeight: 700, marginTop: "6px"}}>
+          <div style={{ fontSize: "26px", fontWeight: 700, marginTop: "6px" }}>
             {loading ? <LoadingSpinner /> : count}
           </div>
         </div>
@@ -132,7 +119,7 @@ const SummaryCard = ({title, count, loading, icon: Icon, gradient}) => {
             borderRadius: "50%",
           }}
         >
-          <Icon style={{width: "28px", height: "28px"}} />
+          <Icon style={{ width: "28px", height: "28px" }} />
         </div>
       </div>
       <div
@@ -143,15 +130,14 @@ const SummaryCard = ({title, count, loading, icon: Icon, gradient}) => {
           opacity: 0.13,
         }}
       >
-        <Icon style={{width: "72px", height: "72px"}} />
+        <Icon style={{ width: "72px", height: "72px" }} />
       </div>
     </div>
   );
 };
 
-// TabButton: style inline
 // eslint-disable-next-line no-unused-vars
-const TabButton = ({tab, currentTab, onClick, icon: Icon, label}) => {
+const TabButton = ({ tab, currentTab, onClick, icon: Icon, label }) => {
   const isActive = currentTab === tab;
   return (
     <button
@@ -160,9 +146,9 @@ const TabButton = ({tab, currentTab, onClick, icon: Icon, label}) => {
         display: "flex",
         alignItems: "center",
         gap: "12px",
-        padding: "12px 20px", // giảm padding
-        borderRadius: "8px", // giảm border radius
-        fontSize: "15px", // nhỏ hơn
+        padding: "12px 20px",
+        borderRadius: "8px",
+        fontSize: "15px",
         border: isActive ? "2px solid #3b82f6" : "2px solid transparent",
         backgroundColor: isActive ? "#3b82f6" : "transparent",
         color: isActive ? "white" : "#374151",
@@ -205,18 +191,17 @@ const TabButton = ({tab, currentTab, onClick, icon: Icon, label}) => {
   );
 };
 
-// StatusItem: style inline
-const StatusItem = ({item, totalCount}) => {
+const StatusItem = ({ item, totalCount, onClick }) => {
   const percentage =
     totalCount > 0 ? Math.round((item.count / totalCount) * 100) : 0;
 
   const name = (item.name || "").toLowerCase();
 
-  let dotColor = "#6b7280"; // default gray
+  let dotColor = "#6b7280";
   if (name.startsWith("completed")) dotColor = "#10b981";
   else if (name.startsWith("pending")) dotColor = "#f59e0b";
   else if (name.startsWith("confirm") || name.startsWith("approved"))
-    dotColor = "#3b82f6"; // xanh dương
+    dotColor = "#3b82f6";
   else if (name.startsWith("not completed")) dotColor = "red";
 
   return (
@@ -225,7 +210,7 @@ const StatusItem = ({item, totalCount}) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "16px 14px", // giảm padding
+        padding: "16px 14px",
         borderRadius: "8px",
         backgroundColor: "#f9fafb",
         marginBottom: "8px",
@@ -234,8 +219,9 @@ const StatusItem = ({item, totalCount}) => {
       }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
+      onClick={onClick}
     >
-      <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         <div
           style={{
             width: "10px",
@@ -244,12 +230,12 @@ const StatusItem = ({item, totalCount}) => {
             backgroundColor: dotColor,
           }}
         ></div>
-        <span style={{fontSize: "15px", color: "#374151", fontWeight: 600}}>
+        <span style={{ fontSize: "15px", color: "#374151", fontWeight: 600 }}>
           {item.name}
         </span>
       </div>
-      <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
-        <span style={{fontSize: "16px", color: "#111827", fontWeight: 700}}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <span style={{ fontSize: "16px", color: "#111827", fontWeight: 700 }}>
           {item.count}
         </span>
         {totalCount > 0 && (
@@ -278,9 +264,7 @@ const StatusItem = ({item, totalCount}) => {
   );
 };
 
-// VaccinationItem: style inline
-const VaccinationItem = ({item}) => {
-  // Kiểm tra trạng thái ngày
+const VaccinationItem = ({ item }) => {
   let statusText = "";
   let statusColor = "#16a34a";
   if (item.daylefts === 0) {
@@ -307,7 +291,7 @@ const VaccinationItem = ({item}) => {
         marginBottom: "8px",
       }}
     >
-      <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <div
           style={{
             backgroundColor: "#22c55e",
@@ -315,7 +299,7 @@ const VaccinationItem = ({item}) => {
             borderRadius: "50%",
           }}
         >
-          <Syringe style={{width: "18px", height: "18px", color: "white"}} />
+          <Syringe style={{ width: "18px", height: "18px", color: "white" }} />
         </div>
         <div>
           <p
@@ -328,12 +312,12 @@ const VaccinationItem = ({item}) => {
           >
             Round: {item.roundName || "N/A"}
           </p>
-          <p style={{fontSize: "13px", color: "#6b7280", margin: "4px 0 0 0"}}>
+          <p style={{ fontSize: "13px", color: "#6b7280", margin: "4px 0 0 0" }}>
             Start: {item.startDate || "N/A"}
           </p>
         </div>
       </div>
-      <div style={{textAlign: "right"}}>
+      <div style={{ textAlign: "right" }}>
         <div
           style={{
             display: "flex",
@@ -343,16 +327,15 @@ const VaccinationItem = ({item}) => {
             fontSize: "15px",
           }}
         >
-          <Clock style={{width: "16px", height: "16px"}} />
-          <span style={{fontWeight: 600}}>{statusText}</span>
+          <Clock style={{ width: "16px", height: "16px" }} />
+          <span style={{ fontWeight: 600 }}>{statusText}</span>
         </div>
       </div>
     </div>
   );
 };
 
-const HealthCheckItem = ({item}) => {
-  // Kiểm tra trạng thái ngày
+const HealthCheckItem = ({ item }) => {
   let statusText = "";
   let statusColor = "#dc2626";
   if (item.daylefts === 0) {
@@ -379,7 +362,7 @@ const HealthCheckItem = ({item}) => {
         marginBottom: "8px",
       }}
     >
-      <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <div
           style={{
             backgroundColor: "#ef4444",
@@ -387,7 +370,7 @@ const HealthCheckItem = ({item}) => {
             borderRadius: "50%",
           }}
         >
-          <Heart style={{width: "18px", height: "18px", color: "white"}} />
+          <Heart style={{ width: "18px", height: "18px", color: "white" }} />
         </div>
         <div>
           <p
@@ -400,12 +383,12 @@ const HealthCheckItem = ({item}) => {
           >
             Round: {item.roundName || "N/A"}
           </p>
-          <p style={{fontSize: "13px", color: "#6b7280", margin: "4px 0 0 0"}}>
+          <p style={{ fontSize: "13px", color: "#6b7280", margin: "4px 0 0 0" }}>
             Start: {item.startDate || "N/A"}
           </p>
         </div>
       </div>
-      <div style={{textAlign: "right"}}>
+      <div style={{ textAlign: "right" }}>
         <div
           style={{
             display: "flex",
@@ -415,8 +398,8 @@ const HealthCheckItem = ({item}) => {
             fontSize: "15px",
           }}
         >
-          <Clock style={{width: "16px", height: "16px"}} />
-          <span style={{fontWeight: 600}}>{statusText}</span>
+          <Clock style={{ width: "16px", height: "16px" }} />
+          <span style={{ fontWeight: 600 }}>{statusText}</span>
         </div>
       </div>
     </div>
@@ -424,7 +407,6 @@ const HealthCheckItem = ({item}) => {
 };
 
 const getMonthOptions = () => {
-  // Lấy 12 tháng gần nhất, tháng hiện tại lên đầu
   const arr = [];
   const now = dayjs();
   for (let i = 0; i < 12; i++) {
@@ -442,9 +424,9 @@ const getMonthOptions = () => {
 const Dashboard = () => {
   const nurseId = useSelector((state) => state.user?.userId);
   const [summary, setSummary] = useState({
-    appointments: {name: "Appointment", count: 0},
-    medicalRegistrations: {name: "Medical Registration", count: 0},
-    medicalEvents: {name: "Medical Events", count: 0},
+    appointments: { name: "Appointment", count: 0 },
+    medicalRegistrations: { name: "Medical Registration", count: 0 },
+    medicalEvents: { name: "Medical Events", count: 0 },
   });
   const [summaryLoading, setSummaryLoading] = useState({
     appointments: true,
@@ -452,7 +434,6 @@ const Dashboard = () => {
     medicalEvents: true,
   });
 
-  // Đổi tab mặc định nếu cần
   const [tab, setTab] = useState("rounds");
   const [details, setDetails] = useState([]);
   const [detailsLoading, setDetailsLoading] = useState(true);
@@ -463,39 +444,45 @@ const Dashboard = () => {
   const [healthCheckList, setHealthCheckList] = useState([]);
   const [healthCheckLoading, setHealthCheckLoading] = useState(false);
 
-  // Thêm state cho tháng được chọn
   const monthOptions = getMonthOptions();
   const [selectedMonth, setSelectedMonth] = useState(monthOptions[0]);
   const from = selectedMonth.from;
   const to = selectedMonth.to;
 
+  // Modal state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState([]);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalColumns, setModalColumns] = useState([]);
+
   // Fetch summary cards
   useEffect(() => {
     if (!nurseId) return;
     const fetchAppointments = async () => {
-      setSummaryLoading((prev) => ({...prev, appointments: true}));
+      setSummaryLoading((prev) => ({ ...prev, appointments: true }));
       try {
         const res = await axiosInstance.get(
           `/api/nurses/${nurseId}/dashboards/appoiments`,
           {
-            params: {From: from, To: to},
+            params: { From: from, To: to },
           }
         );
         setSummary((prev) => ({
           ...prev,
-          appointments: res.data?.item || {name: "Appointment", count: 0},
+          appointments: res.data?.item || { name: "Appointment", count: 0 },
         }));
       } finally {
-        setSummaryLoading((prev) => ({...prev, appointments: false}));
+        setSummaryLoading((prev) => ({ ...prev, appointments: false }));
       }
     };
     const fetchMedicalRegistrations = async () => {
-      setSummaryLoading((prev) => ({...prev, medicalRegistrations: true}));
+      setSummaryLoading((prev) => ({ ...prev, medicalRegistrations: true }));
       try {
         const res = await axiosInstance.get(
           `/api/nurses/${nurseId}/dashboards/medical-registations`,
           {
-            params: {From: from, To: to},
+            params: { From: from, To: to },
           }
         );
         setSummary((prev) => ({
@@ -506,24 +493,27 @@ const Dashboard = () => {
           },
         }));
       } finally {
-        setSummaryLoading((prev) => ({...prev, medicalRegistrations: false}));
+        setSummaryLoading((prev) => ({
+          ...prev,
+          medicalRegistrations: false,
+        }));
       }
     };
     const fetchMedicalEvents = async () => {
-      setSummaryLoading((prev) => ({...prev, medicalEvents: true}));
+      setSummaryLoading((prev) => ({ ...prev, medicalEvents: true }));
       try {
         const res = await axiosInstance.get(
           `/api/nurses/${nurseId}/dashboards/medical-events`,
           {
-            params: {From: from, To: to},
+            params: { From: from, To: to },
           }
         );
         setSummary((prev) => ({
           ...prev,
-          medicalEvents: res.data?.item || {name: "Medical Events", count: 0},
+          medicalEvents: res.data?.item || { name: "Medical Events", count: 0 },
         }));
       } finally {
-        setSummaryLoading((prev) => ({...prev, medicalEvents: false}));
+        setSummaryLoading((prev) => ({ ...prev, medicalEvents: false }));
       }
     };
 
@@ -537,14 +527,13 @@ const Dashboard = () => {
     if (!nurseId) return;
     setDetailsLoading(true);
 
-    // Gộp logic fetch cho tab rounds
     if (tab === "rounds") {
       setVaccinationLoading(true);
       setHealthCheckLoading(true);
 
       axiosInstance
         .get(`/api/nurses/${nurseId}/dashboards/vaccinations`, {
-          params: {From: from, To: to},
+          params: { From: from, To: to },
         })
         .then((res) => {
           setVaccinationList(Array.isArray(res.data) ? res.data : []);
@@ -554,7 +543,7 @@ const Dashboard = () => {
 
       axiosInstance
         .get(`/api/nurses/${nurseId}/dashboards/health-checks`, {
-          params: {From: from, To: to},
+          params: { From: from, To: to },
         })
         .then((res) => {
           setHealthCheckList(Array.isArray(res.data) ? res.data : []);
@@ -581,12 +570,22 @@ const Dashboard = () => {
       return;
     }
     axiosInstance
-      .get(api, {params: {From: from, To: to}})
+      .get(api, { params: { From: from, To: to } })
       .then((res) => {
         if (Array.isArray(res.data)) {
-          setDetails(res.data.map((x) => x.item));
+          setDetails(
+            res.data.map((x) => ({
+              ...x.item,
+              details: x.item?.details?.map((d) => d.id) || [],
+            }))
+          );
         } else if (res.data?.item) {
-          setDetails([res.data.item]);
+          setDetails([
+            {
+              ...res.data.item,
+              details: res.data.item.details?.map((d) => d.id) || [],
+            },
+          ]);
         } else {
           setDetails([]);
         }
@@ -595,12 +594,130 @@ const Dashboard = () => {
       .finally(() => setDetailsLoading(false));
   }, [tab, from, to, nurseId]);
 
+  // Modal logic
+  const handleStatusClick = async (statusItem) => {
+    if (!statusItem.details || !statusItem.details.length) return;
+    setModalData([]);
+    setModalLoading(true);
+    setModalVisible(true);
+
+    // Xử lý title theo yêu cầu
+    let modalTitle = "";
+    if (tab === "appointments") {
+      modalTitle = `Appointment ${statusItem.name}`;
+    } else if (tab === "medicalRegistrations") {
+      modalTitle = `Medical Registration ${statusItem.name}`;
+    } else if (tab === "medicalEvents") {
+      // Lấy phần trước chữ "Events"
+      const idx = statusItem.name.indexOf("Events");
+      if (idx !== -1) {
+        modalTitle = statusItem.name.slice(0, idx).trim();
+      } else {
+        modalTitle = statusItem.name;
+      }
+    } else {
+      modalTitle = statusItem.name;
+    }
+    setModalTitle(modalTitle);
+
+    let apiList = [];
+    let columns = [];
+    if (tab === "appointments") {
+      apiList = statusItem.details.map((id) =>
+        axiosInstance.get(`/api/nurses/${nurseId}/appointments/${id}`)
+      );
+      try {
+        const results = await Promise.all(apiList);
+        const mappedData = results.map((res) => {
+          const data = res.data;
+          return {
+            studentFullName: data.student?.fullName || "",
+            appointmentDate: data.appointmentDate || "",
+            appointmentStartTime: data.appointmentStartTime || "",
+            appointmentEndTime: data.appointmentEndTime || "",
+            topic: data.topic || "",
+            confirmationStatus: data.confirmationStatus ? "Confirmed" : "Not Confirmed",
+            completionStatus: data.completionStatus ? "Completed" : "Not Completed",
+          };
+        });
+        setModalData(mappedData);
+      } catch {
+        setModalData([]);
+      } finally {
+        setModalLoading(false);
+      }
+      // columns chỉ dùng cho Table, nhưng ở đây sẽ custom render modal
+      setModalColumns([]);
+      return;
+    }
+
+    if (tab === "medicalEvents") {
+      apiList = statusItem.details.map((id) =>
+        axiosInstance.get(`/api/nurses/students/medical-events/${id}`)
+      );
+      columns = [
+        { title: "Event Name", dataIndex: "eventName", key: "eventName" },
+        { title: "Student Name", dataIndex: "studentName", key: "studentName" },
+        { title: "Date", dataIndex: "date", key: "date" },
+        { title: "Status", dataIndex: "status", key: "status" },
+      ];
+      try {
+        const results = await Promise.all(apiList);
+        setModalData(results.map((res) => res.data));
+      } catch {
+        setModalData([]);
+      } finally {
+        setModalLoading(false);
+      }
+      setModalColumns(columns);
+      return;
+    }
+
+    // Medical Registration: custom modal content
+    if (tab === "medicalRegistrations") {
+      apiList = statusItem.details.map((id) =>
+        axiosInstance.get(`/api/nurses/medical-registrations/${id}`)
+      );
+      try {
+        const results = await Promise.all(apiList);
+        // Map data for modal
+        const mappedData = results.map((res) => {
+          const data = res.data;
+          return {
+            studentFullName: data.student?.studentFullName || "",
+            medicationName: data.medicalRegistration?.medicationName || "",
+            status:
+              data.medicalRegistration?.status === true
+                ? "Approved"
+                : data.medicalRegistration?.status === false
+                ? "Not Approved"
+                : "Pending",
+            details: Array.isArray(data.medicalRegistrationDetails)
+              ? data.medicalRegistrationDetails.map((d) => ({
+                  doseNumber: d.doseNumber,
+                  doseTime: d.doseTime,
+                  isCompleted: d.isCompleted ? "Yes" : "No",
+                }))
+              : [],
+          };
+        });
+        setModalData(mappedData);
+      } catch {
+        setModalData([]);
+      } finally {
+        setModalLoading(false);
+      }
+      // columns chỉ dùng cho Table, nhưng ở đây sẽ custom render modal
+      setModalColumns([]);
+      return;
+    }
+  };
+
   const totalDetailCount = details.reduce(
     (sum, item) => sum + (item.count || 0),
     0
   );
 
-  // Xác định status chính cho từng tab
   const getMainStatus = (tab) => {
     if (tab === "appointments") return "Confirmed";
     if (tab === "medicalRegistrations") return "Approved";
@@ -608,7 +725,6 @@ const Dashboard = () => {
     return "";
   };
 
-  // Đặt nhãn cho chart theo tab
   const getChartTitle = (tab) => {
     if (tab === "appointments") return "Appointment Participation";
     if (tab === "medicalRegistrations")
@@ -617,7 +733,6 @@ const Dashboard = () => {
     return "";
   };
 
-  // Chuẩn hóa status cho trục x
   function normalizeStatus(name = "") {
     const lower = name.toLowerCase();
     if (lower.includes("pending")) return "Pending";
@@ -629,7 +744,6 @@ const Dashboard = () => {
     return name;
   }
 
-  // Gom nhóm count theo status chuẩn
   const statusCountMap = {};
   details.forEach((item) => {
     const status = normalizeStatus(item.name);
@@ -637,7 +751,6 @@ const Dashboard = () => {
     statusCountMap[status] += item.count || 0;
   });
 
-  // Tùy tab, lấy đúng labels, data và màu cho chart
   let chartLabels = [];
   let chartDataArr = [];
   let chartColorsArr = [];
@@ -664,10 +777,8 @@ const Dashboard = () => {
 
   const chartRef = useRef(null);
 
-  // Vẽ chartjs Bar chart thuần
   useEffect(() => {
     if (!chartRef.current || !details.length) return;
-    // Xóa chart cũ nếu có
     if (chartRef.current._chartInstance) {
       chartRef.current._chartInstance.destroy();
     }
@@ -680,7 +791,7 @@ const Dashboard = () => {
           {
             label: "Status Count",
             data: chartDataArr,
-            backgroundColor: chartColorsArr, // Sử dụng màu đã mapping
+            backgroundColor: chartColorsArr,
             borderRadius: 8,
             maxBarThickness: 60,
           },
@@ -690,27 +801,26 @@ const Dashboard = () => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {display: false},
-          tooltip: {enabled: true},
+          legend: { display: false },
+          tooltip: { enabled: true },
         },
         scales: {
           x: {
-            grid: {display: false},
-            ticks: {color: "#374151", font: {size: 16, weight: "bold"}},
+            grid: { display: false },
+            ticks: { color: "#374151", font: { size: 16, weight: "bold" } },
           },
           y: {
             beginAtZero: true,
-            grid: {color: "#e5e7eb"},
+            grid: { color: "#e5e7eb" },
             ticks: {
               color: "#374151",
-              font: {size: 16, weight: "bold"},
+              font: { size: 16, weight: "bold" },
               stepSize: 1,
             },
           },
         },
       },
     });
-    // Cleanup khi unmount
     return () => {
       if (chartRef.current && chartRef.current._chartInstance) {
         chartRef.current._chartInstance.destroy();
@@ -729,13 +839,16 @@ const Dashboard = () => {
     return idx !== -1 ? str.slice(idx + 1) : "";
   };
 
+  // Thay thế sự kiện chuyển tab:
+  const handleTabChange = (tabKey) => {
+    setTab(tabKey);
+    setModalVisible(false);
+    setModalData([]);
+    setModalLoading(false);
+  };
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-      }}
-    >
+    <div style={{ minHeight: "100vh", width: "100%" }}>
       <div
         style={{
           width: "100%",
@@ -745,7 +858,6 @@ const Dashboard = () => {
           boxSizing: "border-box",
         }}
       >
-        {/* Divider trên cùng cho toàn bộ dashboard */}
         <Divider
           orientation="center"
           orientationMargin={0}
@@ -776,7 +888,7 @@ const Dashboard = () => {
             title={
               <div>
                 <div
-                  style={{fontSize: "25px", fontWeight: 700, marginBottom: 4}}
+                  style={{ fontSize: "25px", fontWeight: 700, marginBottom: 4 }}
                 >
                   Total Appointment
                 </div>
@@ -800,7 +912,7 @@ const Dashboard = () => {
             title={
               <div>
                 <div
-                  style={{fontSize: "25px", fontWeight: 700, marginBottom: 4}}
+                  style={{ fontSize: "25px", fontWeight: 700, marginBottom: 4 }}
                 >
                   Medical Registration
                 </div>
@@ -824,7 +936,7 @@ const Dashboard = () => {
             title={
               <div>
                 <div
-                  style={{fontSize: "25px", fontWeight: 700, marginBottom: 4}}
+                  style={{ fontSize: "25px", fontWeight: 700, marginBottom: 4 }}
                 >
                   Medical Event
                 </div>
@@ -845,8 +957,6 @@ const Dashboard = () => {
             gradient="from-emerald-500 to-emerald-600"
           />
         </div>
-
-        {/* Divider cho phần chi tiết bên dưới */}
         <Divider
           orientation="center"
           orientationMargin={0}
@@ -870,7 +980,7 @@ const Dashboard = () => {
               justifyContent: "space-between",
             }}
           >
-            <span style={{fontWeight: 800, color: "#355383"}}>
+            <span style={{ fontWeight: 800, color: "#355383" }}>
               Details & Statistics
             </span>
           </div>
@@ -883,8 +993,6 @@ const Dashboard = () => {
           }
         `}
         </style>
-
-        {/* Tabs */}
         <div
           style={{
             backgroundColor: "white",
@@ -911,19 +1019,19 @@ const Dashboard = () => {
               boxSizing: "border-box",
             }}
           >
-            <div style={{display: "flex", flexWrap: "wrap", gap: 0, flex: 1}}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 0, flex: 1 }}>
               {TABS.map((t) => (
                 <TabButton
                   key={t.key}
                   tab={t.key}
                   currentTab={tab}
-                  onClick={() => setTab(t.key)}
+                  onClick={() => handleTabChange(t.key)}
                   icon={t.icon}
                   label={t.label}
                 />
               ))}
             </div>
-            <div style={{position: "relative", minWidth: 180, marginLeft: 16}}>
+            <div style={{ position: "relative", minWidth: 180, marginLeft: 16 }}>
               <select
                 value={selectedMonth.value}
                 onChange={(e) => {
@@ -977,8 +1085,7 @@ const Dashboard = () => {
               boxSizing: "border-box",
             }}
           >
-            <div style={{width: "100%"}}>
-              {/* Tiêu đề cùng hàng */}
+            <div style={{ width: "100%" }}>
               <div
                 style={{
                   display: "flex",
@@ -999,7 +1106,7 @@ const Dashboard = () => {
                   {React.createElement(
                     TABS.find((t) => t.key === tab)?.icon || Activity,
                     {
-                      style: {width: "32px", height: "32px", color: "#3b82f6"},
+                      style: { width: "32px", height: "32px", color: "#3b82f6" },
                     }
                   )}
                   <h2
@@ -1013,7 +1120,7 @@ const Dashboard = () => {
                     {TABS.find((t) => t.key === tab)?.label} Status
                   </h2>
                 </div>
-                <div style={{flex: 1}}>
+                <div style={{ flex: 1 }}>
                   <h2
                     style={{
                       fontSize: "18px",
@@ -1027,7 +1134,6 @@ const Dashboard = () => {
                   </h2>
                 </div>
               </div>
-              {/* 2 cột content và chart */}
               <div
                 style={{
                   display: "flex",
@@ -1037,7 +1143,6 @@ const Dashboard = () => {
                   minHeight: 440,
                 }}
               >
-                {/* Cột bên trái */}
                 <div
                   style={{
                     flex: 1,
@@ -1067,7 +1172,6 @@ const Dashboard = () => {
                         minHeight: 440,
                       }}
                     >
-                      {/* Vaccinations bên trái với scroll riêng */}
                       <div
                         style={{
                           flex: 1,
@@ -1121,11 +1225,10 @@ const Dashboard = () => {
                                 color: "#d1d5db",
                               }}
                             />
-                            <p style={{margin: 0}}>No vaccination data</p>
+                            <p style={{ margin: 0 }}>No vaccination data</p>
                           </div>
                         )}
                       </div>
-                      {/* HealthCheck bên phải với scroll riêng */}
                       <div
                         style={{
                           flex: 1,
@@ -1179,7 +1282,7 @@ const Dashboard = () => {
                                 color: "#fecaca",
                               }}
                             />
-                            <p style={{margin: 0}}>No health check data</p>
+                            <p style={{ margin: 0 }}>No health check data</p>
                           </div>
                         )}
                       </div>
@@ -1190,6 +1293,7 @@ const Dashboard = () => {
                         key={item.name}
                         item={item}
                         totalCount={totalDetailCount}
+                        onClick={() => handleStatusClick(item)}
                       />
                     ))
                   ) : (
@@ -1208,11 +1312,10 @@ const Dashboard = () => {
                           color: "#d1d5db",
                         }}
                       />
-                      <p style={{margin: 0}}>No data available</p>
+                      <p style={{ margin: 0 }}>No data available</p>
                     </div>
                   )}
                 </div>
-                {/* Cột bên phải: chỉ hiện chart cho appointments, medicalRegistrations, medicalEvents */}
                 {(tab === "appointments" ||
                   tab === "medicalRegistrations" ||
                   tab === "medicalEvents") && (
@@ -1278,7 +1381,7 @@ const Dashboard = () => {
                             width: "100%",
                           }}
                         >
-                          <div style={{fontSize: 48, marginBottom: 12}}>📊</div>
+                          <div style={{ fontSize: 48, marginBottom: 12 }}>📊</div>
                           No chart data
                         </div>
                       )}
@@ -1290,6 +1393,256 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <Modal
+        open={modalVisible}
+        title={<span style={{ fontWeight: 700, fontSize: 20, color: "#355383" }}>{modalTitle}</span>}
+        onCancel={() => {
+          setModalVisible(false);
+          setModalData([]);
+          setModalLoading(false);
+        }}
+        footer={[
+          <Button key="close" onClick={() => setModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
+        width={window.innerWidth > 1100 ? 1100 : "98%"}
+      >
+        <div style={{ maxHeight: 420, overflowY: "auto", padding: 24 }}>
+          {modalLoading ? (
+            <LoadingSpinner />
+          ) : tab === "medicalRegistrations" ? (
+            modalData.length === 0 ? (
+              <div style={{ color: "#bbb" }}>No data</div>
+            ) : (
+              modalData.map((item, idx) => (
+                <div key={item.studentFullName + item.medicationName + idx} style={{ marginBottom: 32 }}>
+                  <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 8, color: "#355383" }}>
+                    {item.studentFullName} - {item.medicationName}
+                  </div>
+                  <Table
+                    dataSource={
+                      item.details.length > 0
+                        ? item.details
+                            .slice() 
+                            .sort((a, b) => Number(a.doseNumber) - Number(b.doseNumber))
+                            .map((d, i) => ({
+                              ...d,
+                              key: i,
+                            }))
+                        : [{ doseNumber: "", doseTime: "", isCompleted: "" }]
+                    }
+                    columns={[
+                      {
+                        title: "Dose Number",
+                        dataIndex: "doseNumber",
+                        key: "doseNumber",
+                        align: "center",
+                        render: (text) =>
+                          text ? (
+                            <span style={{ fontWeight: 600, color: "#3b82f6" }}>{text}</span>
+                          ) : (
+                            <span style={{ color: "#bbb" }}>No details</span>
+                          ),
+                      },
+                      {
+                        title: "Time",
+                        dataIndex: "doseTime",
+                        key: "doseTime",
+                        align: "center",
+                      },
+                      {
+                        title: "Completed",
+                        dataIndex: "isCompleted",
+                        key: "isCompleted",
+                        align: "center",
+                        render: (val) =>
+                          val === "Yes" ? (
+                            <Tag color="green">Yes</Tag>
+                          ) : val === "No" ? (
+                            <Tag color="orange">No</Tag>
+                          ) : null,
+                      },
+                    ]}
+                    pagination={false}
+                    bordered
+                    style={{ background: "#fff", borderRadius: 12 }}
+                    size="small"
+                  />
+                  <div style={{ marginTop: 8 }}>
+                    <Tag
+                      color={
+                        item.status === "Approved"
+                          ? "green"
+                          : item.status === "Not Approved"
+                          ? "red"
+                          : "orange"
+                      }
+                      style={{ fontWeight: 600, fontSize: 14 }}
+                    >
+                      {item.status}
+                    </Tag>
+                  </div>
+                </div>
+              ))
+            )
+          ) : tab === "appointments" ? (
+            modalData.length === 0 ? (
+              <div style={{ color: "#bbb" }}>No data</div>
+            ) : (
+              modalData.map((item, idx) => (
+                <div key={item.studentFullName + item.appointmentDate + idx} style={{ marginBottom: 32 }}>
+                  <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 8, color: "#355383" }}>
+                    {item.studentFullName}
+                  </div>
+                  <Table
+                    dataSource={[item]}
+                    columns={[
+                      { title: "Date", dataIndex: "appointmentDate", key: "appointmentDate", align: "center" },
+                      { title: "Topic", dataIndex: "topic", key: "topic", align: "center" },
+                      { title: "Start Time", dataIndex: "appointmentStartTime", key: "appointmentStartTime", align: "center" },
+                      { title: "End Time", dataIndex: "appointmentEndTime", key: "appointmentEndTime", align: "center" },
+                      {
+                        title: "Confirmation",
+                        dataIndex: "confirmationStatus",
+                        key: "confirmationStatus",
+                        align: "center",
+                        render: (val) => (
+                          <Tag color={val === "Confirmed" ? "green" : "orange"} style={{ fontWeight: 600 }}>
+                            {val}
+                          </Tag>
+                        ),
+                      },
+                      {
+                        title: "Completion",
+                        dataIndex: "completionStatus",
+                        key: "completionStatus",
+                        align: "center",
+                        render: (val) => (
+                          <Tag color={val === "Completed" ? "green" : "orange"} style={{ fontWeight: 600 }}>
+                            {val}
+                          </Tag>
+                        ),
+                      },
+                    ]}
+                    pagination={false}
+                    bordered
+                    style={{ background: "#fff", borderRadius: 12 }}
+                    size="small"
+                  />
+                </div>
+              ))
+            )
+          ) : tab === "medicalEvents" ? (
+            modalData.length === 0 ? (
+              <div style={{ color: "#bbb" }}>No data</div>
+            ) : (
+              modalData.map((item, idx) => (
+                <div key={(item.medicalEvent?.eventId || idx) + idx} style={{ marginBottom: 32 }}>
+                  <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 8, color: "#355383" }}>
+                    {item.studentInfo?.fullName} - {item.studentInfo?.studentCode}
+                  </div>
+                  <div style={{ marginBottom: 8, fontSize: 15 }}>
+                    <span style={{ marginRight: 16 }}>
+                      <b>Date:</b> {item.medicalEvent?.eventDate || "--"}
+                    </span>
+                    <span style={{ marginRight: 16 }}>
+                      <b>Type:</b> {item.medicalEvent?.eventType || "--"}
+                    </span>
+                    <span style={{ marginRight: 16 }}>
+                      <b>Location:</b> {item.medicalEvent?.location || "--"}
+                    </span>
+                    <span style={{ marginRight: 16 }}>
+                      <b>Severity:</b> {item.medicalEvent?.severityLevel || "--"}
+                    </span>
+                  </div>
+                  <Table
+                    dataSource={
+                      Array.isArray(item.medicalRequests)
+                        ? item.medicalRequests.map((req, i) => ({
+                            ...req,
+                            key: i,
+                          }))
+                        : []
+                    }
+                    columns={[
+                      {
+                        title: (
+                          <div
+                            style={{
+                              fontWeight: 700,
+                              color: "#355383",
+                              fontSize: 15,
+                              background: "#f3f6fa",
+                              borderRadius: 8,
+                              padding: "8px 0",
+                            }}
+                          >
+                            Item Name
+                          </div>
+                        ),
+                        dataIndex: "itemName",
+                        key: "itemName",
+                        align: "left",
+                        render: (text) => (
+                          <span style={{ fontWeight: 500, fontSize: 15 }}>{text}</span>
+                        ),
+                      },
+                      {
+                        title: (
+                          <div
+                            style={{
+                              fontWeight: 700,
+                              color: "#355383",
+                              fontSize: 15,
+                              background: "#f3f6fa",
+                              borderRadius: 8,
+                              padding: "8px 0",
+                            }}
+                          >
+                            Quantity
+                          </div>
+                        ),
+                        dataIndex: "requestQuantity",
+                        key: "requestQuantity",
+                        align: "center",
+                        render: (val) => (
+                          <span style={{ fontWeight: 600, fontSize: 15 }}>{val}</span>
+                        ),
+                      },
+                    ]}
+                    pagination={false}
+                    bordered={false}
+                    style={{
+                      background: "#f9fafb",
+                      borderRadius: 10,
+                      marginTop: 8,
+                      boxShadow: "0 1px 4px #e5e7eb",
+                    }}
+                    size="middle"
+                    locale={{
+                      emptyText: (
+                        <div style={{ color: "#bbb", fontStyle: "italic" }}>No requests</div>
+                      ),
+                    }}
+                  />
+                </div>
+              ))
+            )
+          ) : (
+            <Table
+              dataSource={modalData}
+              columns={modalColumns}
+              rowKey={(record, idx) => record.id || record._id || idx}
+              pagination={false}
+              bordered
+              style={{ background: "#fff", borderRadius: 12 }}
+              scroll={{ x: true }}
+              locale={{ emptyText: <div style={{ color: "#bbb" }}>No data</div> }}
+            />
+          )}
+        </div>
+      </Modal>
       <style>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; }
