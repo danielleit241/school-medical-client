@@ -15,6 +15,8 @@ import {
   notification,
   DatePicker,
   Button,
+  Table,
+  Modal,
 } from "antd";
 import {
   Chart as ChartJS,
@@ -230,6 +232,8 @@ const ManagerDashboard = () => {
     }
   };
 
+  const [healthChecksRaw, setHealthChecksRaw] = useState([]);
+
   const fetchHealthChecks = async () => {
     try {
       setHealthChecksLoading(true);
@@ -238,6 +242,8 @@ const ManagerDashboard = () => {
         "/api/managers/dashboards/health-checks",
         {params}
       );
+
+      setHealthChecksRaw(response.data || []);
 
       if (response.data && response.data.length > 0) {
         const healthChecksData = {
@@ -256,6 +262,8 @@ const ManagerDashboard = () => {
     }
   };
 
+  const [vaccinationsRaw, setVaccinationsRaw] = useState([]);
+
   const fetchVaccinations = async () => {
     try {
       setVaccinationsLoading(true);
@@ -264,7 +272,7 @@ const ManagerDashboard = () => {
         "/api/managers/dashboards/vaccinations",
         {params}
       );
-
+      setVaccinationsRaw(response.data || []);
       if (response.data && response.data.length > 0) {
         const vaccinationData = {
           completed: response.data[0]?.item || {count: 0, name: "No data"},
@@ -307,10 +315,8 @@ const ManagerDashboard = () => {
   const fetchExpiringMedicals = async () => {
     try {
       setExpiringLoading(true);
-      const params = getDateRangeParams();
       const response = await axiosInstance.get(
-        "/api/managers/dashboards/expiring-medicals",
-        {params}
+        "/api/managers/dashboards/expiring-medicals"
       );
 
       if (response.data && Array.isArray(response.data)) {
@@ -764,6 +770,125 @@ const ManagerDashboard = () => {
         <canvas ref={chartRef} />
       </div>
     );
+  };
+
+  // Thay đổi state và hàm mở modal như sau:
+  const [requestModalOpen, setRequestModalOpen] = useState(false);
+  const [requestDetail, setRequestDetail] = useState([]);
+  const [requestLoading, setRequestLoading] = useState(false);
+
+  const handleOpenRequestModal = async () => {
+    setRequestModalOpen(true);
+    setRequestLoading(true);
+    try {
+      // Lấy tất cả requestId từ medicineRequests.details
+      const ids =
+        medicineRequests &&
+        medicineRequests.details &&
+        medicineRequests.details.length > 0
+          ? medicineRequests.details.map((item) => item.id)
+          : [];
+      // Gọi song song tất cả API
+      const results = await Promise.all(
+        ids.map((id) =>
+          axiosInstance
+            .get(`/api/medical-requests/${id}`)
+            .then((res) => (Array.isArray(res.data) ? res.data : [res.data]))
+            .catch(() => [])
+        )
+      );
+      // Flatten mảng kết quả
+      setRequestDetail(results.flat());
+    } catch (err) {
+      console.error(err);
+      setRequestDetail([]);
+    } finally {
+      setRequestLoading(false);
+    }
+  };
+
+  // Thêm state cho modal health check result
+  const [healthCheckModal, setHealthCheckModal] = useState({
+    open: false,
+    status: "",
+    loading: false,
+    data: [],
+  });
+
+  // Hàm mở modal và fetch tất cả kết quả health check theo status
+  const handleOpenHealthCheckModal = async (statusKey) => {
+    setHealthCheckModal({open: true, status: statusKey, loading: true, data: []});
+    try {
+      // Lấy mảng details từ healthChecks theo statusKey
+      // statusKey: "completed", "pending", "failed", "declined"
+      const statusMap = {
+        completed: 0,
+        pending: 1,
+        failed: 2,
+        declined: 3,
+      };
+      const apiDataIdx = statusMap[statusKey];
+      const apiData = healthChecksRaw?.[apiDataIdx]?.item || {};
+      const details = apiData.details || [];
+      const ids = details.map((item) => item.id);
+
+      // Gọi song song tất cả API health check result
+      const results = await Promise.all(
+        ids.map((id) =>
+          axiosInstance
+            .get(`/api/health-check-results/${id}`)
+            .then((res) => res.data)
+            .catch(() => null)
+        )
+      );
+      setHealthCheckModal({
+        open: true,
+        status: statusKey,
+        loading: false,
+        data: results.filter(Boolean),
+      });
+    } catch (err) {
+      console.error("Error fetching health check results:", err);
+      setHealthCheckModal({open: true, status: statusKey, loading: false, data: []});
+    }
+  };
+
+  // --- Thêm state cho vaccination modal ---
+  const [vaccinationModal, setVaccinationModal] = useState({
+    open: false,
+    status: "",
+    loading: false,
+    data: [],
+  });
+
+  // --- Hàm mở modal vaccination ---
+  const handleOpenVaccinationModal = async (statusKey) => {
+    setVaccinationModal({ open: true, status: statusKey, loading: true, data: [] });
+    try {
+      const statusMap = { completed: 0, pending: 1, failed: 2, declined: 3, notQualified: 4 };
+      const apiDataIdx = statusMap[statusKey];
+      const apiData = vaccinationsRaw?.[apiDataIdx]?.item || {};
+      const details = apiData.details || [];
+      const ids = details.map((item) => item.id);
+
+      const results = await Promise.all(
+        ids.map((id) =>
+          axiosInstance
+            .get(`/api/vaccination-results/${id}`)
+            .then((res) => res.data)
+            .catch(() => null)
+        )
+      );
+      setVaccinationModal({
+        open: true,
+        status: statusKey,
+        loading: false,
+        data: results.filter(Boolean),
+      });
+    } catch (err) {
+      console.error("Error fetching vaccination results:", err);
+      setVaccinationModal({ open: true, status: statusKey, loading: false, data: [] });
+    }
   };
 
   return (
@@ -1244,9 +1369,11 @@ const ManagerDashboard = () => {
         {/* Medicine Requests */}
         <Col xs={24} sm={12} md={12} lg={6}>
           <Card
-            bodyStyle={{padding: 0}}
+            bodyStyle={{ padding: 0, cursor: "pointer" }}
             bordered={true}
-            style={{height: "180px"}}
+            style={{ height: "180px" }}
+            onClick={handleOpenRequestModal}
+            hoverable
           >
             <div style={cardHeadStyle}>
               <div
@@ -1257,26 +1384,24 @@ const ManagerDashboard = () => {
                 }}
               >
                 <Text style={metricTitleStyle}>Medicine Requests</Text>
-                <MedicineBoxOutlined style={{fontSize: 18, color: "#52c41a"}} />
+                <MedicineBoxOutlined style={{ fontSize: 18, color: "#52c41a" }} />
               </div>
             </div>
             <div style={cardBodyStyle}>
               {medicineLoading ? (
                 <Spin size="small" />
               ) : medicineError ? (
-                <div style={{color: "red", fontSize: "18px"}}>
-                  {medicineError}
-                </div>
+                <div style={{ color: "red", fontSize: "18px" }}>{medicineError}</div>
               ) : medicineRequests ? (
                 <>
-                  <div style={{...metricValueStyle, color: "#52c41a"}}>
+                  <div style={{ ...metricValueStyle, color: "#52c41a" }}>
                     {medicineRequests.count}
                   </div>
                   <div style={metricSubtitleStyle}>{medicineRequests.name}</div>
                 </>
               ) : (
                 <>
-                  <div style={{...metricValueStyle, color: "#52c41a"}}>0</div>
+                  <div style={{ ...metricValueStyle, color: "#52c41a" }}>0</div>
                   <div style={metricSubtitleStyle}>No data available</div>
                 </>
               )}
@@ -1356,12 +1481,14 @@ const ManagerDashboard = () => {
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        alignItems: "flex-start", // Thay đổi từ center sang flex-start
+                        alignItems: "flex-start",
                         marginBottom: 12,
                         padding: "8px",
                         backgroundColor: "#f6ffed",
                         borderRadius: "4px",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleOpenHealthCheckModal("completed")}
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1398,7 +1525,9 @@ const ManagerDashboard = () => {
                         padding: "8px",
                         backgroundColor: "#fffbe6",
                         borderRadius: "4px",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleOpenHealthCheckModal("pending")}
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1435,7 +1564,9 @@ const ManagerDashboard = () => {
                         padding: "8px",
                         backgroundColor: "#fff1f0",
                         borderRadius: "4px",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleOpenHealthCheckModal("failed")}
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1472,7 +1603,9 @@ const ManagerDashboard = () => {
                         padding: "8px",
                         backgroundColor: "#f5f5f5",
                         borderRadius: "4px",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleOpenHealthCheckModal("declined")}
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1549,7 +1682,10 @@ const ManagerDashboard = () => {
                         padding: "8px",
                         backgroundColor: "#f6ffed",
                         borderRadius: "4px",
+                        cursor: "pointer",
+
                       }}
+                        onClick={() => handleOpenVaccinationModal("completed")}
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1584,7 +1720,11 @@ const ManagerDashboard = () => {
                         padding: "8px",
                         backgroundColor: "#fffbe6",
                         borderRadius: "4px",
+                        cursor: "pointer",
+
                       }}
+                        onClick={() => handleOpenVaccinationModal("pending")}
+
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1619,7 +1759,11 @@ const ManagerDashboard = () => {
                         padding: "8px",
                         backgroundColor: "#fff1f0",
                         borderRadius: "4px",
+                        cursor: "pointer",
+
                       }}
+                        onClick={() => handleOpenVaccinationModal("failed")}
+
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1654,7 +1798,10 @@ const ManagerDashboard = () => {
                         padding: "8px",
                         backgroundColor: "#fff7e6",
                         borderRadius: "4px",
+                        cursor: "pointer",
                       }}
+                        onClick={() => handleOpenVaccinationModal("notQualified")}
+
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1689,7 +1836,11 @@ const ManagerDashboard = () => {
                         padding: "8px",
                         backgroundColor: "#f5f5f5",
                         borderRadius: "4px",
+                        cursor: "pointer",
+        
                       }}
+                        onClick={() => handleOpenVaccinationModal("declined")}
+
                     >
                       <Space direction="vertical" size={0}>
                         <Space>
@@ -1931,6 +2082,265 @@ const ManagerDashboard = () => {
           )}
         </Space>
       </div> */}
+
+      <Modal
+        open={requestModalOpen}
+        onCancel={() => setRequestModalOpen(false)}
+        footer={null}
+        title="Medical Request Detail"
+        width={600}
+      >
+        {requestLoading ? (
+          <Spin />
+        ) : (
+          <div style={{ maxHeight: 400, overflowY: "auto" }}>
+            <Table
+              dataSource={requestDetail.map((item, idx) => ({
+                key: idx,
+                itemName: item.medicalInfo?.itemName,
+                requestedBy: item.nurseInfo?.fullName,
+                quantity: item.medicalInfo?.requestQuantity,
+                requestedDate: item.medicalInfo?.requestDate
+                  ? dayjs(item.medicalInfo.requestDate).format("DD/MM/YYYY")
+                  : "",
+              }))}
+              columns={[
+                { title: "Item Name", dataIndex: "itemName", key: "itemName" },
+                { title: "Requested By", dataIndex: "requestedBy", key: "requestedBy" },
+                { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+                { title: "Requested Date", dataIndex: "requestedDate", key: "requestedDate" },
+              ]}
+              pagination={false}
+              bordered
+            />
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        open={healthCheckModal.open}
+        onCancel={() => setHealthCheckModal({ ...healthCheckModal, open: false })}
+        footer={null}
+        title={`Health Check Results - ${healthCheckModal.status.charAt(0).toUpperCase() + healthCheckModal.status.slice(1)}`}
+        width={900}
+      >
+        {healthCheckModal.loading ? (
+          <Spin />
+        ) : (
+          <div style={{ maxHeight: 400, overflowY: "auto" }}>
+            <Table
+              dataSource={
+                (() => {
+                  const statusMap = { completed: 0, pending: 1, failed: 2, declined: 3 };
+                  const apiDataIdx = statusMap[healthCheckModal.status];
+                  const apiData = healthChecksRaw?.[apiDataIdx]?.item || {};
+                  const details = apiData.details || [];
+                  const isFailed = healthCheckModal.status === "failed";
+                  const getValue = (val) =>
+                    isFailed && (val === null || val === undefined || val === "")
+                      ? "Failed"
+                      : (val ?? "");
+
+                  return details.map((detail, idx) => {
+                  const studentName = detail.name;
+                  const item = healthCheckModal.data.find((d) => d && d.resultId == detail.id) || {};
+                  return {
+                    key: idx,
+                    studentNames: [studentName],
+                    datePerformed: getValue(item.datePerformed ? dayjs(item.datePerformed).format("DD/MM/YYYY") : ""),
+                    recordedBy: getValue(item.recordedBy?.nurseName || ""),
+                    height: getValue(item.height),
+                    weight: getValue(item.weight),
+                    visionLeft: getValue(item.visionLeft),
+                    visionRight: getValue(item.visionRight),
+                    hearing: getValue(item.hearing),
+                    nose: getValue(item.nose),
+                    bloodPressure: getValue(item.bloodPressure),
+                    status: item.status || healthCheckModal.status,
+                  };
+                });
+                })()
+              }
+              columns={[
+                {
+                  title: "Student Name",
+                  dataIndex: "studentNames",
+                  key: "studentNames",
+                  render: (names) =>
+                    Array.isArray(names)
+                      ? names.map((n, i) => <div key={i}>{n}</div>)
+                      : names,
+                },
+                { title: "Date", dataIndex: "datePerformed", key: "datePerformed" },
+                { title: "Recorded By", dataIndex: "recordedBy", key: "recordedBy" },
+                { title: "Height", dataIndex: "height", key: "height" },
+                { title: "Weight", dataIndex: "weight", key: "weight" },
+                { title: "Vision Left", dataIndex: "visionLeft", key: "visionLeft" },
+                { title: "Vision Right", dataIndex: "visionRight", key: "visionRight" },
+                { title: "Hearing", dataIndex: "hearing", key: "hearing" },
+                { title: "Nose", dataIndex: "nose", key: "nose" },
+                { title: "Blood Pressure", dataIndex: "bloodPressure", key: "bloodPressure" },
+                {
+                  title: "Status",
+                  dataIndex: "status",
+                  key: "status",
+                  render: (status) => {
+                    let color = "default";
+                    let text = status;
+                    if (status === true || status === "Completed" || status === "completed") {
+                      color = "#52c41a";
+                      text = "Completed";
+                    } else if (status === false || status === "failed" || status === "Failed") {
+                      color = "#f5222d";
+                      text = "Failed";
+                    } else if (status === "Pending" || status === "pending") {
+                      color = "#faad14";
+                      text = "Pending";
+                    } else if (status === "Declined" || status === "declined") {
+                      color = "#8c8c8c";
+                      text = "Declined";
+                    }
+                    return <Tag color={color !== "default" ? color : undefined}>{text}</Tag>;
+                  },
+                },
+              ]}
+              pagination={false}
+              bordered
+              scroll={{ x: true }}
+            />
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        open={vaccinationModal.open}
+        onCancel={() => setVaccinationModal({ ...vaccinationModal, open: false })}
+        footer={null}
+        title={`Vaccination Results - ${vaccinationModal.status.charAt(0).toUpperCase() + vaccinationModal.status.slice(1)}`}
+        width={900}
+      >
+        {vaccinationModal.loading ? (
+          <Spin />
+        ) : (
+          <div style={{ maxHeight: 400, overflowY: "auto" }}>
+            <Table
+              dataSource={
+                (() => {
+                  const statusMap = { completed: 0, pending: 1, failed: 2, declined: 3, notQualified: 4 };
+                  const apiDataIdx = statusMap[vaccinationModal.status];
+                  const apiData = vaccinationsRaw?.[apiDataIdx]?.item || {};
+                  const details = apiData.details || [];
+                  const isFailed = vaccinationModal.status === "failed";
+                  const isNotQualified = vaccinationModal.status === "notQualified";
+                  // Helper để render tag theo status
+                  const renderStatusTag = (status) => {
+                    let color = "default";
+                    let text = status;
+                    if (status === true || status === "Completed" || status === "completed") {
+                      color = "#52c41a";
+                      text = "Completed";
+                    } else if (status === false || status === "failed" || status === "Failed") {
+                      color = "#f5222d";
+                      text = "Failed";
+                    } else if (status === "Pending" || status === "pending") {
+                      color = "#faad14";
+                      text = "Pending";
+                    } else if (status === "Declined" || status === "declined") {
+                      color = "#8c8c8c";
+                      text = "Declined";
+                    } else if (status === "Not Qualified" || status === "notQualified") {
+                      color = "#fa8c16";
+                      text = "Not Qualified";
+                    }
+                    return <Tag color={color !== "default" ? color : undefined}>{text}</Tag>;
+                  };
+                  // Helper để hiển thị giá trị hoặc tag theo status
+                  const getValue = (val) => {
+                    if (isFailed && (val === null || val === undefined || val === "")) {
+                      return renderStatusTag("Failed");
+                    }
+                    if (isNotQualified && (val === null || val === undefined || val === "")) {
+                      return renderStatusTag("Not Qualified");
+                    }
+                    return val ?? "";
+                  };
+                  return details.map((detail, idx) => {
+                    const studentName = detail.name;
+                    const item = vaccinationModal.data.find(
+                      (d) => d && d.resultResponse?.vaccinationResultId == detail.id
+                    ) || {};
+                    const result = item.resultResponse || {};
+                    const obs = item.vaccinationObservation || {};
+                    return {
+                      key: idx,
+                      studentNames: [studentName],
+                      vaccinatedDate: getValue(result.vaccinatedDate ? dayjs(result.vaccinatedDate).format("DD/MM/YYYY") : ""),
+                      injectionSite: getValue(result.injectionSite),
+                      parentConfirmed: getValue(result.parentConfirmed !== undefined ? (result.parentConfirmed ? "Yes" : "No") : ""),
+                      healthQualified: getValue(result.healthQualified !== undefined ? (result.healthQualified ? "Yes" : "No") : ""),
+                      status: result.status || vaccinationModal.status,
+                      observedBy: getValue(obs.observedBy),
+                      reactionType: getValue(obs.reactionType),
+                      severityLevel: getValue(obs.severityLevel),
+                      immediateReaction: getValue(obs.immediateReaction),
+                      intervention: getValue(obs.intervention),
+                    };
+                  });
+                })()
+              }
+              columns={[
+                {
+                  title: "Student Name",
+                  dataIndex: "studentNames",
+                  key: "studentNames",
+                  render: (names) =>
+                    Array.isArray(names)
+                      ? names.map((n, i) => <div key={i}>{n}</div>)
+                      : names,
+                },
+                { title: "Vaccinated Date", dataIndex: "vaccinatedDate", key: "vaccinatedDate" },
+                { title: "Injection Site", dataIndex: "injectionSite", key: "injectionSite" },
+                { title: "Parent Confirmed", dataIndex: "parentConfirmed", key: "parentConfirmed" },
+                { title: "Health Qualified", dataIndex: "healthQualified", key: "healthQualified" },
+                { title: "Observed By", dataIndex: "observedBy", key: "observedBy" },
+                { title: "Reaction Type", dataIndex: "reactionType", key: "reactionType" },
+                { title: "Severity Level", dataIndex: "severityLevel", key: "severityLevel" },
+                { title: "Immediate Reaction", dataIndex: "immediateReaction", key: "immediateReaction" },
+                { title: "Intervention", dataIndex: "intervention", key: "intervention" },
+                {
+                  title: "Status",
+                  dataIndex: "status",
+                  key: "status",
+                  render: (status) => {
+                    let color = "default";
+                    let text = status;
+                    if (status === true || status === "Completed" || status === "completed") {
+                      color = "#52c41a";
+                      text = "Completed";
+                    } else if (status === false || status === "failed" || status === "Failed") {
+                      color = "#f5222d";
+                      text = "Failed";
+                    } else if (status === "Pending" || status === "pending") {
+                      color = "#faad14";
+                      text = "Pending";
+                    } else if (status === "Declined" || status === "declined") {
+                      color = "#8c8c8c";
+                      text = "Declined";
+                    } else if (status === "Not Qualified" || status === "notQualified") {
+                      color = "#fa8c16";
+                      text = "Not Qualified";
+                    }
+                    return <Tag color={color !== "default" ? color : undefined}>{text}</Tag>;
+                  },
+                },
+              ]}
+              pagination={false}
+              bordered
+              scroll={{ x: true }}
+            />
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
