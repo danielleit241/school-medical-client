@@ -16,7 +16,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {UserProfile} from "../../services/User";
 import {setUserProfile} from "../../redux/feature/userProfileSlice";
 import {Link} from "react-router-dom";
-// import DialogflowMessenger from "../../components/DialogFlow/DialogflowMessenger";
+import Chatbox from "../../components/Chatbox/Chatbox";
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -39,6 +39,8 @@ function HomePage() {
   return (
     <>
       <div className="relative home">
+        {/* Đặt Chatbox ở đây để nó nằm trên Carousel */}
+        <Chatbox />
         <div className="absolute guide top-5 left-20 z-10 underline text-red-400">
           {!userId && <Link to="/guide">Website usage guide for parents</Link>}
         </div>
@@ -315,10 +317,6 @@ function HomePage() {
             </div>
           </div>
         </div>
-        {/* <DialogflowMessenger
-          botId="6cf70102-1eac-4758-8f82-1ffdd6e78b0f"
-          title="School Medical Assistant"
-        /> */}
       </div>
     </>
   );
