@@ -321,8 +321,8 @@ const MedicalEventDetail = () => {
                     Description
                   </td>
                   <td style={{padding: "8px 16px", fontSize: "16px"}}>
-                    {medicalEvent?.description ? (
-                      medicalEvent.description
+                    {medicalEvent?.eventDescription ? (
+                      medicalEvent.eventDescription
                     ) : (
                       <span style={{color: "#999999"}}>N/A</span>
                     )}
