@@ -18,7 +18,7 @@ const AppointmentHistory = () => {
   const [pageSize] = useState(10);
   const [total, setTotal] = useState(0);
 
-  const [filterStatus, setFilterStatus] = useState("Pending");
+  const [filterStatus, setFilterStatus] = useState("All");
   const navigate = useNavigate();
   const nurseMap = JSON.parse(localStorage.getItem("nurseMap") || "{}");
 
@@ -78,6 +78,7 @@ const AppointmentHistory = () => {
 
   // Filter logic theo yêu cầu
   const getFilteredAppointments = () => {
+    if (filterStatus === "All") return appointments;
     return appointments.filter((item) => getStatus(item).text === filterStatus);
   };
 
@@ -239,6 +240,7 @@ const AppointmentHistory = () => {
             style={{width: 200}}
             placeholder="Filter by status"
           >
+            <Option value="All">All</Option>
             <Option value="Pending">Pending</Option>
             <Option value="Confirmed">Confirmed</Option>
             <Option value="Completed">Completed</Option>

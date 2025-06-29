@@ -118,15 +118,8 @@ const Sidebar = () => {
       {
         label: "Account Management",
         key: "account-management",
-        icon: <UserOutlined />,
-        dropdown: [
-          {
-            label: "List User",
-            key: "/admin/account-management/list-user",
-            link: "/admin/account-management/list-user",
-            icon: <TeamOutlined />,
-          },
-        ],
+        link: "/admin/account-management/list-user",
+        icon: <TeamOutlined />,
       },
       {
         label: "Vaccine Campaign",

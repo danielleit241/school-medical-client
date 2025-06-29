@@ -33,6 +33,7 @@ import MedicalRequest from "./pages/Admin/MedicalRequest/MedicalRequest";
 import StudentList from "./pages/Admin/StudentManagement/StudentList/StudentList";
 import UserProfileAdmin from "./pages/Admin/Profile/User/UserProfile";
 import UpdateUserProfileAdmin from "./pages/Admin/Profile/Edit/UpdateUserProfile";
+import Notification from "./pages/Admin/Notification/Notification";
 
 // Nurse pages
 import NurseDashboard from "./pages/Nurse/Dashboard";
@@ -239,6 +240,7 @@ function App() {
             path="student-management/student-list"
             element={<StudentList />}
           />
+          <Route path="notification" element={<Notification />} />
           <Route path="profile" element={<UserProfileAdmin />} />
           <Route path="profile/update" element={<UpdateUserProfileAdmin />} />
           <Route path="resetpassword" element={<ResetPassword />} />
@@ -282,6 +284,7 @@ function App() {
             path="student-management/student-list"
             element={<StudentList />}
           />
+          <Route path="notification" element={<Notification />} />
           <Route path="profile" element={<UserProfileAdmin />} />
           <Route path="profile/update" element={<UpdateUserProfileAdmin />} />
           <Route path="resetpassword" element={<ResetPassword />} />
