@@ -26,6 +26,7 @@ import {
   PlusOutlined,
   TeamOutlined,
   DownOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
@@ -54,6 +55,12 @@ const DetailCampaign = () => {
   const [toNurseData, setToNurseData] = useState([]);
   const [roundsWithNurse, setRoundsWithNurse] = useState([]);
   const [classes, setClasses] = useState([]); // Thêm state để lưu danh sách lớp
+
+  // Edit round modal state
+  const [editRoundModalVisible, setEditRoundModalVisible] = useState(false);
+  const [editRoundLoading, setEditRoundLoading] = useState(false);
+  const [editRoundData, setEditRoundData] = useState(null);
+  const [formEditRound] = Form.useForm();
 
   // Function to check and update campaign status if all rounds are completed
   const updateExpiredCampaigns = useCallback(async () => {
@@ -403,6 +410,69 @@ const DetailCampaign = () => {
     navigate(`/${roleName}/vaccine/vaccine-round/student-list`);
   };
 
+  // Handle open edit round modal
+  const handleEditRound = async (round) => {
+    setEditRoundData(round);
+    setEditRoundModalVisible(true);
+
+    // Lấy lại danh sách nurse mới nhất trước khi setFieldsValue
+    try {
+      const res = await axiosInstance.get("/api/nurses");
+      setNurses(res.data || []);
+    } catch {
+      setNurses([]);
+    }
+
+    // Đảm bảo setFieldsValue sau khi đã có nurses
+    setTimeout(() => {
+      formEditRound.setFieldsValue({
+        roundName: round.roundName,
+        targetGrade: round.targetGrade,
+        description: round.description,
+        startTime: dayjs(round.startTime),
+        endTime: dayjs(round.endTime),
+        nurseId: round.nurseId || undefined,
+      });
+    }, 0);
+  };
+
+  // Handle submit edit round
+  const handleSubmitEditRound = async () => {
+    try {
+      setEditRoundLoading(true);
+      const values = await formEditRound.validateFields();
+      await axiosInstance.put(
+        `/api/vaccination-rounds/${editRoundData.roundId}`,
+        {
+          roundName: values.roundName,
+          targetGrade: values.targetGrade,
+          description: values.description,
+          startTime: values.startTime.toISOString(),
+          endTime: values.endTime.toISOString(),
+          nurseId: values.nurseId,
+        }
+      );
+      message.success("Edit round successfully!");
+      setEditRoundModalVisible(false);
+      formEditRound.resetFields();
+      // Reload rounds
+      setLoading(true);
+      const scheduleRes = await axiosInstance.get(
+        `/api/vaccinations/schedules/${scheduleId}`
+      );
+      setDetail(scheduleRes.data);
+      if (scheduleRes.data && scheduleRes.data.vaccinationRounds) {
+        await fetchRoundsWithNurse(scheduleRes.data.vaccinationRounds);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error("Error editing round:", err);
+      message.error("Edit round failed!");
+    } finally {
+      setEditRoundLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{textAlign: "center", marginTop: 40}}>
@@ -566,59 +636,80 @@ const DetailCampaign = () => {
           {roundsWithNurse.length === 0 && (
             <Paragraph>No rounds available.</Paragraph>
           )}
-          {roundsWithNurse.map((round, idx) => (
-            <Card
-              key={round.roundId}
-              type="inner"
-              title={`Round ${idx + 1}: ${round.roundName}`}
-              style={{marginBottom: 16, background: "#E6F7FF"}}
-              extra={
-                <Space>
-                  {round.status ? (
-                    <Tag color="green">Completed</Tag>
-                  ) : (
-                    <Tag color="orange">Not completed</Tag>
-                  )}
-                  <Button
-                    size="small"
-                    icon={<EyeOutlined />}
-                    onClick={() => handleRoundDetail(round.roundId)}
-                  >
-                    Detail
-                  </Button>
-                  <Button
-                    size="small"
-                    icon={<TeamOutlined />}
-                    onClick={() => handleShowStudentList(round.roundId)}
-                  >
-                    List Students
-                  </Button>
-                </Space>
-              }
-            >
-              <Descriptions column={1} size="small">
-                <Descriptions.Item label="Target Grade">
-                  {round.targetGrade}
-                </Descriptions.Item>
-                <Descriptions.Item label="Description">
-                  {round.description || "None"}
-                </Descriptions.Item>
-                <Descriptions.Item label="Start Time">
-                  {round.startTime
-                    ? dayjs(round.startTime).format("YYYY-MM-DD HH:mm")
-                    : ""}
-                </Descriptions.Item>
-                <Descriptions.Item label="End Time">
-                  {round.endTime
-                    ? dayjs(round.endTime).format("YYYY-MM-DD HH:mm")
-                    : ""}
-                </Descriptions.Item>
-                <Descriptions.Item label="Nurse">
-                  {round.nurseProfile?.fullName || "Not assigned yet"}
-                </Descriptions.Item>
-              </Descriptions>
-            </Card>
-          ))}
+          {roundsWithNurse.map((round, idx) => {
+            const now = dayjs();
+            const start = dayjs(round.startTime);
+            const end = dayjs(round.endTime);
+            const isEditingDisabled =
+              (now.isAfter(start) && now.isBefore(end)) || round.status === true;
+
+            return (
+              <Card
+                key={round.roundId}
+                type="inner"
+                title={`Round ${idx + 1}: ${round.roundName}`}
+                style={{marginBottom: 16, background: "#E6F7FF"}}
+                extra={
+                  <Space>
+                    {round.status ? (
+                      <Tag color="green">Completed</Tag>
+                    ) : (
+                      <Tag color="orange">Not completed</Tag>
+                    )}
+                    <Button
+                      size="small"
+                      icon={<EyeOutlined />}
+                      onClick={() => handleRoundDetail(round.roundId)}
+                    >
+                      Detail
+                    </Button>
+                    <Button
+                      size="small"
+                      icon={<TeamOutlined />}
+                      onClick={() => handleShowStudentList(round.roundId)}
+                    >
+                      List Students
+                    </Button>
+                    <Button
+                      size="small"
+                      icon={<EditOutlined />}
+                      onClick={() => handleEditRound(round)}
+                      disabled={isEditingDisabled}
+                      title={
+                        isEditingDisabled
+                          ? "Cannot edit during round time or after completed"
+                          : "Edit"
+                      }
+                    >
+                      Edit
+                    </Button>
+                  </Space>
+                }
+              >
+                <Descriptions column={1} size="small">
+                  <Descriptions.Item label="Target Grade">
+                    {round.targetGrade}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Description">
+                    {round.description || "None"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Start Time">
+                    {round.startTime
+                      ? dayjs(round.startTime).format("YYYY-MM-DD HH:mm")
+                      : ""}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="End Time">
+                    {round.endTime
+                      ? dayjs(round.endTime).format("YYYY-MM-DD HH:mm")
+                      : ""}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Nurse">
+                    {round.nurseProfile?.fullName || "Not assigned yet"}
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            );
+          })}
         </Col>
       </Row>
 
@@ -761,6 +852,93 @@ const DetailCampaign = () => {
             label="Nurse"
             name="nurseId"
             rules={[{required: true, message: "Please select nurse!"}]}
+          >
+            <Select placeholder="Select nurse">
+              {nurses.map((nurse) => (
+                <Select.Option
+                  key={nurse.staffNurseId}
+                  value={nurse.staffNurseId}
+                >
+                  {nurse.fullName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Edit Round Modal */}
+      <Modal
+        open={editRoundModalVisible}
+        title="Edit Vaccination Round"
+        onCancel={() => setEditRoundModalVisible(false)}
+        onOk={handleSubmitEditRound}
+        confirmLoading={editRoundLoading}
+        okText="Save"
+        width={600}
+      >
+        <Form form={formEditRound} layout="vertical">
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Round Name"
+                name="roundName"
+                rules={[{ required: true, message: "Please input round name!" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Target Grade"
+                name="targetGrade"
+                rules={[{ required: true, message: "Please select target grade!" }]}
+              >
+                <Select
+                  placeholder="Select class"
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.value ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                >
+                  {classes.map((cls) => (
+                    <Select.Option key={cls} value={cls}>
+                      {cls}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item label="Description" name="description">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Start Time"
+                name="startTime"
+                rules={[{ required: true, message: "Please select start time!" }]}
+              >
+                <DatePicker showTime style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="End Time"
+                name="endTime"
+                rules={[{ required: true, message: "Please select end time!" }]}
+              >
+                <DatePicker showTime style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item
+            label="Nurse"
+            name="nurseId"
+            rules={[{ required: true, message: "Please select nurse!" }]}
           >
             <Select placeholder="Select nurse">
               {nurses.map((nurse) => (
