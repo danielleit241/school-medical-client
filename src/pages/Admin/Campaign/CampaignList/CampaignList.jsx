@@ -515,7 +515,8 @@ const CampaignList = () => {
                         >
                           <div>
                             <Text strong style={{fontSize: 13}}>
-                              Round: {round.roundName || `${index + 1}`}
+                              Round {index + 1}:{" "}
+                              {round.roundName || `${index + 1}`}
                             </Text>
                             <Tag
                               color={roundStatusConfig.color}

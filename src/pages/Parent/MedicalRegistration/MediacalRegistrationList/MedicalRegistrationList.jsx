@@ -11,7 +11,7 @@ const MedicalRegistrationList = () => {
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const pageSize = 10;
-  const [filterStatus, setFilterStatus] = useState("notyet"); // "notyet" | "done"
+  const [filterStatus, setFilterStatus] = useState("all"); // "all" | "notyet" | "done"
   const [showList, setShowList] = useState(false);
   const [dotIndex, setDotIndex] = useState(0);
   const [studentsData, setStudentsData] = useState({}); // Cache for student data
@@ -54,7 +54,7 @@ const MedicalRegistrationList = () => {
     };
 
     if (parentId) fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parentId, pageIndex, pageSize]);
 
   // Fetch student details for each student ID
@@ -140,7 +140,7 @@ const MedicalRegistrationList = () => {
   const filteredData = data.filter((item) => {
     if (filterStatus === "done") return isAllDoseCompleted(item);
     if (filterStatus === "notyet") return !isAllDoseCompleted(item);
-    return true;
+    return true; // "all"
   });
 
   return (
@@ -276,6 +276,7 @@ const MedicalRegistrationList = () => {
             style={{width: 160}}
             onChange={setFilterStatus}
           >
+            <Select.Option value="all">All</Select.Option>
             <Select.Option value="notyet">Not Yet</Select.Option>
             <Select.Option value="done">Done</Select.Option>
           </Select>

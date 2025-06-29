@@ -3,18 +3,15 @@ import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import {useSelector} from "react-redux";
 import axiosInstance from "../../../api/axios";
 import {Button, Modal} from "antd";
-import {Bell} from "lucide-react";
-import {useNavigate} from "react-router-dom";
+import {Bell} from "lucide-react"; // Optional: for icon
 
-const Notifications = () => {
+const Notification = () => {
   const userId = useSelector((state) => state.user?.userId);
   const [notifications, setNotifications] = useState([]);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
-
-  const navigate = useNavigate();
 
   const notificationTypeMap = {
     1: "Appointment",
@@ -65,34 +62,6 @@ const Notifications = () => {
       }
     })();
   }, [userId]);
-
-  // Hàm điều hướng theo type cho nurse
-  const handleViewNotification = (noti) => {
-    switch (noti.type) {
-      case 1:
-        navigate("/nurse/appointment-management/appointment-list");
-        window.location.reload();
-        break;
-      case 2:
-        navigate("/nurse/health-check/list");
-        window.location.reload();
-        break;
-      case 3:
-        navigate("/nurse/medical-event/medical-event-list");
-        window.location.reload();
-        break;
-      case 4:
-        navigate("/nurse/medical-received/medical-received-list");
-        window.location.reload();
-        break;
-      case 5:
-        navigate("/nurse/vaccine/campaign-list");
-        window.location.reload();
-        break;
-      default:
-        break;
-    }
-  };
 
   return (
     <div
@@ -147,10 +116,10 @@ const Notifications = () => {
           >
             <Bell size={56} color="#e0e7ef" style={{marginBottom: 8}} />
             <div style={{fontWeight: 600, fontSize: 22, color: "#888"}}>
-              No notifications
+              Không có thông báo nào
             </div>
             <div style={{color: "#aaa", fontSize: 15}}>
-              You will receive new notifications here.
+              Bạn sẽ nhận được thông báo mới tại đây.
             </div>
           </div>
         ) : (
@@ -169,13 +138,13 @@ const Notifications = () => {
               const diffMs = now - sendDate.getTime();
               const diffMin = Math.floor(diffMs / 60000);
               if (diffMin <= 3) {
-                timeLabel = "now";
+                timeLabel = "Vừa xong";
               } else if (diffMin < 60) {
-                timeLabel = `${diffMin} minutes ago`;
+                timeLabel = `${diffMin} phút trước`;
               } else {
                 const diffHour = Math.floor(diffMin / 60);
                 if (diffHour < 24) {
-                  timeLabel = `${diffHour} hours ago`;
+                  timeLabel = `${diffHour} giờ trước`;
                 } else {
                   timeLabel = sendDate.toLocaleString();
                 }
@@ -206,19 +175,8 @@ const Notifications = () => {
                 onMouseEnter={() => setHoveredId(notificationId)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                <div style={{flex: 1, position: "relative"}}>
-                  {/* Time label top-right */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      fontSize: 13,
-                      color: "#888",
-                    }}
-                  >
-                    {timeLabel}
-                  </div>
+                {/* Main content */}
+                <div style={{flex: 1}}>
                   <div
                     style={{
                       fontWeight: 600,
@@ -240,6 +198,15 @@ const Notifications = () => {
                   >
                     {noti.content || ""}
                   </div>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "#888",
+                      marginTop: 2,
+                    }}
+                  >
+                    {timeLabel}
+                  </div>
                   <div style={{marginTop: 10, display: "flex", gap: 10}}>
                     <Button
                       size="small"
@@ -250,21 +217,6 @@ const Notifications = () => {
                       }}
                     >
                       Details
-                    </Button>
-                    <Button
-                      size="small"
-                      style={{
-                        background: "#f0f1f2",
-                        color: "#355383",
-                        border: "none",
-                        fontWeight: 600,
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewNotification(noti);
-                      }}
-                    >
-                      View
                     </Button>
                   </div>
                 </div>
@@ -279,15 +231,15 @@ const Notifications = () => {
         footer={null}
         centered
         destroyOnClose
-        title="Notification Detail"
+        title="Chi tiết thông báo"
         bodyStyle={{padding: 24, paddingTop: 8, minHeight: 180}}
         transitionName="ant-zoom"
         maskTransitionName="ant-fade"
       >
         {loadingDetail ? (
-          <div>Loading...</div>
+          <div>Đang tải...</div>
         ) : !selectedNotification ? (
-          <div style={{color: "#888"}}>No notification detail.</div>
+          <div style={{color: "#888"}}>Không có chi tiết thông báo.</div>
         ) : (
           (() => {
             const noti = selectedNotification.notificationResponseDto || {};
@@ -300,10 +252,10 @@ const Notifications = () => {
                     "No title"}
                 </div>
                 <div style={{marginBottom: 8}}>
-                  <b>Sender:</b> {sender.userName || "Unknown"}
+                  <b>Người gửi:</b> {sender.userName || "Không rõ"}
                 </div>
                 <div style={{marginBottom: 8}}>
-                  <b>Receiver:</b> {receiver.userName || "Unknown"}
+                  <b>Người nhận:</b> {receiver.userName || "Không rõ"}
                 </div>
                 <div style={{color: "#444", fontSize: 16, marginBottom: 12}}>
                   {noti.content || ""}
@@ -317,7 +269,7 @@ const Notifications = () => {
                 </div>
                 <div style={{marginTop: 24, textAlign: "right"}}>
                   <Button onClick={() => setShowDetailModal(false)}>
-                    Close
+                    Đóng
                   </Button>
                 </div>
               </div>
@@ -329,4 +281,4 @@ const Notifications = () => {
   );
 };
 
-export default Notifications;
+export default Notification;

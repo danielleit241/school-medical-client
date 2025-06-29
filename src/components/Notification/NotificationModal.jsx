@@ -232,7 +232,7 @@ const NotificationModal = ({visible = true}) => {
                     window.location.reload();
                     break;
                   case 5: // Vaccination: chưa sửa
-                    navigate("/parent/medical-registration/list");
+                    navigate("/parent/timetable");
                     window.location.reload();
                     break;
                   default:
@@ -386,7 +386,6 @@ const HealthCheckConfirmButton = ({sourceId}) => {
     </>
   );
 };
-
 
 const VaccinationConfirmButton = ({sourceId}) => {
   const [status, setStatus] = useState(undefined);

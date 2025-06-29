@@ -40,7 +40,7 @@ function HomePage() {
     <>
       <div className="relative home">
         <div className="absolute guide top-5 left-20 z-10 underline text-red-400">
-          <Link to="/guide">Website usage guide for parents</Link>
+          {!userId && <Link to="/guide">Website usage guide for parents</Link>}
         </div>
         <div className="home__carousel">
           <Carousel autoplay />
