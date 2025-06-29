@@ -496,7 +496,7 @@ const AppointmentList = () => {
                 borderBottomLeftRadius: 20,
                 borderBottomRightRadius: 20,
                 overflowY: "auto",
-                maxHeight: "calc(100vh - 250px)",
+                maxHeight: "calc(100vh - 120px)",
               }}
             >
               {hasBookedToday && (
@@ -524,18 +524,14 @@ const AppointmentList = () => {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "16px",
+                  gap: "20px",
                   marginTop: 10,
                 }}
-                className="nurse-list-container"
               >
                 {nurse.map((n) => {
-                  // Check if this specific nurse is in the free nurses list
                   const isNurseAvailable = freeNurseIds.includes(
                     n.userId || n.staffNurseId
                   );
-
-                  // Sample info for all nurses
                   const nurseInfo = {
                     specialty: "School Nurse",
                     workingDays: "Monday - Friday (9:30 - 11:30)",
@@ -547,214 +543,158 @@ const AppointmentList = () => {
                   };
 
                   return (
-                    //{/* Nurse card container */}
                     <div
                       key={n.staffNurseId || n.id}
-                      className="animate__animated animate__fadeIn"
                       style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
                         background: "#fff",
-                        borderRadius: 14,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                        padding: "20px 24px",
-                        border: "1px solid #f0f0f0",
-                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                        borderRadius: 16,
+                        boxShadow: "0 2px 8px rgba(43,93,196,0.07)",
+                        padding: "28px 32px",
+                        border: "1px solid #e6eaf3",
+                        minHeight: 120,
                       }}
                     >
+                      {/* Left: Info */}
                       <div
-                        style={{
-                          position: "relative",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
+                        style={{display: "flex", alignItems: "center", flex: 1}}
                       >
-                        {/* Phần 1: Thông tin cơ bản (70%) */}
+                        {/* Avatar */}
                         <div
                           style={{
-                            width: "70%",
+                            width: 80,
+                            height: 80,
+                            borderRadius: "20%",
+                            background: "#0284c7",
+                            color: "#fff",
+                            fontWeight: 700,
+                            fontSize: 24,
                             display: "flex",
-                            flexDirection: "column",
-                            gap: "10px",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginRight: 28,
                           }}
                         >
-                          {/* Tên y tá */}
+                          {n.avatarUrl ? (
+                            <img
+                              src={n.avatarUrl}
+                              alt={n.fullName}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                borderRadius: "20%",
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={LogoDefault}
+                              alt="Default Logo"
+                              style={{
+                                width: "95%",
+                                height: "95%",
+                                borderRadius: "20%",
+                                // objectFit: "contain",
+                                // filter: "brightness(0) invert(1)",
+                              }}
+                            />
+                          )}
+                        </div>
+                        {/* Info */}
+                        <div>
                           <div
                             style={{
                               fontWeight: 700,
-                              fontSize: 22,
-                              color: "#333",
-                              marginBottom: "4px",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "12px",
+                              fontSize: 20,
+                              marginBottom: 4,
                             }}
                           >
-                            <div
-                              style={{
-                                width: 45,
-                                height: 45,
-                                borderRadius: "50%",
-                                background:
-                                  "linear-gradient(135deg, #3058A4 0%, #2563eb 100%)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: 700,
-                                fontSize: 20,
-                                color: "#fff",
-                                boxShadow: "0 2px 8px rgba(43, 93, 196, 0.2)",
-                              }}
-                            >
-                              {n.fullName[0]}
-                            </div>
-                            <span>{n.fullName}</span>
+                            {n.fullName}
                           </div>
-
-                          {/* Thông tin liên hệ */}
                           <div
                             style={{
                               display: "flex",
-                              gap: "24px",
-                              marginBottom: "4px",
+                              alignItems: "center",
+                              color: "#4b5563",
+                              fontSize: 15,
+                              marginBottom: 4,
                             }}
                           >
-                            {/* Số điện thoại */}
-                            <div
-                              style={{
-                                color: "#555",
-                                display: "flex",
-                                alignItems: "center",
-                                fontSize: 14,
-                              }}
-                            >
-                              <FiPhone
-                                style={{
-                                  marginRight: 8,
-                                  color: "#52c41a",
-                                  fontSize: 16,
-                                }}
-                              />
-                              <span style={{fontWeight: 500}}>
-                                {n.phoneNumber}
-                              </span>
-                            </div>
-
-                            {/* Thời gian làm việc */}
-                            <div
-                              style={{
-                                color: "#555",
-                                display: "flex",
-                                alignItems: "center",
-                                fontSize: 14,
-                              }}
-                            >
-                              <AiOutlineCalendar
-                                style={{
-                                  marginRight: 8,
-                                  color: "#5b8cff",
-                                  fontSize: 16,
-                                }}
-                              />
-                              <span style={{fontWeight: 500}}>
-                                {nurseInfo.workingDays}
-                              </span>
-                            </div>
+                            <FiPhone
+                              style={{marginRight: 8, color: "#1890ff"}}
+                            />
+                            {n.phoneNumber}
+                            <span style={{margin: "0 12px"}}></span>
+                            <AiOutlineCalendar
+                              style={{marginRight: 8, color: "#1890ff"}}
+                            />
+                            {nurseInfo.workingDays}
                           </div>
-
-                          {/* Kỹ năng chính */}
-                          <div style={{marginTop: 5}}>
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: 6,
-                                flexWrap: "wrap",
-                              }}
-                            >
-                              {nurseInfo.skills.map((skill, idx) => (
-                                <span
-                                  key={idx}
-                                  style={{
-                                    background: "#f5f7fa",
-                                    color: "#5b8cff",
-                                    padding: "4px 8px",
-                                    borderRadius: 4,
-                                    fontSize: 13,
-                                    fontWeight: 500,
-                                  }}
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
+                          <div style={{display: "flex", gap: 8, marginTop: 6}}>
+                            {nurseInfo.skills.map((skill, idx) => (
+                              <span
+                                key={idx}
+                                style={{
+                                  background: "#f0f7ff",
+                                  color: "#2563eb",
+                                  padding: "4px 12px",
+                                  borderRadius: 8,
+                                  fontSize: 14,
+                                  fontWeight: 500,
+                                }}
+                              >
+                                {skill}
+                              </span>
+                            ))}
                           </div>
                         </div>
-
-                        {/* Phần 2: Trạng thái và nút (30%) */}
-                        <div
+                      </div>
+                      {/* Right: Status & Button */}
+                      <div
+                        style={{display: "flex", alignItems: "center", gap: 18}}
+                      >
+                        <span
                           style={{
-                            width: "30%",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "flex-end",
-                            justifyContent: "center",
-                            gap: 12,
+                            background: isNurseAvailable
+                              ? "#e6fff2"
+                              : "#fff1f0",
+                            color: isNurseAvailable ? "#1bbf7a" : "#f5222d",
+                            borderRadius: 8,
+                            padding: "6px 18px",
+                            fontWeight: 600,
+                            fontSize: 16,
+                            border: `1px solid ${
+                              isNurseAvailable ? "#b7eb8f" : "#ffccc7"
+                            }`,
+                            marginRight: 6,
                           }}
                         >
-                          {/* Status tag - positioned absolutely at the top right */}
-                          <span
-                            style={{
-                              position: "absolute",
-                              top: 18,
-                              right: 18,
-                              background: hasBookedToday 
-                                ? "#fff1f0"  // Red background for "Already Booked"
-                                : isNurseAvailable 
-                                  ? "#e6fff2"  // Green background for "Available"
-                                  : "#fff1f0",  // Red background for "Unavailable"
-                              color: hasBookedToday 
-                                ? "#f5222d"  // Red text for "Already Booked"
-                                : isNurseAvailable 
-                                  ? "#1bbf7a"  // Green text for "Available"
-                                  : "#f5222d",  // Red text for "Unavailable"
-                              borderRadius: 8,
-                              padding: "2px 12px",
-                              fontSize: 13,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {hasBookedToday
-                              ? "You Already Booked"
-                              : isNurseAvailable
-                                ? "Available"
-                                : "Unavailable"}
-                          </span>
-
-                          {/* Button - only show if parent hasn't booked */}
-                          {!hasBookedToday && (
-                            <Button
-                              disabled={!isNurseAvailable}
-                              style={{
-                                marginTop: 12,
-                                borderRadius: 8,
-                                background: isNurseAvailable
-                                  ? "#355383"
-                                  : "#ccc",
-                                color: "#fff",
-                                fontWeight: 700,
-                                fontSize: 16,
-                                padding: "8px 10px",
-                                width: "30%",
-                                opacity: isNurseAvailable ? 1 : 0.7,
-                                pointerEvents: isNurseAvailable
-                                  ? "auto"
-                                  : "none",
-                              }}
-                              onClick={() => handleSelect(n)}
-                            >
-                              Book Now
-                            </Button>
-                          )}
-                        </div>
+                          {isNurseAvailable ? "Available" : "Unavailable"}
+                        </span>
+                        <Button
+                          disabled={!isNurseAvailable || hasBookedToday}
+                          style={{
+                            borderRadius: 8,
+                            background:
+                              isNurseAvailable && !hasBookedToday
+                                ? "#355383"
+                                : "#ccc",
+                            color: "#fff",
+                            fontWeight: 700,
+                            fontSize: 16,
+                            padding: "8px 28px",
+                            opacity:
+                              isNurseAvailable && !hasBookedToday ? 1 : 0.7,
+                            pointerEvents:
+                              isNurseAvailable && !hasBookedToday
+                                ? "auto"
+                                : "none",
+                          }}
+                          onClick={() => handleSelect(n)}
+                        >
+                          Book Now
+                        </Button>
                       </div>
                     </div>
                   );

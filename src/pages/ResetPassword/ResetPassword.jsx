@@ -5,6 +5,7 @@ import "./index.scss";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
 import {useLocation, useNavigate} from "react-router-dom";
+import {CircleCheck} from "lucide-react";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const ResetPassword = () => {
     number: false,
     special: false,
   });
+  const [showPasswordGuide, setShowPasswordGuide] = useState(false);
 
   // Lấy phoneNumber từ redux hoặc location.state
   const phoneNumberRedux = useSelector(
@@ -187,7 +189,7 @@ const ResetPassword = () => {
                 />
               </div>
             </div>
-            <div className="reset_form__input">
+            <div className="reset_form__input relative">
               <label>New Password:</label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -196,41 +198,111 @@ const ResetPassword = () => {
                 onChange={handleNewPasswordChange}
                 placeholder="Enter new password"
                 required
+                onFocus={() => setShowPasswordGuide(true)}
+                onBlur={() => setShowPasswordGuide(false)}
+                style={{position: "relative"}}
               />
-              <div style={{fontSize: 13, marginTop: 4}}>
-                <p
+              {/* Password guide popup */}
+              {showPasswordGuide && (
+                <div
                   style={{
-                    color: passwordWarning.length ? "green" : "red",
-                    margin: 0,
+                    position: "absolute",
+                    top: 25,
+                    left: "100%",
+                    zIndex: 10,
+                    background: "#fff",
+                    border: "1px solid #e0e7ef",
+                    borderRadius: 8,
+                    padding: "14px 22px",
+                    minWidth: 300,
+                    fontSize: 14,
+                    color: "#222",
+                    filter: "drop-shadow(0 2px 8px #e0e7ef)",
                   }}
                 >
-                  • At least 6 characters
-                </p>
-                <p
-                  style={{
-                    color: passwordWarning.uppercase ? "green" : "red",
-                    margin: 0,
-                  }}
-                >
-                  • At least one uppercase letter
-                </p>
-                <p
-                  style={{
-                    color: passwordWarning.number ? "green" : "red",
-                    margin: 0,
-                  }}
-                >
-                  • At least one number
-                </p>
-                <p
-                  style={{
-                    color: passwordWarning.special ? "green" : "red",
-                    margin: 0,
-                  }}
-                >
-                  • At least one special character
-                </p>
-              </div>
+                  {/* Arrow */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 16,
+                      left: -12,
+                      width: 0,
+                      height: 0,
+                      borderTop: "10px solid transparent",
+                      borderBottom: "10px solid transparent",
+                      borderRight: "12px solid #fff",
+                      filter: "drop-shadow(-1px 0 0 #e0e7ef)",
+                      zIndex: 11,
+                    }}
+                  />
+                  <div style={{fontWeight: 600, marginBottom: 6}}>Sử dụng:</div>
+                  <ul style={{paddingLeft: 20, margin: 0, listStyle: "none"}}>
+                    <li
+                      style={{
+                        color: passwordWarning.length ? "#16a34a" : "#888",
+                        marginBottom: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <CircleCheck
+                        size={18}
+                        color={passwordWarning.length ? "#16a34a" : "#888"}
+                        style={{minWidth: 18}}
+                      />
+                      8 - 64 characters
+                    </li>
+                    <li
+                      style={{
+                        color: passwordWarning.uppercase ? "#16a34a" : "#888",
+                        marginBottom: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <CircleCheck
+                        size={18}
+                        color={passwordWarning.uppercase ? "#16a34a" : "#888"}
+                        style={{minWidth: 18}}
+                      />
+                      Uppercase and lowercase letters
+                    </li>
+                    <li
+                      style={{
+                        color: passwordWarning.number ? "#16a34a" : "#888",
+                        marginBottom: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <CircleCheck
+                        size={18}
+                        color={passwordWarning.number ? "#16a34a" : "#888"}
+                        style={{minWidth: 18}}
+                      />
+                      Numbers
+                    </li>
+                    <li
+                      style={{
+                        color: passwordWarning.special ? "#16a34a" : "#888",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <CircleCheck
+                        size={18}
+                        color={passwordWarning.special ? "#16a34a" : "#888"}
+                        style={{minWidth: 18}}
+                      />
+                      Special characters (!@#$%^&*)
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
             <div className="reset_form__input">
               <label>Confirm New Password:</label>
