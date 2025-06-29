@@ -131,6 +131,7 @@ const AddStudent = () => {
       setFileList([]);
       setData([]);
       setEditableData([]);
+      window.location.reload(); 
     } catch (error) {
       console.error("Upload failed:", error);
       setShowErrorAlert(true);
