@@ -108,7 +108,38 @@ const StudentHealthCheckList = () => {
 
   // Export to Excel (placeholder function)
   const handleExport = () => {
-    message.info("Export functionality will be implemented here");
+    if (!roundId) {
+      message.error("Round ID not found");
+      return;
+    }
+    setDownloadLoading(true);
+    axiosInstance
+      .get(`/api/health-check-results/export-excel`, {
+        params: { roundId }, // export theo round
+        responseType: "blob",
+      })
+      .then((res) => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "HealthCheckRound.xlsx");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        message.success("Download successful!");
+        Swal.fire({
+          icon: "success",
+          title: "Download successful!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      })
+      .catch(() => {
+        message.error("Download failed");
+      })
+      .finally(() => {
+        setDownloadLoading(false);
+      });
   };
 
   // Handle view detail of vaccination result
@@ -132,42 +163,6 @@ const StudentHealthCheckList = () => {
       })
       .finally(() => {
         setResultLoading(false);
-      });
-  };
-
-  // Download result as Excel file
-  const handleDownloadResult = () => {
-    if (!resultDetail?.resultId) {
-      message.error("Result ID not found");
-      return;
-    }
-    setDownloadLoading(true);
-    axiosInstance
-      .get(`/api/health-check-results/export-excel`, {
-        params: {id: resultDetail.resultId},
-        responseType: "blob",
-      })
-      .then((res) => {
-        const url = window.URL.createObjectURL(new Blob([res.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", "HealthCheckResult.xlsx");
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        message.success("Download successful!");
-        Swal.fire({
-        icon: "success",
-        title: "Download successful!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-      })
-      .catch(() => {
-        message.error("Download failed");
-      })
-      .finally(() => {
-        setDownloadLoading(false);
       });
   };
 
@@ -207,13 +202,13 @@ const StudentHealthCheckList = () => {
     },
     {
       title: "Parent Phone",
-      dataIndex: ["parentOfStudent", "phoneNumber"], // sửa lại từ parentsOfStudent
+      dataIndex: ["parentOfStudent", "phoneNumber"], 
       key: "parentPhone",
       render: (text) => text || "N/A",
     },
     {
       title: "Parent Confirm",
-      dataIndex: ["parentOfStudent", "parentConfirm"], // sửa lại từ parentsOfStudent
+      dataIndex: ["parentOfStudent", "parentConfirm"], 
       key: "parentConfirm",
       render: (confirmed) => (
         <Tag color={confirmed ? "green" : "orange"}>
@@ -280,6 +275,7 @@ const StudentHealthCheckList = () => {
             icon={<FileExcelOutlined />}
             onClick={handleExport}
             type="primary"
+            loading={downloadLoading}
             style={{background: "#52c41a", borderColor: "#52c41a"}}
           >
             Export
@@ -338,17 +334,7 @@ const StudentHealthCheckList = () => {
               setResultDetail(null);
             }}
             footer={[
-              <Button
-                key="download"
-                icon={<DownloadOutlined />}
-                type="primary"
-                onClick={handleDownloadResult}
-                disabled={!resultDetail?.resultId}
-                loading={downloadLoading}
-                style={{background: "#52c41a", borderColor: "#52c41a"}}
-              >
-                Download
-              </Button>,
+              // Chỉ giữ nút Close, bỏ nút Download
               <Button
                 key="close"
                 onClick={() => {

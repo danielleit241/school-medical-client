@@ -28,6 +28,7 @@ import {
   PhoneOutlined,
   PlusOutlined,
   DownOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
@@ -47,9 +48,13 @@ const HealthCheckDetail = () => {
   const [roundDetail, setRoundDetail] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [addRoundModalVisible, setAddRoundModalVisible] = useState(false);
+  const [editRoundModalVisible, setEditRoundModalVisible] = useState(false);
   const [addRoundLoading, setAddRoundLoading] = useState(false);
+  const [editRoundLoading, setEditRoundLoading] = useState(false);
   const [modalType, setModalType] = useState("new"); // "new" hoặc "supplement"
   const [formAddRound] = Form.useForm();
+  const [editRoundData, setEditRoundData] = useState(null);
+  const [formEditRound] = Form.useForm();
 
   // Notification data states
   const [toParentData, setToParentData] = useState([]);
@@ -290,6 +295,59 @@ const HealthCheckDetail = () => {
     }
   };
 
+  // Handle open edit round modal
+  const handleEditRound = (round) => {
+    setEditRoundData(round);
+    setEditRoundModalVisible(true);
+    setTimeout(() => {
+          formEditRound.setFieldsValue({
+            roundName: round.roundName,
+            targetGrade: round.targetGrade,
+            description: round.description,
+            startTime: dayjs(round.startTime),
+            endTime: dayjs(round.endTime),
+            nurseId: round.nurseId || undefined,
+          });
+    }, 0);
+  };
+
+  // Handle submit edit round
+  const handleSubmitEditRound = async () => {
+    try {
+      setEditRoundLoading(true);
+      const values = await formEditRound.validateFields();
+      await axiosInstance.put(
+        `/api/health-check-rounds/${editRoundData.healthCheckRoundInformation.roundId}`,
+        {
+          roundName: values.roundName,
+          targetGrade: values.targetGrade,
+          description: values.description,
+          startTime: values.startTime.toISOString(),
+          endTime: values.endTime.toISOString(),
+          nurseId: values.nurseId,
+        }
+      );
+      Swal.fire({
+        icon: "success",
+        title: "Edit round successfully!",
+        showConfirmButton: false,
+        timer: 1800,
+      });
+      setEditRoundModalVisible(false);
+      formEditRound.resetFields();
+      // Reload rounds
+      const updated = await axiosInstance.get(
+        `/api/health-checks/schedules/${scheduleId}`
+      );
+      setRounds(updated.data || []);
+    } catch (err) {
+      console.error(err);
+      message.error("Edit round failed!");
+    } finally {
+      setEditRoundLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -371,74 +429,91 @@ const HealthCheckDetail = () => {
       {rounds.length === 0 && <Empty description="No rounds available" />}
 
       <Row gutter={[16, 16]}>
-        {rounds.map((round, idx) => (
-          <Col xs={24} md={12} key={round.healthCheckRoundInformation.roundId}>
-            <Card
-              type="inner"
-              title={`Round ${idx + 1}: ${
-                round.healthCheckRoundInformation.roundName
-              }`}
-              style={{background: "#E6F7FF"}}
-              extra={
-                <Space>
-                  {round.healthCheckRoundInformation.status ? (
-                    <Tag color="green">Completed</Tag>
-                  ) : (
-                    <Tag color="orange">Not completed</Tag>
-                  )}
-                  <Button
-                    size="small"
-                    icon={<EyeOutlined />}
-                    onClick={() =>
-                      handleRoundDetail(
-                        round.healthCheckRoundInformation.roundId
-                      )
-                    }
-                  >
-                    Detail
-                  </Button>
-                  <Button
-                    size="small"
-                    icon={<TeamOutlined />}
-                    onClick={() =>
-                      handleShowStudentList(
-                        round.healthCheckRoundInformation.roundId
-                      )
-                    }
-                  >
-                    List Students
-                  </Button>
-                </Space>
-              }
-            >
-              <Descriptions column={1} size="small">
-                <Descriptions.Item label="Target Grade">
-                  {round.healthCheckRoundInformation.targetGrade}
-                </Descriptions.Item>
-                <Descriptions.Item label="Description">
-                  {round.healthCheckRoundInformation.description || "None"}
-                </Descriptions.Item>
-                <Descriptions.Item label="Start Time">
-                  {round.healthCheckRoundInformation.startTime
-                    ? dayjs(round.healthCheckRoundInformation.startTime).format(
-                        "YYYY-MM-DD HH:mm"
-                      )
-                    : ""}
-                </Descriptions.Item>
-                <Descriptions.Item label="End Time">
-                  {round.healthCheckRoundInformation.endTime
-                    ? dayjs(round.healthCheckRoundInformation.endTime).format(
-                        "YYYY-MM-DD HH:mm"
-                      )
-                    : ""}
-                </Descriptions.Item>
-                <Descriptions.Item label="Nurse">
-                  {round.nurse?.nurseName || "Not assigned yet"}
-                </Descriptions.Item>
-              </Descriptions>
-            </Card>
-          </Col>
-        ))}
+        {rounds.map((round, idx) => {
+          const now = dayjs();
+          const start = dayjs(round.healthCheckRoundInformation.startTime);
+          console.log("Start time:", start);
+          const end = dayjs(round.healthCheckRoundInformation.endTime);
+          const isEditingDisabled =
+            (now.isAfter(start) && now.isBefore(end)) ||
+            round.healthCheckRoundInformation.status === true;
+
+          return (
+            <Col xs={24} md={12} key={round.healthCheckRoundInformation.roundId}>
+              <Card
+                type="inner"
+                title={`Round ${idx + 1}: ${round.healthCheckRoundInformation.roundName}`}
+                style={{ background: "#E6F7FF" }}
+                extra={
+                  <Space>
+                    {round.healthCheckRoundInformation.status ? (
+                      <Tag color="green">Completed</Tag>
+                    ) : (
+                      <Tag color="orange">Not completed</Tag>
+                    )}
+                    <Button
+                      size="small"
+                      icon={<EyeOutlined />}
+                      onClick={() =>
+                        handleRoundDetail(round.healthCheckRoundInformation.roundId)
+                      }
+                    >
+                      Detail
+                    </Button>
+                    <Button
+                      size="small"
+                      icon={<TeamOutlined />}
+                      onClick={() =>
+                        handleShowStudentList(round.healthCheckRoundInformation.roundId)
+                      }
+                    >
+                      List Students
+                    </Button>
+                    <Button
+                      size="small"
+                      icon={<EditOutlined />}
+                      onClick={() => handleEditRound(round)}
+                      disabled={isEditingDisabled}
+                      title={
+                        isEditingDisabled
+                          ? "Cannot edit during round time or after completed"
+                          : "Edit"
+                      }
+                    >
+                      Edit
+                    </Button>
+                  </Space>
+                }
+              >
+                <Descriptions column={1} size="small">
+                  <Descriptions.Item label="Target Grade">
+                    {round.healthCheckRoundInformation.targetGrade}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Description">
+                    {round.healthCheckRoundInformation.description || "None"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Start Time">
+                    {round.healthCheckRoundInformation.startTime
+                      ? dayjs(round.healthCheckRoundInformation.startTime).format(
+                          "YYYY-MM-DD HH:mm"
+                        )
+                      : ""}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="End Time">
+                    {round.healthCheckRoundInformation.endTime
+                      ? dayjs(round.healthCheckRoundInformation.endTime).format(
+                          "YYYY-MM-DD HH:mm"
+                        )
+                      : ""}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Nurse">
+                    {round.nurse?.nurseName || "Not assigned yet"}
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
 
       {/* Round Detail Modal */}
@@ -581,6 +656,93 @@ const HealthCheckDetail = () => {
             label="Nurse"
             name="nurseId"
             rules={[{required: true, message: "Please select nurse!"}]}
+          >
+            <Select placeholder="Select nurse">
+              {nurses.map((nurse) => (
+                <Select.Option
+                  key={nurse.staffNurseId}
+                  value={nurse.staffNurseId}
+                >
+                  {nurse.fullName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Edit Round Modal */}
+      <Modal
+        open={editRoundModalVisible}
+        title="Edit Health Check Round"
+        onCancel={() => setEditRoundModalVisible(false)}
+        onOk={handleSubmitEditRound}
+        confirmLoading={editRoundLoading}
+        okText="Save"
+        width={600}
+      >
+        <Form form={formEditRound} layout="vertical">
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Round Name"
+                name="roundName"
+                rules={[{ required: true, message: "Please input round name!" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Target Grade"
+                name="targetGrade"
+                rules={[{ required: true, message: "Please select target grade!" }]}
+              >
+                <Select
+                  placeholder="Select class"
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.value ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                >
+                  {classes.map((cls) => (
+                    <Select.Option key={cls} value={cls}>
+                      {cls}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item label="Description" name="description">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Start Time"
+                name="startTime"
+                rules={[{ required: true, message: "Please select start time!" }]}
+              >
+                <DatePicker showTime style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="End Time"
+                name="endTime"
+                rules={[{ required: true, message: "Please select end time!" }]}
+              >
+                <DatePicker showTime style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item
+            label="Nurse"
+            name="nurseId"
+            rules={[{ required: true, message: "Please select nurse!" }]}
           >
             <Select placeholder="Select nurse">
               {nurses.map((nurse) => (
