@@ -5,162 +5,6 @@ import {Button, Modal} from "antd";
 import {Bell} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 
-// --- HealthCheckConfirmButton ---
-const HealthCheckConfirmButton = ({sourceId}) => {
-  const [status, setStatus] = useState(undefined);
-  const [loading, setLoading] = useState(false);
-  const [cancelLoading, setCancelLoading] = useState(false);
-  useEffect(() => {
-    if (sourceId) {
-      axiosInstance
-        .get(`/api/health-check-results/${sourceId}/is-confirmed`)
-        .then((res) => {
-          setStatus(res.data);
-        });
-    }
-  }, [sourceId]);
-  const handleConfirm = async (e) => {
-    e.stopPropagation();
-    setLoading(true);
-    try {
-      await axiosInstance.put(`/api/health-check-results/${sourceId}/confirm`, {
-        status: true,
-      });
-      const res = await axiosInstance.get(
-        `/api/health-check-results/${sourceId}/is-confirmed`
-      );
-      setStatus(res.data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancel = async (e) => {
-    e.stopPropagation();
-    setCancelLoading(true);
-    try {
-      await axiosInstance.put(`/api/health-check-results/${sourceId}/confirm`, {
-        status: false,
-      });
-      const res = await axiosInstance.get(
-        `/api/health-check-results/${sourceId}/is-confirmed`
-      );
-      setStatus(res.data);
-    } finally {
-      setCancelLoading(false);
-    }
-  };
-
-  if (status === false) {
-    return <span style={{color: "red", marginLeft: 8}}>Canceled</span>;
-  }
-
-  return (
-    <>
-      <Button
-        type={status === true ? "default" : "primary"}
-        disabled={status === true}
-        loading={loading}
-        size="small"
-        onClick={handleConfirm}
-        style={{marginLeft: "auto", marginRight: 8}}
-      >
-        {status === true ? "Confirmed" : "Confirm"}
-      </Button>
-      {status !== true && (
-        <Button
-          danger
-          type="default"
-          loading={cancelLoading}
-          size="small"
-          onClick={handleCancel}
-        >
-          Cancel
-        </Button>
-      )}
-    </>
-  );
-};
-
-// --- VaccinationConfirmButton ---
-const VaccinationConfirmButton = ({sourceId}) => {
-  const [status, setStatus] = useState(undefined);
-  const [loading, setLoading] = useState(false);
-  const [cancelLoading, setCancelLoading] = useState(false);
-
-  useEffect(() => {
-    if (sourceId) {
-      axiosInstance
-        .get(`/api/vaccination-results/${sourceId}/is-confirmed`)
-        .then((res) => {
-          setStatus(res.data);
-        });
-    }
-  }, [sourceId]);
-
-  const handleConfirm = async (e) => {
-    e.stopPropagation();
-    setLoading(true);
-    try {
-      await axiosInstance.put(`/api/vaccination-results/${sourceId}/confirm`, {
-        status: true,
-      });
-      const res = await axiosInstance.get(
-        `/api/vaccination-results/${sourceId}/is-confirmed`
-      );
-      setStatus(res.data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancel = async (e) => {
-    e.stopPropagation();
-    setCancelLoading(true);
-    try {
-      await axiosInstance.put(`/api/vaccination-results/${sourceId}/confirm`, {
-        status: false,
-      });
-      const res = await axiosInstance.get(
-        `/api/vaccination-results/${sourceId}/is-confirmed`
-      );
-      setStatus(res.data);
-    } finally {
-      setCancelLoading(false);
-    }
-  };
-
-  if (status === false) {
-    return <span style={{color: "red", marginLeft: 8}}>Canceled</span>;
-  }
-
-  return (
-    <>
-      <Button
-        type={status === true ? "default" : "primary"}
-        disabled={status === true}
-        loading={loading}
-        size="small"
-        onClick={handleConfirm}
-        style={{marginLeft: "auto", marginRight: 8}}
-      >
-        {status === true ? "Confirmed" : "Confirm"}
-      </Button>
-      {status !== true && (
-        <Button
-          danger
-          type="default"
-          loading={cancelLoading}
-          size="small"
-          onClick={handleCancel}
-        >
-          Cancel
-        </Button>
-      )}
-    </>
-  );
-};
-
 const Notifications = () => {
   const userId = useSelector((state) => state.user?.userId);
   const [notifications, setNotifications] = useState([]);
@@ -395,44 +239,31 @@ const Notifications = () => {
                     {noti.content || ""}
                   </div>
                   <div style={{marginTop: 10, display: "flex", gap: 10}}>
-                    {/* Nếu là HealthCheck hoặc Vaccination và chưa confirm/cancel thì chỉ hiện nút xác nhận/hủy */}
-                    {noti.type === 2 && (
-                      <HealthCheckConfirmButton sourceId={noti.sourceId} />
-                    )}
-                    {noti.type === 5 && (
-                      <VaccinationConfirmButton sourceId={noti.sourceId} />
-                    )}
-                    {/* Nếu đã confirm/cancel hoặc không phải type 2/5 thì mới hiện Detail/View */}
-                    {((noti.type !== 2 && noti.type !== 5) ||
-                      noti.isConfirmed === true) && (
-                      <>
-                        <Button
-                          size="small"
-                          style={{background: "#355383", color: "#fff"}}
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            await fetchNotificationDetail(notificationId);
-                          }}
-                        >
-                          Details
-                        </Button>
-                        <Button
-                          size="small"
-                          style={{
-                            background: "#f0f1f2",
-                            color: "#355383",
-                            border: "none",
-                            fontWeight: 600,
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewNotification(noti);
-                          }}
-                        >
-                          View
-                        </Button>
-                      </>
-                    )}
+                    <Button
+                      size="small"
+                      style={{background: "#355383", color: "#fff"}}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await fetchNotificationDetail(notificationId);
+                      }}
+                    >
+                      Details
+                    </Button>
+                    <Button
+                      size="small"
+                      style={{
+                        background: "#f0f1f2",
+                        color: "#355383",
+                        border: "none",
+                        fontWeight: 600,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewNotification(noti);
+                      }}
+                    >
+                      View
+                    </Button>
                   </div>
                 </div>
               </div>

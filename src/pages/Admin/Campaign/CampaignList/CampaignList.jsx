@@ -278,7 +278,7 @@ const CampaignList = () => {
   };
 
   const handleAddNewCampaign = () => {
-    navigate(`/${roleName}/vaccine/create`);
+    navigate(`/${roleName}/vaccine/create-campaign`);
   };
 
   const CampaignCard = ({record}) => {
