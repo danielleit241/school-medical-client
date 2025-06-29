@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState, useRef, useCallback} from "react";
 import usePollingEffect from "../../hooks/PollingService";
 import {
   Card,
@@ -137,13 +137,13 @@ const ManagerDashboard = () => {
   });
 
   // Hàm tạo params cho API request
-  const getDateRangeParams = () => {
+  const getDateRangeParams = useCallback(() => {
     if (!dateRange[0] || !dateRange[1]) return {};
     return {
       From: dateRange[0].format("YYYY-MM-DD"),
       To: dateRange[1].format("YYYY-MM-DD"),
     };
-  };
+  }, [dateRange]);
 
   // Hàm để thiết lập khoảng thời gian cho tháng hiện tại
   const setCurrentMonth = () => {
@@ -421,7 +421,7 @@ const ManagerDashboard = () => {
     if (roleName === "admin") {
       fetchAdminData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleName]); // Chỉ phụ thuộc vào roleName, không phụ thuộc vào dateRange
 
   // Cập nhật useEffect để sử dụng tháng hiện tại khi component mount
@@ -429,7 +429,7 @@ const ManagerDashboard = () => {
     // eslint-disable-next-line no-unused-vars
     const {start, end} = setCurrentMonth();
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Polling effect cho dữ liệu quan trọng
@@ -622,7 +622,7 @@ const ManagerDashboard = () => {
     };
 
     fetchAdminData();
-  }, [roleName]);
+  }, [roleName, getDateRangeParams]);
 
   const RecentActionsChart = ({data, loading, error}) => {
     const chartRef = useRef(null);

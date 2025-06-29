@@ -99,7 +99,12 @@ const CreateCampaign = () => {
 
   const handleRoundChange = (index, field, value) => {
     const newRounds = [...rounds];
-    newRounds[index][field] = value;
+    // Nếu là trường thời gian, luôn convert về dayjs hoặc null
+    if (field === "startTime" || field === "endTime") {
+      newRounds[index][field] = value ? dayjs(value) : null;
+    } else {
+      newRounds[index][field] = value;
+    }
     setRounds(newRounds);
   };
 
@@ -112,8 +117,10 @@ const CreateCampaign = () => {
           roundName: r.roundName,
           targetGrade: r.targetGrade,
           description: r.description,
-          startTime: r.startTime ? r.startTime.toISOString() : null,
-          endTime: r.endTime ? r.endTime.toISOString() : null,
+          startTime: r.startTime
+            ? r.startTime.format("YYYY-MM-DDTHH:mm:ss")
+            : null,
+          endTime: r.endTime ? r.endTime.format("YYYY-MM-DDTHH:mm:ss") : null,
           nurseId: r.nurseId,
         })),
       };
@@ -166,8 +173,10 @@ const CreateCampaign = () => {
           roundName: r.roundName,
           targetGrade: r.targetGrade,
           description: r.description,
-          startTime: r.startTime ? r.startTime.toISOString() : null,
-          endTime: r.endTime ? r.endTime.toISOString() : null,
+          startTime: r.startTime
+            ? r.startTime.format("YYYY-MM-DDTHH:mm:ss")
+            : null,
+          endTime: r.endTime ? r.endTime.format("YYYY-MM-DDTHH:mm:ss") : null,
           nurseId: r.nurseId,
         })),
       };
@@ -202,10 +211,10 @@ const CreateCampaign = () => {
     }
   };
 
-  // Đặt initialValues cho Form
-  useEffect(() => {
-    form.setFieldsValue({startDate: defaultStartDate});
-  }, [form, defaultStartDate]);
+  // // Đặt initialValues cho Form
+  // useEffect(() => {
+  //   form.setFieldsValue({startDate: defaultStartDate});
+  // }, [form, defaultStartDate]);
 
   // Đảm bảo sau khi lấy profile từ API, bạn cũng set lại giá trị cho trường createdBy trong form:
   useEffect(() => {
