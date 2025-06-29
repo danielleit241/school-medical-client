@@ -245,6 +245,11 @@ const NotificationModal = ({visible = true}) => {
                   navigate("/nurse/appointment-management/appointment-list");
                   window.location.reload();
                 }
+                if(noti.type === 4) {
+                  // MedicalRegistration for nurse
+                  navigate("/nurse/medical-received/medical-received-list");
+                  window.location.reload();
+                }
                 // Có thể bổ sung các loại khác cho nurse nếu cần
               }
             };
