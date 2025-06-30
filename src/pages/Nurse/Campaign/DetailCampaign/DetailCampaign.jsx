@@ -86,6 +86,7 @@ const DetailCampaign = () => {
       const mappedStudents = (
         Array.isArray(res.data.items) ? res.data.items : []
       ).map((item) => ({
+        vaccineId : item.vaccineId,
         studentCode: item.studentsOfRoundResponse.studentCode,
         studentName: item.studentsOfRoundResponse.fullName,
         grade: item.studentsOfRoundResponse.grade,
@@ -95,7 +96,7 @@ const DetailCampaign = () => {
         vaccinationResultId: item.studentsOfRoundResponse.vaccinationResultId,
         ...item,
       }));
-
+      console.log("Fetched students:", mappedStudents);
       setStudents(mappedStudents);
       console.log("Fetched students:", mappedStudents);
     } catch {
