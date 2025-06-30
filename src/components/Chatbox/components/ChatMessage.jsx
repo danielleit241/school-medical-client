@@ -9,7 +9,10 @@ const ChatMessage = ({chat}) => {
         }-messages ${chat.isError ? "error" : ""}`}
       >
         {chat.role === "model" && <ChatbotIcon />}
-        <p className="messages-text">{chat.text}</p>
+        <p
+          className="messages-text"
+          dangerouslySetInnerHTML={{__html: chat.text}}
+        />
       </div>
     )
   );
