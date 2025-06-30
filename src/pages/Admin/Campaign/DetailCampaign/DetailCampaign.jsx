@@ -185,13 +185,71 @@ const DetailCampaign = () => {
     try {
       setAddRoundLoading(true);
       const values = await formAddRound.validateFields();
+
+      if (modalType === "new") {
+        const res = await axiosInstance.get(
+          `/api/schedules/${scheduleId}/vaccination-rounds`
+        );
+        const rounds = Array.isArray(res.data) ? res.data : [];
+
+        const existed = rounds.some(
+          (r) =>
+            r.vaccinationRoundInformation?.targetGrade?.trim().toLowerCase() ===
+            values.targetGrade.trim().toLowerCase()
+        );
+        if (existed) {
+          formAddRound.setFields([
+            {
+              name: "targetGrade",
+              errors: ["This target grade already exists in another round!"],
+            },
+          ]);
+          setAddRoundLoading(false);
+          return;
+        }
+
+        // Validate startTime, endTime phải sau endTime lớn nhất hiện có
+        if (rounds.length > 0) {
+          // Lấy endTime lớn nhất
+          const maxEndTime = rounds
+            .map((r) => r.vaccinationRoundInformation?.endTime)
+            .filter(Boolean)
+            .map((t) => dayjs(t))
+            .sort((a, b) => b.valueOf() - a.valueOf())[0];
+
+          if (maxEndTime) {
+            const newStart = values.startTime;
+            const newEnd = values.endTime;
+
+            // Nếu startTime hoặc endTime <= maxEndTime thì báo lỗi
+            if (
+              !newStart.isAfter(maxEndTime, "day") ||
+              !newEnd.isAfter(maxEndTime, "day")
+            ) {
+              formAddRound.setFields([
+                {
+                  name: "startTime",
+                  errors: ["Start time must be after all existing rounds (next day)."],
+                },
+                {
+                  name: "endTime",
+                  errors: ["End time must be after all existing rounds (next day)."],
+                },
+              ]);
+              setAddRoundLoading(false);
+              return;
+            }
+          }
+        }
+      }
+
       await axiosInstance.post("/api/schedules/vaccination-rounds", {
         scheduleId,
         roundName: values.roundName,
         targetGrade: values.targetGrade,
         description: values.description,
-        startTime: values.startTime.toISOString(),
-        endTime: values.endTime.toISOString(),
+        startTime: values.startTime.format("YYYY-MM-DDTHH:mm:ss"),
+        endTime: values.endTime.format("YYYY-MM-DDTHH:mm:ss"),
         nurseId: values.nurseId,
       });
       message.success("Add round successfully!");
@@ -212,12 +270,6 @@ const DetailCampaign = () => {
         if (scheduleRes.data && scheduleRes.data.vaccinationRounds) {
           await fetchRoundsWithNurse(scheduleRes.data.vaccinationRounds);
         }
-
-        // ĐÃ XÓA: không reset notification data nữa
-        // setToParentData([]);
-        // setToNurseData([]);
-
-        // Add any other data refresh needed
       } catch (refreshErr) {
         console.error("Error refreshing data:", refreshErr);
         message.error(
@@ -226,8 +278,8 @@ const DetailCampaign = () => {
       } finally {
         setLoading(false);
       }
-      // eslint-disable-next-line no-unused-vars
     } catch (err) {
+      console.error("Error adding round:", err);
       message.error("Add round failed!");
     } finally {
       setAddRoundLoading(false);
@@ -403,8 +455,8 @@ const DetailCampaign = () => {
           roundName: values.roundName,
           targetGrade: values.targetGrade,
           description: values.description,
-          startTime: values.startTime.toISOString(),
-          endTime: values.endTime.toISOString(),
+          startTime: values.startTime.format("YYYY-MM-DDTHH:mm:ss"),
+          endTime: values.endTime.format("YYYY-MM-DDTHH:mm:ss"),
           nurseId: values.nurseId,
         }
       );
