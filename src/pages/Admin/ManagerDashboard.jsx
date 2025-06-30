@@ -2002,9 +2002,9 @@ const ManagerDashboard = () => {
                   <Space direction="vertical" style={{width: "100%"}}>
                     {expiringMedicals.map((item, index) => {
                       const itemName = Object.keys(item)[0];
-                      const daysLeft = item[itemName];
-                      const {bgColor, tagColor} =
-                        getExpiryColorScheme(daysLeft);
+                      const details = item[itemName]; 
+                      const { daysLeft } = details;
+                      const { bgColor, tagColor } = getExpiryColorScheme(daysLeft);
 
                       return (
                         <div
@@ -2015,8 +2015,7 @@ const ManagerDashboard = () => {
                             padding: "8px 12px",
                             backgroundColor: bgColor,
                             borderRadius: 8,
-                            marginBottom:
-                              index < expiringMedicals.length - 1 ? 12 : 0,
+                            marginBottom: index < expiringMedicals.length - 1 ? 12 : 0,
                           }}
                         >
                           <Text>{itemName}</Text>
