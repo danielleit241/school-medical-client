@@ -231,13 +231,64 @@ const HealthCheckDetail = () => {
     try {
       setAddRoundLoading(true);
       const values = await formAddRound.validateFields();
+      if (modalType === "new") {
+        const res = await axiosInstance.get(
+          `/api/health-checks/schedules/${scheduleId}`
+        );
+        const rounds = Array.isArray(res.data) ? res.data : [];
+        const existed = rounds.some(
+          (r) =>
+            r.healthCheckRoundInformation.targetGrade.trim().toLowerCase() ===
+            values.targetGrade.trim().toLowerCase()
+        );
+        if (existed) {
+          formAddRound.setFields([
+            {
+              name: "targetGrade",
+              errors: ["This target grade already exists in another round!"],
+            },
+          ]);
+          setAddRoundLoading(false);
+          return;
+        }
+
+        if (rounds.length >= 0){
+          const maxEndTime = rounds
+            .map((r) => r.healthCheckRoundInformation.endTime)
+            .filter(Boolean)
+            .map((t) => dayjs(t))
+            .sort((a, b) => b.valueOf() - a.valueOf())[0];
+          
+          if(maxEndTime){
+            const newStart = values.startTime;
+            const newEnd = values.endTime;
+             if (
+            !newStart.isAfter(maxEndTime, "day") &&
+            !newEnd.isAfter(maxEndTime, "day")
+          ) {
+            formAddRound.setFields([
+              {
+                name: "startTime",
+                errors: ["Start time must be after the last round's end time!"],
+              },
+              {
+                name: "endTime",
+                errors: ["End time must be after the last round's end time!"],
+              },
+            ]);
+            setAddRoundLoading(false);
+            return;
+          }
+          }
+        }
+      }
       await axiosInstance.post("/api/schedules/health-check-rounds", {
         scheduleId,
         roundName: values.roundName,
         targetGrade: values.targetGrade,
         description: values.description,
-        startTime: values.startTime.toISOString(),
-        endTime: values.endTime.toISOString(),
+        startTime: values.startTime.format("YYYY-MM-DDTHH:mm:ss"),
+        endTime: values.endTime.format("YYYY-MM-DDTHH:mm:ss"),
         nurseId: values.nurseId,
       });
       message.success("Add round successfully!");
@@ -283,8 +334,8 @@ const HealthCheckDetail = () => {
           roundName: values.roundName,
           targetGrade: values.targetGrade,
           description: values.description,
-          startTime: values.startTime.toISOString(),
-          endTime: values.endTime.toISOString(),
+          startTime: values.startTime.format("YYYY-MM-DDTHH:mm:ss"),
+          endTime: values.endTime.format("YYYY-MM-DDTHH:mm:ss"),
           nurseId: values.nurseId,
         }
       );
