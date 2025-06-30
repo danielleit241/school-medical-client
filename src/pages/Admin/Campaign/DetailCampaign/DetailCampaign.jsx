@@ -185,13 +185,13 @@ const DetailCampaign = () => {
     try {
       setAddRoundLoading(true);
       const values = await formAddRound.validateFields();
-
-      if (modalType === "new") {
-        const res = await axiosInstance.get(
+      
+      const res = await axiosInstance.get(
           `/api/schedules/${scheduleId}/vaccination-rounds`
         );
         const rounds = Array.isArray(res.data) ? res.data : [];
 
+        // Validate targetGrade trùng
         const existed = rounds.some(
           (r) =>
             r.vaccinationRoundInformation?.targetGrade?.trim().toLowerCase() ===
@@ -208,38 +208,81 @@ const DetailCampaign = () => {
           return;
         }
 
-        // Validate startTime, endTime phải sau endTime lớn nhất hiện có
+        // Validate startTime, endTime
+        let maxEndTime = null;
         if (rounds.length > 0) {
-          // Lấy endTime lớn nhất
-          const maxEndTime = rounds
+          maxEndTime = rounds
             .map((r) => r.vaccinationRoundInformation?.endTime)
             .filter(Boolean)
             .map((t) => dayjs(t))
             .sort((a, b) => b.valueOf() - a.valueOf())[0];
 
-          if (maxEndTime) {
+          
             const newStart = values.startTime;
             const newEnd = values.endTime;
 
-            // Nếu startTime hoặc endTime <= maxEndTime thì báo lỗi
-            if (
-              !newStart.isAfter(maxEndTime, "day") ||
-              !newEnd.isAfter(maxEndTime, "day")
-            ) {
-              formAddRound.setFields([
-                {
-                  name: "startTime",
-                  errors: ["Start time must be after all existing rounds (next day)."],
-                },
-                {
-                  name: "endTime",
-                  errors: ["End time must be after all existing rounds (next day)."],
-                },
-              ]);
-              setAddRoundLoading(false);
-              return;
-            }
-          }
+            if (modalType === "supplement") {
+              // Supplement: chỉ được tạo sau ngày maxEndTime
+              if (
+                !newStart.isAfter(maxEndTime, "day") ||
+                !newEnd.isAfter(maxEndTime, "day")
+              ) {
+                formAddRound.setFields([
+                  {
+                    name: "startTime",
+                    errors: ["Start time must be after all existing rounds (next day)."],
+                  },
+                  {
+                    name: "endTime",
+                    errors: ["End time must be after all existing rounds (next day)."],
+                  },
+                ]);
+                setAddRoundLoading(false);
+                return;
+              }
+            } 
+            if (modalType === "new") {
+              // New round: cho phép cùng ngày, kiểm tra nurse trùng lịch như cũ
+              if (
+                newStart.isSame(maxEndTime, "day") ||
+                newEnd.isSame(maxEndTime, "day")
+              ) {
+                const overlap = rounds.some((r) => {
+                  const rNurseId = String(r.nurseId || r.nurse?.nurseId || "");
+                  const formNurseId = String(values.nurseId || "");
+                  const rStart = r.vaccinationRoundInformation?.startTime
+                    ? dayjs(r.vaccinationRoundInformation.startTime)
+                    : null;
+                  const rEnd = r.vaccinationRoundInformation?.endTime
+                    ? dayjs(r.vaccinationRoundInformation.endTime)
+                    : null;
+                  return (
+                    rNurseId === formNurseId &&
+                    rStart &&
+                    rEnd &&
+                    (
+                      (newStart.isSameOrAfter(rStart) && newStart.isSameOrBefore(rEnd)) ||
+                      (newEnd.isSameOrAfter(rStart) && newEnd.isSameOrBefore(rEnd)) ||
+                      (rStart.isSameOrAfter(newStart) && rEnd.isSameOrBefore(newEnd))
+                    )
+                  );
+                });
+                if (overlap) {
+                  formAddRound.setFields([
+                    {
+                      name: "startTime",
+                      errors: ["This nurse already has a round in this time range."],
+                    },
+                    {
+                      name: "endTime",
+                      errors: ["This nurse already has a round in this time range."],
+                    },
+                  ]);
+                  setAddRoundLoading(false);
+                  return;
+                }
+              }
+          
         }
       }
 
@@ -494,8 +537,23 @@ const DetailCampaign = () => {
       <div style={{textAlign: "center", marginTop: 40}}>No data found.</div>
     );
   }
-
+  
   const vaccine = detail.vaccinationDetailsResponse;
+
+ const hasSupplementRound = roundsWithNurse.some((r) => {
+  const name =
+    r.vaccinationRoundInformation?.roundName ||
+    r.roundName ||
+    "";
+  return name.trim().toLowerCase() === "supplement round";
+});
+
+  const disableSupplementRound =
+    roundsWithNurse.some(
+      (r) =>
+        r.vaccinationRoundInformation?.status === false ||
+        r.status === false 
+    );
 
   return (
     <Card
@@ -527,18 +585,37 @@ const DetailCampaign = () => {
               items: [
                 {
                   key: "1",
-                  label: "Add New Round",
-                  onClick: () => openAddRoundModal("new"),
+                  label: (
+                    <span style={hasSupplementRound ? { color: "#aaa" } : {}}>
+                      Add New Round
+                    </span>
+                  ),
+                  onClick: () => {
+                    if (!hasSupplementRound) openAddRoundModal("new");
+                  },
+                  disabled: hasSupplementRound,
                 },
                 {
                   key: "2",
-                  label: "Add Supplement Round",
-                  onClick: () => openAddRoundModal("supplement"),
+                  label: (
+                    <span style={hasSupplementRound ? { color: "#aaa" } : {}}>
+                      Add Supplement Round
+                    </span>
+                  ),
+                  onClick: () => {
+                    if (!hasSupplementRound && !disableSupplementRound)
+                      openAddRoundModal("supplement");
+                  },
+                  disabled: hasSupplementRound || disableSupplementRound,
                 },
               ],
             }}
           >
-            <Button type="dashed" icon={<PlusOutlined />}>
+            <Button
+              type="dashed"
+              icon={<PlusOutlined />}
+              disabled={hasSupplementRound}
+            >
               Add Round <DownOutlined />
             </Button>
           </Dropdown>
