@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from "react";
+import React, {useEffect, useState} from "react";
 import {
   Card,
   Row,
@@ -61,43 +61,6 @@ const DetailCampaign = () => {
   const [editRoundLoading, setEditRoundLoading] = useState(false);
   const [editRoundData, setEditRoundData] = useState(null);
   const [formEditRound] = Form.useForm();
-
-  // Function to check and update campaign status if all rounds are completed
-  const updateExpiredCampaigns = useCallback(async () => {
-    if (!detail || !detail.vaccinationRounds) return;
-
-    const rounds = detail.vaccinationRounds;
-    const allRoundsCompleted = rounds.length > 0 && rounds.every(
-      (round) => round.status === true
-    );
-
-    // If all rounds are completed but campaign status is still false, update it
-    if (
-      allRoundsCompleted &&
-      detail.vaccinationScheduleResponseDto?.status === false
-    ) {
-      try {
-        await axiosInstance.put("/api/vaccinations/schedules/finished", {
-          scheduleId: scheduleId,
-          status: true,
-        });
-
-        console.log(
-          `Campaign ${scheduleId} has been automatically marked as completed`
-        );
-
-        // Refresh the campaign details to reflect the updated status
-        const updatedRes = await axiosInstance.get(
-          `/api/vaccinations/schedules/${scheduleId}`
-        );
-        setDetail(updatedRes.data);
-
-        message.success("Campaign automatically marked as completed!");
-      } catch (error) {
-        console.error(`Cannot update status for campaign ${scheduleId}:`, error);
-      }
-    }
-  }, [detail, scheduleId]);
 
   // Thêm hàm lấy profile nurse cho từng round
   const fetchRoundsWithNurse = async (rounds) => {
@@ -169,13 +132,6 @@ const DetailCampaign = () => {
         setClasses([]);
       });
   }, []);
-
-  // useEffect to check and update campaign status when detail changes
-  useEffect(() => {
-    if (detail && detail.vaccinationRounds) {
-      updateExpiredCampaigns();
-    }
-  }, [detail, updateExpiredCampaigns]);
 
   const handleBack = () => {
     localStorage.removeItem("scheduleId");

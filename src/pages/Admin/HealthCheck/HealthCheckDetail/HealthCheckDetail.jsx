@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from "react";
+import React, {useState, useEffect} from "react";
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {
@@ -62,38 +62,6 @@ const HealthCheckDetail = () => {
   const [nurses, setNurses] = useState([]);
   const [classes, setClasses] = useState([]);
 
-  const updateExpiredHealthCheckCampaigns = useCallback(async () => {
-    if (!rounds || rounds.length === 0) return;
-
-    // Check if all rounds are completed
-    const allRoundsCompleted = rounds.every(
-      (round) => round.healthCheckRoundInformation.status === true
-    );
-
-    // If all rounds are completed, update the health check schedule status
-    if (allRoundsCompleted) {
-      try {
-        await axiosInstance.put("/api/health-checks/schedules/finished", {
-          scheduleId: scheduleId,
-          status: true,
-        });
-
-        console.log(
-          `Health check schedule ${scheduleId} has been automatically marked as completed`
-        );
-
-        message.success(
-          "Health check schedule automatically marked as completed!"
-        );
-      } catch (error) {
-        console.error(
-          `Cannot update status for health check schedule ${scheduleId}:`,
-          error
-        );
-      }
-    }
-  }, [rounds, scheduleId]);
-
   // Fetch health check schedule details
   useEffect(() => {
     if (scheduleId) {
@@ -111,13 +79,6 @@ const HealthCheckDetail = () => {
         });
     }
   }, [scheduleId]);
-
-  // useEffect to check and update health check schedule status when rounds change
-  useEffect(() => {
-    if (rounds && rounds.length > 0) {
-      updateExpiredHealthCheckCampaigns();
-    }
-  }, [rounds, updateExpiredHealthCheckCampaigns]);
 
   // Handle viewing round details
   const handleRoundDetail = (roundId) => {
