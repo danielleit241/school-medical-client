@@ -242,6 +242,7 @@ const DetailCampaign = () => {
               }
             } 
             if (modalType === "new") {
+              // New round: cho phép cùng ngày, nhưng không cho nurse trùng nếu time giao nhau
               if (
                 newStart.isSame(maxEndTime, "day") ||
                 newEnd.isSame(maxEndTime, "day")

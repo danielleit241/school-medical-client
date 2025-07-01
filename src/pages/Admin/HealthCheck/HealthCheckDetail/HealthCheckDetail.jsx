@@ -285,7 +285,6 @@ const HealthCheckDetail = () => {
               }
             } 
             if (modalType === "new") {
-              // New round: cho phép cùng ngày, kiểm tra nurse trùng lịch như cũ
               if (
                 newStart.isSame(maxEndTime, "day") ||
                 newEnd.isSame(maxEndTime, "day")
