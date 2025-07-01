@@ -21,34 +21,32 @@ A modern web application designed to manage school medical records, health data,
 - Interactive dashboards and charts
 - Secure login and session management
 
-## 🛠️ Frameworks, Libraries & Technologies
 ## 🛠️ Tech Stack & Skills
 
 <p align="left">
-  <img src="https://skillicons.dev/icons?i=react,vite,typescript,javascript,redux,tailwind,bootstrap,materialui,sass,css,antdesign,chartjs,axios,eslint,jest,vitest,signalr" alt="Skills" />
+  <img src="https://skillicons.dev/icons?i=react,typescript,javascript,vite,redux,tailwind,bootstrap,materialui,sass,css,antdesign,chartjs,eslint,jest,axios" alt="Skills" />
 </p>
 
-<details>
-  <summary><strong>Included:</strong></summary>
-  
-  - React
-  - Vite
-  - TypeScript (if used)
-  - JavaScript
-  - Redux Toolkit
-  - Tailwind CSS
-  - Bootstrap
-  - Material UI (MUI)
-  - Sass
-  - CSS3
-  - Ant Design
-  - Chart.js
-  - Axios
-  - ESLint
-  - Jest (testing-library/jest-dom, @testing-library/react, @testing-library/user-event)
-  - Vitest
-  - SignalR
-  - ...and more (see package.json)
-</details>
+<table>
+  <tr>
+    <td>🟦 <b>Date/Time:</b> date-fns</td>
+    <td>🔐 <b>JWT:</b> jwt-decode</td>
+    <td>📊 <b>Ant Charts:</b> @ant-design/charts</td>
+    <td>📠 <b>Excel:</b> xlsx</td>
+    <td>🎨 <b>Emotion:</b> @emotion/react, @emotion/styled</td>
+  </tr>
+  <tr>
+    <td>⚡ <b>SignalR:</b> @microsoft/signalr</td>
+    <td>🎬 <b>Animation:</b> animate.css</td>
+    <td>🧩 <b>Redux Persist:</b> redux-persist</td>
+    <td>🔄 <b>Transition:</b> react-transition-group</td>
+    <td>📚 <b>Icons:</b> react-icons, lucide-react</td>
+  </tr>
+  <tr>
+    <td>🧪 <b>Testing:</b> vitest, jsdom, @testing-library/*</td>
+    <td>💬 <b>Alert:</b> sweetalert2</td>
+    <td>📝 <b>Lint/Config:</b> @eslint/js, globals, eslint-plugin-*</td>
+  </tr>
+</table>
 
 ## 📚 License
