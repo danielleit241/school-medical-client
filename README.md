@@ -23,9 +23,8 @@ A modern web application designed to manage school medical records, health data,
 
 
 ## 🛠️ Tech Stack & Skills
-
-| **React**                | **JavaScript**           | **Vite**                   | **Redux Toolkit**           |
 |--------------------------|--------------------------|----------------------------|-----------------------------|
+| **React**                | **JavaScript**           | **Vite**                   | **Redux Toolkit**           |
 | **Tailwind CSS**         | **Bootstrap**            | **Material UI (MUI)**      | **Sass**                    |
 | **Ant Design (antd)**    | **Ant Design Charts**    | **Chart.js**               | **React Router DOM**        |
 | **React Redux**          | **Redux Persist**        | **React Bootstrap**        | **date-fns**                |
