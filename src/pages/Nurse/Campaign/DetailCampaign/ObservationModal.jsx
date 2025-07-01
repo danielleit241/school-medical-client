@@ -371,7 +371,8 @@ const validateReactionStartTime = (_, value) => {
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item name="notes" label="Notes">
+        <Form.Item name="notes" label="Notes"
+          rules={[{ required: true, message: "Please enter notes" }]}>
           <Input.TextArea />
         </Form.Item>
         <Form.Item>
