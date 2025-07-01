@@ -242,7 +242,7 @@ const DetailCampaign = () => {
               }
             } 
             if (modalType === "new") {
-              // New round: cho phép cùng ngày, kiểm tra nurse trùng lịch như cũ
+              // New round: cho phép cùng ngày, nhưng không cho nurse trùng nếu time giao nhau
               if (
                 newStart.isSame(maxEndTime, "day") ||
                 newEnd.isSame(maxEndTime, "day")
@@ -256,15 +256,13 @@ const DetailCampaign = () => {
                   const rEnd = r.vaccinationRoundInformation?.endTime
                     ? dayjs(r.vaccinationRoundInformation.endTime)
                     : null;
+                
                   return (
                     rNurseId === formNurseId &&
                     rStart &&
                     rEnd &&
-                    (
-                      (newStart.isSameOrAfter(rStart) && newStart.isSameOrBefore(rEnd)) ||
-                      (newEnd.isSameOrAfter(rStart) && newEnd.isSameOrBefore(rEnd)) ||
-                      (rStart.isSameOrAfter(newStart) && rEnd.isSameOrBefore(newEnd))
-                    )
+                    newStart.isBefore(rEnd) &&
+                    newEnd.isAfter(rStart)
                   );
                 });
                 if (overlap) {
@@ -282,9 +280,8 @@ const DetailCampaign = () => {
                   return;
                 }
               }
-          
-        }
-      }
+            }
+          }
 
       await axiosInstance.post("/api/schedules/vaccination-rounds", {
         scheduleId,
@@ -492,6 +489,111 @@ const DetailCampaign = () => {
     try {
       setEditRoundLoading(true);
       const values = await formEditRound.validateFields();
+       const isSupplementRound =
+      values.roundName?.trim().toLowerCase() === "supplement round";
+    if (isSupplementRound) {
+      // Lấy maxEndTime của các round khác (trừ round đang sửa)
+      const maxEndTime = roundsWithNurse
+        .filter((r) => r.roundId !== editRoundData.roundId)
+        .map((r) => r.endTime ? dayjs(r.endTime) : (r.vaccinationRoundInformation?.endTime ? dayjs(r.vaccinationRoundInformation.endTime) : null))
+        .filter(Boolean)
+        .sort((a, b) => b.valueOf() - a.valueOf())[0];
+
+      if (maxEndTime) {
+        const newStart = values.startTime;
+        const newEnd = values.endTime;
+        if (
+          !newStart.isAfter(maxEndTime, "day") ||
+          !newEnd.isAfter(maxEndTime, "day")
+        ) {
+          formEditRound.setFields([
+            {
+              name: "startTime",
+              errors: ["Start time must be after all existing rounds (next day)."],
+            },
+            {
+              name: "endTime",
+              errors: ["End time must be after all existing rounds (next day)."],
+            },
+          ]);
+          setEditRoundLoading(false);
+          return;
+        }
+      }
+    }
+
+      // Validate targetGrade trùng (trừ chính round đang sửa)
+      const existed = roundsWithNurse.some(
+        (r) =>
+          r.roundId !== editRoundData.roundId &&
+          r.targetGrade?.trim().toLowerCase() === values.targetGrade.trim().toLowerCase()
+      );
+      if (existed) {
+        formEditRound.setFields([
+          {
+            name: "targetGrade",
+            errors: ["This target grade already exists in another round!"],
+          },
+        ]);
+        setEditRoundLoading(false);
+        return;
+      }
+
+      // Không cho sửa thành Supplement nếu đã có Supplement Round khác
+      const isEditingToSupplement =
+        values.targetGrade.trim().toLowerCase() === "supplement";
+      const hasOtherSupplement = roundsWithNurse.some(
+        (r) =>
+          r.roundId !== editRoundData.roundId &&
+          (r.targetGrade?.trim().toLowerCase() === "supplement" ||
+           (r.vaccinationRoundInformation?.targetGrade?.trim().toLowerCase() === "supplement"))
+      );
+      if (isEditingToSupplement && hasOtherSupplement) {
+        formEditRound.setFields([
+          {
+            name: "targetGrade",
+            errors: ["There is already a Supplement round!"],
+          },
+        ]);
+        setEditRoundLoading(false);
+        return;
+      }
+
+      // Validate nurse trùng lịch (không tính round đang sửa)
+      const overlap = roundsWithNurse.some((r) => {
+        if (r.roundId === editRoundData.roundId) return false;
+        const rNurseId = String(r.nurseId || r.nurse?.nurseId || "");
+        const formNurseId = String(values.nurseId || "");
+        const rStart = r.startTime ? dayjs(r.startTime) : null;
+        const rEnd = r.endTime ? dayjs(r.endTime) : null;
+        const newStart = values.startTime;
+        const newEnd = values.endTime;
+        // Chỉ kiểm tra nếu cùng ngày
+        const isSameDay = rStart && newStart && rStart.isSame(newStart, "day");
+        return (
+          rNurseId === formNurseId &&
+          isSameDay &&
+          rStart &&
+          rEnd &&
+          newStart.isBefore(rEnd) &&
+          newEnd.isAfter(rStart)
+        );
+      });
+      if (overlap) {
+        formEditRound.setFields([
+          {
+            name: "startTime",
+            errors: ["This nurse already has a round in this time range on this day."],
+          },
+          {
+            name: "endTime",
+            errors: ["This nurse already has a round in this time range on this day."],
+          },
+        ]);
+        setEditRoundLoading(false);
+        return;
+      }
+
       await axiosInstance.put(
         `/api/vaccination-rounds/${editRoundData.roundId}`,
         {
@@ -726,7 +828,10 @@ const DetailCampaign = () => {
             const start = dayjs(round.startTime);
             const end = dayjs(round.endTime);
             const isEditingDisabled =
-              (now.isAfter(start) && now.isBefore(end)) || round.status === true;
+              (now.isSame(start, "day") ||
+              now.isSame(end, "day") ||
+              (now.isAfter(start, "day") && now.isBefore(end, "day")) ||
+              round.status === true);
 
             return (
               <Card
