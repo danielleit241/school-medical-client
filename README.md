@@ -4,6 +4,14 @@
 
 A modern web application designed to manage school medical records, health data, and communication between students, parents, and school healthcare staff.
 
+
+## 👥 Contributors
+
+| Member             | GitHub                                       |
+|--------------------|----------------------------------------------|
+| Ngô Thành Đạt      | [@ngothanhdat-AK](https://github.com/ngothanhdat-AK) |
+| Trần Phú Thịnh     | [@ThinhTP204](https://github.com/ThinhTP204)         |
+
 ## 🚀 Features
 
 - Student medical record management
@@ -70,57 +78,7 @@ A modern web application designed to manage school medical records, health data,
 - **Vite**: Build, develop, and preview
 - **@vitejs/plugin-react**: React fast refresh and optimizations for Vite
 
-## 📦 Scripts
 
-| Script        | Description                   |
-|---------------|------------------------------|
-| `dev`         | Start development server      |
-| `build`       | Build for production         |
-| `preview`     | Preview production build     |
-| `lint`        | Run ESLint                   |
-| `test`        | Run tests with Vitest        |
-
-## 🏗️ How to Start
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-2. **Start development:**
-   ```bash
-   npm run dev
-   ```
-3. **Build for production:**
-   ```bash
-   npm run build
-   ```
-4. **Run tests:**
-   ```bash
-   npm run test
-   ```
-
-## 📁 Project Structure
-
-```
-.
-├── public/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── store/
-│   ├── styles/
-│   └── ...
-├── package.json
-├── vite.config.js
-└── README.md
-```
-
-## 👥 Contributors
-
-| Member             | GitHub                                       |
-|--------------------|----------------------------------------------|
-| ngothanhdat-AK     | [@ngothanhdat-AK](https://github.com/ngothanhdat-AK) |
-| ThinhTP204         | [@ThinhTP204](https://github.com/ThinhTP204)         |
 
 ## 📚 License
 
