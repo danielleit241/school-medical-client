@@ -25,7 +25,7 @@ A modern web application designed to manage school medical records, health data,
 ## 🛠️ Tech Stack & Skills
 
 <p align="left">
-<img src="https://skillicons.dev/icons?i=react,typescript,javascript,vite,redux,tailwind,bootstrap,materialui,sass,css,antdesign,chartjs,axios,eslint,jest,vitest" alt="Skills" />
+<img src="https://skillicons.dev/icons?i=react,typescript,javascript,vite,redux,tailwind,bootstrap,materialui,sass,css,mui,chartjs,axios,eslint,jest,vitest" alt="Skills" />
 </p>
 
 | Name                       | Description                                                    | Icon Available?            |
