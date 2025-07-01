@@ -305,8 +305,7 @@ const HealthCheckDetail = () => {
                     rNurseId === formNurseId &&
                     rStart &&
                     rEnd &&
-                    newStart.isBefore(rEnd) &&
-                    newEnd.isAfter(rStart)
+
                   );
                 });
                 if (overlap) {

@@ -242,7 +242,7 @@ const DetailCampaign = () => {
               }
             } 
             if (modalType === "new") {
-              // New round: cho phép cùng ngày, nhưng không cho nurse trùng nếu time giao nhau
+
               if (
                 newStart.isSame(maxEndTime, "day") ||
                 newEnd.isSame(maxEndTime, "day")
@@ -257,13 +257,11 @@ const DetailCampaign = () => {
                     ? dayjs(r.vaccinationRoundInformation.endTime)
                     : null;
 
-                  
                   return (
                     rNurseId === formNurseId &&
                     rStart &&
                     rEnd &&
-                    newStart.isBefore(rEnd) &&
-                    newEnd.isAfter(rStart)
+
                   );
                 });
                 if (overlap) {
@@ -281,8 +279,7 @@ const DetailCampaign = () => {
                   return;
                 }
               }
-            }
-          }
+
 
       await axiosInstance.post("/api/schedules/vaccination-rounds", {
         scheduleId,
