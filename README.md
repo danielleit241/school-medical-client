@@ -24,22 +24,14 @@ A modern web application designed to manage school medical records, health data,
 
 ## 🛠️ Tech Stack & Skills
 
-|                                         |                                         |
-|-----------------------------------------|-----------------------------------------|
-| **React**                              | **Redux Toolkit**                       |
-| **JavaScript**                         | **Tailwind CSS**                        |
-| **Vite**                               | **Bootstrap**                           |
-| **Material UI (MUI)**                  | **Sass**                                |
-| **Ant Design (antd)**                  | **Ant Design Charts**                   |
-| **Chart.js**                           | **React Router DOM**                    |
-| **React Redux**                        | **Redux Persist**                       |
-| **React Bootstrap**                    | **date-fns**                            |
-| **jwt-decode**                         | **swiper**                              |
-| **sweetalert2**                        | **animate.css**                         |
-| **lucide-react**                       | **react-icons**                         |
-| **@microsoft/signalr**                 | **xlsx**                                |
-| **axios**                              | **React Transition Group**              |
-| **Vitest**                             | **ESLint**                              | 
+| **React**                | **JavaScript**           | **Vite**                   | **Redux Toolkit**           |
+|--------------------------|--------------------------|----------------------------|-----------------------------|
+| **Tailwind CSS**         | **Bootstrap**            | **Material UI (MUI)**      | **Sass**                    |
+| **Ant Design (antd)**    | **Ant Design Charts**    | **Chart.js**               | **React Router DOM**        |
+| **React Redux**          | **Redux Persist**        | **React Bootstrap**        | **date-fns**                |
+| **jwt-decode**           | **swiper**               | **sweetalert2**            | **animate.css**             |
+| **lucide-react**         | **react-icons**          | **@microsoft/signalr**     | **xlsx**                    |
+| **axios**                | **React Transition Group**| **Vitest**                | **ESLint**                  |
 
 ---
 
