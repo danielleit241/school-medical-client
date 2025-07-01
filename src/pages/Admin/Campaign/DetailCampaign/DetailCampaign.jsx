@@ -825,14 +825,14 @@ const DetailCampaign = () => {
             <Paragraph>No rounds available.</Paragraph>
           )}
           {roundsWithNurse.map((round, idx) => {
-           const now = dayjs();
-          const start = dayjs(round.startTime);
-          const end = dayjs(round.endTime);
-          const isEditingDisabled =
-            (now.isSame(start, "day") ||
-            now.isSame(end, "day") ||
-            (now.isAfter(start, "day") && now.isBefore(end, "day")) ||
-            round.status === true);
+            const now = dayjs();
+            const start = dayjs(round.startTime);
+            const end = dayjs(round.endTime);
+            const isEditingDisabled =
+              (now.isSame(start, "day") ||
+              now.isSame(end, "day") ||
+              (now.isAfter(start, "day") && now.isBefore(end, "day")) ||
+              round.status === true);
 
             return (
               <Card
