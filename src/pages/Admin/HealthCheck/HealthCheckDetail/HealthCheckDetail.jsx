@@ -261,13 +261,11 @@ const HealthCheckDetail = () => {
             .filter(Boolean)
             .map((t) => dayjs(t))
             .sort((a, b) => b.valueOf() - a.valueOf())[0];
-
-          
+         
             const newStart = values.startTime;
             const newEnd = values.endTime;
 
             if (modalType === "supplement") {
-              // Supplement: chỉ được tạo sau ngày maxEndTime
               if (
                 !newStart.isAfter(maxEndTime, "day") ||
                 !newEnd.isAfter(maxEndTime, "day")
