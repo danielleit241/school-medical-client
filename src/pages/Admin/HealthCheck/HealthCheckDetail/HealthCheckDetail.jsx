@@ -305,11 +305,8 @@ const HealthCheckDetail = () => {
                     rNurseId === formNurseId &&
                     rStart &&
                     rEnd &&
-                    (
-                      (newStart.isSameOrAfter(rStart) && newStart.isSameOrBefore(rEnd)) ||
-                      (newEnd.isSameOrAfter(rStart) && newEnd.isSameOrBefore(rEnd)) ||
-                      (rStart.isSameOrAfter(newStart) && rEnd.isSameOrBefore(newEnd))
-                    )
+                    newStart.isBefore(rEnd) &&
+                    newEnd.isAfter(rStart)
                   );
                 });
                 if (overlap) {
@@ -356,19 +353,31 @@ const HealthCheckDetail = () => {
   };
 
   // Handle open edit round modal
-  const handleEditRound = (round) => {
+  const handleEditRound = async (round) => {
     setEditRoundData(round);
     setEditRoundModalVisible(true);
+    try {
+          const res = await axiosInstance.get("/api/nurses");
+          setNurses(res.data || []);
+        } catch {
+          setNurses([]);
+        }
+        console.log("Nurses data:", round);
     setTimeout(() => {
-          formEditRound.setFieldsValue({
-            roundName: round.roundName,
-            targetGrade: round.targetGrade,
-            description: round.description,
-            startTime: dayjs(round.startTime),
-            endTime: dayjs(round.endTime),
-            nurseId: round.nurseId || undefined,
-          });
-    }, 0);
+  formEditRound.setFieldsValue({
+    roundName: round.healthCheckRoundInformation.roundName,
+    targetGrade: round.healthCheckRoundInformation.targetGrade,
+    description: round.healthCheckRoundInformation.description,
+    startTime: dayjs(round.healthCheckRoundInformation.startTime),
+    endTime: dayjs(round.healthCheckRoundInformation.endTime),
+    nurseId:
+      round.nurse?.staffNurseId ||
+      round.nurse?.nurseId ||
+      round.nurseId ||
+      round.healthCheckRoundInformation.nurseId ||
+      undefined,
+  });
+}, 0);
   };
 
   // Handle submit edit round
@@ -376,6 +385,132 @@ const HealthCheckDetail = () => {
     try {
       setEditRoundLoading(true);
       const values = await formEditRound.validateFields();
+            const isSupplementRound =
+              values.roundName?.trim().toLowerCase() === "supplement round";
+            if (isSupplementRound) {
+              // Lấy maxEndTime của các round khác (trừ round đang sửa)
+              const maxEndTime = rounds
+                .filter((r) => r.healthCheckRoundInformation.roundId !== editRoundData.healthCheckRoundInformation.roundId)
+                .map((r) => r.healthCheckRoundInformation.endTime ? dayjs(r.healthCheckRoundInformation.endTime) : null)
+                .filter(Boolean)
+                .sort((a, b) => b.valueOf() - a.valueOf())[0];
+
+              if (maxEndTime) {
+                const newStart = values.startTime;
+                const newEnd = values.endTime;
+                if (
+                  !newStart.isAfter(maxEndTime, "day") ||
+                  !newEnd.isAfter(maxEndTime, "day")
+                ) {
+                  formEditRound.setFields([
+                    {
+                      name: "startTime",
+                      errors: ["Start time must be after all existing rounds (next day)."],
+                    },
+                    {
+                      name: "endTime",
+                      errors: ["End time must be after all existing rounds (next day)."],
+                    },
+                  ]);
+                  setEditRoundLoading(false);
+                  return;
+                }
+              }
+            }
+
+            // Validate targetGrade trùng (trừ chính round đang sửa)
+            const existed = rounds.some(
+              (r) =>
+                r.healthCheckRoundInformation.roundId !== editRoundData.healthCheckRoundInformation.roundId &&
+                r.healthCheckRoundInformation.targetGrade?.trim().toLowerCase() === values.targetGrade.trim().toLowerCase()
+            );
+            if (existed) {
+              formEditRound.setFields([
+                {
+                  name: "targetGrade",
+                  errors: ["This target grade already exists in another round!"],
+                },
+              ]);
+              setEditRoundLoading(false);
+              return;
+            }
+
+            // Không cho sửa thành Supplement nếu đã có Supplement Round khác
+            const isEditingToSupplement =
+              values.targetGrade.trim().toLowerCase() === "supplement";
+            const hasOtherSupplement = rounds.some(
+              (r) =>
+                r.healthCheckRoundInformation.roundId !== editRoundData.healthCheckRoundInformation.roundId &&
+                r.healthCheckRoundInformation.targetGrade?.trim().toLowerCase() === "supplement"
+            );
+            if (isEditingToSupplement && hasOtherSupplement) {
+              formEditRound.setFields([
+                {
+                  name: "targetGrade",
+                  errors: ["There is already a Supplement round!"],
+                },
+              ]);
+              setEditRoundLoading(false);
+              return;
+            }
+      const overlap = rounds.some((r) => {
+        if (r.healthCheckRoundInformation.roundId === editRoundData.healthCheckRoundInformation.roundId) return false;
+
+        let rNurseId = r.nurse?.staffNurseId || r.nurseId || r.healthCheckRoundInformation.nurseId || "";
+
+        if (!rNurseId && r.nurse?.nurseName && nurses.length > 0) {
+          const found = nurses.find(n => n.fullName === r.nurse.nurseName);
+          if (found) rNurseId = found.staffNurseId;
+        }
+
+        if (!rNurseId && r.healthCheckRoundInformation.nurseName && nurses.length > 0) {
+          const found = nurses.find(n => n.fullName === r.healthCheckRoundInformation.nurseName);
+          if (found) rNurseId = found.staffNurseId;
+        }
+
+        if (nurses.length > 0 && rNurseId) {
+          const found = nurses.find(
+            n =>
+              String(n.nurseId) === String(rNurseId) ||
+              String(n.staffNurseId) === String(rNurseId)
+          );
+          if (found) rNurseId = found.staffNurseId;
+        }
+
+        const formNurseId = String(values.nurseId || "");
+        const rStart = r.healthCheckRoundInformation.startTime ? dayjs(r.healthCheckRoundInformation.startTime) : null;
+        const rEnd = r.healthCheckRoundInformation.endTime ? dayjs(r.healthCheckRoundInformation.endTime) : null;
+        const newStart = values.startTime;
+        const newEnd = values.endTime;
+
+        const isSameDay = rStart && newStart && rStart.isSame(newStart, "day");
+        const isOverlap =
+          rStart &&
+          rEnd &&
+          newStart.isBefore(rEnd) &&
+          newEnd.isAfter(rStart);
+
+        return (
+          rNurseId &&
+          rNurseId === formNurseId &&
+          isSameDay &&
+          isOverlap
+        );
+      });
+      if (overlap) {
+        formEditRound.setFields([
+          {
+            name: "startTime",
+            errors: ["This nurse already has a round in this time range on this day."],
+          },
+          {
+            name: "endTime",
+            errors: ["This nurse already has a round in this time range on this day."],
+          },
+        ]);
+        setEditRoundLoading(false);
+        return;
+      }
       await axiosInstance.put(
         `/api/health-check-rounds/${editRoundData.healthCheckRoundInformation.roundId}`,
         {
@@ -521,11 +656,12 @@ const hasSupplementRound = rounds.some(
         {rounds.map((round, idx) => {
           const now = dayjs();
           const start = dayjs(round.healthCheckRoundInformation.startTime);
-          console.log("Start time:", start);
           const end = dayjs(round.healthCheckRoundInformation.endTime);
           const isEditingDisabled =
+           (now.isSame(start, "day") ||
+            now.isSame(end, "day") ||
             (now.isAfter(start) && now.isBefore(end)) ||
-            round.healthCheckRoundInformation.status === true;
+            round.healthCheckRoundInformation.status === true);
 
           return (
             <Col xs={24} md={12} key={round.healthCheckRoundInformation.roundId}>
