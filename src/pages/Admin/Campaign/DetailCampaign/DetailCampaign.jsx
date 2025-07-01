@@ -16,6 +16,8 @@ import {
   Select,
   message,
   Dropdown,
+  Drawer, 
+  Divider
 } from "antd";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
@@ -27,6 +29,16 @@ import {
   TeamOutlined,
   DownOutlined,
   EditOutlined,
+  BarcodeOutlined,
+  UserOutlined,
+  InfoCircleOutlined,
+  CalendarOutlined,
+  NumberOutlined,
+  FileTextOutlined,
+  SafetyCertificateOutlined,
+  ExclamationCircleOutlined,
+  ApartmentOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
@@ -638,6 +650,12 @@ const DetailCampaign = () => {
     }
   }, [scheduleId]);
 
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
+  // Drawer open/close handlers
+  const showDrawer = () => setDrawerVisible(true);
+  const closeDrawer = () => setDrawerVisible(false);
+
   if (loading) {
     return (
       <div style={{textAlign: "center", marginTop: 40}}>
@@ -686,6 +704,9 @@ const DetailCampaign = () => {
       style={{maxWidth: 1200, margin: "32px auto"}}
       extra={
         <Space>
+           <Button icon={<EyeOutlined />} onClick={showDrawer}>
+              View
+            </Button>
           <Button
             type="dashed"
             icon={<PlusOutlined />}
@@ -791,50 +812,16 @@ const DetailCampaign = () => {
           >
             Send to Parent
           </Button>
+         
         </Space>
       }
     >
-      <Row gutter={32}>
-        {/* Vaccine Information */}
-        <Col span={12}>
-          <Title level={4}>Vaccine Information</Title>
-          <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="Vaccine Name">
-              {vaccine.vaccineName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Vaccine Code">
-              {vaccine.vaccineCode}
-            </Descriptions.Item>
-            <Descriptions.Item label="Manufacturer">
-              {vaccine.manufacturer}
-            </Descriptions.Item>
-            <Descriptions.Item label="Vaccine Type">
-              {vaccine.vaccineType}
-            </Descriptions.Item>
-            <Descriptions.Item label="Age Recommendation">
-              {vaccine.ageRecommendation}
-            </Descriptions.Item>
-            <Descriptions.Item label="Batch Number">
-              {vaccine.batchNumber}
-            </Descriptions.Item>
-            <Descriptions.Item label="Expiration Date">
-              {vaccine.expirationDate}
-            </Descriptions.Item>
-            <Descriptions.Item label="Contraindication Notes">
-              {vaccine.contraindicationNotes}
-            </Descriptions.Item>
-            <Descriptions.Item label="Description">
-              {vaccine.description}
-            </Descriptions.Item>
-          </Descriptions>
-        </Col>
-
-        {/* Vaccination Rounds */}
-        <Col span={12}>
-          <Title level={4}>Vaccination Rounds</Title>
+       
+        <Title level={4}>Vaccination Rounds</Title>
           {roundsWithNurse.length === 0 && (
             <Paragraph>No rounds available.</Paragraph>
           )}
+        <Row gutter={[16, 16]}> 
           {roundsWithNurse.map((round, idx) => {
             const now = dayjs();
             const start = dayjs(round.startTime);
@@ -846,8 +833,8 @@ const DetailCampaign = () => {
               round.status === true);
 
             return (
+            <Col xs={24} md={12} key={round.roundId}>
               <Card
-                key={round.roundId}
                 type="inner"
                 title={`Round ${idx + 1}: ${round.roundName}`}
                 style={{marginBottom: 16, background: "#E6F7FF"}}
@@ -910,10 +897,81 @@ const DetailCampaign = () => {
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
-            );
-          })}
-        </Col>
+            </Col>
+          );
+        })}
       </Row>
+
+      {/* Drawer for Vaccine Information */}
+      <Drawer
+        title={
+          <span>
+            <SafetyCertificateOutlined style={{ color: "#52c41a", marginRight: 8 }} />
+            Vaccine Information
+          </span>
+        }
+        placement="right"
+        onClose={closeDrawer}
+        open={drawerVisible}
+        width={500}
+      >
+        <div style={{ padding: 8 }}>
+          <Typography.Title level={5} style={{ marginBottom: 16 }}>
+            <InfoCircleOutlined style={{ color: "#1890ff", marginRight: 8 }} />
+            General Info
+          </Typography.Title>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <UserOutlined style={{ fontSize: 20, color: "#722ed1", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Vaccine Name:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.vaccineName || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <BarcodeOutlined style={{ fontSize: 20, color: "#faad14", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Vaccine Code:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.vaccineCode || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <ApartmentOutlined style={{ fontSize: 20, color: "#13c2c2", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Manufacturer:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.manufacturer || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <FileTextOutlined style={{ fontSize: 20, color: "#eb2f96", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Vaccine Type:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.vaccineType || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <NumberOutlined style={{ fontSize: 20, color: "#1890ff", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Batch Number:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.batchNumber || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <CalendarOutlined style={{ fontSize: 20, color: "#fa541c", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Expiration Date:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.expirationDate || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <ClockCircleOutlined style={{ fontSize: 20, color: "#52c41a", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Age Recommendation:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.ageRecommendation || <i>None</i>}</span>
+          </div>
+          <Divider />
+          <Typography.Title level={5} style={{ marginBottom: 16 }}>
+            <ExclamationCircleOutlined style={{ color: "#fa541c", marginRight: 8 }} />
+            Notes
+          </Typography.Title>
+          <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 12 }}>
+            <ExclamationCircleOutlined style={{ fontSize: 20, color: "#faad14", marginRight: 10, marginTop: 2 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Contraindication:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.contraindicationNotes || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-start" }}>
+            <FileTextOutlined style={{ fontSize: 20, color: "#1890ff", marginRight: 10, marginTop: 2 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Description:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.description || <i>None</i>}</span>
+          </div>
+        </div>
+      </Drawer>
 
       {/* Modal for round detail */}
       <Modal
