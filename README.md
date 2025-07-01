@@ -24,36 +24,22 @@ A modern web application designed to manage school medical records, health data,
 
 ## 🛠️ Tech Stack & Skills
 
-| Name                       | Description                                                    |        
-|----------------------------|----------------------------------------------------------------|
-| **React**                  | UI library                                                     |                          
-| **JavaScript**             | Core language                                                  |                         
-| **Vite**                   | Next-gen frontend tooling                                      |                          
-| **Redux Toolkit**          | Modern Redux state management                                  |               
-| **Tailwind CSS**           | Utility-first CSS framework                                    |                          
-| **Bootstrap**              | Responsive UI framework                                        |                          
-| **Material UI (MUI)**      | React UI components                                            |         
-| **Sass**                   | CSS pre-processor                                             |                          
-| **Ant Design (antd)**      | React UI library                                               |                          
-| **Ant Design Charts**      | Charting library                                               |                         
-| **Chart.js**               | Charting library                                               |                          
-| **React Router DOM**       | Routing for React                                              |                          
-| **React Redux**            | React bindings for Redux                                       |                  
-| **Redux Persist**          | Persist/re-hydrate Redux state                                 |                          
-| **React Bootstrap**        | Bootstrap components for React                                 |              
-| **date-fns**               | Date utility library                                           |                         
-| **jwt-decode**             | JWT decoding utility                                           |                          
-| **swiper**                 | Modern touch slider                                            |                          
-| **sweetalert2**            | Customizable popups                                            |                          
-| **animate.css**            | Animation CSS library                                          |                        
-| **lucide-react**           | Icon set for React                                             |                        
-| **react-icons**            | Popular icon packs for React                                   |                        
-| **@microsoft/signalr**     | Real-time communication framework                              |                       
-| **xlsx**                   | Excel file parsing/export                                      | 
-| **axios**                  | HTTP client                                                    | 
-| **React Transition Group** | Animation & transition utilities for React                     | 
-| **Vitest**                 | Fast unit testing                                              | 
-| **ESLint**                 | Linting                                                        | 
+|                                         |                                         |
+|-----------------------------------------|-----------------------------------------|
+| **React**                              | **Redux Toolkit**                       |
+| **JavaScript**                         | **Tailwind CSS**                        |
+| **Vite**                               | **Bootstrap**                           |
+| **Material UI (MUI)**                  | **Sass**                                |
+| **Ant Design (antd)**                  | **Ant Design Charts**                   |
+| **Chart.js**                           | **React Router DOM**                    |
+| **React Redux**                        | **Redux Persist**                       |
+| **React Bootstrap**                    | **date-fns**                            |
+| **jwt-decode**                         | **swiper**                              |
+| **sweetalert2**                        | **animate.css**                         |
+| **lucide-react**                       | **react-icons**                         |
+| **@microsoft/signalr**                 | **xlsx**                                |
+| **axios**                              | **React Transition Group**              |
+| **Vitest**                             | **ESLint**                              | 
 
 ---
 
