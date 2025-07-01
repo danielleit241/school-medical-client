@@ -43,6 +43,7 @@ const HealthCheckDetail = () => {
 
   const [loading, setLoading] = useState(true);
   const [rounds, setRounds] = useState([]);
+  const [supplementStudents, setSupplementStudents] = useState(null);
 
   // Modal states
   const [roundDetail, setRoundDetail] = useState(null);
@@ -540,6 +541,15 @@ const HealthCheckDetail = () => {
     }
   };
 
+  useEffect(() => {
+    if (scheduleId) {
+      axiosInstance
+        .get(`/api/schedules/${scheduleId}/health-check-rounds/supplementary/total-students`)
+        .then(res => setSupplementStudents(res.data?.supplementStudents ?? 0))
+        .catch(() => setSupplementStudents(0));
+    }
+  }, [scheduleId]);
+
   if (loading) {
     return (
       <div
@@ -556,8 +566,8 @@ const HealthCheckDetail = () => {
   }
 
   const disableSupplementRound = rounds.some(
-  (r) => r.healthCheckRoundInformation?.status === false
-);
+    (r) => r.healthCheckRoundInformation?.status === false
+  ) || supplementStudents === 0;
 
 const hasSupplementRound = rounds.some(
   (r) =>
@@ -600,7 +610,7 @@ const hasSupplementRound = rounds.some(
                 {
                   key: "2",
                   label: (
-                    <span style={hasSupplementRound ? { color: "#aaa" } : {}}>
+                    <span style={hasSupplementRound || supplementStudents === 0 ? { color: "#aaa" } : {}}>
                       Add Supplement Round
                     </span>
                   ),

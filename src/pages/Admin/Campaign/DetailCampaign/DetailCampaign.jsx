@@ -39,6 +39,7 @@ const DetailCampaign = () => {
   const navigate = useNavigate();
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [supplementStudents, setSupplementStudents] = useState(null);
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
@@ -626,6 +627,17 @@ const DetailCampaign = () => {
     }
   };
 
+  
+
+  useEffect(() => {
+    if (scheduleId) {
+      axiosInstance
+        .get(`/api/schedules/${scheduleId}/vaccination-rounds/supplementary/total-students`)
+        .then(res => setSupplementStudents(res.data?.supplementStudents ?? 0))
+        .catch(() => setSupplementStudents(0));
+    }
+  }, [scheduleId]);
+
   if (loading) {
     return (
       <div style={{textAlign: "center", marginTop: 40}}>
@@ -655,7 +667,7 @@ const DetailCampaign = () => {
       (r) =>
         r.vaccinationRoundInformation?.status === false ||
         r.status === false 
-    );
+    ) || supplementStudents === 0;
 
   return (
     <Card
@@ -700,7 +712,7 @@ const DetailCampaign = () => {
                 {
                   key: "2",
                   label: (
-                    <span style={hasSupplementRound ? { color: "#aaa" } : {}}>
+                    <span style={hasSupplementRound || supplementStudents === 0 ? { color: "#aaa" } : {}}>
                       Add Supplement Round
                     </span>
                   ),

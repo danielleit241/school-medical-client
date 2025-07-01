@@ -485,7 +485,11 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item label="Notes" name="notes">
+              <Form.Item label="Notes" name="notes"
+               rules={[
+                      { required: true, message: "Please enter notes" },
+                    ]}
+              >
                 <Input.TextArea rows={3} />
               </Form.Item>
               <Form.Item
