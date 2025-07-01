@@ -23,39 +23,33 @@ A modern web application designed to manage school medical records, health data,
 
 ## 🛠️ Frameworks, Libraries & Technologies
 
-### Frontend
+## 🛠️ Tech Stack & Skills
 
-- **React**: Fast, component-based UI development
-- **Vite**: Next-generation frontend tooling for fast builds and hot module replacement
-- **JavaScript**: (if used) Type-safe JavaScript for scalable code
-- **Sass**: Powerful CSS preprocessor for advanced styling
-- **Tailwind CSS**: Utility-first CSS framework
-- **Bootstrap & React-Bootstrap**: Responsive UI components
-- **Ant Design (antd) & Ant Design Charts**: High-quality design system and charts
-- **Material-UI (MUI)**: Modern React UI framework
-- **Lucide React**: Icon library for React
-- **React Icons**: Popular icon packs
-- **Animate.css**: Ready-to-use animations
-- **Swiper**: Modern touch slider
-- **React Router DOM**: Declarative routing for React
-- **React Transition Group**: Animation and transition management
-- **SweetAlert2**: Customizable popups and alerts
-
-### State Management
-
-- **React Redux**: Official React bindings for Redux
-- **Redux Persist**: Persist and rehydrate Redux state
-
-### Data & Utilities
-
-- **Axios**: Promise-based HTTP client
-- **date-fns**: Modern JavaScript date utility library
-- **jwt-decode**: Decode JSON Web Tokens
-- **xlsx**: Excel file parsing and export
-
-### Real-Time & Communication
-
-- **@microsoft/signalr**: Real-time web functionality
+<p align="left">
+  <!-- Frontend -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" width="32" title="React"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vite/vite-original.svg" alt="Vite" width="32" title="Vite"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript" width="32" title="TypeScript"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" width="32" title="JavaScript"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg" alt="Sass" width="32" title="Sass"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" alt="Tailwind CSS" width="32" title="Tailwind CSS"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" alt="Bootstrap" width="32" title="Bootstrap"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/materialui/materialui-original.svg" alt="MUI" width="32" title="Material UI"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/redux/redux-original.svg" alt="Redux" width="32" title="Redux"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/antdesign/antdesign-original.svg" alt="Ant Design" width="32" title="Ant Design"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chartjs/chartjs-original.svg" alt="Chart.js" width="32" title="Chart.js"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS3" width="32" title="CSS3"/>
+  <!-- Utilities -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/axios/axios-plain.svg" alt="Axios" width="32" title="Axios"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/eslint/eslint-original.svg" alt="ESLint" width="32" title="ESLint"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jest/jest-plain.svg" alt="Jest" width="32" title="Jest"/>
+  <img src="https://vitejs.dev/logo.svg" alt="Vite" width="32" title="Vite" style="background: #fff; border-radius: 4px;"/>
+  <!-- Special: If no icon, use emoji or text -->
+  <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/swiper.svg" alt="Swiper" width="32" title="Swiper"/>
+  <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/sweetalert2.svg" alt="SweetAlert2" width="32" title="SweetAlert2"/>
+  <img src="https://img.shields.io/badge/SignalR-8A2BE2?logo=signalr&logoColor=white" alt="SignalR" height="32" title="SignalR"/>
+  <img src="https://img.shields.io/badge/XLSX-217346?logo=microsoft-excel&logoColor=white" alt="xlsx" height="32" title="xlsx"/>
+</p>
 
 ## 🧪 Testing & Quality
 
