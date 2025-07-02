@@ -1,6 +1,17 @@
 import React, {useEffect, useState, useRef} from "react";
 import {List, Avatar, Button} from "antd";
-import {BellOutlined} from "@ant-design/icons";
+import {
+  BellOutlined,
+  CalendarOutlined,
+  MedicineBoxOutlined,
+  UserOutlined,
+  FileTextOutlined,
+  SafetyCertificateOutlined,
+  EyeOutlined,
+  ExclamationCircleOutlined,
+  CheckCircleOutlined,
+  AlertOutlined,
+} from "@ant-design/icons";
 import axiosInstance from "../../api/axios";
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
@@ -31,6 +42,20 @@ const NotificationModal = ({visible = true}) => {
     8: "Vaccination Result",
     9: "Health Check Up Result",
   };
+
+  // Map notification type to icon
+  const notificationIconMap = {
+    1: <CalendarOutlined />,                // Appointment
+    2: <MedicineBoxOutlined />,             // Health Check Up
+    3: <ExclamationCircleOutlined />,       // Medical Event
+    4: <FileTextOutlined />,                // Medical Registration
+    5: <SafetyCertificateOutlined />,       // Vaccination
+    6: <BellOutlined />,                    // General Notification
+    7: <EyeOutlined />,                     // Vaccination Observation
+    8: <CheckCircleOutlined />,             // Vaccination Result
+    9: <UserOutlined />,                    // Health Check Up Result
+  };
+
   // State để cập nhật lại label thời gian mỗi phút
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -301,7 +326,7 @@ const NotificationModal = ({visible = true}) => {
                         backgroundColor: isRead ? "#d9d9d9" : "#1890ff",
                         verticalAlign: "middle",
                       }}
-                      icon={<BellOutlined />}
+                      icon={notificationIconMap[noti.type] || <BellOutlined />}
                     />
                   }
                   title={
