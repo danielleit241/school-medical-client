@@ -117,9 +117,6 @@ const Notifications = () => {
         window.location.reload();
         break;
       case 9: // HealthCheck Result
-        if (noti.content.includes("not qualified") || noti.content.includes("not received the vaccination")) {
-          break;
-        }
         navigate(`/parent/health-declaration/my-children`);
         window.location.reload();
         break;

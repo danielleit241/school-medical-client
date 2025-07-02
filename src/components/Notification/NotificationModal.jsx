@@ -53,7 +53,7 @@ const NotificationModal = ({visible = true}) => {
     6: <BellOutlined />,                    // General Notification
     7: <EyeOutlined />,                     // Vaccination Observation
     8: <CheckCircleOutlined />,             // Vaccination Result
-    9: <UserOutlined />,                    // Health Check Up Result
+    9: <MedicineBoxOutlined />,                    // Health Check Up Result
   };
 
   // State để cập nhật lại label thời gian mỗi phút
@@ -267,6 +267,10 @@ const NotificationModal = ({visible = true}) => {
                   case 8: // VaccinationResult
                     if(noti.content.includes("not qualified") || noti.content.includes("not received the vaccination")) 
                       break;
+                    navigate(`/parent/health-declaration/my-children`);
+                    window.location.reload();
+                    break;
+                  case 9: // HealthCheckResult
                     navigate(`/parent/health-declaration/my-children`);
                     window.location.reload();
                     break;
