@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from "react";
+import React, {useEffect, useState} from "react";
 import {
   Card,
   Row,
@@ -16,6 +16,8 @@ import {
   Select,
   message,
   Dropdown,
+  Drawer, 
+  Divider
 } from "antd";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
@@ -26,6 +28,17 @@ import {
   PlusOutlined,
   TeamOutlined,
   DownOutlined,
+  EditOutlined,
+  BarcodeOutlined,
+  UserOutlined,
+  InfoCircleOutlined,
+  CalendarOutlined,
+  NumberOutlined,
+  FileTextOutlined,
+  SafetyCertificateOutlined,
+  ExclamationCircleOutlined,
+  ApartmentOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
@@ -38,6 +51,7 @@ const DetailCampaign = () => {
   const navigate = useNavigate();
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [supplementStudents, setSupplementStudents] = useState(null);
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
@@ -55,42 +69,11 @@ const DetailCampaign = () => {
   const [roundsWithNurse, setRoundsWithNurse] = useState([]);
   const [classes, setClasses] = useState([]); // Thêm state để lưu danh sách lớp
 
-  // Function to check and update campaign status if all rounds are completed
-  const updateExpiredCampaigns = useCallback(async () => {
-    if (!detail || !detail.vaccinationRounds) return;
-
-    const rounds = detail.vaccinationRounds;
-    const allRoundsCompleted = rounds.length > 0 && rounds.every(
-      (round) => round.status === true
-    );
-
-    // If all rounds are completed but campaign status is still false, update it
-    if (
-      allRoundsCompleted &&
-      detail.vaccinationScheduleResponseDto?.status === false
-    ) {
-      try {
-        await axiosInstance.put("/api/vaccinations/schedules/finished", {
-          scheduleId: scheduleId,
-          status: true,
-        });
-
-        console.log(
-          `Campaign ${scheduleId} has been automatically marked as completed`
-        );
-
-        // Refresh the campaign details to reflect the updated status
-        const updatedRes = await axiosInstance.get(
-          `/api/vaccinations/schedules/${scheduleId}`
-        );
-        setDetail(updatedRes.data);
-
-        message.success("Campaign automatically marked as completed!");
-      } catch (error) {
-        console.error(`Cannot update status for campaign ${scheduleId}:`, error);
-      }
-    }
-  }, [detail, scheduleId]);
+  // Edit round modal state
+  const [editRoundModalVisible, setEditRoundModalVisible] = useState(false);
+  const [editRoundLoading, setEditRoundLoading] = useState(false);
+  const [editRoundData, setEditRoundData] = useState(null);
+  const [formEditRound] = Form.useForm();
 
   // Thêm hàm lấy profile nurse cho từng round
   const fetchRoundsWithNurse = async (rounds) => {
@@ -163,13 +146,6 @@ const DetailCampaign = () => {
       });
   }, []);
 
-  // useEffect to check and update campaign status when detail changes
-  useEffect(() => {
-    if (detail && detail.vaccinationRounds) {
-      updateExpiredCampaigns();
-    }
-  }, [detail, updateExpiredCampaigns]);
-
   const handleBack = () => {
     localStorage.removeItem("scheduleId");
     navigate(`/${roleName}/vaccine/vaccine-schedule`);
@@ -222,13 +198,111 @@ const DetailCampaign = () => {
     try {
       setAddRoundLoading(true);
       const values = await formAddRound.validateFields();
+      
+      const res = await axiosInstance.get(
+          `/api/schedules/${scheduleId}/vaccination-rounds`
+        );
+        const rounds = Array.isArray(res.data) ? res.data : [];
+
+        // Validate targetGrade trùng
+        const existed = rounds.some(
+          (r) =>
+            r.vaccinationRoundInformation?.targetGrade?.trim().toLowerCase() ===
+            values.targetGrade.trim().toLowerCase()
+        );
+        if (existed) {
+          formAddRound.setFields([
+            {
+              name: "targetGrade",
+              errors: ["This target grade already exists in another round!"],
+            },
+          ]);
+          setAddRoundLoading(false);
+          return;
+        }
+
+        // Validate startTime, endTime
+        let maxEndTime = null;
+        if (rounds.length > 0) {
+          maxEndTime = rounds
+            .map((r) => r.vaccinationRoundInformation?.endTime)
+            .filter(Boolean)
+            .map((t) => dayjs(t))
+            .sort((a, b) => b.valueOf() - a.valueOf())[0];
+
+          
+            const newStart = values.startTime;
+            const newEnd = values.endTime;
+
+            if (modalType === "supplement") {
+              // Supplement: chỉ được tạo sau ngày maxEndTime
+              if (
+                !newStart.isAfter(maxEndTime, "day") ||
+                !newEnd.isAfter(maxEndTime, "day")
+              ) {
+                formAddRound.setFields([
+                  {
+                    name: "startTime",
+                    errors: ["Start time must be after all existing rounds (next day)."],
+                  },
+                  {
+                    name: "endTime",
+                    errors: ["End time must be after all existing rounds (next day)."],
+                  },
+                ]);
+                setAddRoundLoading(false);
+                return;
+              }
+            } 
+            if (modalType === "new") {
+              // New round: cho phép cùng ngày, nhưng không cho nurse trùng nếu time giao nhau
+              if (
+                newStart.isSame(maxEndTime, "day") ||
+                newEnd.isSame(maxEndTime, "day")
+              ) {
+                const overlap = rounds.some((r) => {
+                  const rNurseId = String(r.nurseId || r.nurse?.nurseId || "");
+                  const formNurseId = String(values.nurseId || "");
+                  const rStart = r.vaccinationRoundInformation?.startTime
+                    ? dayjs(r.vaccinationRoundInformation.startTime)
+                    : null;
+                  const rEnd = r.vaccinationRoundInformation?.endTime
+                    ? dayjs(r.vaccinationRoundInformation.endTime)
+                    : null;
+                
+                  return (
+                    rNurseId === formNurseId &&
+                    rStart &&
+                    rEnd &&
+                    newStart.isBefore(rEnd) &&
+                    newEnd.isAfter(rStart)
+                  );
+                });
+                if (overlap) {
+                  formAddRound.setFields([
+                    {
+                      name: "startTime",
+                      errors: ["This nurse already has a round in this time range."],
+                    },
+                    {
+                      name: "endTime",
+                      errors: ["This nurse already has a round in this time range."],
+                    },
+                  ]);
+                  setAddRoundLoading(false);
+                  return;
+                }
+              }
+            }
+          }
+
       await axiosInstance.post("/api/schedules/vaccination-rounds", {
         scheduleId,
         roundName: values.roundName,
         targetGrade: values.targetGrade,
         description: values.description,
-        startTime: values.startTime.toISOString(),
-        endTime: values.endTime.toISOString(),
+        startTime: values.startTime.format("YYYY-MM-DDTHH:mm:ss"),
+        endTime: values.endTime.format("YYYY-MM-DDTHH:mm:ss"),
         nurseId: values.nurseId,
       });
       message.success("Add round successfully!");
@@ -249,12 +323,6 @@ const DetailCampaign = () => {
         if (scheduleRes.data && scheduleRes.data.vaccinationRounds) {
           await fetchRoundsWithNurse(scheduleRes.data.vaccinationRounds);
         }
-
-        // ĐÃ XÓA: không reset notification data nữa
-        // setToParentData([]);
-        // setToNurseData([]);
-
-        // Add any other data refresh needed
       } catch (refreshErr) {
         console.error("Error refreshing data:", refreshErr);
         message.error(
@@ -263,8 +331,8 @@ const DetailCampaign = () => {
       } finally {
         setLoading(false);
       }
-      // eslint-disable-next-line no-unused-vars
     } catch (err) {
+      console.error("Error adding round:", err);
       message.error("Add round failed!");
     } finally {
       setAddRoundLoading(false);
@@ -403,6 +471,191 @@ const DetailCampaign = () => {
     navigate(`/${roleName}/vaccine/vaccine-round/student-list`);
   };
 
+  // Handle open edit round modal
+  const handleEditRound = async (round) => {
+    setEditRoundData(round);
+    setEditRoundModalVisible(true);
+
+    // Lấy lại danh sách nurse mới nhất trước khi setFieldsValue
+    try {
+      const res = await axiosInstance.get("/api/nurses");
+      setNurses(res.data || []);
+    } catch {
+      setNurses([]);
+    }
+
+    // Đảm bảo setFieldsValue sau khi đã có nurses
+    setTimeout(() => {
+      formEditRound.setFieldsValue({
+        roundName: round.roundName,
+        targetGrade: round.targetGrade,
+        description: round.description,
+        startTime: dayjs(round.startTime),
+        endTime: dayjs(round.endTime),
+        nurseId: round.nurseId || undefined,
+      });
+    }, 0);
+  };
+
+  // Handle submit edit round
+  const handleSubmitEditRound = async () => {
+    try {
+      setEditRoundLoading(true);
+      const values = await formEditRound.validateFields();
+       const isSupplementRound =
+      values.roundName?.trim().toLowerCase() === "supplement round";
+    if (isSupplementRound) {
+      // Lấy maxEndTime của các round khác (trừ round đang sửa)
+      const maxEndTime = roundsWithNurse
+        .filter((r) => r.roundId !== editRoundData.roundId)
+        .map((r) => r.endTime ? dayjs(r.endTime) : (r.vaccinationRoundInformation?.endTime ? dayjs(r.vaccinationRoundInformation.endTime) : null))
+        .filter(Boolean)
+        .sort((a, b) => b.valueOf() - a.valueOf())[0];
+
+      if (maxEndTime) {
+        const newStart = values.startTime;
+        const newEnd = values.endTime;
+        if (
+          !newStart.isAfter(maxEndTime, "day") ||
+          !newEnd.isAfter(maxEndTime, "day")
+        ) {
+          formEditRound.setFields([
+            {
+              name: "startTime",
+              errors: ["Start time must be after all existing rounds (next day)."],
+            },
+            {
+              name: "endTime",
+              errors: ["End time must be after all existing rounds (next day)."],
+            },
+          ]);
+          setEditRoundLoading(false);
+          return;
+        }
+      }
+    }
+
+      // Validate targetGrade trùng (trừ chính round đang sửa)
+      const existed = roundsWithNurse.some(
+        (r) =>
+          r.roundId !== editRoundData.roundId &&
+          r.targetGrade?.trim().toLowerCase() === values.targetGrade.trim().toLowerCase()
+      );
+      if (existed) {
+        formEditRound.setFields([
+          {
+            name: "targetGrade",
+            errors: ["This target grade already exists in another round!"],
+          },
+        ]);
+        setEditRoundLoading(false);
+        return;
+      }
+
+      // Không cho sửa thành Supplement nếu đã có Supplement Round khác
+      const isEditingToSupplement =
+        values.targetGrade.trim().toLowerCase() === "supplement";
+      const hasOtherSupplement = roundsWithNurse.some(
+        (r) =>
+          r.roundId !== editRoundData.roundId &&
+          (r.targetGrade?.trim().toLowerCase() === "supplement" ||
+           (r.vaccinationRoundInformation?.targetGrade?.trim().toLowerCase() === "supplement"))
+      );
+      if (isEditingToSupplement && hasOtherSupplement) {
+        formEditRound.setFields([
+          {
+            name: "targetGrade",
+            errors: ["There is already a Supplement round!"],
+          },
+        ]);
+        setEditRoundLoading(false);
+        return;
+      }
+
+      // Validate nurse trùng lịch (không tính round đang sửa)
+      const overlap = roundsWithNurse.some((r) => {
+        if (r.roundId === editRoundData.roundId) return false;
+        const rNurseId = String(r.nurseId || r.nurse?.nurseId || "");
+        const formNurseId = String(values.nurseId || "");
+        const rStart = r.startTime ? dayjs(r.startTime) : null;
+        const rEnd = r.endTime ? dayjs(r.endTime) : null;
+        const newStart = values.startTime;
+        const newEnd = values.endTime;
+        // Chỉ kiểm tra nếu cùng ngày
+        const isSameDay = rStart && newStart && rStart.isSame(newStart, "day");
+        return (
+          rNurseId === formNurseId &&
+          isSameDay &&
+          rStart &&
+          rEnd &&
+          newStart.isBefore(rEnd) &&
+          newEnd.isAfter(rStart)
+        );
+      });
+      if (overlap) {
+        formEditRound.setFields([
+          {
+            name: "startTime",
+            errors: ["This nurse already has a round in this time range on this day."],
+          },
+          {
+            name: "endTime",
+            errors: ["This nurse already has a round in this time range on this day."],
+          },
+        ]);
+        setEditRoundLoading(false);
+        return;
+      }
+
+      await axiosInstance.put(
+        `/api/vaccination-rounds/${editRoundData.roundId}`,
+        {
+          roundName: values.roundName,
+          targetGrade: values.targetGrade,
+          description: values.description,
+          startTime: values.startTime.format("YYYY-MM-DDTHH:mm:ss"),
+          endTime: values.endTime.format("YYYY-MM-DDTHH:mm:ss"),
+          nurseId: values.nurseId,
+        }
+      );
+      message.success("Edit round successfully!");
+      setEditRoundModalVisible(false);
+      formEditRound.resetFields();
+      // Reload rounds
+      setLoading(true);
+      const scheduleRes = await axiosInstance.get(
+        `/api/vaccinations/schedules/${scheduleId}`
+      );
+      setDetail(scheduleRes.data);
+      if (scheduleRes.data && scheduleRes.data.vaccinationRounds) {
+        await fetchRoundsWithNurse(scheduleRes.data.vaccinationRounds);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error("Error editing round:", err);
+      message.error("Edit round failed!");
+    } finally {
+      setEditRoundLoading(false);
+    }
+  };
+
+  
+
+  useEffect(() => {
+    if (scheduleId) {
+      axiosInstance
+        .get(`/api/schedules/${scheduleId}/vaccination-rounds/supplementary/total-students`)
+        .then(res => setSupplementStudents(res.data?.supplementStudents ?? 0))
+        .catch(() => setSupplementStudents(0));
+    }
+  }, [scheduleId]);
+
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
+  // Drawer open/close handlers
+  const showDrawer = () => setDrawerVisible(true);
+  const closeDrawer = () => setDrawerVisible(false);
+
   if (loading) {
     return (
       <div style={{textAlign: "center", marginTop: 40}}>
@@ -416,8 +669,23 @@ const DetailCampaign = () => {
       <div style={{textAlign: "center", marginTop: 40}}>No data found.</div>
     );
   }
-
+  
   const vaccine = detail.vaccinationDetailsResponse;
+
+ const hasSupplementRound = roundsWithNurse.some((r) => {
+  const name =
+    r.vaccinationRoundInformation?.roundName ||
+    r.roundName ||
+    "";
+  return name.trim().toLowerCase() === "supplement round";
+});
+
+  const disableSupplementRound =
+    roundsWithNurse.some(
+      (r) =>
+        r.vaccinationRoundInformation?.status === false ||
+        r.status === false 
+    ) || supplementStudents === 0;
 
   return (
     <Card
@@ -436,6 +704,9 @@ const DetailCampaign = () => {
       style={{maxWidth: 1200, margin: "32px auto"}}
       extra={
         <Space>
+           <Button icon={<EyeOutlined />} onClick={showDrawer}>
+              View
+            </Button>
           <Button
             type="dashed"
             icon={<PlusOutlined />}
@@ -449,18 +720,37 @@ const DetailCampaign = () => {
               items: [
                 {
                   key: "1",
-                  label: "Add New Round",
-                  onClick: () => openAddRoundModal("new"),
+                  label: (
+                    <span style={hasSupplementRound ? { color: "#aaa" } : {}}>
+                      Add New Round
+                    </span>
+                  ),
+                  onClick: () => {
+                    if (!hasSupplementRound) openAddRoundModal("new");
+                  },
+                  disabled: hasSupplementRound,
                 },
                 {
                   key: "2",
-                  label: "Add Supplement Round",
-                  onClick: () => openAddRoundModal("supplement"),
+                  label: (
+                    <span style={hasSupplementRound || supplementStudents === 0 ? { color: "#aaa" } : {}}>
+                      Add Supplement Round
+                    </span>
+                  ),
+                  onClick: () => {
+                    if (!hasSupplementRound && !disableSupplementRound)
+                      openAddRoundModal("supplement");
+                  },
+                  disabled: hasSupplementRound || disableSupplementRound,
                 },
               ],
             }}
           >
-            <Button type="dashed" icon={<PlusOutlined />}>
+            <Button
+              type="dashed"
+              icon={<PlusOutlined />}
+              disabled={hasSupplementRound}
+            >
               Add Round <DownOutlined />
             </Button>
           </Dropdown>
@@ -522,105 +812,166 @@ const DetailCampaign = () => {
           >
             Send to Parent
           </Button>
+         
         </Space>
       }
     >
-      <Row gutter={32}>
-        {/* Vaccine Information */}
-        <Col span={12}>
-          <Title level={4}>Vaccine Information</Title>
-          <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="Vaccine Name">
-              {vaccine.vaccineName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Vaccine Code">
-              {vaccine.vaccineCode}
-            </Descriptions.Item>
-            <Descriptions.Item label="Manufacturer">
-              {vaccine.manufacturer}
-            </Descriptions.Item>
-            <Descriptions.Item label="Vaccine Type">
-              {vaccine.vaccineType}
-            </Descriptions.Item>
-            <Descriptions.Item label="Age Recommendation">
-              {vaccine.ageRecommendation}
-            </Descriptions.Item>
-            <Descriptions.Item label="Batch Number">
-              {vaccine.batchNumber}
-            </Descriptions.Item>
-            <Descriptions.Item label="Expiration Date">
-              {vaccine.expirationDate}
-            </Descriptions.Item>
-            <Descriptions.Item label="Contraindication Notes">
-              {vaccine.contraindicationNotes}
-            </Descriptions.Item>
-            <Descriptions.Item label="Description">
-              {vaccine.description}
-            </Descriptions.Item>
-          </Descriptions>
-        </Col>
-
-        {/* Vaccination Rounds */}
-        <Col span={12}>
-          <Title level={4}>Vaccination Rounds</Title>
+       
+        <Title level={4}>Vaccination Rounds</Title>
           {roundsWithNurse.length === 0 && (
             <Paragraph>No rounds available.</Paragraph>
           )}
-          {roundsWithNurse.map((round, idx) => (
-            <Card
-              key={round.roundId}
-              type="inner"
-              title={`Round ${idx + 1}: ${round.roundName}`}
-              style={{marginBottom: 16, background: "#E6F7FF"}}
-              extra={
-                <Space>
-                  {round.status ? (
-                    <Tag color="green">Completed</Tag>
-                  ) : (
-                    <Tag color="orange">Not completed</Tag>
-                  )}
-                  <Button
-                    size="small"
-                    icon={<EyeOutlined />}
-                    onClick={() => handleRoundDetail(round.roundId)}
-                  >
-                    Detail
-                  </Button>
-                  <Button
-                    size="small"
-                    icon={<TeamOutlined />}
-                    onClick={() => handleShowStudentList(round.roundId)}
-                  >
-                    List Students
-                  </Button>
-                </Space>
-              }
-            >
-              <Descriptions column={1} size="small">
-                <Descriptions.Item label="Target Grade">
-                  {round.targetGrade}
-                </Descriptions.Item>
-                <Descriptions.Item label="Description">
-                  {round.description || "None"}
-                </Descriptions.Item>
-                <Descriptions.Item label="Start Time">
-                  {round.startTime
-                    ? dayjs(round.startTime).format("YYYY-MM-DD HH:mm")
-                    : ""}
-                </Descriptions.Item>
-                <Descriptions.Item label="End Time">
-                  {round.endTime
-                    ? dayjs(round.endTime).format("YYYY-MM-DD HH:mm")
-                    : ""}
-                </Descriptions.Item>
-                <Descriptions.Item label="Nurse">
-                  {round.nurseProfile?.fullName || "Not assigned yet"}
-                </Descriptions.Item>
-              </Descriptions>
-            </Card>
-          ))}
-        </Col>
+        <Row gutter={[16, 16]}> 
+          {roundsWithNurse.map((round, idx) => {
+            const now = dayjs();
+            const start = dayjs(round.startTime);
+            const end = dayjs(round.endTime);
+            const isEditingDisabled =
+              (now.isSame(start, "day") ||
+              now.isSame(end, "day") ||
+              (now.isAfter(start, "day") && now.isBefore(end, "day")) ||
+              round.status === true);
+
+            return (
+            <Col xs={24} md={12} key={round.roundId}>
+              <Card
+                type="inner"
+                title={`Round ${idx + 1}: ${round.roundName}`}
+                style={{marginBottom: 16, background: "#E6F7FF"}}
+                extra={
+                  <Space>
+                    {round.status ? (
+                      <Tag color="green">Completed</Tag>
+                    ) : (
+                      <Tag color="orange">Not completed</Tag>
+                    )}
+                    <Button
+                      size="small"
+                      icon={<EyeOutlined />}
+                      onClick={() => handleRoundDetail(round.roundId)}
+                    >
+                      Detail
+                    </Button>
+                    <Button
+                      size="small"
+                      icon={<TeamOutlined />}
+                      onClick={() => handleShowStudentList(round.roundId)}
+                    >
+                      List Students
+                    </Button>
+                    <Button
+                      size="small"
+                      icon={<EditOutlined />}
+                      onClick={() => handleEditRound(round)}
+                      disabled={isEditingDisabled}
+                      title={
+                        isEditingDisabled
+                          ? "Cannot edit during round time or after completed"
+                          : "Edit"
+                      }
+                    >
+                      Edit
+                    </Button>
+                  </Space>
+                }
+              >
+                <Descriptions column={1} size="small">
+                  <Descriptions.Item label="Target Grade">
+                    {round.targetGrade}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Description">
+                    {round.description || "None"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Start Time">
+                    {round.startTime
+                      ? dayjs(round.startTime).format("YYYY-MM-DD HH:mm")
+                      : ""}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="End Time">
+                    {round.endTime
+                      ? dayjs(round.endTime).format("YYYY-MM-DD HH:mm")
+                      : ""}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Nurse">
+                    {round.nurseProfile?.fullName || "Not assigned yet"}
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
+
+      {/* Drawer for Vaccine Information */}
+      <Drawer
+        title={
+          <span>
+            <SafetyCertificateOutlined style={{ color: "#52c41a", marginRight: 8 }} />
+            Vaccine Information
+          </span>
+        }
+        placement="right"
+        onClose={closeDrawer}
+        open={drawerVisible}
+        width={500}
+      >
+        <div style={{ padding: 8 }}>
+          <Typography.Title level={5} style={{ marginBottom: 16 }}>
+            <InfoCircleOutlined style={{ color: "#1890ff", marginRight: 8 }} />
+            General Info
+          </Typography.Title>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <UserOutlined style={{ fontSize: 20, color: "#722ed1", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Vaccine Name:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.vaccineName || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <BarcodeOutlined style={{ fontSize: 20, color: "#faad14", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Vaccine Code:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.vaccineCode || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <ApartmentOutlined style={{ fontSize: 20, color: "#13c2c2", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Manufacturer:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.manufacturer || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <FileTextOutlined style={{ fontSize: 20, color: "#eb2f96", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Vaccine Type:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.vaccineType || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <NumberOutlined style={{ fontSize: 20, color: "#1890ff", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Batch Number:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.batchNumber || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <CalendarOutlined style={{ fontSize: 20, color: "#fa541c", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Expiration Date:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.expirationDate || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+            <ClockCircleOutlined style={{ fontSize: 20, color: "#52c41a", marginRight: 10 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Age Recommendation:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.ageRecommendation || <i>None</i>}</span>
+          </div>
+          <Divider />
+          <Typography.Title level={5} style={{ marginBottom: 16 }}>
+            <ExclamationCircleOutlined style={{ color: "#fa541c", marginRight: 8 }} />
+            Notes
+          </Typography.Title>
+          <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 12 }}>
+            <ExclamationCircleOutlined style={{ fontSize: 20, color: "#faad14", marginRight: 10, marginTop: 2 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Contraindication:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.contraindicationNotes || <i>None</i>}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-start" }}>
+            <FileTextOutlined style={{ fontSize: 20, color: "#1890ff", marginRight: 10, marginTop: 2 }} />
+            <span style={{ fontWeight: 500, minWidth: 120 }}>Description:</span>
+            <span style={{ marginLeft: 8 }}>{vaccine.description || <i>None</i>}</span>
+          </div>
+        </div>
+      </Drawer>
 
       {/* Modal for round detail */}
       <Modal
@@ -761,6 +1112,93 @@ const DetailCampaign = () => {
             label="Nurse"
             name="nurseId"
             rules={[{required: true, message: "Please select nurse!"}]}
+          >
+            <Select placeholder="Select nurse">
+              {nurses.map((nurse) => (
+                <Select.Option
+                  key={nurse.staffNurseId}
+                  value={nurse.staffNurseId}
+                >
+                  {nurse.fullName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Edit Round Modal */}
+      <Modal
+        open={editRoundModalVisible}
+        title="Edit Vaccination Round"
+        onCancel={() => setEditRoundModalVisible(false)}
+        onOk={handleSubmitEditRound}
+        confirmLoading={editRoundLoading}
+        okText="Save"
+        width={600}
+      >
+        <Form form={formEditRound} layout="vertical">
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Round Name"
+                name="roundName"
+                rules={[{ required: true, message: "Please input round name!" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Target Grade"
+                name="targetGrade"
+                rules={[{ required: true, message: "Please select target grade!" }]}
+              >
+                <Select
+                  placeholder="Select class"
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.value ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                >
+                  {classes.map((cls) => (
+                    <Select.Option key={cls} value={cls}>
+                      {cls}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item label="Description" name="description">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Start Time"
+                name="startTime"
+                rules={[{ required: true, message: "Please select start time!" }]}
+              >
+                <DatePicker showTime style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="End Time"
+                name="endTime"
+                rules={[{ required: true, message: "Please select end time!" }]}
+              >
+                <DatePicker showTime style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item
+            label="Nurse"
+            name="nurseId"
+            rules={[{ required: true, message: "Please select nurse!" }]}
           >
             <Select placeholder="Select nurse">
               {nurses.map((nurse) => (

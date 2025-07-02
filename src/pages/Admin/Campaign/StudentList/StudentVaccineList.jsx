@@ -101,49 +101,6 @@ const StudentVaccineList = () => {
     navigate(`/${roleName}/vaccine/vaccine-schedule-details/`);
   };
 
-  // Export to Excel (placeholder function)
-  const handleExport = () => {
-    message.info("Export functionality will be implemented here");
-  };
-
-  // Hàm tải file excel
-  const handleDownloadExcel = async () => {
-    if (!resultDetail?.resultResponse?.vaccinationResultId) {
-      message.error("Vaccination result ID not found");
-      return;
-    }
-    setDownloading(true);
-    try {
-      const response = await axiosInstance.get(
-        "/api/vaccination-results/export-excel",
-        {
-          params: {
-            vaccinationResultId: resultDetail.resultResponse.vaccinationResultId,
-          },
-          responseType: "blob",
-        }
-      );
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "vaccination-result.xlsx");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      Swal.fire({
-        icon: "success",
-        title: "Download successful!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    } catch (err) {
-      console.error("Error downloading Excel file:", err);
-      message.error("Download failed!");
-    } finally {
-      setDownloading(false);
-    }
-  };
 
   // Handle view detail of vaccination result
   const handleViewResult = (resultId) => {
@@ -277,8 +234,42 @@ const StudentVaccineList = () => {
           </Button>
           <Button
             icon={<FileExcelOutlined />}
-            onClick={handleExport}
+            onClick={async () => {
+              // Nếu muốn export toàn bộ danh sách round:
+              setDownloading(true);
+              try {
+                const response = await axiosInstance.get(
+                  "/api/vaccination-results/export-excel",
+                  {
+                    params: {
+                      roundId: roundId, 
+                    },
+                    responseType: "blob",
+                  }
+                );
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", "vaccination-round.xlsx");
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);
+                Swal.fire({
+                  icon: "success",
+                  title: "Download successful!",
+                  showConfirmButton: false,
+                  timer: 1500,
+                });
+              } catch (err) {
+                console.error("Error downloading Excel file:", err);
+                message.error("Download failed!");
+              } finally {
+                setDownloading(false);
+              }
+            }}
             type="primary"
+            loading={downloading}
             style={{background: "#52c41a", borderColor: "#52c41a"}}
           >
             Export
@@ -337,17 +328,7 @@ const StudentVaccineList = () => {
               setResultDetail(null);
             }}
             footer={[
-              <Button
-                key="download"
-                icon={<DownloadOutlined />}
-                loading={downloading}
-                onClick={handleDownloadExcel}
-                disabled={!resultDetail?.resultResponse?.vaccinationResultId}
-                type="primary"
-                style={{background: "#52c41a", borderColor: "#52c41a"}}
-              >
-                Download
-              </Button>,
+              // XÓA nút Download ở đây, chỉ giữ nút Close
               <Button
                 key="close"
                 onClick={() => {

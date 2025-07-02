@@ -86,6 +86,7 @@ const DetailCampaign = () => {
       const mappedStudents = (
         Array.isArray(res.data.items) ? res.data.items : []
       ).map((item) => ({
+        vaccineId : item.vaccineId,
         studentCode: item.studentsOfRoundResponse.studentCode,
         studentName: item.studentsOfRoundResponse.fullName,
         grade: item.studentsOfRoundResponse.grade,
@@ -95,7 +96,7 @@ const DetailCampaign = () => {
         vaccinationResultId: item.studentsOfRoundResponse.vaccinationResultId,
         ...item,
       }));
-
+      console.log("Fetched students:", mappedStudents);
       setStudents(mappedStudents);
       console.log("Fetched students:", mappedStudents);
     } catch {
@@ -696,7 +697,7 @@ const DetailCampaign = () => {
               const result = await Swal.fire({
                 icon: "warning",
                 title: "Warning",
-                text: `There are currently ${statusSummary.observating} students still in Observating status. Do you want to exit?`,
+                text: `${statusSummary.observating} students are still in 'Observating'. Exit anyway?`,
                 showCancelButton: true,
                 confirmButtonText: "Back",
                 cancelButtonText: "No",
@@ -704,6 +705,24 @@ const DetailCampaign = () => {
               if (result.isConfirmed) {
                 navigate("/nurse/vaccine/campaign-list");
               }
+            } else if (
+              statusSummary.notYet > 0 &&
+              dateRange.start &&
+              dateRange.end &&
+              dayjs().isAfter(dayjs(dateRange.start)) &&
+              dayjs().isBefore(dayjs(dateRange.end).endOf("day"))
+            ) {
+              const result = await Swal.fire({
+                  icon: "warning",
+                  title: "Warning",
+                  text: `${statusSummary.notYet} students haven't completed yet. Exit?`,
+                  showCancelButton: true,
+                  confirmButtonText: "Back",
+                  cancelButtonText: "No",
+                });
+                if (result.isConfirmed) {
+                  navigate("/nurse/vaccine/campaign-list");
+                }         
             } else {
               navigate("/nurse/vaccine/campaign-list");
             }

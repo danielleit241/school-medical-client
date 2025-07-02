@@ -19,6 +19,7 @@ import {
   message,
   Select
 } from "antd";
+import {Syringe} from "lucide-react"
 import {MedicineBoxOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
@@ -32,7 +33,26 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
   const [healthLoading, setHealthLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [qualified, setQualified] = useState(null);
+  const [vaccineDetails, SetVaccineDetails] = useState(null);
   const [vaccinationDate, setVaccinationDate] = useState(() => dayjs());
+  console.log("RecordFormModal student:", student?.vaccineId);
+
+  useEffect(() => {
+    if(!student?.vaccineId) return;
+    const fetchVaccineDetails = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/api/vaccination-details/${student.vaccineId}`
+        );
+        console.log("Fetched vaccine details:", response.data);
+        SetVaccineDetails(response.data);
+      } catch (error) {
+        console.error("Error fetching vaccine details:", error);
+        SetVaccineDetails(null);
+      }
+    };
+    fetchVaccineDetails();
+  }, [student?.vaccineId]);
 
   useEffect(() => {
       if (open) {
@@ -272,107 +292,134 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
         style={{marginBottom: 32}}
       />
       {step === 0 && (
-        <Row gutter={32}>
-          <Col xs={24} md={24}>
-            <Card
-              bordered={false}
-              style={{
-                borderRadius: 14,
-                boxShadow: "0 2px 12px #e6f7ff",
-                background: "#f9fbfd",
-                minHeight: 320,
-              }}
-              bodyStyle={{padding: 24}}
-            >
-              <Space direction="vertical" style={{width: "100%"}} size={16}>
-                <Title level={5} style={{margin: 0, color: "#1677ff"}}>
-                  <MedicineBoxOutlined /> Health Declaration
-                </Title>
-                <Divider style={{margin: "8px 0"}} />
+        <>
+          <Row gutter={32}>
+            {/* Health Declaration */}
+            <Col xs={24} md={12}>
+              <Card
+                bordered={false}
+                style={{
+                  borderRadius: 14,
+                  background: "#f9fbfd",
+                  minHeight: 220,
+                  boxShadow: "0 2px 12px #e6f7ff",
+                }}
+                bodyStyle={{ padding: 28 }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
+                  <MedicineBoxOutlined style={{ color: "#1677ff", fontSize: 22 }} />
+                  <span style={{ color: "#1677ff", fontWeight: 600, fontSize: 17 }}>Health Declaration</span>
+                </div>
                 {healthLoading ? (
                   <Spin />
                 ) : healthDeclaration && healthDeclaration.healthDeclaration ? (
-                  <div style={{lineHeight: 2, fontSize: 15}}>
-                    <div>
-                      <Text strong>Chronic Diseases:</Text>{" "}
-                      <Tag
-                        color={
-                          healthDeclaration.healthDeclaration
-                            .chronicDiseases === "no"
-                            ? "green"
-                            : "red"
-                        }
-                      >
-                        {healthDeclaration.healthDeclaration.chronicDiseases ||
-                          "N/A"}
-                      </Tag>
-                    </div>
-                    <div>
-                      <Text strong>Drug Allergies:</Text>{" "}
-                      <Tag
-                        color={
-                          healthDeclaration.healthDeclaration.drugAllergies ===
-                          "no"
-                            ? "green"
-                            : "red"
-                        }
-                      >
-                        {healthDeclaration.healthDeclaration.drugAllergies ||
-                          "N/A"}
-                      </Tag>
-                    </div>
-                    <div>
-                      <Text strong>Food Allergies:</Text>{" "}
-                      <Tag
-                        color={
-                          healthDeclaration.healthDeclaration.foodAllergies ===
-                          "no"
-                            ? "green"
-                            : "red"
-                        }
-                      >
-                        {healthDeclaration.healthDeclaration.foodAllergies ||
-                          "N/A"}
-                      </Tag>
-                    </div>
-                    <div>
-                      <Text strong>Additional Notes:</Text>{" "}
-                      <Text>
-                        {healthDeclaration.healthDeclaration.notes || (
-                          <span style={{color: "#aaa"}}>N/A</span>
-                        )}
-                      </Text>
-                    </div>
+                  <div>
+                    <Row style={{ marginBottom: 12 }}>
+                      <Col flex="auto"><Text strong>Chronic Diseases:</Text></Col>
+                      <Col>
+                        <Text style={{ color: "#444" }}>
+                          {healthDeclaration.healthDeclaration.chronicDiseases || "N/A"}
+                        </Text>
+                      </Col>
+                    </Row>
+                    <Row style={{ marginBottom: 12 }}>
+                      <Col flex="auto"><Text strong>Drug Allergies:</Text></Col>
+                      <Col>
+                        <Text style={{ color: "#444" }}>
+                          {healthDeclaration.healthDeclaration.drugAllergies || "N/A"}
+                        </Text>
+                      </Col>
+                    </Row>
+                    <Row style={{ marginBottom: 12 }}>
+                      <Col flex="auto"><Text strong>Food Allergies:</Text></Col>
+                      <Col>
+                        <Text style={{ color: "#444" }}>
+                          {healthDeclaration.healthDeclaration.foodAllergies || "N/A"}
+                        </Text>                       
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col flex="auto"><Text strong>Additional Notes:</Text></Col>
+                      <Col>
+                        <Text style={{ color: "#444" }}>
+                          {healthDeclaration.healthDeclaration.notes || "N/A"}
+                        </Text>
+                      </Col>
+                    </Row>
                   </div>
                 ) : (
                   <Text type="secondary">No health declaration data.</Text>
                 )}
-                <div style={{display: "flex", gap: 16, marginTop: 24}}>
-                  <Button
-                    danger
-                    loading={loading}
-                    onClick={() => handleQualified(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="primary"
-                    loading={loading}
-                    onClick={() => handleQualified(true)}
-                  >
-                    Confirm
-                  </Button>
+              </Card>
+            </Col>
+            {/* Vaccine Details */}
+            <Col xs={24} md={12}>
+              <Card
+                bordered={false}
+                style={{
+                  borderRadius: 14,
+                  background: "#f9fbfd",
+                  minHeight: 220,
+                  boxShadow: "0 2px 12px #e6f7ff",
+                }}
+                bodyStyle={{ padding: 28 }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
+                  <Syringe style={{ color: "#1677ff", width: 20, height: 20, verticalAlign: "middle" }} />
+                  <span style={{ color: "#1677ff", fontWeight: 600, fontSize: 17 }}>Vaccine Details</span>
                 </div>
-              </Space>
-            </Card>
-          </Col>
-        </Row>
+                {vaccineDetails ? (
+                  <div>
+                    <Row style={{ marginBottom: 12 }}>
+                      <Col flex="auto"><Text strong>Vaccine Code:</Text></Col>
+                      <Col><Text>{vaccineDetails.vaccineCode || "N/A"}</Text></Col>
+                    </Row>
+                    <Row style={{ marginBottom: 12 }}>
+                      <Col flex="auto"><Text strong>Vaccine Name:</Text></Col>
+                      <Col><Text>{vaccineDetails.vaccineName || "N/A"}</Text></Col>
+                    </Row>
+                    <Row style={{ marginBottom: 12 }}>
+                      <Col flex="auto"><Text strong>Manufacturer:</Text></Col>
+                      <Col><Text>{vaccineDetails.manufacturer || "N/A"}</Text></Col>
+                    </Row>
+                    <Row>
+                      <Col flex="auto"><Text strong>Age Recommendation:</Text></Col>
+                      <Col><Text>{vaccineDetails.ageRecommendation || "N/A"}</Text></Col>
+                    </Row>
+                  </div>
+                ) : (
+                  <Text type="secondary">No vaccine details available.</Text>
+                )}
+              </Card>
+            </Col>
+          </Row>
+          {/* Nút Cancel/Confirm ra ngoài, căn phải */}
+          <Row justify="end" style={{ marginTop: 40 }}>
+            <Space size={16}>
+              <Button
+                danger
+                loading={loading}
+                onClick={() => handleQualified(false)}
+                style={{ minWidth: 110, fontWeight: 500 }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                loading={loading}
+                onClick={() => handleQualified(true)}
+                style={{ minWidth: 110, fontWeight: 500 }}
+              >
+                Confirm
+              </Button>
+            </Space>
+          </Row>
+        </>
       )}
       {step === 1 && (
         <Row gutter={32}>
           {/* Bên trái: Form nhập */}
           <Col xs={24} md={14}>
-            <Title level={5}>Vaccination Record</Title>
             <Form
               form={form}
               layout="vertical"
@@ -385,14 +432,14 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 label="Vaccinated Date"
                 name="vaccinatedDate"
                 rules={[
-                  {required: true, message: "Please select date"},
-                  {validator: validateVaccinatedDate},
+                  { required: true, message: "Please select date" },
+                  { validator: validateVaccinatedDate },
                 ]}
                 initialValue={vaccinationDate}
               >
                 <DatePicker
                   disabled
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   value={vaccinationDate}
                 />
               </Form.Item>
@@ -400,12 +447,12 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 label="Vaccinated Time"
                 name="vaccinatedTime"
                 rules={[
-                  {required: true, message: "Please select time"},
-                  {validator: validateVaccinatedTime},
+                  { required: true, message: "Please select time" },
+                  { validator: validateVaccinatedTime },
                 ]}
               >
                 <TimePicker
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   format="HH:mm"
                   minuteStep={5}
                   allowClear={false}
@@ -428,6 +475,17 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                     initialValue="None"
                     rules={[
                       { required: true, message: "Please enter injection site" },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          const vaccinated = getFieldValue("vaccinated");
+                          if (vaccinated && value === "None") {
+                            return Promise.reject(
+                              new Error("Injection site is required if vaccinated is checked.")
+                            );
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
                     ]}
                   >
                     <Select placeholder="Select injection site">
@@ -438,7 +496,11 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item label="Notes" name="notes">
+              <Form.Item label="Notes" name="notes"
+               rules={[
+                      { required: true, message: "Please enter notes" },
+                    ]}
+              >
                 <Input.TextArea rows={3} />
               </Form.Item>
               <Form.Item
@@ -465,14 +527,14 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   type="primary"
                   htmlType="submit"
                   loading={loading}
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                 >
                   Save
                 </Button>
               </Form.Item>
             </Form>
           </Col>
-          {/* Bên phải: Health Declaration */}
+          {/* Bên phải: Health Declaration & Vaccine Details */}
           <Col xs={24} md={10}>
             <Card
               bordered={false}
@@ -481,18 +543,20 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 boxShadow: "0 2px 12px #e6f7ff",
                 background: "#f9fbfd",
                 minHeight: 320,
+                marginBottom: 18,
               }}
-              bodyStyle={{padding: 24}}
+              bodyStyle={{ padding: 24 }}
             >
-              <Space direction="vertical" style={{width: "100%"}} size={16}>
-                <Title level={5} style={{margin: 0, color: "#1677ff"}}>
+              <Space direction="vertical" style={{ width: "100%" }} size={16}>
+                {/* Health Declaration */}
+                <Title level={5} style={{ margin: 0, color: "#1677ff", display: "flex", alignItems: "center", gap: 8 }}>
                   <MedicineBoxOutlined /> Health Declaration
                 </Title>
-                <Divider style={{margin: "8px 0"}} />
+                <Divider style={{ margin: "8px 0" }} />
                 {healthLoading ? (
                   <Spin />
                 ) : healthDeclaration && healthDeclaration.healthDeclaration ? (
-                  <div style={{lineHeight: 2, fontSize: 15}}>
+                  <div style={{ lineHeight: 2, fontSize: 15 }}>
                     <div>
                       <Text strong>Chronic Diseases:</Text>{" "}
                       <Tag
@@ -502,9 +566,9 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                             ? "green"
                             : "red"
                         }
+                        style={{ minWidth: 38, textAlign: "center" }}
                       >
-                        {healthDeclaration.healthDeclaration.chronicDiseases ||
-                          "N/A"}
+                        {healthDeclaration.healthDeclaration.chronicDiseases || "N/A"}
                       </Tag>
                     </div>
                     <div>
@@ -516,9 +580,9 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                             ? "green"
                             : "red"
                         }
+                        style={{ minWidth: 38, textAlign: "center" }}
                       >
-                        {healthDeclaration.healthDeclaration.drugAllergies ||
-                          "N/A"}
+                        {healthDeclaration.healthDeclaration.drugAllergies || "N/A"}
                       </Tag>
                     </div>
                     <div>
@@ -530,22 +594,50 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                             ? "green"
                             : "red"
                         }
+                        style={{ minWidth: 38, textAlign: "center" }}
                       >
-                        {healthDeclaration.healthDeclaration.foodAllergies ||
-                          "N/A"}
+                        {healthDeclaration.healthDeclaration.foodAllergies || "N/A"}
                       </Tag>
                     </div>
                     <div>
                       <Text strong>Additional Notes:</Text>{" "}
                       <Text>
                         {healthDeclaration.healthDeclaration.notes || (
-                          <span style={{color: "#aaa"}}>N/A</span>
+                          <span style={{ color: "#aaa" }}>N/A</span>
                         )}
                       </Text>
                     </div>
                   </div>
                 ) : (
                   <Text type="secondary">No health declaration data.</Text>
+                )}
+                {/* Vaccine Details */}
+                <Title level={5} style={{ margin: "18px 0 0 0", color: "#1677ff", display: "flex", alignItems: "center", gap: 8 }}>
+                  <Syringe style={{ color: "#1677ff", width: 20, height: 20, verticalAlign: "middle" }} />
+                  Vaccine Details
+                </Title>
+                <Divider style={{ margin: "8px 0" }} />
+                {vaccineDetails ? (
+                  <div style={{ fontSize: 15 }}>
+                    <div>
+                      <Text strong>Vaccine Code:</Text>{" "}
+                      <Text>{vaccineDetails.vaccineCode || "N/A"}</Text>
+                    </div>
+                    <div>
+                      <Text strong>Vaccine Name:</Text>{" "}
+                      <Text>{vaccineDetails.vaccineName || "N/A"}</Text>
+                    </div>
+                    <div>
+                      <Text strong>Manufacturer:</Text>{" "}
+                      <Text>{vaccineDetails.manufacturer || "N/A"}</Text>
+                    </div>
+                    <div>
+                      <Text strong>Age Recommendation:</Text>{" "}
+                      <Text>{vaccineDetails.ageRecommendation || "N/A"}</Text>
+                    </div>
+                  </div>
+                ) : (
+                  <Text type="secondary">No vaccine details available.</Text>
                 )}
               </Space>
             </Card>

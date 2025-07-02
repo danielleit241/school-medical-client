@@ -26,8 +26,22 @@ const CreateHealthCheck = () => {
   const [profile, setProfile] = useState(null);
   const [nurses, setNurses] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [classes, setClasses] = useState([]);
   const defaultStartDate = dayjs().add(7, "day");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axiosInstance
+      .get("/api/students/classes")
+      .then((res) => {
+        const formattedClasses = res.data.map((cls) => cls.trim());
+        setClasses(formattedClasses);
+      })
+      .catch((error) => {
+        console.error("Error fetching classes:", error);
+        setClasses([]);
+      });
+  }, []);
 
   useEffect(() => {
     if (userId) {
@@ -305,13 +319,25 @@ const CreateHealthCheck = () => {
                     }
                     style={{marginBottom: 8}}
                   />
-                  <Input
-                    placeholder="Target Grade"
-                    value={round.targetGrade}
-                    onChange={(e) =>
-                      handleRoundChange(idx, "targetGrade", e.target.value)
+                  <Select
+                    showSearch
+                    placeholder="Select Target Grade"
+                    value={round.targetGrade || undefined} // Quan trọng: đặt undefined khi không có giá trị
+                    onChange={(value) =>
+                      handleRoundChange(idx, "targetGrade", value)
                     }
-                    style={{marginBottom: 8}}
+                    style={{width: "100%", marginBottom: 8}}
+                    filterOption={(input, option) =>
+                      (option?.label?.toLowerCase() ?? "").includes(
+                        input.toLowerCase()
+                      )
+                    }
+                    options={[
+                      ...classes.map((cls) => ({
+                        value: cls,
+                        label: cls,
+                      })),
+                    ]}
                   />
                   <TextArea
                     placeholder="Description"

@@ -1,38 +1,39 @@
-# School Medical Management System
-
 [![School Medical Project (CI included) | © 2025 by ngothanhdatAK](https://github.com/ngothanhdat-AK/school-medical-client/actions/workflows/node.js.yml/badge.svg)](https://github.com/ngothanhdat-AK/school-medical-client/actions/workflows/node.js.yml)
 
-**School Medical Management System** is a web application designed to help schools manage student health records, medical history, and all activities related to school healthcare.
+# School Medical Management System
 
-## 🚀 Key Features
-- Manage student health records
-- Track medical examination history and prescriptions
-- Manage appointments and medical reminders
-- Manage medical staff, teachers, and parents
-- View statistics and generate reports on student health
+A modern web application designed to manage school medical records, health data, and communication between students, parents, and school healthcare staff.
 
-## 🖥️ Technology Stack
-- **React** & **React DOM**
-- **Redux Toolkit** & **React-Redux** (state management)
-- **Vite** (build tool)
-- **MUI (Material UI)**, **Ant Design**, **Bootstrap** (UI libraries)
-- **Tailwind CSS**, **SASS** (styling)
-- **Axios** (API communication)
-- **SignalR** (real-time communication)
-= **Vitest**
-- **SweetAlert2**, **React-Icons**, **Lucide-React**, **Swiper**
-- Support for import/export with **xlsx**
 
 ## 👥 Contributors
 
-- [ngothanhdat-AK](https://github.com/ngothanhdat-AK)
-- [ThinhTP204](https://github.com/ThinhTP204)
+| Member             | GitHub                                       |
+|--------------------|----------------------------------------------|
+| Ngô Thành Đạt      | [@ngothanhdat-AK](https://github.com/ngothanhdat-AK) |
+| Trần Phú Thịnh     | [@ThinhTP204](https://github.com/ThinhTP204)         |
 
-## 🤝 Contributing & Contact
+## 🚀 Features
 
-We welcome contributions and feedback from the community!
+- Student medical record management
+- Health statistics and reporting
+- Real-time communication and notifications
+- Role-based user access (students, parents, staff)
+- Interactive dashboards and charts
+- Secure login and session management
 
-- Submit Issues or Pull Requests directly on this GitHub repository
-- Contact: [ngothanhdat4002@gmail.com](mailto:ngothanhdat4002@gmail.com)
 
-------------------------------------------------------------------
+## 🛠️ Tech Stack & Skills
+|                          |                          |                          |                          |
+|--------------------------|--------------------------|--------------------------|--------------------------|
+| **React**                | **JavaScript**           | **Vite**                 | **Redux Toolkit**        |
+| **Tailwind CSS**         | **Bootstrap**            | **Material UI (MUI)**    | **Sass**                 |
+| **Ant Design (antd)**    | **Ant Design Charts**    | **Chart.js**             | **React Router DOM**     |
+| **React Redux**          | **Redux Persist**        | **React Bootstrap**      | **date-fns**             |
+| **jwt-decode**           | **swiper**               | **sweetalert2**          | **animate.css**          |
+| **lucide-react**         | **react-icons**          | **@microsoft/signalr**   | **xlsx**                 |
+| **axios**                | **React Transition Group**| **Vitest**              | **ESLint**               |
+
+
+---
+
+## 📚 License

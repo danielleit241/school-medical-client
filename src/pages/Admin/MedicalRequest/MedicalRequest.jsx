@@ -4,7 +4,6 @@ import {
   Card,
   Button,
   Space,
-  Modal,
   Typography,
   Spin,
   Badge,
@@ -25,6 +24,10 @@ import {
   CalendarOutlined,
   MedicineBoxOutlined,
   UserOutlined,
+  EnvironmentOutlined,
+  ExclamationCircleOutlined,
+  IdcardOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import axiosInstance from "../../../api/axios";
 import dayjs from "dayjs";
@@ -33,7 +36,9 @@ const {Title, Text} = Typography;
 
 const MedicalRequest = () => {
   const [requests, setRequests] = useState([]);
+  const [medicalEvents, setMedicalEvents] = useState({}); // eventId -> event data
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -46,7 +51,7 @@ const MedicalRequest = () => {
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [nurses, setNurses] = useState([]);
 
-  // Fetch medical requests
+  // Fetch medical requests and their events
   const fetchRequests = useCallback(
     async (page = 1, pageSize = 10) => {
       try {
@@ -58,12 +63,9 @@ const MedicalRequest = () => {
           pageSize: pageSize,
         };
 
-        // Add search keyword if provided
         if (searchKeyword.trim()) {
           params.keyword = searchKeyword.trim();
         }
-
-        // Add nurse filter if selected
         if (selectedNurse) {
           params.nurseId = selectedNurse;
         }
@@ -79,6 +81,34 @@ const MedicalRequest = () => {
             pageSize: response.data.pageSize,
             total: response.data.count,
           });
+
+          const eventIds = [
+            ...new Set(
+              response.data.items
+                .map((item) => item.eventInfo?.eventId)
+                .filter(Boolean)
+            ),
+          ];
+          // Only fetch events not already in state
+          const missingEventIds = eventIds.filter(
+            (id) => !medicalEvents[id]
+          );
+          if (missingEventIds.length > 0) {
+            const eventData = {};
+            await Promise.all(
+              missingEventIds.map(async (eventId) => {
+                try {
+                  const res = await axiosInstance.get(
+                    `/api/medical-events/${eventId}`
+                  );
+                  eventData[eventId] = res.data;
+                } catch {
+                  eventData[eventId] = null;
+                }
+              })
+            );
+            setMedicalEvents((prev) => ({ ...prev, ...eventData }));
+          }
         }
       } catch (error) {
         console.error("Failed to fetch medical requests:", error);
@@ -87,10 +117,10 @@ const MedicalRequest = () => {
         setLoading(false);
       }
     },
-    [searchKeyword, selectedNurse]
+    [searchKeyword, selectedNurse, medicalEvents]
   );
 
-  // Fetch request details
+  // Fetch request details and its event
   const fetchRequestDetails = async (requestId) => {
     try {
       setDetailLoading(true);
@@ -100,6 +130,20 @@ const MedicalRequest = () => {
       if (response.data) {
         setSelectedRequest(response.data);
         setDrawerVisible(true);
+
+        const eventId = response.data.eventInfo?.eventId;
+        if (eventId) {
+          try {
+            const res = await axiosInstance.get(
+              `/api/medical-events/${eventId}`
+            );
+            setSelectedEvent(res.data);
+          } catch {
+            setSelectedEvent(null);
+          }
+        } else {
+          setSelectedEvent(null);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch request details:", error);
@@ -123,7 +167,6 @@ const MedicalRequest = () => {
   const handleReset = () => {
     setSearchKeyword("");
     setSelectedNurse(null);
-    // Reset to first page and fetch fresh data
     fetchRequests(1, pagination.pageSize);
   };
 
@@ -145,18 +188,58 @@ const MedicalRequest = () => {
     fetchNurses();
   }, [fetchRequests]);
 
-  // Table columns
+  // Table columns (đã sắp xếp lại thứ tự hợp lý: Student Code, Student Name, Event Type, Location, Severity, Item Name, Quantity, Requested By, Request Date, Actions)
   const columns = [
+    {
+      title: "Student Code",
+      key: "studentCode",
+      render: (_, record) => {
+        const eventId = record.eventInfo?.eventId;
+        const event = eventId ? medicalEvents[eventId] : null;
+        return event?.studentInfo?.studentCode || <i>None</i>;
+      },
+    },
+    {
+      title: "Student Name",
+      key: "studentName",
+      render: (_, record) => {
+        const eventId = record.eventInfo?.eventId;
+        const event = eventId ? medicalEvents[eventId] : null;
+        return event?.studentInfo?.fullName || <i>None</i>;
+      },
+    },
+    {
+      title: "Event Type",
+      key: "eventType",
+      render: (_, record) => {
+        const eventId = record.eventInfo?.eventId;
+        const event = eventId ? medicalEvents[eventId] : null;
+        return event?.medicalEvent?.eventType || <i>None</i>;
+      },
+    },
+    {
+      title: "Location",
+      key: "location",
+      render: (_, record) => {
+        const eventId = record.eventInfo?.eventId;
+        const event = eventId ? medicalEvents[eventId] : null;
+        return event?.medicalEvent?.location || <i>None</i>;
+      },
+    },
+    {
+      title: "Severity",
+      key: "severityLevel",
+      render: (_, record) => {
+        const eventId = record.eventInfo?.eventId;
+        const event = eventId ? medicalEvents[eventId] : null;
+        return event?.medicalEvent?.severityLevel || <i>None</i>;
+      },
+    },
     {
       title: "Item Name",
       dataIndex: ["medicalInfo", "itemName"],
       key: "itemName",
       render: (text) => <Tag color="blue">{text}</Tag>,
-    },
-    {
-      title: "Requested By",
-      dataIndex: ["nurseInfo", "fullName"],
-      key: "requestedBy",
     },
     {
       title: "Quantity",
@@ -171,6 +254,11 @@ const MedicalRequest = () => {
           }}
         />
       ),
+    },
+    {
+      title: "Requested By",
+      dataIndex: ["nurseInfo", "fullName"],
+      key: "requestedBy",
     },
     {
       title: "Request Date",
@@ -279,6 +367,42 @@ const MedicalRequest = () => {
           </div>
         ) : selectedRequest ? (
           <>
+            <Descriptions
+              title="Student Information"
+              bordered
+              column={1}
+              style={{marginBottom: 24}}
+            >
+              <Descriptions.Item label="Student Code">
+                <IdcardOutlined style={{marginRight: 8}} />
+                {selectedEvent?.studentInfo?.studentCode || <i>None</i>}
+              </Descriptions.Item>
+              <Descriptions.Item label="Student Name">
+                <TeamOutlined style={{marginRight: 8}} />
+                {selectedEvent?.studentInfo?.fullName || <i>None</i>}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Descriptions
+              title="Event Information"
+              bordered
+              column={1}
+              style={{marginBottom: 24}}
+            >
+              <Descriptions.Item label="Event Type">
+                <ExclamationCircleOutlined style={{marginRight: 8}} />
+                {selectedEvent?.medicalEvent?.eventType || <i>None</i>}
+              </Descriptions.Item>
+              <Descriptions.Item label="Location">
+                <EnvironmentOutlined style={{marginRight: 8}} />
+                {selectedEvent?.medicalEvent?.location || <i>None</i>}
+              </Descriptions.Item>
+              <Descriptions.Item label="Severity">
+                <ExclamationCircleOutlined style={{marginRight: 8, color: "#faad14"}} />
+                {selectedEvent?.medicalEvent?.severityLevel || <i>None</i>}
+              </Descriptions.Item>
+            </Descriptions>
+
             <Descriptions
               title="Request Information"
               bordered

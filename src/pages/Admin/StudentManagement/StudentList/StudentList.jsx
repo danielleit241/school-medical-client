@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useCallback} from "react";
 import {Table, Input, Pagination, Spin, Alert, Button, Divider} from "antd";
-import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
+import {SearchOutlined, DownloadOutlined, LoadingOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import StudentModal from "./StudentModal";
@@ -18,6 +18,7 @@ const StudentList = () => {
   const [searchText, setSearchText] = useState("");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
+  const [creatingAccount, setCreatingAccount] = useState(false);
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -61,7 +62,7 @@ const StudentList = () => {
       });
       return;
     }
-    // Gửi yêu cầu tạo tài khoản cho phụ huynh
+    setCreatingAccount(true);
     try {
       await axiosInstance.post("/api/accounts/parents/batch-create");
       Swal.fire({
@@ -84,6 +85,8 @@ const StudentList = () => {
         timer: 2000,
         timerProgressBar: true,
       });
+    } finally {
+      setCreatingAccount(false);
     }
   };
 
@@ -293,6 +296,8 @@ const StudentList = () => {
           type="primary"
           style={{background: "#355383"}}
           onClick={handleSendCreateAccount}
+          loading={creatingAccount}
+          icon={creatingAccount ? <LoadingOutlined /> : null}
         >
           Create Account for Parent
         </Button>

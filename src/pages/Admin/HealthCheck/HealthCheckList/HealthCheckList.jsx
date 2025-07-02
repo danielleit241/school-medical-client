@@ -40,6 +40,7 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import EditHealthCheckCampaignModal from "./EditHealthCheckCampaignModal";
+import Swal from "sweetalert2";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -66,6 +67,7 @@ const HealthCheckList = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editCampaign, setEditCampaign] = useState(null);
   const [schedule, setSchedule] = useState([]);
+  const [completing, setCompleting] = useState({});
   const navigate = useNavigate();
 
   // Fetch rounds data for a specific schedule
@@ -78,7 +80,8 @@ const HealthCheckList = () => {
         `/api/health-checks/schedules/${scheduleId}`
       );
 
-      const rounds = response.data || [];
+      // CHỈ lấy rounds, KHÔNG lấy status từ detail
+      const rounds = Array.isArray(response.data) ? response.data : [];
 
       // Enhance rounds with student data
       const roundsWithProgress = await Promise.all(
@@ -87,7 +90,6 @@ const HealthCheckList = () => {
             const studentsRes = await axiosInstance.get(
               `/api/managers/health-check-rounds/${round.healthCheckRoundInformation.roundId}/students`
             );
-
             const students = studentsRes.data.items || [];
             const totalStudents = students.length;
             const completedStudents = students.filter(
@@ -120,7 +122,11 @@ const HealthCheckList = () => {
         })
       );
 
-      setRoundsData((prev) => ({...prev, [scheduleId]: roundsWithProgress}));
+      // Lưu rounds vào roundsData, KHÔNG lưu status
+      setRoundsData((prev) => ({
+        ...prev,
+        [scheduleId]: roundsWithProgress,
+      }));
     } catch (error) {
       console.error(`Error fetching rounds for schedule ${scheduleId}:`, error);
     } finally {
@@ -152,15 +158,13 @@ const HealthCheckList = () => {
   };
 
   const getStatusConfig = (record) => {
-    // Get status from response data
+    // Lấy status từ list (không lấy từ roundsData/detail)
     const status = record.healthCheckScheduleResponseDto.status;
 
-    // Get current date and dates from response
     const now = dayjs();
     const startDate = dayjs(record.healthCheckScheduleResponseDto.startDate);
     const endDate = dayjs(record.healthCheckScheduleResponseDto.endDate);
 
-    // If status is true, this is "Completed" status
     if (status === true) {
       return {
         color: "#52c41a",
@@ -170,39 +174,31 @@ const HealthCheckList = () => {
         icon: <CheckCircleOutlined />,
       };
     }
-    // If status is false, classify as "In Progress" or "Scheduled" based on date
-    else {
-      // If current date is within schedule time range
-      if (now.isAfter(startDate) && now.isBefore(endDate)) {
-        return {
-          color: "#1890ff",
-          bgColor: "#e6f7ff",
-          text: "In Progress",
-          status: "inProgress",
-          icon: <PlayCircleOutlined />,
-        };
-      }
-      // If start date is in the future
-      else if (now.isBefore(startDate)) {
-        return {
-          color: "#faad14",
-          bgColor: "#fff7e6",
-          text: "Scheduled",
-          status: "scheduled",
-          icon: <ClockCircleOutlined />,
-        };
-      }
-      // If end date has passed but status is still false
-      else {
-        return {
-          color: "#f5222d",
-          bgColor: "#fff1f0",
-          text: "Expired",
-          status: "expired",
-          icon: <ClockCircleOutlined />,
-        };
-      }
+    if (now.isAfter(startDate) && now.isBefore(endDate)) {
+      return {
+        color: "#1890ff",
+        bgColor: "#e6f7ff",
+        text: "In Progress",
+        status: "inProgress",
+        icon: <PlayCircleOutlined />,
+      };
     }
+    if (now.isBefore(startDate)) {
+      return {
+        color: "#faad14",
+        bgColor: "#fff7e6",
+        text: "Scheduled",
+        status: "scheduled",
+        icon: <ClockCircleOutlined />,
+      };
+    }
+    return {
+      color: "#f5222d",
+      bgColor: "#fff1f0",
+      text: "Expired",
+      status: "expired",
+      icon: <ClockCircleOutlined />,
+    };
   };
 
   const fetchData = () => {
@@ -247,6 +243,19 @@ const HealthCheckList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (data.length > 0) {
+      data.forEach((item) => {
+        const scheduleId = item.healthCheckScheduleResponseDto.scheduleId;
+        // Có thể chỉ fetch cho status inProgress để tối ưu
+        if (item.healthCheckScheduleResponseDto.status === false) {
+          fetchRounds(scheduleId);
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   const handleEditModalClose = (reload = false) => {
     setEditModalOpen(false);
     setEditCampaign(null);
@@ -276,6 +285,61 @@ const HealthCheckList = () => {
     navigate(`/${roleName}/health-check/create`);
   };
 
+  const handleCompleteSchedule = async (scheduleId) => {
+    setCompleting((prev) => ({...prev, [scheduleId]: true}));
+    try {
+      // Kiểm tra học sinh bổ sung
+      const res = await axiosInstance.get(
+        `/api/schedules/${scheduleId}/health-check-rounds/supplementary/total-students`
+      );
+      const supplementStudents = res.data?.supplementStudents ?? 0;
+
+      if (supplementStudents > 0) {
+        // Cảnh báo xác nhận
+        await Swal.fire({
+          title: "Warning",
+          text: `${supplementStudents} supplementary students remain unchecked. Continue?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Continue",
+          cancelButtonText: "Cancel",
+          reverseButtons: true,
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            await completeScheduleApi(scheduleId);
+          } else {
+            setCompleting((prev) => ({...prev, [scheduleId]: false}));
+          }
+        });
+      } else {
+        await completeScheduleApi(scheduleId);
+      }
+    } catch (err) {
+      console.error("Error checking supplementary students:", err);
+      setCompleting((prev) => ({...prev, [scheduleId]: false}));
+    }
+  };
+
+  const completeScheduleApi = async (scheduleId) => {
+    try {
+      await axiosInstance.put("/api/health-checks/schedules/finished", {
+        scheduleId,
+        status: true,
+      });
+      Swal.fire({
+        title: "Success",
+        text: "The health check schedule has been completed!",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      fetchData();
+    } catch (err) {
+      console.error("Error completing schedule:", err);
+    } finally {
+      setCompleting((prev) => ({...prev, [scheduleId]: false}));
+    }
+  };
+
   const HealthCheckCard = ({record}) => {
     const scheduleId = record.healthCheckScheduleResponseDto.scheduleId;
     const rounds = roundsData[scheduleId] || [];
@@ -288,6 +352,8 @@ const HealthCheckList = () => {
     const now = dayjs();
     const isInRange =
       now.isSameOrAfter(startDate, "day") && now.isSameOrBefore(endDate, "day");
+
+   
 
     const toggleExpand = () => {
       setExpanded(!expanded);
@@ -383,6 +449,30 @@ const HealthCheckList = () => {
                 >
                   Edit
                 </Button>
+                {statusConfig.status === "inProgress" &&
+                  isInRange && Array.isArray(rounds) &&
+                  rounds.length > 0 &&
+                  rounds.every((r) => r.healthCheckRoundInformation?.status === true) && (
+                    <Button
+                      type="primary"
+                      style={{
+                        borderRadius: 6,
+                        background: "#52c41a",
+                        borderColor: "#52c41a",
+                        color: "#fff",
+                        fontWeight: 500,
+                        boxShadow: "0 2px 8px rgba(82,196,26,0.08)",
+                        marginLeft: 8,
+                      }}
+                      loading={!!completing[scheduleId]}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await handleCompleteSchedule(scheduleId);
+                      }}
+                    >
+                      Complete
+                    </Button>
+                )}
                 <Button
                   type={expanded ? "default" : "default"}
                   size="middle"
@@ -494,12 +584,11 @@ const HealthCheckList = () => {
                     {rounds.map((round, index) => {
                       // eslint-disable-next-line no-unused-vars
                       const roundStatusConfig =
-                        round.progress >= 100
-                          ? {color: "#52c41a", text: "Completed"}
-                          : round.progress > 0
-                          ? {color: "#1890ff", text: "In Progress"}
-                          : {color: "#faad14", text: "Scheduled"};
-
+                      round.status === true
+                        ? { color: "#52c41a", text: "Completed" }
+                        : round.progress > 0
+                        ? { color: "#1890ff", text: "In Progress" }
+                        : { color: "#faad14", text: "Scheduled" };
                       return (
                         <div
                           key={round.healthCheckRoundInformation.roundId}
