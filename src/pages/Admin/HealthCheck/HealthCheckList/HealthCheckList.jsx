@@ -24,8 +24,6 @@ import {
   InfoCircleOutlined,
   DownOutlined,
   UpOutlined,
-  UserOutlined,
-  PhoneOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
   PlayCircleOutlined,
@@ -41,6 +39,7 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import EditHealthCheckCampaignModal from "./EditHealthCheckCampaignModal";
 import Swal from "sweetalert2";
+import {Plus, RefreshCcw} from "lucide-react";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -180,7 +179,7 @@ const HealthCheckList = () => {
         bgColor: "#e6f7ff",
         text: "In Progress",
         status: "inProgress",
-        icon: <PlayCircleOutlined />,
+        // icon: <PlayCircleOutlined />,
       };
     }
     if (now.isBefore(startDate)) {
@@ -189,7 +188,7 @@ const HealthCheckList = () => {
         bgColor: "#fff7e6",
         text: "Scheduled",
         status: "scheduled",
-        icon: <ClockCircleOutlined />,
+        // icon: <ClockCircleOutlined />,
       };
     }
     return {
@@ -197,7 +196,7 @@ const HealthCheckList = () => {
       bgColor: "#fff1f0",
       text: "Expired",
       status: "expired",
-      icon: <ClockCircleOutlined />,
+      // icon: <ClockCircleOutlined />,
     };
   };
 
@@ -353,8 +352,6 @@ const HealthCheckList = () => {
     const isInRange =
       now.isSameOrAfter(startDate, "day") && now.isSameOrBefore(endDate, "day");
 
-   
-
     const toggleExpand = () => {
       setExpanded(!expanded);
       if (!expanded && !roundsData[scheduleId]) {
@@ -450,9 +447,12 @@ const HealthCheckList = () => {
                   Edit
                 </Button>
                 {statusConfig.status === "inProgress" &&
-                  isInRange && Array.isArray(rounds) &&
+                  isInRange &&
+                  Array.isArray(rounds) &&
                   rounds.length > 0 &&
-                  rounds.every((r) => r.healthCheckRoundInformation?.status === true) && (
+                  rounds.every(
+                    (r) => r.healthCheckRoundInformation?.status === true
+                  ) && (
                     <Button
                       type="primary"
                       style={{
@@ -472,7 +472,7 @@ const HealthCheckList = () => {
                     >
                       Complete
                     </Button>
-                )}
+                  )}
                 <Button
                   type={expanded ? "default" : "default"}
                   size="middle"
@@ -584,11 +584,11 @@ const HealthCheckList = () => {
                     {rounds.map((round, index) => {
                       // eslint-disable-next-line no-unused-vars
                       const roundStatusConfig =
-                      round.status === true
-                        ? { color: "#52c41a", text: "Completed" }
-                        : round.progress > 0
-                        ? { color: "#1890ff", text: "In Progress" }
-                        : { color: "#faad14", text: "Scheduled" };
+                        round.status === true
+                          ? {color: "#52c41a", text: "Completed"}
+                          : round.progress > 0
+                          ? {color: "#1890ff", text: "In Progress"}
+                          : {color: "#faad14", text: "Scheduled"};
                       return (
                         <div
                           key={round.healthCheckRoundInformation.roundId}
@@ -696,22 +696,18 @@ const HealthCheckList = () => {
         </div>
         <Space size="middle">
           <Button
-            icon={<ReloadOutlined />}
+            icon={<RefreshCcw style={{display: "flex", padding: 4}} />}
             onClick={refreshAllRoundData}
             loading={refreshing}
-            style={{
-              borderRadius: 4,
-              display: "flex",
-              alignItems: "center",
-            }}
           >
             Refresh Data
           </Button>
           <Button
-            type="primary"
-            icon={<PlusOutlined />}
+            icon={<Plus style={{display: "flex", padding: 4}} />}
             onClick={handleAddNewCampaign}
             style={{
+              color: "#fff",
+              backgroundColor: "#355383",
               borderRadius: 4,
               display: "flex",
               alignItems: "center",

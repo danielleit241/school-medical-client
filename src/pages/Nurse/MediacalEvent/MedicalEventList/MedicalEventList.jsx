@@ -2,13 +2,7 @@ import React, {useEffect, useState} from "react";
 import axiosInstance from "../../../../api/axios";
 import {useNavigate} from "react-router-dom";
 import {Card, Button, Pagination, Spin, Avatar, Empty, Select} from "antd";
-import {
-  UserOutlined,
-  CalendarOutlined,
-  EnvironmentOutlined,
-  FileTextOutlined,
-  FilterOutlined,
-} from "@ant-design/icons";
+import {User, Calendar, MapPin, FileText} from "lucide-react";
 
 const severityColor = {
   Low: "#10b981",
@@ -99,7 +93,7 @@ const MedicalEventList = () => {
             letterSpacing: "1px",
           }}
         >
-          🩺 Medical Events Dashboard
+          Medical Events Dashboard
         </h1>
         <p
           style={{
@@ -370,7 +364,7 @@ const MedicalEventList = () => {
                       >
                         <Avatar
                           size={40}
-                          icon={<UserOutlined />}
+                          icon={<User size={20} color="#fff" />}
                           style={{
                             backgroundColor: "#2563eb",
                             marginRight: 12,
@@ -424,7 +418,7 @@ const MedicalEventList = () => {
                             border: "1.5px solid #dbeafe",
                           }}
                         >
-                          <CalendarOutlined style={{color: "#3058A4"}} />
+                          <Calendar size={20} color="#2563eb" />
                           <span>{item.medicalEvent.eventDate}</span>
                         </div>
                         <div
@@ -441,7 +435,7 @@ const MedicalEventList = () => {
                             border: "1.5px solid #a7f3d0",
                           }}
                         >
-                          <EnvironmentOutlined style={{color: "#059669"}} />
+                          <MapPin size={20} style={{color: "#059669"}} />
                           <span>{item.medicalEvent.location}</span>
                         </div>
                         <div
@@ -458,7 +452,7 @@ const MedicalEventList = () => {
                             border: "1.5px solid #fde68a",
                           }}
                         >
-                          <FileTextOutlined style={{color: "#f59e42"}} />
+                          <FileText size={20} style={{color: "#f59e42"}} />
                           <span>{item.medicalEvent.eventType}</span>
                         </div>
                       </div>

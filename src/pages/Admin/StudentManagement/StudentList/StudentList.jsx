@@ -1,15 +1,23 @@
 import React, {useState, useEffect, useCallback} from "react";
 import {Table, Input, Pagination, Spin, Alert, Button, Divider} from "antd";
-import {SearchOutlined, DownloadOutlined, LoadingOutlined} from "@ant-design/icons";
+import {
+  SearchOutlined,
+  DownloadOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import StudentModal from "./StudentModal";
-import {Search, Download} from "lucide-react";
+import {Search, Download, Plus} from "lucide-react";
 import AddStudent from "../AddStudent/AddStudent";
+import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 const pageSize = 10;
 
 const StudentList = () => {
+  const navigate = useNavigate();
+  const role = useSelector((state) => state.user?.role);
   const [students, setStudents] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -141,6 +149,10 @@ const StudentList = () => {
     }
   };
 
+  const handleAddStudent = () => {
+    navigate(`/${role}/student-management/add-student`);
+  };
+
   const openEditModal = (studentId) => {
     setEditItemId(studentId);
     setEditModalOpen(true);
@@ -260,10 +272,6 @@ const StudentList = () => {
 
   return (
     <div>
-      <div>
-        <AddStudent />
-      </div>
-      <Divider />
       <div
         style={{
           display: "flex",
@@ -293,6 +301,13 @@ const StudentList = () => {
           prefix={<SearchOutlined />}
         />
         <Button
+          icon={<Plus color="black" style={{display: "flex", padding: 4}} />}
+          onClick={handleAddStudent}
+          style={{background: "#fff", color: "black"}}
+        >
+          Add Student List
+        </Button>
+        <Button
           type="primary"
           style={{background: "#355383"}}
           onClick={handleSendCreateAccount}
@@ -302,7 +317,9 @@ const StudentList = () => {
           Create Account for Parent
         </Button>
         <Button
-          icon={<Download color="#ffffff" style={{padding: 4}} />}
+          icon={
+            <Download color="#ffffff" style={{display: "flex", padding: 4}} />
+          }
           onClick={handleDownloadExcel}
           style={{background: "#52c41a", color: "#fff"}}
         >

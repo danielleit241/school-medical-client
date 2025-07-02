@@ -34,6 +34,7 @@ import StudentList from "./pages/Admin/StudentManagement/StudentList/StudentList
 import UserProfileAdmin from "./pages/Admin/Profile/User/UserProfile";
 import UpdateUserProfileAdmin from "./pages/Admin/Profile/Edit/UpdateUserProfile";
 import Notification from "./pages/Admin/Notification/Notification";
+import AddStudent from "./pages/Admin/StudentManagement/AddStudent/AddStudent";
 
 // Nurse pages
 import NurseDashboard from "./pages/Nurse/Dashboard";
@@ -76,6 +77,7 @@ import UserProfile from "./pages/Parent/Profile/User/UserProfile";
 import UpdateUserProfile from "./pages/Parent/Profile/Edit/UpdateUserProfile";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import MedicalInventory from "./pages/Admin/MedicalInventory/MedicalInventoryList/MedicalInventory";
+import AddMedicalInventory from "./pages/Admin/MedicalInventory/AddInventory/AddInventory";
 import VaccineInventory from "./pages/Admin/VaccineList/VaccineInventory/VaccineInventory";
 import AddVaccine from "./pages/Admin/VaccineList/AddVaccine/AddVaccine";
 import SessionTimeout from "./components/SessionTimeout/SessionTimeout";
@@ -213,10 +215,12 @@ function App() {
             }
           />
           {/* Các route còn lại cho admin */}
+          <Route path="inventory/create" element={<AddMedicalInventory />} />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
           />
+          <Route path="vaccine/create" element={<AddVaccine />} />
           <Route path="vaccine/inventoryList" element={<VaccineInventory />} />
           <Route path="vaccine/vaccine-schedule" element={<CampaignList />} />
           <Route path="vaccine/create-campaign" element={<CreateCampaign />} />
@@ -236,6 +240,11 @@ function App() {
             element={<StudentHealthCheckList />}
           />
           <Route path="medical-requests" element={<MedicalRequest />} />
+
+          <Route
+            path="student-management/add-student"
+            element={<AddStudent />}
+          />
           <Route
             path="student-management/student-list"
             element={<StudentList />}
@@ -256,6 +265,7 @@ function App() {
           }
         >
           <Route index element={<ManagerDashboard />} />{" "}
+          <Route path="inventory/create" element={<AddMedicalInventory />} />
           <Route
             path="inventory/inventoryList"
             element={<MedicalInventory />}
@@ -280,6 +290,10 @@ function App() {
             element={<StudentHealthCheckList />}
           />
           <Route path="medical-requests" element={<MedicalRequest />} />
+          <Route
+            path="student-management/add-student"
+            element={<AddStudent />}
+          />
           <Route
             path="student-management/student-list"
             element={<StudentList />}

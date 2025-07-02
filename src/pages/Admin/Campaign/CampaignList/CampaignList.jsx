@@ -38,6 +38,7 @@ import EditVaccineCampaignModal from "./EditVaccineCampaignModal";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import {Plus, RefreshCcw} from "lucide-react";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -283,59 +284,59 @@ const CampaignList = () => {
     navigate(`/${roleName}/vaccine/create-campaign`);
   };
   const handleCompleteSchedule = async (scheduleId) => {
-      setCompleting((prev) => ({...prev, [scheduleId]: true}));
-      try {
-        // Kiểm tra học sinh bổ sung
-        const res = await axiosInstance.get(
-          `/api/schedules/${scheduleId}/vaccination-rounds/supplementary/total-students`
-        );
-        const supplementStudents = res.data?.supplementStudents ?? 0;
-  
-        if (supplementStudents > 0) {
-          // Cảnh báo xác nhận
-          await Swal.fire({
-            title: "Warning",
-            text: `${supplementStudents} students remain unvaccinated. Continue?`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Continue",
-            cancelButtonText: "Cancel",
-            reverseButtons: true,
-          }).then(async (result) => {
-            if (result.isConfirmed) {
-              await completeScheduleApi(scheduleId);
-            } else {
-              setCompleting((prev) => ({...prev, [scheduleId]: false}));
-            }
-          });
-        } else {
-          await completeScheduleApi(scheduleId);
-        }
-      } catch (err) {
-        console.error("Error checking supplementary students:", err);
-        setCompleting((prev) => ({...prev, [scheduleId]: false}));
-      }
-    };
-  
-    const completeScheduleApi = async (scheduleId) => {
-      try {
-        await axiosInstance.put("/api/vaccinations/schedules/finished", {
-          scheduleId,
-          status: true,
+    setCompleting((prev) => ({...prev, [scheduleId]: true}));
+    try {
+      // Kiểm tra học sinh bổ sung
+      const res = await axiosInstance.get(
+        `/api/schedules/${scheduleId}/vaccination-rounds/supplementary/total-students`
+      );
+      const supplementStudents = res.data?.supplementStudents ?? 0;
+
+      if (supplementStudents > 0) {
+        // Cảnh báo xác nhận
+        await Swal.fire({
+          title: "Warning",
+          text: `${supplementStudents} students remain unvaccinated. Continue?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Continue",
+          cancelButtonText: "Cancel",
+          reverseButtons: true,
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            await completeScheduleApi(scheduleId);
+          } else {
+            setCompleting((prev) => ({...prev, [scheduleId]: false}));
+          }
         });
-        Swal.fire({
-          title: "Success",
-          text: "The vaccination schedule has been completed!",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-        fetchData();
-      } catch (err) {
-        console.error("Error completing schedule:", err);
-      } finally {
-        setCompleting((prev) => ({...prev, [scheduleId]: false}));
+      } else {
+        await completeScheduleApi(scheduleId);
       }
-    };
+    } catch (err) {
+      console.error("Error checking supplementary students:", err);
+      setCompleting((prev) => ({...prev, [scheduleId]: false}));
+    }
+  };
+
+  const completeScheduleApi = async (scheduleId) => {
+    try {
+      await axiosInstance.put("/api/vaccinations/schedules/finished", {
+        scheduleId,
+        status: true,
+      });
+      Swal.fire({
+        title: "Success",
+        text: "The vaccination schedule has been completed!",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      fetchData();
+    } catch (err) {
+      console.error("Error completing schedule:", err);
+    } finally {
+      setCompleting((prev) => ({...prev, [scheduleId]: false}));
+    }
+  };
 
   const CampaignCard = ({record}) => {
     const scheduleId = record.vaccinationScheduleResponseDto.scheduleId;
@@ -441,30 +442,31 @@ const CampaignList = () => {
                 >
                   Edit
                 </Button>
-                {statusConfig.status === "inProgress" && isInRange && 
+                {statusConfig.status === "inProgress" &&
+                  isInRange &&
                   Array.isArray(rounds) &&
                   rounds.length > 0 &&
                   rounds.every((r) => r.status === true) && (
-                  <Button
-                    type="primary"
-                    style={{
-                      borderRadius: 6,
-                      background: "#52c41a",
-                      borderColor: "#52c41a",
-                      color: "#fff",
-                      fontWeight: 500,
-                      boxShadow: "0 2px 8px rgba(82,196,26,0.08)",
-                      marginLeft: 8,
-                    }}
-                    loading={!!completing[scheduleId]}
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      await handleCompleteSchedule(scheduleId);
-                    }}
-                  >
-                    Complete
-                  </Button>
-                )}
+                    <Button
+                      type="primary"
+                      style={{
+                        borderRadius: 6,
+                        background: "#52c41a",
+                        borderColor: "#52c41a",
+                        color: "#fff",
+                        fontWeight: 500,
+                        boxShadow: "0 2px 8px rgba(82,196,26,0.08)",
+                        marginLeft: 8,
+                      }}
+                      loading={!!completing[scheduleId]}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await handleCompleteSchedule(scheduleId);
+                      }}
+                    >
+                      Complete
+                    </Button>
+                  )}
                 <Button
                   type={expanded ? "default" : "default"}
                   size="middle"
@@ -572,12 +574,12 @@ const CampaignList = () => {
                 >
                   <div style={{padding: "8px 0"}}>
                     {rounds.map((round, index) => {
-                    const roundStatusConfig =
-                      round.status === true
-                        ? { color: "#52c41a", text: "Completed" }
-                        : round.progress > 0
-                        ? { color: "#1890ff", text: "In Progress" }
-                        : { color: "#faad14", text: "Scheduled" };
+                      const roundStatusConfig =
+                        round.status === true
+                          ? {color: "#52c41a", text: "Completed"}
+                          : round.progress > 0
+                          ? {color: "#1890ff", text: "In Progress"}
+                          : {color: "#faad14", text: "Scheduled"};
                       return (
                         <div
                           key={round.roundId}
@@ -690,16 +692,22 @@ const CampaignList = () => {
         </div>
         <Space>
           <Button
-            icon={<ReloadOutlined />}
+            icon={<RefreshCcw style={{display: "flex", padding: 4}} />}
             onClick={refreshAllRoundData}
             loading={refreshing}
           >
             Refresh Data
           </Button>
           <Button
-            type="primary"
-            icon={<PlusOutlined />}
+            icon={<Plus style={{display: "flex", padding: 4}} />}
             onClick={handleAddNewCampaign}
+            style={{
+              color: "#fff",
+              backgroundColor: "#355383",
+              borderRadius: 4,
+              display: "flex",
+              alignItems: "center",
+            }}
           >
             New Campaign
           </Button>

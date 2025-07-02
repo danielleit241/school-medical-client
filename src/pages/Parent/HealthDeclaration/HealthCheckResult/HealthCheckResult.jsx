@@ -90,7 +90,7 @@ const HealthCheckResult = () => {
   // Modify this function to map status codes correctly
   const getStatusLabel = (status) => {
     // Log để kiểm tra giá trị thực tế
-    console.log("Status value:", status, "Type:", typeof status);
+    // console.log("Status value:", status, "Type:", typeof status);
 
     // Chuyển về string và so sánh
     const statusStr = String(status).toLowerCase();

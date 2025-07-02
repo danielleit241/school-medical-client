@@ -121,7 +121,11 @@ const HealthCheckList = () => {
                     `/api/health-check-results/${healthCheckResultId}`
                   );
                   const status = resultRes.data?.status;
-                  if (status === true || status === "Completed" || status === "Failed") {
+                  if (
+                    status === true ||
+                    status === "Completed" ||
+                    status === "Failed"
+                  ) {
                     completed += 1;
                   }
                 } catch {
@@ -183,7 +187,7 @@ const HealthCheckList = () => {
               marginTop: 0,
             }}
           >
-            Health Check Campaign Rounds
+            Health Check Campaign
           </h1>
           <div
             style={{
@@ -280,7 +284,7 @@ const HealthCheckList = () => {
                         background: "",
                         borderRadius: 12,
                         boxShadow: "0 4px 16px 0 rgba(53,83,131,0.10)",
-                        padding: `0 20px 18px 20px`,
+                        padding: `20px`,
                         marginBottom: 18,
                         width: "100%",
                         maxWidth: "100%",
@@ -302,13 +306,18 @@ const HealthCheckList = () => {
                           marginBottom: 2,
                         }}
                       >
-                        <CalendarOutlined
+                        {/* <CalendarOutlined
                           style={{color: "#3058A4", fontSize: 22}}
-                        />
+                        /> */}
                         <span
-                          style={{fontWeight: 700, fontSize: 18, color: "#222"}}
+                          style={{
+                            fontWeight: 700,
+                            fontSize: 18,
+                            color: "#222",
+                            marginLeft: 10,
+                          }}
                         >
-                          {round.roundName || "No name"}
+                          Round: {round.roundName || "No name"}
                         </span>
                         <span
                           style={{
@@ -326,18 +335,6 @@ const HealthCheckList = () => {
                         >
                           {statusLabel}
                         </span>
-                      </div>
-                      {/* Description */}
-                      <div
-                        style={{
-                          color: "#666",
-                          fontSize: 13,
-                          margin: "4px 0 0 0",
-                        }}
-                      >
-                        {round.description || (
-                          <span style={{color: "#aaa"}}>No description</span>
-                        )}
                       </div>
                       {/* Info Row */}
                       <div
@@ -420,15 +417,6 @@ const HealthCheckList = () => {
                       >
                         <div
                           style={{
-                            fontWeight: 600,
-                            fontSize: 14,
-                            marginBottom: 4,
-                          }}
-                        >
-                          Health Check Progress
-                        </div>
-                        <div
-                          style={{
                             display: "flex",
                             alignItems: "center",
                             gap: 10,
@@ -470,75 +458,103 @@ const HealthCheckList = () => {
                           <span>Remaining: {total - completed} students</span>
                         </div>
                       </div>
-                      {/* Details Button */}
+                      <hr
+                        style={{
+                          border: "none",
+                          borderTop: "1px solid #e5e7eb",
+                          margin: "12px 0 8px 0",
+                          opacity: 0.6,
+                        }}
+                      />
+                      {/* Details Button và Description */}
                       <div
                         style={{
                           marginTop: 10,
                           display: "flex",
                           gap: 8,
-                          justifyContent: "flex-end",
+                          justifyContent: "space-between", // Thay đổi từ flex-end thành space-between
+                          alignItems: "center", // Thêm để căn giữa theo chiều dọc
                           width: "100%",
                           boxSizing: "border-box",
                         }}
                       >
-                        <Button
-                          type="primary"
-                          size="middle"
-                          onClick={() =>
-                            navigate(`/nurse/health-check/round-campaign`, {
-                              state: {
-                                roundId: round.roundId,
-                                roundName: round.roundName,
-                              },
-                            })
-                          }
+                        {/* Description - bên trái */}
+                        <div
                           style={{
-                            borderRadius: 8,
-                            fontWeight: 600,
+                            color: "#666",
                             fontSize: 13,
-                            minWidth: 90,
-                            background:
-                              "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
-                            border: "none",
-                            boxShadow: "0 2px 8px #3058A433",
+                            flex: 1, // Cho phép mở rộng
+                            marginRight: 16, // Khoảng cách với buttons
                           }}
                         >
-                          Details
-                        </Button>
-                        {!round.status && percent === 100 && (
+                          <span style={{fontWeight: 600}}>Description:</span>{" "}
+                          {round.description || (
+                            <span style={{color: "#aaa"}}>No description</span>
+                          )}
+                        </div>
+
+                        {/* Buttons - bên phải */}
+                        <div style={{display: "flex", gap: 8, flexShrink: 0}}>
                           <Button
                             type="primary"
-                            loading={loadingComplete[round.roundId]}
+                            size="middle"
+                            onClick={() =>
+                              navigate(`/nurse/campaign/round-campaign/`, {
+                                state: {
+                                  roundId: round.roundId,
+                                  roundName: round.roundName,
+                                  ...(percent === 100 ? {percent} : {}),
+                                },
+                              })
+                            }
                             style={{
                               borderRadius: 8,
                               fontWeight: 600,
                               fontSize: 13,
                               minWidth: 90,
                               background:
-                                "linear-gradient(90deg, #22c55e 0%, #16a34a 100%)",
+                                "linear-gradient(90deg, #3058A4 0%, #2563eb 100%)",
                               border: "none",
-                              boxShadow: "0 2px 8px #22c55e33",
+                              boxShadow: "0 2px 8px #3058A433",
                             }}
-                            onClick={() => handleComplete(round.roundId)}
                           >
-                            Complete
+                            Details
                           </Button>
-                        )}
-                        {round.status && (
-                          <span
-                            style={{
-                              marginLeft: 8,
-                              color: "#22c55e",
-                              fontWeight: 600,
-                              fontSize: 13,
-                              borderRadius: 8,
-                              background: "#bbf7d0",
-                              padding: "4px 12px",
-                            }}
-                          >
-                            Completed
-                          </span>
-                        )}
+                          {!round.status && percent === 100 && (
+                            <Button
+                              type="primary"
+                              loading={loadingComplete[round.roundId]}
+                              style={{
+                                borderRadius: 8,
+                                fontWeight: 600,
+                                fontSize: 13,
+                                minWidth: 90,
+                                background:
+                                  "linear-gradient(90deg, #22c55e 0%, #16a34a 100%)",
+                                border: "none",
+                                boxShadow: "0 2px 8px #22c55e33",
+                              }}
+                              onClick={() => handleComplete(round.roundId)}
+                            >
+                              Complete
+                            </Button>
+                          )}
+                          {round.status && (
+                            <span
+                              style={{
+                                marginLeft: 8,
+                                color: "#22c55e",
+                                fontWeight: 600,
+                                fontSize: 13,
+                                borderRadius: 8,
+                                background: "#bbf7d0",
+                                padding: "4px 12px",
+                              }}
+                            >
+                              Completed
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
