@@ -1,23 +1,17 @@
-import React, {useState, useEffect, useCallback} from "react";
-import {
-  Table,
-  Input,
-  Pagination,
-  Spin,
-  Alert,
-  Button,
-  Select,
-  Divider,
-} from "antd";
-import {SearchOutlined, DownloadOutlined} from "@ant-design/icons";
+import {useState, useEffect, useCallback} from "react";
+import {Table, Input, Pagination, Spin, Alert, Button} from "antd";
+import {SearchOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import VaccineModal from "./VaccineModal";
 import Swal from "sweetalert2";
-import {Download} from "lucide-react";
-import AddVaccine from "../AddVaccine/AddVaccine";
+import {Download, Plus} from "lucide-react";
+import {useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 const pageSize = 10;
 
 const VaccineInventory = () => {
+  const navigate = useNavigate();
+  const role = useSelector((state) => state.user?.role);
   const [data, setData] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -170,6 +164,10 @@ const VaccineInventory = () => {
     item.vaccineName?.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  const handleAddVaccineList = () => {
+    navigate(`/${role}/vaccine/create`);
+  };
+
   const columns = [
     {
       title: "No",
@@ -294,10 +292,6 @@ const VaccineInventory = () => {
 
   return (
     <div>
-      <div>
-        <AddVaccine />
-      </div>
-      <Divider />
       <div
         style={{
           display: "flex",
@@ -327,7 +321,16 @@ const VaccineInventory = () => {
           prefix={<SearchOutlined />}
         />
         <Button
-          icon={<Download style={{padding: 4}} />}
+          icon={<Plus color="black" style={{display: "flex", padding: 4}} />}
+          onClick={handleAddVaccineList}
+          style={{background: "#fff", color: "black"}}
+        >
+          Add Vaccine List
+        </Button>
+        <Button
+          icon={
+            <Download color="#ffffff" style={{display: "flex", padding: 4}} />
+          }
           onClick={handleDownload}
           style={{background: "#52c41a", color: "#fff"}}
         >
@@ -335,7 +338,7 @@ const VaccineInventory = () => {
         </Button>
         <Button
           type="primary"
-          style={{background: "#1677ff", color: "#fff"}}
+          style={{background: "#355383"}}
           onClick={openCreateModal}
         >
           Add New

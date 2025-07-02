@@ -6,11 +6,15 @@ import "./index.scss";
 import AddInventory from "../AddInventory/AddInventory";
 import Swal from "sweetalert2";
 import MedicalInventoryModal from "./MedicalInventoryModal";
-import {Download} from "lucide-react";
+import {Download, Plus} from "lucide-react";
+import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 const pageSize = 10;
 
 const MedicalInventory = () => {
+  const navigate = useNavigate();
+  const role = useSelector((state) => state.user?.role);
   const [data, setData] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -146,6 +150,10 @@ const MedicalInventory = () => {
         handleDelete(itemId);
       }
     });
+  };
+
+  const handleAddAllInventoryList = async () => {
+    navigate(`/${role}/inventory/create`);
   };
 
   const openEditModal = (itemId) => {
@@ -311,11 +319,6 @@ const MedicalInventory = () => {
 
   return (
     <div>
-      {/* Add inventory */}
-      <div>
-        <AddInventory />
-      </div>
-      <Divider />
       <div
         style={{
           display: "flex",
@@ -349,6 +352,13 @@ const MedicalInventory = () => {
           prefix={<SearchOutlined />}
         />
         <Button
+          icon={<Plus color="black" style={{display: "flex", padding: 4}} />}
+          onClick={handleAddAllInventoryList}
+          style={{background: "#fff", color: "black"}}
+        >
+          Add Inventory List
+        </Button>
+        <Button
           icon={<Download color="#ffffff" style={{padding: 4}} />}
           onClick={handleDownload}
           style={{background: "#52c41a", color: "#fff"}}
@@ -357,7 +367,7 @@ const MedicalInventory = () => {
         </Button>
         <Button
           type="primary"
-          style={{background: "#1677ff", color: "#fff"}}
+          style={{background: "#355383"}}
           onClick={openCreateModal}
         >
           Add New

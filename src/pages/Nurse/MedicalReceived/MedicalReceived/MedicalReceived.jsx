@@ -296,7 +296,7 @@ const MedicalReceived = () => {
             marginTop: 0,
           }}
         >
-          Medical Received Requests
+          Medical Received
         </h1>
         <div
           style={{

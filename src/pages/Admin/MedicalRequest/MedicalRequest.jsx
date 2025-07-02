@@ -90,9 +90,7 @@ const MedicalRequest = () => {
             ),
           ];
           // Only fetch events not already in state
-          const missingEventIds = eventIds.filter(
-            (id) => !medicalEvents[id]
-          );
+          const missingEventIds = eventIds.filter((id) => !medicalEvents[id]);
           if (missingEventIds.length > 0) {
             const eventData = {};
             await Promise.all(
@@ -107,7 +105,7 @@ const MedicalRequest = () => {
                 }
               })
             );
-            setMedicalEvents((prev) => ({ ...prev, ...eventData }));
+            setMedicalEvents((prev) => ({...prev, ...eventData}));
           }
         }
       } catch (error) {
@@ -272,9 +270,10 @@ const MedicalRequest = () => {
       render: (_, record) => (
         <Space>
           <Button
-            icon={<EyeOutlined />}
+            color="#355383"
+            variant="outlined"
             onClick={() => fetchRequestDetails(record.medicalInfo.requestId)}
-            size="small"
+            style={{marginRight: 8, color: "#355383"}}
           >
             View
           </Button>
@@ -398,7 +397,9 @@ const MedicalRequest = () => {
                 {selectedEvent?.medicalEvent?.location || <i>None</i>}
               </Descriptions.Item>
               <Descriptions.Item label="Severity">
-                <ExclamationCircleOutlined style={{marginRight: 8, color: "#faad14"}} />
+                <ExclamationCircleOutlined
+                  style={{marginRight: 8, color: "#faad14"}}
+                />
                 {selectedEvent?.medicalEvent?.severityLevel || <i>None</i>}
               </Descriptions.Item>
             </Descriptions>

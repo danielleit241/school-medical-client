@@ -167,36 +167,42 @@ const CreateMedicalEvent = () => {
         padding: "0 0 32px 0",
       }}
     >
+      {/* Header Section - giống MedicalEventList */}
       <div
         style={{
-          width: "100%",
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "36px 0 18px 0",
-          marginBottom: "40px",
-          borderRadius: "20px 20px 0 0",
+          padding: "20px 0 20px 0",
+          marginBottom: "18px",
+          color: "white",
           textAlign: "center",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+          borderRadius: "20px 20px 0 0",
         }}
       >
         <h1
           style={{
+            fontSize: 40,
             fontWeight: 800,
-            color: "#fff",
-            letterSpacing: 1,
-            marginBottom: 8,
-            marginTop: 0,
+            margin: "0 0 4px 0",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.18)",
+            letterSpacing: "1px",
           }}
         >
           Create Medical Event
         </h1>
-        <div
+        <p
           style={{
-            color: "#e0e7ff",
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: 500,
+            margin: "0 0 6px 0", // giảm margin dưới
+            opacity: 0.9,
+            maxWidth: 480,
+            marginLeft: "auto",
+            marginRight: "auto",
           }}
         >
-          Record a new medical event and request medical supplies for a student
-        </div>
+          Please fill details below to create a new medical event for a student.
+        </p>
       </div>
       <div
         style={{

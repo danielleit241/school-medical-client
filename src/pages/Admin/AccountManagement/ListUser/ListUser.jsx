@@ -14,6 +14,7 @@ import {
   Button,
   Popconfirm,
   Tag,
+  Typography,
 } from "antd";
 import {PlusOutlined, SearchOutlined, StopOutlined} from "@ant-design/icons";
 
@@ -23,6 +24,7 @@ const ROLE_OPTIONS = [
   {label: "Manager", value: "manager"},
   {label: "Nurse", value: "nurse"},
 ];
+const {Title} = Typography;
 
 function UsersByRole() {
   const [roleName, setRoleName] = useState("parent");
@@ -231,7 +233,9 @@ function UsersByRole() {
 
   return (
     <div>
-      <h2>User List</h2>
+      <Title level={2} style={{marginBottom: 10, fontSize: 28, color: "#333"}}>
+        User List
+      </Title>
       <div
         style={{
           marginBottom: 16,
@@ -261,7 +265,7 @@ function UsersByRole() {
           type="primary"
           style={{backgroundColor: "#355383"}}
           size="middle"
-          icon={<Plus color="#ffffff" />}
+          icon={<Plus color="#ffffff" style={{padding: 4, display: "flex"}} />}
           onClick={() => setShowCreateModal(true)}
         >
           Create

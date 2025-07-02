@@ -723,7 +723,7 @@ const AppointmentList = () => {
             letterSpacing: "1px",
           }}
         >
-          🏥 Nurse Appointment Dashboard
+          Appointment Dashboard
         </h1>
         <p
           style={{
