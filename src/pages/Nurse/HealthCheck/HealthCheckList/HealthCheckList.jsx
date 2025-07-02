@@ -16,6 +16,7 @@ import {useSelector} from "react-redux";
 import {CalendarOutlined, TeamOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 
 const HealthCheckList = () => {
   const staffNurseId = useSelector((state) => state.user?.userId);
@@ -69,6 +70,12 @@ const HealthCheckList = () => {
         `/api/health-check-rounds/${roundId}/finished`,
         true
       );
+      Swal.fire({
+        title: "Success",
+        text: "Round completed successfully!",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
 
       setRounds((prev) =>
         prev.map((r) => (r.roundId === roundId ? {...r, status: true} : r))

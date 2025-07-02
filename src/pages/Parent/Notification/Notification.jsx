@@ -16,11 +16,14 @@ const Notifications = () => {
 
   const notificationTypeMap = {
     1: "Appointment",
-    2: "Health Check-Up",
+    2: "Health Check Up",
     3: "Medical Event",
     4: "Medical Registration",
     5: "Vaccination",
     6: "General Notification",
+    7: "Vaccination Observation",
+    8: "Vaccination Result",
+    9: "Health Check Up Result",
   };
 
   // Cập nhật lại mỗi phút để làm mới thời gian
@@ -72,7 +75,7 @@ const Notifications = () => {
         window.location.reload();
         break;
       case 2: // HealthCheck : chưa sửa
-        navigate("/parent/health-check/history");
+        navigate("/parent/timetable");
         window.location.reload();
         break;
       case 3: // MedicalEvent
@@ -85,6 +88,17 @@ const Notifications = () => {
         break;
       case 5: // Vaccination: chưa sửa
         navigate("/parent/timetable");
+        window.location.reload();
+        break;
+      case 8: // VaccinationResult
+        navigate(`/parent/health-declaration/my-children`);
+        window.location.reload();
+        break;
+      case 9: // HealthCheck Result
+        if (noti.content.includes("not qualified") || noti.content.includes("not received the vaccination")) {
+          break;
+        }
+        navigate(`/parent/health-declaration/my-children`);
         window.location.reload();
         break;
       default:
@@ -249,7 +263,8 @@ const Notifications = () => {
                     >
                       Details
                     </Button>
-                    <Button
+                    {(noti.type === 7 || noti.content.includes(" not qualified") || noti.content.includes("not received the vaccination") ? "" :(
+                      <Button
                       size="small"
                       style={{
                         background: "#f0f1f2",
@@ -264,6 +279,8 @@ const Notifications = () => {
                     >
                       View
                     </Button>
+                    ))}
+                    
                   </div>
                 </div>
               </div>

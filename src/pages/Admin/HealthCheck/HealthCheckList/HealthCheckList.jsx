@@ -298,7 +298,7 @@ const HealthCheckList = () => {
         // Cảnh báo xác nhận
         await Swal.fire({
           title: "Warning",
-          text: `There are still ${supplementStudents} supplementary students who have not been checked. Are you sure you want to continue?`,
+          text: `${supplementStudents} supplementary students remain unchecked. Continue?`,
           icon: "warning",
           showCancelButton: true,
           confirmButtonText: "Continue",

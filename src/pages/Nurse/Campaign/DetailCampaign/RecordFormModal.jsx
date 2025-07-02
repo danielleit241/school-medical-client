@@ -475,6 +475,17 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                     initialValue="None"
                     rules={[
                       { required: true, message: "Please enter injection site" },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          const vaccinated = getFieldValue("vaccinated");
+                          if (vaccinated && value === "None") {
+                            return Promise.reject(
+                              new Error("Injection site is required if vaccinated is checked.")
+                            );
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
                     ]}
                   >
                     <Select placeholder="Select injection site">
