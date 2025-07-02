@@ -705,8 +705,14 @@ const DetailCampaign = () => {
               if (result.isConfirmed) {
                 navigate("/nurse/vaccine/campaign-list");
               }
-            } else if (statusSummary.notYet > 0) {
-                const result = await Swal.fire({
+            } else if (
+              statusSummary.notYet > 0 &&
+              dateRange.start &&
+              dateRange.end &&
+              dayjs().isAfter(dayjs(dateRange.start)) &&
+              dayjs().isBefore(dayjs(dateRange.end).endOf("day"))
+            ) {
+              const result = await Swal.fire({
                   icon: "warning",
                   title: "Warning",
                   text: `${statusSummary.notYet} students haven't completed yet. Exit?`,

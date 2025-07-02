@@ -486,7 +486,13 @@ const HealthCheckDetail = () => {
         <Button
           type="default"
           onClick={async () => {
-            if (statusSummary.notYet > 0) {
+            if (
+              statusSummary.notYet > 0 &&
+              dateRange.start &&
+              dateRange.end &&
+              dayjs().isAfter(dayjs(dateRange.start)) &&
+              dayjs().isBefore(dayjs(dateRange.end).endOf("day"))
+            ) {
               const result = await Swal.fire({
                 icon: "warning",
                 title: "Warning",
