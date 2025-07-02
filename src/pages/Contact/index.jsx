@@ -28,7 +28,7 @@ const Contact = () => {
       "We are always ready to support the health of students, parents, and teachers. We listen to all feedback to improve the quality of school healthcare services.",
     hotline: "079-999-5828",
     email: "gcteam2023@gmail.com",
-    address: "4/48 Medical St, Ho Chi Minh",
+    address: "FPT University, HCMC",
     hours: "Monday - Friday: 7:30 AM - 5:00 PM",
     socialMedia: [
       { name: "Facebook", icon: "📘", url: "#" },
@@ -756,7 +756,7 @@ const Contact = () => {
 
             <div style={styles.mapContainer}>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.5177580567147!2d106.69508007465815!3d10.771594089387598!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f40a3b49e59%3A0xa1bd14e483a602db!2s4%2F48%20Pasteur%2C%20B%E1%BA%BFn%20Ngh%C3%A9%2C%20Qu%E1%BA%ADn%201%2C%20Th%C3%A0nh%20ph%E1%BB%91%20H%E1%BB%93%20Ch%C3%AD%20Minh%2C%20Vietnam!5e0!3m2!1sen!2s!4v1686636012345!5m2!1sen!2s"
+                src="https://www.google.com/maps?q=Trường%20Đại%20học%20FPT%20TP.%20HCM,%207%20Đ.%20D1,%20Long%20Thạnh%20Mỹ,%20Thủ%20Đức,%20Hồ%20Chí%20Minh%20700000,%20Việt%20Nam&output=embed"
                 style={styles.map}
                 allowFullScreen=""
                 loading="lazy"
