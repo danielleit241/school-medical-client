@@ -117,7 +117,7 @@ const ParentHome = () => {
                 </ul>
               </div>
               <p>
-                A passion for putting patients first is at the very heart of
+                An passion for putting patients first is at the very heart of
                 exceptional healthcare. It goes beyond simply treating illnesses
                 or managing symptoms—it is about seeing each individual as a
                 unique person with their own story, fears, and hopes. This
