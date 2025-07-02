@@ -89,13 +89,28 @@ const HealthCheckResult = () => {
 
   // Modify this function to map status codes correctly
   const getStatusLabel = (status) => {
-    // For status "0", show as "Pending" instead of "Completed"
-    if (status === "Pending") return "Pending";
-    if (status === "Declined") return "Declined";
-    if (status === "Failed") return "Failed";
-    if (status === "Completed") return "Completed";
-    // Keep the original status label if it's already "Pending"
-    return status;
+    // Log để kiểm tra giá trị thực tế
+    console.log("Status value:", status, "Type:", typeof status);
+
+    // Chuyển về string và so sánh
+    const statusStr = String(status).toLowerCase();
+
+    switch (statusStr) {
+      case "0":
+      case "pending":
+        return "Pending";
+      case "1":
+      case "completed":
+        return "Completed";
+      case "2":
+      case "failed":
+        return "Failed";
+      case "3":
+      case "declined":
+        return "Declined";
+      default:
+        return status; // Trả về giá trị gốc nếu không match
+    }
   };
 
   if (loading) {
@@ -443,7 +458,15 @@ const HealthCheckResult = () => {
                       {dayjs(item.datePerformed).format("DD/MM/YYYY")}
                     </span>
                     <Tag
-                      color={item.status === "Pending" ? "orange" : "green"}
+                      color={
+                        getStatusLabel(item.status) === "Pending"
+                          ? "orange"
+                          : getStatusLabel(item.status) === "Completed"
+                          ? "green"
+                          : getStatusLabel(item.status) === "Failed"
+                          ? "red"
+                          : "default"
+                      }
                       style={{marginLeft: 8, fontWeight: 600, fontSize: "12px"}} // Changed from 14px
                     >
                       {getStatusLabel(item.status)}
