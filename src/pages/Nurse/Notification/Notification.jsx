@@ -5,6 +5,17 @@ import axiosInstance from "../../../api/axios";
 import {Button, Modal} from "antd";
 import {Bell} from "lucide-react";
 import {useNavigate} from "react-router-dom";
+import {
+  BellOutlined,
+  CalendarOutlined,
+  MedicineBoxOutlined,
+  UserOutlined,
+  FileTextOutlined,
+  SafetyCertificateOutlined,
+  EyeOutlined,
+  ExclamationCircleOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 
 const Notifications = () => {
   const userId = useSelector((state) => state.user?.userId);
@@ -25,6 +36,17 @@ const Notifications = () => {
     6: "General Notification",
     7: "Vaccination Observation",
     8: "Vaccination Result",
+  };
+
+  const notificationIconMap = {
+    1: <CalendarOutlined style={{color: "#1677ff", fontSize: 24}} />,                // Appointment
+    2: <MedicineBoxOutlined style={{color: "#52c41a", fontSize: 24}} />,             // Health Check Up
+    3: <ExclamationCircleOutlined style={{color: "#faad14", fontSize: 24}} />,       // Medical Event
+    4: <FileTextOutlined style={{color: "#722ed1", fontSize: 24}} />,                // Medical Registration
+    5: <SafetyCertificateOutlined style={{color: "#1890ff", fontSize: 24}} />,       // Vaccination
+    6: <BellOutlined style={{color: "#355383", fontSize: 24}} />,                    // General Notification
+    7: <EyeOutlined style={{color: "#13c2c2", fontSize: 24}} />,                     // Vaccination Observation
+    8: <CheckCircleOutlined style={{color: "#52c41a", fontSize: 24}} />,             // Vaccination Result
   };
 
   // Cập nhật lại mỗi phút để làm mới thời gian
@@ -208,6 +230,12 @@ const Notifications = () => {
                 onMouseEnter={() => setHoveredId(notificationId)}
                 onMouseLeave={() => setHoveredId(null)}
               >
+                {/* Icon by notification type */}
+                <div style={{marginRight: 18, marginTop: 2}}>
+                  {notificationIconMap[noti.type] || (
+                    <BellOutlined style={{color: "#bbb", fontSize: 24}} />
+                  )}
+                </div>
                 <div style={{flex: 1, position: "relative"}}>
                   {/* Time label top-right */}
                   <div

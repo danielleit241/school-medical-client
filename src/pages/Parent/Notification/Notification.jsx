@@ -4,6 +4,16 @@ import axiosInstance from "../../../api/axios";
 import {Button, Modal} from "antd";
 import {Bell} from "lucide-react";
 import {useNavigate} from "react-router-dom";
+import {
+  BellOutlined,
+  CalendarOutlined,
+  MedicineBoxOutlined,
+  FileTextOutlined,
+  SafetyCertificateOutlined,
+  EyeOutlined,
+  ExclamationCircleOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 
 const Notifications = () => {
   const userId = useSelector((state) => state.user?.userId);
@@ -24,6 +34,18 @@ const Notifications = () => {
     7: "Vaccination Observation",
     8: "Vaccination Result",
     9: "Health Check Up Result",
+  };
+
+  const notificationIconMap = {
+    1: <CalendarOutlined style={{color: "#1677ff", fontSize: 24}} />,                // Appointment
+    2: <MedicineBoxOutlined style={{color: "#52c41a", fontSize: 24}} />,             // Health Check Up
+    3: <ExclamationCircleOutlined style={{color: "#faad14", fontSize: 24}} />,       // Medical Event
+    4: <FileTextOutlined style={{color: "#722ed1", fontSize: 24}} />,                // Medical Registration
+    5: <SafetyCertificateOutlined style={{color: "#1890ff", fontSize: 24}} />,       // Vaccination
+    6: <BellOutlined style={{color: "#355383", fontSize: 24}} />,                    // General Notification
+    7: <EyeOutlined style={{color: "#13c2c2", fontSize: 24}} />,                     // Vaccination Observation
+    8: <CheckCircleOutlined style={{color: "#52c41a", fontSize: 24}} />,             // Vaccination Result
+    9: <MedicineBoxOutlined style={{color: "#fa541c", fontSize: 24}} />,             // Health Check Up Result
   };
 
   // Cập nhật lại mỗi phút để làm mới thời gian
@@ -95,9 +117,6 @@ const Notifications = () => {
         window.location.reload();
         break;
       case 9: // HealthCheck Result
-        if (noti.content.includes("not qualified") || noti.content.includes("not received the vaccination")) {
-          break;
-        }
         navigate(`/parent/health-declaration/my-children`);
         window.location.reload();
         break;
@@ -219,6 +238,12 @@ const Notifications = () => {
                 onMouseEnter={() => setHoveredId(notificationId)}
                 onMouseLeave={() => setHoveredId(null)}
               >
+                {/* Icon by notification type */}
+                <div style={{marginRight: 18, marginTop: 2}}>
+                  {notificationIconMap[noti.type] || (
+                    <BellOutlined style={{color: "#bbb", fontSize: 24}} />
+                  )}
+                </div>
                 <div style={{flex: 1, position: "relative"}}>
                   {/* Time label top-right */}
                   <div
@@ -265,22 +290,21 @@ const Notifications = () => {
                     </Button>
                     {(noti.type === 7 || noti.content.includes(" not qualified") || noti.content.includes("not received the vaccination") ? "" :(
                       <Button
-                      size="small"
-                      style={{
-                        background: "#f0f1f2",
-                        color: "#355383",
-                        border: "none",
-                        fontWeight: 600,
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewNotification(noti);
-                      }}
-                    >
-                      View
-                    </Button>
+                        size="small"
+                        style={{
+                          background: "#f0f1f2",
+                          color: "#355383",
+                          border: "none",
+                          fontWeight: 600,
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewNotification(noti);
+                        }}
+                      >
+                        View
+                      </Button>
                     ))}
-                    
                   </div>
                 </div>
               </div>
