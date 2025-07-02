@@ -697,7 +697,7 @@ const DetailCampaign = () => {
               const result = await Swal.fire({
                 icon: "warning",
                 title: "Warning",
-                text: `There are currently ${statusSummary.observating} students still in Observating status. Do you want to exit?`,
+                text: `${statusSummary.observating} students are still in 'Observating'. Exit anyway?`,
                 showCancelButton: true,
                 confirmButtonText: "Back",
                 cancelButtonText: "No",
@@ -705,6 +705,18 @@ const DetailCampaign = () => {
               if (result.isConfirmed) {
                 navigate("/nurse/vaccine/campaign-list");
               }
+            } else if (statusSummary.notYet > 0) {
+                const result = await Swal.fire({
+                  icon: "warning",
+                  title: "Warning",
+                  text: `${statusSummary.notYet} students haven't completed yet. Exit?`,
+                  showCancelButton: true,
+                  confirmButtonText: "Back",
+                  cancelButtonText: "No",
+                });
+                if (result.isConfirmed) {
+                  navigate("/nurse/vaccine/campaign-list");
+                }         
             } else {
               navigate("/nurse/vaccine/campaign-list");
             }

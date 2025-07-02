@@ -295,7 +295,7 @@ const CampaignList = () => {
           // Cảnh báo xác nhận
           await Swal.fire({
             title: "Warning",
-            text: `There are still ${supplementStudents} supplementary students who have not been vaccinated. Are you sure you want to continue?`,
+            text: `${supplementStudents} students remain unvaccinated. Continue?`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Continue",

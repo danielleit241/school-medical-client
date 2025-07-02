@@ -485,7 +485,23 @@ const HealthCheckDetail = () => {
         )}
         <Button
           type="default"
-          onClick={() => navigate("/nurse/health-check/list")}
+          onClick={async () => {
+            if (statusSummary.notYet > 0) {
+              const result = await Swal.fire({
+                icon: "warning",
+                title: "Warning",
+                text: `${statusSummary.notYet} students haven't completed yet. Exit?`,
+                showCancelButton: true,
+                confirmButtonText: "Back",
+                cancelButtonText: "No",
+              });
+              if (result.isConfirmed) {
+                navigate("/nurse/health-check/list");
+              } 
+            } else {
+              navigate("/nurse/health-check/list");
+            }
+          }}
           style={{marginBottom: 0}}
         >
           Back

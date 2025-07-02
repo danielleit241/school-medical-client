@@ -22,11 +22,14 @@ const NotificationModal = ({visible = true}) => {
 
   const notificationTypeMap = {
     1: "Appointment",
-    2: "HealthCheck",
-    3: "MedicalEvent",
-    4: "MedicalRegistration",
+    2: "Health Check Up",
+    3: "Medical Event",
+    4: "Medical Registration",
     5: "Vaccination",
-    6: "GeneralNotification",
+    6: "General Notification",
+    7: "Vaccination Observation",
+    8: "Vaccination Result",
+    9: "Health Check Up Result",
   };
   // State để cập nhật lại label thời gian mỗi phút
   const [now, setNow] = useState(Date.now());
@@ -136,7 +139,7 @@ const NotificationModal = ({visible = true}) => {
     <div
       className={`notification-modal-transition${show ? " show" : ""}`}
       style={{
-        width: 350,
+        width: 400,
         background: "#fff",
         borderRadius: 8,
         boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
@@ -154,10 +157,11 @@ const NotificationModal = ({visible = true}) => {
           justifyContent: "space-between",
         }}
       >
+        
         <div>
           <h5>Notification</h5>
           <BellOutlined style={{color: "black", marginRight: 8}} />
-          Notification UnRead:{" "}
+         
           <span style={{color: "black", marginLeft: 4}}>{unreadCount}</span>
         </div>
         <div>
@@ -220,7 +224,7 @@ const NotificationModal = ({visible = true}) => {
                     window.location.reload();
                     break;
                   case 2: // HealthCheck : chưa sửa
-                    navigate("/parent/health-check/history");
+                    navigate("/parent/timetable");
                     window.location.reload();
                     break;
                   case 3: // MedicalEvent
@@ -234,6 +238,12 @@ const NotificationModal = ({visible = true}) => {
                   case 5: // Vaccination: chưa sửa
                     navigate("/parent/timetable");
                     window.location.reload();
+                    break;                 
+                  case 8: // VaccinationResult
+                    if(noti.content.includes("not qualified") || noti.content.includes("not received the vaccination")) 
+                      break;
+                    navigate(`/parent/health-declaration/my-children`);
+                    window.location.reload();
                     break;
                   default:
                     // Có thể bổ sung các loại khác nếu cần
@@ -245,9 +255,19 @@ const NotificationModal = ({visible = true}) => {
                   navigate("/nurse/appointment-management/appointment-list");
                   window.location.reload();
                 }
+                if (noti.type === 2) {
+                  // HealthCheck for nurse
+                  navigate("/nurse/health-check/list");
+                  window.location.reload();
+                }
                 if(noti.type === 4) {
                   // MedicalRegistration for nurse
                   navigate("/nurse/medical-received/medical-received-list");
+                  window.location.reload();
+                }
+                if(noti.type === 5) {
+                  // Vaccination for nurse
+                  navigate("/nurse/vaccine/campaign-list");
                   window.location.reload();
                 }
                 // Có thể bổ sung các loại khác cho nurse nếu cần
@@ -301,7 +321,7 @@ const NotificationModal = ({visible = true}) => {
                   }
                 />
                 {noti.type === 5 && role === "parent" && (
-                  <VaccinationConfirmButton sourceId={noti.sourceId} />
+                  <VaccinationConfirmButton sourceId={noti.sourceId}  />
                 )}
                 {noti.type === 2 && role === "parent" && (
                   <HealthCheckConfirmButton sourceId={noti.sourceId} />
@@ -373,7 +393,7 @@ const HealthCheckConfirmButton = ({sourceId}) => {
         loading={loading}
         size="small"
         onClick={handleConfirm}
-        style={{marginLeft: "auto", marginRight: 8}}
+        style={{marginLeft: "auto", marginRight: 15}}
       >
         {status === true ? "Confirmed" : "Confirm"}
       </Button>
