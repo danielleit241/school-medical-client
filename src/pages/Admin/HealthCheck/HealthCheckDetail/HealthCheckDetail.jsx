@@ -66,6 +66,14 @@ const HealthCheckDetail = () => {
   // Fetch health check schedule details
   useEffect(() => {
     if (scheduleId) {
+      const savedToParent = localStorage.getItem(`toParentData_${scheduleId}`);
+      const savedToNurse = localStorage.getItem(`toNurseData_${scheduleId}`);
+      if (savedToParent) {
+        setToParentData(JSON.parse(savedToParent));
+      }
+      if (savedToNurse) {
+        setToNurseData(JSON.parse(savedToNurse));
+      }
       setLoading(true);
       axiosInstance
         .get(`/api/health-checks/schedules/${scheduleId}`)
@@ -109,8 +117,8 @@ const HealthCheckDetail = () => {
       setToParentData(toParent);
       setToNurseData(toNurse);
 
-      console.log("To Parent Data:", toParent);
-      console.log("To Nurse Data:", toNurse);
+      localStorage.setItem(`toParentData_${scheduleId}`, JSON.stringify(toParent));
+      localStorage.setItem(`toNurseData_${scheduleId}`, JSON.stringify(toNurse));
 
       Swal.fire({
         icon: "success",
@@ -159,6 +167,7 @@ const HealthCheckDetail = () => {
         });
 
         setToParentData([]);
+        localStorage.removeItem(`toParentData_${scheduleId}`);
       }
     } catch (err) {
       Swal.fire({
@@ -186,6 +195,7 @@ const HealthCheckDetail = () => {
         });
 
         setToNurseData([]);
+        localStorage.removeItem(`toNurseData_${scheduleId}`);
       }
     } catch (err) {
       Swal.fire({
@@ -199,6 +209,8 @@ const HealthCheckDetail = () => {
   // Handle showing student list
   const handleShowStudentList = (roundId) => {
     localStorage.setItem("selectedHealthCheckRoundId", roundId);
+    localStorage.setItem(`toParentData_${scheduleId}`, JSON.stringify(toParentData));
+    localStorage.setItem(`toNurseData_${scheduleId}`, JSON.stringify(toNurseData));
     navigate(`/${roleName}/health-check/details/student-list`);
   };
 

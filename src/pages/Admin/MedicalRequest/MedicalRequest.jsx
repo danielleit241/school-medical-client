@@ -371,6 +371,8 @@ const MedicalRequest = () => {
               bordered
               column={1}
               style={{marginBottom: 24}}
+              labelStyle={{width: 180, minWidth: 180, textAlign: "left"}}
+              contentStyle={{textAlign: "left"}}
             >
               <Descriptions.Item label="Student Code">
                 <IdcardOutlined style={{marginRight: 8}} />
@@ -387,6 +389,8 @@ const MedicalRequest = () => {
               bordered
               column={1}
               style={{marginBottom: 24}}
+              labelStyle={{width: 180, minWidth: 180, textAlign: "left"}}
+              contentStyle={{textAlign: "left"}}
             >
               <Descriptions.Item label="Event Type">
                 <ExclamationCircleOutlined style={{marginRight: 8}} />
@@ -409,6 +413,8 @@ const MedicalRequest = () => {
               bordered
               column={1}
               style={{marginBottom: 24}}
+              labelStyle={{width: 180, minWidth: 180, textAlign: "left"}}
+              contentStyle={{textAlign: "left"}}
             >
               <Descriptions.Item label="Item Name">
                 <Tag color="blue" style={{fontSize: 16}}>
@@ -433,15 +439,7 @@ const MedicalRequest = () => {
                   "DD MMMM YYYY"
                 )}
               </Descriptions.Item>
-            </Descriptions>
-
-            <Descriptions
-              title="Nurse Information"
-              bordered
-              column={1}
-              style={{marginBottom: 24}}
-            >
-              <Descriptions.Item label="Nurse Name">
+              <Descriptions.Item label="Requested By">
                 <Space>
                   <UserOutlined />
                   <Text strong copyable>
@@ -450,6 +448,7 @@ const MedicalRequest = () => {
                 </Space>
               </Descriptions.Item>
             </Descriptions>
+
           </>
         ) : (
           <Empty description="No request details available" />
