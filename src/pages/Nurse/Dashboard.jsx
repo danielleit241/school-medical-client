@@ -1515,7 +1515,7 @@ const Dashboard = () => {
                         key: "confirmationStatus",
                         align: "center",
                         render: (val) => (
-                          <Tag color={val === "Confirmed" ? "green" : "orange"} style={{ fontWeight: 800, fontSize: 14 }}>
+                          <Tag color={val === "Confirmed" ? "green" : "orange"} style={{ fontWeight: 600, fontSize: 14 }}>
                             {val}
                           </Tag>
                         ),
