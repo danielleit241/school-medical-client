@@ -499,7 +499,7 @@ const HealthCheckList = () => {
                             type="primary"
                             size="middle"
                             onClick={() =>
-                              navigate(`/nurse/campaign/round-campaign/`, {
+                              navigate(`/nurse/health-check/round-campaign`, {
                                 state: {
                                   roundId: round.roundId,
                                   roundName: round.roundName,
