@@ -78,7 +78,7 @@ const CreateUpdateUser = ({onSuccess}) => {
               required
             />
 
-            <label>Email</label>
+            <label>Emailhahaa</label>
             <input
               type="email"
               name="email"
