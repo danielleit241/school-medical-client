@@ -180,6 +180,7 @@ const VaccineInventory = () => {
       title: "Vaccine Code",
       dataIndex: "vaccineCode",
       key: "vaccineCode",
+      width: 40,
       render: (text) =>
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
@@ -187,6 +188,7 @@ const VaccineInventory = () => {
       title: "Vaccine Name",
       dataIndex: "vaccineName",
       key: "vaccineName",
+      width: 150,
       render: (text) =>
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
@@ -205,9 +207,10 @@ const VaccineInventory = () => {
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
     {
-      title: "Age Recommendation",
+      title: "Age ",
       dataIndex: "ageRecommendation",
       key: "ageRecommendation",
+      width: 80,
       render: (text) =>
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
@@ -241,6 +244,7 @@ const VaccineInventory = () => {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      width: 200,
       render: (text) =>
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },

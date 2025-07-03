@@ -183,6 +183,7 @@ const MedicalInventory = () => {
       title: "Item Name",
       dataIndex: "itemName",
       key: "itemName",
+      width: 150,
       render: (text) =>
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
@@ -190,6 +191,7 @@ const MedicalInventory = () => {
       title: "Category",
       dataIndex: "category",
       key: "category",
+      width: 150,
       render: (text) =>
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
@@ -197,6 +199,7 @@ const MedicalInventory = () => {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      width: 150,
       render: (text) =>
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
@@ -223,6 +226,7 @@ const MedicalInventory = () => {
       title: "Last Import Date",
       dataIndex: "lastImportDate",
       key: "lastImportDate",
+      width: 150,
       render: (value) =>
         value ? (
           value.toString().slice(0, 10)
@@ -235,6 +239,7 @@ const MedicalInventory = () => {
       title: "Last Export Date",
       dataIndex: "lastExportDate",
       key: "lastExportDate",
+      width: 150,
       render: (value) =>
         value ? (
           value.toString().slice(0, 10)
@@ -244,7 +249,7 @@ const MedicalInventory = () => {
       align: "center",
     },
     {
-      title: "Maximum Stock Level",
+      title: "Maximum Stock",
       dataIndex: "maximumStockLevel",
       key: "maximumStockLevel",
       align: "center",
@@ -256,7 +261,7 @@ const MedicalInventory = () => {
         ),
     },
     {
-      title: "Minimum Stock Level",
+      title: "Minimum Stock",
       dataIndex: "minimumStockLevel",
       key: "minimumStockLevel",
       align: "center",

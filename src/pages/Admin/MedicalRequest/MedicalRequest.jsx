@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from "react";
+import React, {useState, useEffect, useCallback, useMemo} from "react";
 import {
   Table,
   Card,
@@ -31,12 +31,13 @@ import {
 } from "@ant-design/icons";
 import axiosInstance from "../../../api/axios";
 import dayjs from "dayjs";
+import {Trash} from "lucide-react";
 
 const {Title, Text} = Typography;
 
 const MedicalRequest = () => {
-  const [requests, setRequests] = useState([]);
-  const [medicalEvents, setMedicalEvents] = useState({}); // eventId -> event data
+  const [allRequests, setAllRequests] = useState([]); // Store all data from API
+  const [medicalEvents, setMedicalEvents] = useState({});
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -51,72 +52,173 @@ const MedicalRequest = () => {
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [nurses, setNurses] = useState([]);
 
-  // Fetch medical requests and their events
-  const fetchRequests = useCallback(
-    async (page = 1, pageSize = 10) => {
-      try {
-        setLoading(true);
+  // Fetch ALL medical requests (no search params to API)
+  const fetchRequests = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        // Build query parameters
-        const params = {
-          pageIndex: page,
-          pageSize: pageSize,
-        };
+      // Just get all data from API without any filters
+      const response = await axiosInstance.get("/api/medical-requests");
 
-        if (searchKeyword.trim()) {
-          params.keyword = searchKeyword.trim();
+      if (response.data) {
+        setAllRequests(response.data.items || []);
+
+        const eventIds = [
+          ...new Set(
+            (response.data.items || [])
+              .map((item) => item.eventInfo?.eventId)
+              .filter(Boolean)
+          ),
+        ];
+
+        // Fetch events data
+        if (eventIds.length > 0) {
+          const eventData = {};
+          await Promise.all(
+            eventIds.map(async (eventId) => {
+              try {
+                const res = await axiosInstance.get(
+                  `/api/medical-events/${eventId}`
+                );
+                eventData[eventId] = res.data;
+              } catch {
+                eventData[eventId] = null;
+              }
+            })
+          );
+          setMedicalEvents(eventData);
         }
-        if (selectedNurse) {
-          params.nurseId = selectedNurse;
-        }
-
-        const response = await axiosInstance.get("/api/medical-requests", {
-          params,
-        });
-
-        if (response.data) {
-          setRequests(response.data.items);
-          setPagination({
-            current: response.data.pageIndex,
-            pageSize: response.data.pageSize,
-            total: response.data.count,
-          });
-
-          const eventIds = [
-            ...new Set(
-              response.data.items
-                .map((item) => item.eventInfo?.eventId)
-                .filter(Boolean)
-            ),
-          ];
-          // Only fetch events not already in state
-          const missingEventIds = eventIds.filter((id) => !medicalEvents[id]);
-          if (missingEventIds.length > 0) {
-            const eventData = {};
-            await Promise.all(
-              missingEventIds.map(async (eventId) => {
-                try {
-                  const res = await axiosInstance.get(
-                    `/api/medical-events/${eventId}`
-                  );
-                  eventData[eventId] = res.data;
-                } catch {
-                  eventData[eventId] = null;
-                }
-              })
-            );
-            setMedicalEvents((prev) => ({...prev, ...eventData}));
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch medical requests:", error);
-        message.error("Failed to load medical requests");
-      } finally {
-        setLoading(false);
       }
-    },
-    [searchKeyword, selectedNurse, medicalEvents]
-  );
+    } catch (error) {
+      console.error("Failed to fetch medical requests:", error);
+      message.error("Failed to load medical requests");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Client-side filtering (cleaned up version)
+  const filteredRequests = useMemo(() => {
+    let filtered = [...allRequests];
+
+    // Filter by item name (keyword search)
+    if (searchKeyword.trim()) {
+      const keyword = searchKeyword.trim().toLowerCase();
+      filtered = filtered.filter((request) =>
+        request.medicalInfo?.itemName?.toLowerCase().includes(keyword)
+      );
+    }
+
+    // Filter by nurse
+    if (selectedNurse) {
+      filtered = filtered.filter((request) => {
+        // Check multiple possible paths for nurse ID
+        const nurseId1 = request.nurseInfo?.staffNurseId;
+        const nurseId2 = request.nurseInfo?.nurseId;
+        const nurseId3 = request.nurseInfo?.id;
+        const nurseId4 = request.nurse?.staffNurseId;
+        const nurseId5 = request.nurse?.id;
+        const nurseId6 = request.staffNurseId;
+
+        // Check if any of these match the selected nurse
+        return [
+          nurseId1,
+          nurseId2,
+          nurseId3,
+          nurseId4,
+          nurseId5,
+          nurseId6,
+        ].some((id) => String(id) === String(selectedNurse));
+      });
+    }
+
+    return filtered;
+  }, [allRequests, searchKeyword, selectedNurse]);
+
+  // Debug nurses when loaded
+  useEffect(() => {
+    if (nurses.length > 0) {
+      console.log("👩‍⚕️ Available nurses:");
+      nurses.forEach((nurse) => {
+        console.log(
+          `- ID: "${
+            nurse.staffNurseId
+          }" (type: ${typeof nurse.staffNurseId}), Name: "${nurse.fullName}"`
+        );
+      });
+    }
+  }, [nurses]);
+
+  // Paginated data for table
+  const paginatedRequests = useMemo(() => {
+    const startIndex = (pagination.current - 1) * pagination.pageSize;
+    const endIndex = startIndex + pagination.pageSize;
+    return filteredRequests.slice(startIndex, endIndex);
+  }, [filteredRequests, pagination]);
+
+  // Update pagination when filtered data changes
+  useEffect(() => {
+    setPagination((prev) => ({
+      ...prev,
+      current: 1, // Reset to first page when filters change
+      total: filteredRequests.length,
+    }));
+  }, [filteredRequests]);
+
+  // Handle table pagination change
+  const handleTableChange = (newPagination) => {
+    setPagination((prev) => ({
+      ...prev,
+      current: newPagination.current,
+      pageSize: newPagination.pageSize,
+    }));
+  };
+
+  // Apply filters (just trigger re-render, filtering is automatic via useMemo)
+  const applyFilters = () => {
+    // Filters are applied automatically via useMemo
+    console.log("🎯 Applying filters:", {
+      searchKeyword,
+      selectedNurse,
+      selectedNurseType: typeof selectedNurse,
+      totalResults: filteredRequests.length,
+    });
+  };
+
+  // Reset all filters
+  const handleReset = () => {
+    setSearchKeyword("");
+    setSelectedNurse(null);
+    setPagination((prev) => ({
+      ...prev,
+      current: 1,
+    }));
+  };
+
+  // Handle search input with Enter key
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Enter") {
+      applyFilters();
+    }
+  };
+
+  // Fetch nurses for filter dropdown
+  const fetchNurses = async () => {
+    try {
+      const response = await axiosInstance.get("/api/nurses");
+      if (response.data) {
+        setNurses(response.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch nurses:", error);
+    }
+  };
+
+  // Load initial data
+  useEffect(() => {
+    fetchRequests();
+    fetchNurses();
+  }, [fetchRequests]); // Empty dependency array
 
   // Fetch request details and its event
   const fetchRequestDetails = async (requestId) => {
@@ -150,41 +252,6 @@ const MedicalRequest = () => {
       setDetailLoading(false);
     }
   };
-
-  // Handle table pagination change
-  const handleTableChange = (pagination) => {
-    fetchRequests(pagination.current, pagination.pageSize);
-  };
-
-  // Apply filters (search & nurse filter)
-  const applyFilters = () => {
-    fetchRequests(1, pagination.pageSize);
-  };
-
-  // Reset all filters and refresh data
-  const handleReset = () => {
-    setSearchKeyword("");
-    setSelectedNurse(null);
-    fetchRequests(1, pagination.pageSize);
-  };
-
-  // Fetch nurses for filter dropdown
-  const fetchNurses = async () => {
-    try {
-      const response = await axiosInstance.get("/api/nurses");
-      if (response.data) {
-        setNurses(response.data || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch nurses:", error);
-    }
-  };
-
-  // Load initial data
-  useEffect(() => {
-    fetchRequests();
-    fetchNurses();
-  }, [fetchRequests]);
 
   // Table columns (đã sắp xếp lại thứ tự hợp lý: Student Code, Student Name, Event Type, Location, Severity, Item Name, Quantity, Requested By, Request Date, Actions)
   const columns = [
@@ -297,8 +364,9 @@ const MedicalRequest = () => {
               placeholder="Search by item name"
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
               prefix={<SearchOutlined />}
-              allowClear
+              // allowClear
             />
           </Col>
           <Col span={10}>
@@ -307,7 +375,7 @@ const MedicalRequest = () => {
               placeholder="Filter by nurse"
               value={selectedNurse}
               onChange={(value) => setSelectedNurse(value)}
-              allowClear
+              // allowClear
               showSearch
               filterOption={(input, option) =>
                 (option?.label ?? "")
@@ -322,11 +390,17 @@ const MedicalRequest = () => {
           </Col>
           <Col span={6}>
             <Space>
-              <Button type="primary" onClick={applyFilters}>
-                Apply Filters
-              </Button>
+              {/* <Button
+                style={{backgroundColor: "#355383", color: "#fff"}}
+                type="primary"
+                onClick={applyFilters}
+              >
+                Search
+              </Button> */}
               <Button
-                icon={<SyncOutlined style={{margin: 0}} />}
+                icon={
+                  <Trash style={{margin: 0, display: "flex", padding: 4}} />
+                }
                 onClick={handleReset}
               ></Button>
             </Space>
@@ -336,9 +410,15 @@ const MedicalRequest = () => {
         {/* Requests table */}
         <Table
           columns={columns}
-          dataSource={requests}
+          dataSource={paginatedRequests}
           rowKey={(record) => record.medicalInfo.requestId}
-          pagination={pagination}
+          pagination={{
+            ...pagination,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} requests`,
+          }}
           onChange={handleTableChange}
           loading={loading}
           locale={{
@@ -448,7 +528,6 @@ const MedicalRequest = () => {
                 </Space>
               </Descriptions.Item>
             </Descriptions>
-
           </>
         ) : (
           <Empty description="No request details available" />
