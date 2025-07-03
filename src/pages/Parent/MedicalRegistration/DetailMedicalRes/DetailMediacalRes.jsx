@@ -1,4 +1,3 @@
-"use client";
 
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
@@ -15,7 +14,6 @@ const DetailMedicalRes = () => {
   const [loading, setLoading] = useState(false);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   
-
   useEffect(() => {
     const fetchApi = async () => {
       setLoading(true);
@@ -24,8 +22,8 @@ const DetailMedicalRes = () => {
           `/api/parents/medical-registrations/${medicalRegistrationId}`
         );
         setDetail(response.data);
-        // eslint-disable-next-line no-unused-vars
       } catch (error) {
+        console.error("Error fetching medical registration details:", error);
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -76,6 +74,58 @@ const DetailMedicalRes = () => {
     medicalRegistrationDetails,
   } = detail;
 
+  // Function to get registration status - Thêm function mới
+  const getRegistrationStatus = () => {
+    // Nếu bị cancelled
+    if (medicalRegistration.status === false) {
+      return {
+        text: "Cancelled",
+        color: "#dc2626",
+        bgColor: "#fef2f2",
+        showDate: true,
+        showNurseNotes: true,
+      };
+    }
+    
+    // Nếu chưa được approve
+    if (medicalRegistration.status === null || medicalRegistration.status === undefined) {
+      return {
+        text: "Pending",
+        color: "#f59e0b",
+        bgColor: "#fffbeb",
+        showDate: false,
+        showNurseNotes: false,
+      };
+    }
+    
+    // Nếu đã approve
+    if (medicalRegistration.status === true) {
+      return {
+        text: "Approved",
+        color: "#10b981",
+        bgColor: "#ecfdf5",
+        showDate: true,
+        showNurseNotes: true,
+      };
+    }
+    
+    return {
+      text: "Unknown",
+      color: "#6b7280",
+      bgColor: "#f9fafb",
+      showDate: false,
+      showNurseNotes: false,
+    };
+  };
+
+  // Kiểm tra đơn đã hoàn thành hết chưa
+  const isAllDoseCompleted = () =>
+    medicalRegistrationDetails &&
+    medicalRegistrationDetails.length > 0 &&
+    medicalRegistrationDetails.every((dose) => dose.isCompleted);
+
+  const status = getRegistrationStatus();
+
   return (
     <div
       style={{
@@ -100,7 +150,7 @@ const DetailMedicalRes = () => {
             borderTopLeftRadius: "20px",
             borderTopRightRadius: "20px",
             display: "flex",
-            flexDirection: "column", // Thay đổi từ row sang column
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
@@ -194,7 +244,7 @@ const DetailMedicalRes = () => {
             </span>
           </div>
 
-          {/* Subtitle mới thêm */}
+          {/* Subtitle */}
           <div
             style={{
               color: "#e0e7ff",
@@ -322,7 +372,7 @@ const DetailMedicalRes = () => {
                     Parent Notes
                   </td>
                   <td style={{padding: "8px 16px", fontSize: "16px"}}>
-                    {medicalRegistration?.notes}
+                    {medicalRegistration?.notes || "No notes provided"}
                   </td>
                 </tr>
                 <tr style={{borderBottom: "1px solid #eee"}}>
@@ -342,13 +392,13 @@ const DetailMedicalRes = () => {
                     {medicalRegistration?.parentConsent ? (
                       <span
                         style={{
-                          color: "#1bbf7a",
-                          background: "#e6fff2",
+                          color: "#10b981",
+                          background: "#ecfdf5",
                           border: "none",
                           borderRadius: "16px",
                           padding: "4px 16px",
                           fontWeight: "600",
-                          fontSize: "14px", // Giảm từ 15px
+                          fontSize: "14px",
                           display: "inline-block",
                         }}
                       >
@@ -357,13 +407,13 @@ const DetailMedicalRes = () => {
                     ) : (
                       <span
                         style={{
-                          color: "#faad14", // vàng đồng bộ Pending
-                          background: "#fffbe6", // nền vàng nhạt
+                          color: "#f59e0b",
+                          background: "#fffbeb",
                           border: "none",
                           borderRadius: "16px",
                           padding: "4px 16px",
                           fontWeight: "600",
-                          fontSize: "15px",
+                          fontSize: "14px",
                           display: "inline-block",
                         }}
                       >
@@ -372,6 +422,7 @@ const DetailMedicalRes = () => {
                     )}
                   </td>
                 </tr>
+                {/* Sửa lại phần Status để sử dụng logic mới */}
                 <tr style={{borderBottom: "1px solid #eee"}}>
                   <td
                     style={{
@@ -383,52 +434,67 @@ const DetailMedicalRes = () => {
                       fontSize: "16px",
                     }}
                   >
-                    Nurse Approved
+                    Status
                   </td>
                   <td style={{padding: "8px 16px", fontSize: "16px"}}>
-                    {nurseApproved?.dateApproved ? (
-                      <>
-                        <span
-                          style={{
-                            background: "#e6fff2", // xanh lá nhạt
-                            color: "#1bbf7a", // xanh lá
-                            border: "none",
-                            borderRadius: "16px",
-                            padding: "4px 16px",
-                            fontWeight: "600",
-                            fontSize: "15px",
-                            display: "inline-block",
-                          }}
-                        >
-                          Approved
-                        </span>
-                        <div
-                          style={{
-                            marginTop: "8px",
-                            marginLeft: "8px",
-                          }}
-                        >
-                          <b>Date:</b> {nurseApproved?.dateApproved || ""}
-                        </div>
-                      </>
-                    ) : (
-                      <span
+                    <span
+                      style={{
+                        background: status.bgColor,
+                        color: status.color,
+                        border: `2px solid ${status.color}`,
+                        borderRadius: "16px",
+                        padding: "6px 16px",
+                        fontWeight: "600",
+                        fontSize: "14px",
+                        display: "inline-block",
+                      }}
+                    >
+                      {status.text}
+                    </span>
+                    {status.showDate && nurseApproved?.dateApproved && (
+                      <div
                         style={{
-                          background: "#fffbe6", // vàng nhạt
-                          color: "#faad14", // vàng
-                          border: "none",
-                          borderRadius: "16px",
-                          padding: "4px 16px",
-                          fontWeight: "600",
-                          fontSize: "15px",
-                          display: "inline-block",
+                          marginTop: "8px",
+                          fontSize: "14px",
+                          color: "#6b7280",
                         }}
                       >
-                        Pending
-                      </span>
+                        <b>Date:</b> {nurseApproved.dateApproved}
+                      </div>
                     )}
                   </td>
                 </tr>
+                {/* Thêm Nurse Notes row nếu có */}
+                {status.showNurseNotes && medicalRegistration?.nurseNotes && (
+                  <tr style={{borderBottom: "1px solid #eee"}}>
+                    <td
+                      style={{
+                        padding: "12px 16px",
+                        background: "#f9f9f9",
+                        height: "80px",
+                        fontWeight: "600",
+                        width: "40%",
+                        fontSize: "16px",
+                      }}
+                    >
+                      Nurse Notes
+                    </td>
+                    <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                      <div
+                        style={{
+                          backgroundColor: "#f0f9ff",
+                          padding: "12px",
+                          borderRadius: "8px",
+                          border: "1px solid #bae6fd",
+                          fontStyle: "italic",
+                          color: "#0c4a6e",
+                        }}
+                      >
+                        {medicalRegistration.nurseNotes}
+                      </div>
+                    </td>
+                  </tr>
+                )}
                 <tr style={{borderBottom: "1px solid #eee"}}>
                   <td
                     style={{
@@ -451,62 +517,62 @@ const DetailMedicalRes = () => {
                     }}
                   >
                     <Tooltip
-                  title={
-                    medicalRegistration?.pictureUrl
-                      ? "Click to view full screen"
-                      : "No image available"
-                  }
-                  placement="top"
-                >
-                  <div
-                    style={{
-                      background: "#f3f4f6",
-                      borderRadius: 10,
-                      padding: 10,
-                      border: "1px solid #eee",
-                      width: 120,
-                      height: 120,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: 6,
-                      cursor: medicalRegistration?.pictureUrl
-                        ? "pointer"
-                        : "default",
-                    }}
-                    onClick={() =>
-                      medicalRegistration?.pictureUrl &&
-                      setIsImageModalVisible(true)
-                    }
-                  >
-                    {medicalRegistration?.pictureUrl ? (
-                      <img
-                        src={medicalRegistration.pictureUrl}
-                        alt="Medicine"
+                      title={
+                        medicalRegistration?.pictureUrl
+                          ? "Click to view full screen"
+                          : "No image available"
+                      }
+                      placement="top"
+                    >
+                      <div
                         style={{
-                          width: 100,
-                          height: 100,
-                          objectFit: "cover",
-                          borderRadius: 8,
-                          border: "1px solid #e5e7eb",
-                          background: "#fafafa",
-                          display: "block",
-                          transition: "transform 0.2s ease",
+                          background: "#f3f4f6",
+                          borderRadius: 10,
+                          padding: 10,
+                          border: "1px solid #eee",
+                          width: 120,
+                          height: 120,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: 6,
+                          cursor: medicalRegistration?.pictureUrl
+                            ? "pointer"
+                            : "default",
                         }}
-                        onMouseOver={(e) => {
-                          e.target.style.transform = "scale(1.05)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.transform = "scale(1)";
-                        }}
-                      />
-                    ) : (
-                      <PictureOutlined
-                        style={{ fontSize: 36, color: "#bbb" }}
-                      />
-                    )}
-                  </div>
-                </Tooltip>
+                        onClick={() =>
+                          medicalRegistration?.pictureUrl &&
+                          setIsImageModalVisible(true)
+                        }
+                      >
+                        {medicalRegistration?.pictureUrl ? (
+                          <img
+                            src={medicalRegistration.pictureUrl}
+                            alt="Medicine"
+                            style={{
+                              width: 100,
+                              height: 100,
+                              objectFit: "cover",
+                              borderRadius: 8,
+                              border: "1px solid #e5e7eb",
+                              background: "#fafafa",
+                              display: "block",
+                              transition: "transform 0.2s ease",
+                            }}
+                            onMouseOver={(e) => {
+                              e.target.style.transform = "scale(1.05)";
+                            }}
+                            onMouseOut={(e) => {
+                              e.target.style.transform = "scale(1)";
+                            }}
+                          />
+                        ) : (
+                          <PictureOutlined
+                            style={{ fontSize: 36, color: "#bbb" }}
+                          />
+                        )}
+                      </div>
+                    </Tooltip>
                   </td>
                 </tr>
               </tbody>
@@ -536,7 +602,7 @@ const DetailMedicalRes = () => {
           <div style={{width: "35%", padding: "30px"}}>
             <h2
               style={{
-                fontSize: "22px", // Giảm từ 25px
+                fontSize: "22px",
                 fontWeight: "600",
                 marginBottom: "20px",
                 color: "#333",
@@ -545,102 +611,167 @@ const DetailMedicalRes = () => {
               Dose Sessions
             </h2>
 
-            {nurseApproved?.dateApproved ? (
+            {/* Sửa lại logic hiển thị dose sessions */}
+            {medicalRegistration.status === true ? (
               medicalRegistrationDetails &&
               medicalRegistrationDetails.length > 0 ? (
-                medicalRegistrationDetails.map((dose, idx) => (
-                  <div
-                    key={dose.doseNumber + idx}
-                    style={{
-                      marginBottom: "20px",
-                      borderRadius: "6px",
-                      border: "1px solid #f0f0f0",
-                      padding: "20px",
-                      background: "#fff",
-                    }}
-                  >
-                    <div style={{marginBottom: "10px"}}>
-                      <span style={{fontWeight: "600", fontSize: "16px"}}>
-                        Dose {dose.doseNumber}
-                      </span>{" "}
-                      <span style={{color: "#666", fontSize: "16px"}}>
-                        {" "}
-                        ({dose.doseTime})
-                      </span>
-                    </div>
-
-                    <div style={{marginBottom: "10px", fontSize: "15px"}}>
-                      <span style={{fontWeight: "500"}}>Parent Notes:</span>{" "}
-                      {dose.notes || (
-                        <span style={{color: "#999"}}>No notes</span>
-                      )}
-                    </div>
-
-                    <div style={{marginBottom: 6}}>
-                      <b>Status:</b>{" "}
-                      {dose.isCompleted ? (
-                        <span
-                          style={{
-                            background: "#e6fff2",
-                            color: "#1bbf7a",
-                            border: "none",
-                            borderRadius: "16px",
-                            padding: "4px 16px",
-                            fontWeight: "600",
-                            fontSize: "14px", // Giảm từ 15px
-                            display: "inline-block",
-                          }}
-                        >
-                          Completed
+                <>
+                  {medicalRegistrationDetails.map((dose, idx) => (
+                    <div
+                      key={dose.doseNumber + idx}
+                      style={{
+                        marginBottom: "20px",
+                        borderRadius: "6px",
+                        border: "1px solid #f0f0f0",
+                        padding: "20px",
+                        background: "#fff",
+                      }}
+                    >
+                      <div style={{marginBottom: "10px"}}>
+                        <span style={{fontWeight: "600", fontSize: "16px"}}>
+                          Dose {dose.doseNumber}
+                        </span>{" "}
+                        <span style={{color: "#666", fontSize: "16px"}}>
+                          ({dose.doseTime})
                         </span>
-                      ) : (
-                        <span
-                          style={{
-                            background: "#fffbe6", // vàng nhạt
-                            color: "#faad14", // vàng
-                            border: "none",
-                            borderRadius: "16px",
-                            padding: "4px 16px",
-                            fontWeight: "600",
-                            fontSize: "15px",
-                            display: "inline-block",
-                          }}
-                        >
-                          Not Completed
-                        </span>
-                      )}
-                    </div>
-
-                    {dose.isCompleted && dose.dateCompleted && (
-                      <div style={{fontSize: "16px"}}>
-                        <span style={{fontWeight: "500"}}>Date Completed:</span>{" "}
-                        {dose.dateCompleted}
                       </div>
-                    )}
-                  </div>
-                ))
+
+                      <div style={{marginBottom: "10px", fontSize: "15px"}}>
+                        <span style={{fontWeight: "500"}}>Parent Notes:</span>{" "}
+                        {dose.notes || (
+                          <span style={{color: "#999"}}>No notes</span>
+                        )}
+                      </div>
+
+                      <div style={{marginBottom: 6}}>
+                        <b>Status:</b>{" "}
+                        {dose.isCompleted ? (
+                          <span
+                            style={{
+                              background: "#ecfdf5",
+                              color: "#10b981",
+                              border: "none",
+                              borderRadius: "16px",
+                              padding: "4px 16px",
+                              fontWeight: "600",
+                              fontSize: "14px",
+                              display: "inline-block",
+                            }}
+                          >
+                            Completed
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              background: "#fffbeb",
+                              color: "#f59e0b",
+                              border: "none",
+                              borderRadius: "16px",
+                              padding: "4px 16px",
+                              fontWeight: "600",
+                              fontSize: "14px",
+                              display: "inline-block",
+                            }}
+                          >
+                            Not Completed
+                          </span>
+                        )}
+                      </div>
+
+                      {dose.isCompleted && dose.dateCompleted && (
+                        <div style={{fontSize: "15px", color: "#6b7280"}}>
+                          <span style={{fontWeight: "500"}}>Date Completed:</span>{" "}
+                          {dose.dateCompleted}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {/* All doses completed indicator */}
+                  {isAllDoseCompleted() && (
+                    <div
+                      style={{
+                        backgroundColor: "#eff6ff",
+                        padding: "16px",
+                        borderRadius: "10px",
+                        border: "2px solid #2563eb",
+                        textAlign: "center",
+                        marginTop: "16px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: "#2563eb",
+                          fontSize: "16px",
+                          fontWeight: "700",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <span style={{ fontSize: 18 }}>✔</span>
+                        All Doses Completed
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div
                   style={{
                     color: "#999",
                     textAlign: "center",
                     padding: "20px",
-                    fontSize: "16px", // Giảm từ 18px
+                    fontSize: "16px",
                   }}
                 >
                   No dose details available.
                 </div>
               )
+            ) : medicalRegistration.status === false ? (
+              <div
+                style={{
+                  backgroundColor: "#fef2f2",
+                  padding: "20px",
+                  borderRadius: "12px",
+                  border: "2px solid #fecaca",
+                  textAlign: "center",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#dc2626",
+                    fontSize: "16px",
+                    fontWeight: "700",
+                    marginBottom: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>❌</span>
+                  Registration Cancelled
+                </div>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    color: "#6b7280",
+                  }}
+                >
+                  {medicalRegistration.nurseNotes}
+                </div>
+              </div>
             ) : (
               <div
                 style={{
                   color: "#999",
                   textAlign: "center",
                   padding: "20px",
-                  fontSize: "16px", // Giảm từ 18px
+                  fontSize: "16px",
                 }}
               >
-                The nurse has not approved this registration yet.
+                Waiting for nurse approval to view dose sessions.
               </div>
             )}
 
@@ -653,6 +784,7 @@ const DetailMedicalRes = () => {
                 textAlign: "center",
                 color: "#a259e6",
                 border: "1px solid #e0d7fa",
+                marginTop: "30px",
               }}
             >
               <div style={{fontSize: 32, marginBottom: 8}}>♡</div>
@@ -660,7 +792,7 @@ const DetailMedicalRes = () => {
                 Need Help?
               </div>
               <div style={{marginBottom: 14, color: "#888"}}>
-                Our support team is here to assist you with your booking.
+                Our support team is here to assist you with your medication registration.
               </div>
               <Button
                 style={{
@@ -678,30 +810,31 @@ const DetailMedicalRes = () => {
           </div>
         </div>
       </div>
+      
       <Modal
-              open={isImageModalVisible}
-              onCancel={() => setIsImageModalVisible(false)}
-              footer={null}
-              centered
-              width="100%"
-              style={{ maxWidth: 1000 }}
-              bodyStyle={{ padding: 0 }}
-            >
-              <div style={{ textAlign: "center", padding: "20px" }}>
-                <img
-                  src={medicalRegistration?.pictureUrl}
-                  alt="Medicine Full View"
-                  style={{
-                    width: "100%",
-                    maxWidth: "100%",
-                    height: "auto",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
-            </Modal>
+        open={isImageModalVisible}
+        onCancel={() => setIsImageModalVisible(false)}
+        footer={null}
+        centered
+        width="100%"
+        style={{ maxWidth: 1000 }}
+        bodyStyle={{ padding: 0 }}
+      >
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <img
+            src={medicalRegistration?.pictureUrl}
+            alt="Medicine Full View"
+            style={{
+              width: "100%",
+              maxWidth: "100%",
+              height: "auto",
+              borderRadius: 12,
+              border: "2px solid #e5e7eb",
+              objectFit: "contain",
+            }}
+          />
+        </div>
+      </Modal>
     </div>
   );
 };
