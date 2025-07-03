@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import Swal from "sweetalert2";
-import "./index.scss"; // Nếu bạn muốn tách style riêng, hoặc dùng chung style với UserProfileC
+import "./index.scss"; 
 import axiosInstance from "../../../../api/axios";
 
 const initialState = {
@@ -47,7 +47,7 @@ const CreateUpdateUser = ({onSuccess}) => {
         showConfirmButton: false,
       });
       setForm(initialState);
-      if (onSuccess) onSuccess(); // Gọi callback khi thành công
+      if (onSuccess) onSuccess(); 
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -78,7 +78,7 @@ const CreateUpdateUser = ({onSuccess}) => {
               required
             />
 
-            <label>Emailhahaa</label>
+            <label>Email</label>
             <input
               type="email"
               name="email"
