@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import axiosInstance from "../../../../api/axios";
 import {
   Button,
@@ -13,7 +13,7 @@ import {
   Badge,
 } from "antd";
 import dayjs from "dayjs";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 import {
   UserOutlined,
   CalendarOutlined,
@@ -23,11 +23,18 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
   SyncOutlined,
-  FilterOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
+import Swal from "sweetalert2";
 
 const statusConfig = {
+  NotCompleted: {
+    color: "#dc2626",
+    bgColor: "#fef2f2",
+    borderColor: "#fed7aa",
+    icon: <ExclamationCircleOutlined />,
+    text: "Not Completed",
+  },
   Completed: {
     color: "#10b981",
     bgColor: "#ecfdf5",
@@ -70,7 +77,7 @@ const AppointmentList = () => {
         const response = await axiosInstance.get(
           `/api/nurses/${staffNurseId}/appointments`,
           {
-            params: {dateRequest, PageSize: 3, PageIndex: pageIndex},
+            params: { dateRequest, PageSize: 3, PageIndex: pageIndex },
           }
         );
         const data = Array.isArray(response.data)
@@ -107,7 +114,7 @@ const AppointmentList = () => {
           completionStatus,
         }
       );
-      const {notificationTypeId, senderId, receiverId} = res.data;
+      const { notificationTypeId, senderId, receiverId } = res.data;
       await axiosInstance.post("/api/notification/appoiments/to-parent", {
         notificationTypeId,
         senderId,
@@ -124,7 +131,7 @@ const AppointmentList = () => {
       const response = await axiosInstance.get(
         `/api/nurses/${staffNurseId}/appointments/${appointmentId}`
       );
-      setSelectedAppointment({...(response.data.item || response.data)});
+      setSelectedAppointment({ ...(response.data.item || response.data) });
       if (step !== 2) setStep(2);
     } catch {
       setSelectedAppointment(null);
@@ -134,12 +141,17 @@ const AppointmentList = () => {
   };
 
   const getStatus = (item) => {
-    if (item.completionStatus) return statusConfig.Completed;
+    if (item.completionStatus === true) {
+      return statusConfig.Completed;
+    }
+    if (item.completionStatus === false) {
+      return statusConfig.NotCompleted;
+    }
     if (item.confirmationStatus) return statusConfig.Confirmed;
     return statusConfig.Pending;
   };
 
-  const AppointmentCard = ({item}) => {
+  const AppointmentCard = ({ item }) => {
     const status = getStatus(item);
 
     return (
@@ -153,7 +165,7 @@ const AppointmentList = () => {
           boxShadow: "0 4px 16px 0 rgba(53,83,131,0.10)",
           transition: "box-shadow 0.2s",
         }}
-        bodyStyle={{padding: "18px 24px"}}
+        bodyStyle={{ padding: "18px 24px" }}
         hoverable
       >
         <div
@@ -165,7 +177,7 @@ const AppointmentList = () => {
           }}
         >
           {/* Left: Student Info & Details */}
-          <div style={{flex: 1}}>
+          <div style={{ flex: 1 }}>
             {/* Student Info */}
             <div
               style={{
@@ -231,7 +243,7 @@ const AppointmentList = () => {
                   border: "1.5px solid #dbeafe",
                 }}
               >
-                <CalendarOutlined style={{color: "#3058A4"}} />
+                <CalendarOutlined style={{ color: "#3058A4" }} />
                 <span>
                   {dayjs(item.appointmentDate).format("MMM DD, YYYY")}
                 </span>
@@ -250,7 +262,7 @@ const AppointmentList = () => {
                   border: "1.5px solid #a7f3d0",
                 }}
               >
-                <ClockCircleOutlined style={{color: "#059669"}} />
+                <ClockCircleOutlined style={{ color: "#059669" }} />
                 <span>
                   {item.appointmentStartTime?.slice(0, 5)} -{" "}
                   {item.appointmentEndTime?.slice(0, 5)}
@@ -270,7 +282,7 @@ const AppointmentList = () => {
                   border: "1.5px solid #fde68a",
                 }}
               >
-                <FileTextOutlined style={{color: "#f59e42"}} />
+                <FileTextOutlined style={{ color: "#f59e42" }} />
                 <span>{item.topic || "General Consultation"}</span>
               </div>
             </div>
@@ -289,11 +301,13 @@ const AppointmentList = () => {
                   marginBottom: 0,
                 }}
               >
-                <span style={{color: "#6b7280", fontWeight: 600, fontSize: 13}}>
+                <span
+                  style={{ color: "#6b7280", fontWeight: 600, fontSize: 13 }}
+                >
                   Reason:
                 </span>{" "}
                 <span
-                  style={{fontWeight: 500, fontStyle: "italic", fontSize: 13}}
+                  style={{ fontWeight: 500, fontStyle: "italic", fontSize: 13 }}
                 >
                   {item.appointmentReason.length > 100
                     ? item.appointmentReason.substring(0, 100) + "..."
@@ -414,7 +428,7 @@ const AppointmentList = () => {
             width: "100%",
             margin: 0,
           }}
-          bodyStyle={{padding: "20px 24px"}} // giảm padding
+          bodyStyle={{ padding: "20px 24px" }} // giảm padding
         >
           {/* Student Header */}
           <div
@@ -435,7 +449,7 @@ const AppointmentList = () => {
                 boxShadow: "0 2px 8px rgba(79, 70, 229, 0.18)",
               }}
             />
-            <div style={{flex: 1}}>
+            <div style={{ flex: 1 }}>
               <h1
                 style={{
                   margin: 0,
@@ -485,10 +499,14 @@ const AppointmentList = () => {
               }}
             >
               <div
-                style={{display: "flex", alignItems: "center", marginBottom: 6}}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: 6,
+                }}
               >
                 <CalendarOutlined
-                  style={{color: "#4f46e5", fontSize: 16, marginRight: 8}}
+                  style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }}
                 />
                 <h4
                   style={{
@@ -524,10 +542,14 @@ const AppointmentList = () => {
               }}
             >
               <div
-                style={{display: "flex", alignItems: "center", marginBottom: 6}}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: 6,
+                }}
               >
                 <ClockCircleOutlined
-                  style={{color: "#4f46e5", fontSize: 16, marginRight: 8}}
+                  style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }}
                 />
                 <h4
                   style={{
@@ -555,7 +577,7 @@ const AppointmentList = () => {
           </div>
 
           {/* Topic and Reason */}
-          <div style={{marginBottom: 18}}>
+          <div style={{ marginBottom: 18 }}>
             <div
               style={{
                 backgroundColor: "#f0f9ff",
@@ -566,10 +588,14 @@ const AppointmentList = () => {
               }}
             >
               <div
-                style={{display: "flex", alignItems: "center", marginBottom: 6}}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: 6,
+                }}
               >
                 <FileTextOutlined
-                  style={{color: "#0284c7", fontSize: 20, marginRight: 12}}
+                  style={{ color: "#0284c7", fontSize: 20, marginRight: 12 }}
                 />
                 <h4
                   style={{
@@ -644,7 +670,7 @@ const AppointmentList = () => {
                 size="large"
                 icon={<CheckCircleOutlined />}
                 onClick={() =>
-                  updateStatus(selectedAppointment.appointmentId, true, false)
+                  updateStatus(selectedAppointment.appointmentId, true, null)
                 }
                 style={{
                   borderRadius: 12,
@@ -664,14 +690,33 @@ const AppointmentList = () => {
             )}
 
             {selectedAppointment.confirmationStatus &&
-              !selectedAppointment.completionStatus && (
+              selectedAppointment.completionStatus === null && (
                 <Button
                   type="primary"
                   size="large"
                   icon={<CheckCircleOutlined />}
-                  onClick={() =>
-                    updateStatus(selectedAppointment.appointmentId, true, true)
-                  }
+                  onClick={async () => {
+                    const result = await Swal.fire({
+                      title: "Mark as Complete?",
+                      text: "This will mark the appointment as completed.",
+                      icon: "question",
+                      showCancelButton: true,
+                      confirmButtonText: "Yes, complete it!",
+                      cancelButtonText: "No, not yet",
+                      confirmButtonColor: "#10b981",
+                      cancelButtonColor: "#6b7280",
+                    });
+                    
+                    if (result.isConfirmed) {
+                      updateStatus(selectedAppointment.appointmentId, true, true);
+                      Swal.fire({
+                        title: "Completed!",
+                        text: "The appointment has been marked as completed.",
+                        icon: "success",
+                        confirmButtonColor: "#10b981",
+                      });
+                    }
+                  }}
                   style={{
                     borderRadius: 12,
                     fontWeight: 600,
@@ -686,6 +731,52 @@ const AppointmentList = () => {
                   }}
                 >
                   Mark as Complete
+                </Button>
+              )}
+
+            {selectedAppointment.confirmationStatus &&
+              selectedAppointment.completionStatus === null && (
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<CheckCircleOutlined />}
+                  onClick={async () => {
+                    const result = await Swal.fire({
+                      title: "Are you sure?",
+                      text: "This action will cancel the appointment.",
+                      icon: "warning",
+                      showCancelButton: true,
+                      confirmButtonText: "Yes, cancel it!",
+                      cancelButtonText: "No, keep it",
+                    });
+                    if (result.isConfirmed) {
+                      updateStatus(
+                        selectedAppointment.appointmentId,
+                        true,
+                        false
+                      );
+                      Swal.fire({
+                      title: "Success",
+                      text: "The appointment has been cancelled.",
+                      icon: "success",
+                      confirmButtonColor: "#10b981",
+                      });
+                    }
+                  }}
+                  style={{
+                    borderRadius: 12,
+                    fontWeight: 600,
+                    fontSize: 15, // giảm từ 16
+                    height: 44,
+                    paddingLeft: 20,
+                    paddingRight: 20,
+                    background:
+                      "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                    border: "none",
+                    boxShadow: "0 4px 20px rgba(124, 58, 237, 0.4)",
+                  }}
+                >
+                  Cancel
                 </Button>
               )}
           </div>
@@ -749,7 +840,7 @@ const AppointmentList = () => {
               marginTop: 4,
             }}
           >
-            <div style={{display: "flex", alignItems: "center", gap: 8}}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {/* <FilterOutlined style={{fontSize: 15}} /> */}
               <DatePicker
                 value={dayjs(dateRequest)}
@@ -856,7 +947,7 @@ const AppointmentList = () => {
                 >
                   {appointments.filter((apt) => apt.completionStatus).length}
                 </h3>
-                <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
+                <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
                   Completed
                 </p>
               </div>
@@ -881,7 +972,7 @@ const AppointmentList = () => {
                 >
                   {appointments.filter((apt) => !apt.confirmationStatus).length}
                 </h3>
-                <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
+                <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
                   Pending
                 </p>
               </div>
@@ -900,7 +991,7 @@ const AppointmentList = () => {
                 }}
               >
                 <Spin size="large" />
-                <p style={{marginTop: 20, fontSize: 16, color: "#6b7280"}}>
+                <p style={{ marginTop: 20, fontSize: 16, color: "#6b7280" }}>
                   Loading appointments...
                 </p>
               </div>
@@ -918,13 +1009,17 @@ const AppointmentList = () => {
                 <Empty
                   description={
                     <span
-                      style={{fontSize: 18, color: "#6b7280", fontWeight: 500}}
+                      style={{
+                        fontSize: 18,
+                        color: "#6b7280",
+                        fontWeight: 500,
+                      }}
                     >
                       No appointments found for{" "}
                       {dayjs(dateRequest).format("MMMM DD, YYYY")}
                     </span>
                   }
-                  style={{fontSize: 18}}
+                  style={{ fontSize: 18 }}
                 />
               </div>
             ) : (
@@ -965,12 +1060,12 @@ const AppointmentList = () => {
             }}
           >
             <Spin size="large" />
-            <p style={{marginTop: 20, fontSize: 16, color: "#6b7280"}}>
+            <p style={{ marginTop: 20, fontSize: 16, color: "#6b7280" }}>
               Loading appointment details...
             </p>
           </div>
         ) : selectedAppointment ? (
-          <div style={{width: "100%"}}>
+          <div style={{ width: "100%" }}>
             <DetailView />
           </div>
         ) : (

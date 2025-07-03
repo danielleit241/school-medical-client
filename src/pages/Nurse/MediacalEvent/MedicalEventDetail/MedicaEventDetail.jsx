@@ -72,7 +72,7 @@ const MedicaEventDetail = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "#f3f4f6",
+        background: "#fff",
         padding: "0 0 32px 0",
       }}
     >
@@ -85,24 +85,25 @@ const MedicaEventDetail = () => {
           color: "white",
           textAlign: "center",
           boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+          borderRadius: "20px 20px 0 0 ", // bo góc dưới
         }}
       >
         <h1
           style={{
-            fontSize: 28, 
+            fontSize: 38, 
             fontWeight: 800,
             margin: "0 0 4px 0", 
             textShadow: "2px 2px 4px rgba(0,0,0,0.18)",
             letterSpacing: "1px",
           }}
         >
-          🩺 Medical Event Details
+           Medical Event Details
         </h1>
         <p
           style={{
-            fontSize: 15, 
+            fontSize: 16, 
             fontWeight: 500,
-            margin: "0 0 6px 0", // giảm margin dưới
+            margin: "0 0 6px 0", 
             opacity: 0.9,
             maxWidth: 480,
             marginLeft: "auto",
@@ -114,7 +115,8 @@ const MedicaEventDetail = () => {
       </div>
 
       {/* Nút Back nằm ngoài header */}
-      <div
+      <div style={{ background: "#fff", padding: "0 16px" }}>
+        <div
         style={{
           display: "flex",
           alignItems: "center",
@@ -124,20 +126,20 @@ const MedicaEventDetail = () => {
         }}
       >
         <Button
-          icon={<ArrowLeftOutlined />}
+          icon={<ArrowLeftOutlined style={{display: 'flex', padding: '4px', marginRight: '0'}}/>}
           onClick={() => navigate(-1)}
           style={{
-            marginRight: 10,
+            marginRight: 12,
             borderRadius: 8,
-            height: 30,
-            paddingLeft: 10,
-            paddingRight: 10,
+            height: 36,
+            paddingLeft: 12,
+            paddingRight: 12,
             border: "2px solid #e5e7eb",
             fontWeight: 600,
-            fontSize: 13,
+            fontSize: 14,
           }}
         >
-          Back to List
+          Back 
         </Button>
         <h2
           style={{
@@ -150,6 +152,9 @@ const MedicaEventDetail = () => {
           Medical Event Details
         </h2>
       </div>
+
+     
+      
 
       {/* Main Detail Card */}
       <div
@@ -407,6 +412,7 @@ const MedicaEventDetail = () => {
           </div>
         </Card>
       </div>
+       </div>
     </div>
   );
 };

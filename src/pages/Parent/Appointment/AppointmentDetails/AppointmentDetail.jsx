@@ -41,7 +41,8 @@ const AppointmentDetail = () => {
   }, [appointmentId, userId]);
 
   const getStatus = (item) => {
-    if (item.completionStatus) return {text: "Done", color: "#1890ff"};
+    if (item.completionStatus === true) return {text: "Done", color: "#1890ff"};
+    if (item.completionStatus === false) return {text: "Cancelled", color: "#fef2f2"};
     if (item.confirmationStatus) return {text: "Confirmed", color: "#52c41a"};
     return {text: "Pending", color: "#faad14"};
   };
@@ -341,7 +342,9 @@ const AppointmentDetail = () => {
                           ? "#FFC107"
                           : statusInfo.text === "Confirmed"
                           ? "#4CAF50"
-                          : "#2196F3",
+                          : statusInfo.text === "Done"
+                          ? "#2196F3"
+                          : "#f44336",
                       color: "white",
                       borderRadius: "20px",
                       fontSize: "14px",

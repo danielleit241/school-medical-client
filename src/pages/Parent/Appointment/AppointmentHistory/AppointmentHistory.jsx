@@ -71,7 +71,8 @@ const AppointmentHistory = () => {
   }, [userId, pageIndex, pageSize]);
 
   const getStatus = (item) => {
-    if (item.completionStatus) return {text: "Completed", color: "blue"};
+    if (item.completionStatus === true ) return {text: "Completed", color: "blue"};
+    if (item.completionStatus === false) return {text: "Cancelled", color: "fef2f2"};
     if (item.confirmationStatus) return {text: "Confirmed", color: "green"};
     return {text: "Pending", color: "orange"};
   };
@@ -363,8 +364,10 @@ const AppointmentHistory = () => {
                             getStatus(item).color === "green"
                               ? "success"
                               : getStatus(item).color === "orange"
-                              ? "warning"
-                              : "processing"
+                              ? "processing"
+                              : getStatus(item).color === "fef2f2"
+                              ? "error"
+                              : "default"
                           }
                           style={{
                             fontWeight: 600,
