@@ -245,6 +245,7 @@ const AppointmentHistory = () => {
             <Option value="Pending">Pending</Option>
             <Option value="Confirmed">Confirmed</Option>
             <Option value="Completed">Completed</Option>
+            <Option value="Cancelled">Cancelled</Option>
           </Select>
         </div>
 
@@ -361,13 +362,13 @@ const AppointmentHistory = () => {
                       >
                         <Tag
                           color={
-                            getStatus(item).color === "green"
+                            getStatus(item).color === "blue"
                               ? "success"
                               : getStatus(item).color === "orange"
                               ? "processing"
                               : getStatus(item).color === "fef2f2"
                               ? "error"
-                              : "default"
+                              : "warning"
                           }
                           style={{
                             fontWeight: 600,

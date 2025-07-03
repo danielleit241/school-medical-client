@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
-import {Button, Spin} from "antd";
+import {Button, Spin, Tag} from "antd";
 import {CalendarOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import {useSelector} from "react-redux";
@@ -41,7 +41,7 @@ const AppointmentDetail = () => {
   }, [appointmentId, userId]);
 
   const getStatus = (item) => {
-    if (item.completionStatus === true) return {text: "Done", color: "#1890ff"};
+    if (item.completionStatus === true) return {text: "Completed", color: "#1890ff"};
     if (item.completionStatus === false) return {text: "Cancelled", color: "#fef2f2"};
     if (item.confirmationStatus) return {text: "Confirmed", color: "#52c41a"};
     return {text: "Pending", color: "#faad14"};
@@ -333,26 +333,28 @@ const AppointmentDetail = () => {
                     fontSize: "16px",
                   }}
                 >
-                  <span
+                  <Tag
+                    color={
+                      statusInfo.color === "#1890ff"
+                        ? "success"
+                        : statusInfo.color === "#fef2f2"
+                        ? "error"
+                        : statusInfo.color === "#52c41a"
+                        ? "warning"
+                        : statusInfo.color === "#faad14"
+                        ? "blue"
+                        : "default"
+                    }
                     style={{
                       display: "inline-block",
                       padding: "6px 16px",
-                      backgroundColor:
-                        statusInfo.text === "Pending"
-                          ? "#FFC107"
-                          : statusInfo.text === "Confirmed"
-                          ? "#4CAF50"
-                          : statusInfo.text === "Done"
-                          ? "#2196F3"
-                          : "#f44336",
-                      color: "white",
                       borderRadius: "20px",
                       fontSize: "14px",
                       fontWeight: "500",
                     }}
                   >
                     {statusInfo.text}
-                  </span>
+                  </Tag>
                 </td>
               </tr>
             </tbody>

@@ -28,12 +28,12 @@ import {
 import Swal from "sweetalert2";
 
 const statusConfig = {
-  NotCompleted: {
+  Cancelled: {
     color: "#dc2626",
     bgColor: "#fef2f2",
     borderColor: "#fed7aa",
     icon: <ExclamationCircleOutlined />,
-    text: "Not Completed",
+    text: "Cancelled",
   },
   Completed: {
     color: "#10b981",
@@ -145,7 +145,7 @@ const AppointmentList = () => {
       return statusConfig.Completed;
     }
     if (item.completionStatus === false) {
-      return statusConfig.NotCompleted;
+      return statusConfig.Cancelled;
     }
     if (item.confirmationStatus) return statusConfig.Confirmed;
     return statusConfig.Pending;
@@ -770,10 +770,9 @@ const AppointmentList = () => {
                     height: 44,
                     paddingLeft: 20,
                     paddingRight: 20,
-                    background:
-                      "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                    background: "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)",
                     border: "none",
-                    boxShadow: "0 4px 20px rgba(124, 58, 237, 0.4)",
+                    boxShadow: "0 4px 20px rgba(220, 38, 38, 0.4)",
                   }}
                 >
                   Cancel
@@ -945,7 +944,7 @@ const AppointmentList = () => {
                     color: "#059669",
                   }}
                 >
-                  {appointments.filter((apt) => apt.completionStatus).length}
+                  {appointments.filter((apt) => apt.completionStatus === true).length}
                 </h3>
                 <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
                   Completed
@@ -974,6 +973,31 @@ const AppointmentList = () => {
                 </h3>
                 <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
                   Pending
+                </p>
+              </div>
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "20px 32px",
+                  borderRadius: 16,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                  textAlign: "center",
+                  minWidth: 150,
+                  flex: 1,
+                }}
+              >
+                <h3
+                  style={{
+                    margin: "0 0 8px 0",
+                    fontSize: 24, // giảm từ 28
+                    fontWeight: 700,
+                    color: "red",
+                  }}
+                >
+                  {appointments.filter((apt) => !apt.confirmationStatus === false).length}
+                </h3>
+                <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
+                  Cancelled
                 </p>
               </div>
             </div>

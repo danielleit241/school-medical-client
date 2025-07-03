@@ -687,9 +687,10 @@ const MedicalReceivedDetail = () => {
                   onClick={handleApprove}
                 >
                   Approve Registration
-                </Button>
+                </Button>    
               )}
             </div>
+            
 
             {/* Dose Confirmation */}
             <div

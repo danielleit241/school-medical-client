@@ -4,7 +4,8 @@ import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
-import {Spin, Button, Descriptions} from "antd";
+import {Spin, Button, Tooltip, Modal} from "antd";
+import {PictureOutlined} from "@ant-design/icons";
 
 const DetailMedicalRes = () => {
   const location = useLocation();
@@ -12,6 +13,8 @@ const DetailMedicalRes = () => {
   const medicalRegistrationId = location.state?.registrationId;
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -447,23 +450,63 @@ const DetailMedicalRes = () => {
                       verticalAlign: "middle",
                     }}
                   >
+                    <Tooltip
+                  title={
+                    medicalRegistration?.pictureUrl
+                      ? "Click to view full screen"
+                      : "No image available"
+                  }
+                  placement="top"
+                >
+                  <div
+                    style={{
+                      background: "#f3f4f6",
+                      borderRadius: 10,
+                      padding: 10,
+                      border: "1px solid #eee",
+                      width: 120,
+                      height: 120,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 6,
+                      cursor: medicalRegistration?.pictureUrl
+                        ? "pointer"
+                        : "default",
+                    }}
+                    onClick={() =>
+                      medicalRegistration?.pictureUrl &&
+                      setIsImageModalVisible(true)
+                    }
+                  >
                     {medicalRegistration?.pictureUrl ? (
                       <img
                         src={medicalRegistration.pictureUrl}
                         alt="Medicine"
                         style={{
-                          width: 160,
-                          height: 160,
+                          width: 100,
+                          height: 100,
                           objectFit: "cover",
-                          borderRadius: 12,
-                          border: "1px solid #eee",
+                          borderRadius: 8,
+                          border: "1px solid #e5e7eb",
                           background: "#fafafa",
                           display: "block",
+                          transition: "transform 0.2s ease",
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = "scale(1.05)";
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = "scale(1)";
                         }}
                       />
                     ) : (
-                      <span style={{color: "#aaa"}}>No image</span>
+                      <PictureOutlined
+                        style={{ fontSize: 36, color: "#bbb" }}
+                      />
                     )}
+                  </div>
+                </Tooltip>
                   </td>
                 </tr>
               </tbody>
@@ -635,6 +678,30 @@ const DetailMedicalRes = () => {
           </div>
         </div>
       </div>
+      <Modal
+              open={isImageModalVisible}
+              onCancel={() => setIsImageModalVisible(false)}
+              footer={null}
+              centered
+              width="100%"
+              style={{ maxWidth: 1000 }}
+              bodyStyle={{ padding: 0 }}
+            >
+              <div style={{ textAlign: "center", padding: "20px" }}>
+                <img
+                  src={medicalRegistration?.pictureUrl}
+                  alt="Medicine Full View"
+                  style={{
+                    width: "100%",
+                    maxWidth: "100%",
+                    height: "auto",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            </Modal>
     </div>
   );
 };
