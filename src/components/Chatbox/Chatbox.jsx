@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import ChatbotIcon from "./components/ChatbotIcon";
 import ChatForm from "./components/ChatForm.jsx";
 import ChatMessage from "./components/ChatMessage";
+import QuickMenus from "./components/QuickMenus.jsx";
 import {companyInfo} from "./components/companyInfo.js";
 import "./index.scss";
 
@@ -49,6 +50,20 @@ const Chatbox = () => {
     }
   };
 
+  // Xử lý khi người dùng chọn menu nhanh
+  const handleQuickMenuSelect = (question) => {
+    // Thêm câu hỏi vào chat history
+    const newUserMessage = {role: "user", text: question};
+    const updatedHistory = [...chatHistory, newUserMessage];
+    setChatHistory(updatedHistory);
+
+    // Thêm tin nhắn "Thinking..." tạm thời
+    setChatHistory((prev) => [...prev, {role: "model", text: "Thinking..."}]);
+
+    // Tạo response từ bot
+    generateBotResponse(updatedHistory);
+  };
+
   useEffect(() => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTo({
@@ -90,6 +105,11 @@ const Chatbox = () => {
               Hey there! How can I assist you today?
             </p>
           </div>
+          {/* Quick Menu */}
+          <QuickMenus
+            onMenuSelect={handleQuickMenuSelect}
+            chatHistory={chatHistory}
+          />
           {/* Render chat history */}
           {chatHistory.map((chat, index) => (
             <ChatMessage key={index} chat={chat} />
