@@ -6,17 +6,29 @@ import {useSelector} from "react-redux";
 import {UserOutlined, FilterOutlined} from "@ant-design/icons";
 
 const statusConfig = {
-  done: {
+  approved: {
     color: "#10b981",
     bgColor: "#ecfdf5",
     borderColor: "#a7f3d0",
-    text: "Nurse Approved",
+    text: "Approved",
   },
-  notyet: {
+  cancelled: {
+    color: "#dc2626",
+    bgColor: "#fef2f2",
+    borderColor: "#fecaca",
+    text: "Cancelled",
+  },
+  pending: {
     color: "#f59e0b",
     bgColor: "#fffbeb",
     borderColor: "#fed7aa",
-    text: "Not Yet",
+    text: "Pending",
+  },
+  completed: {
+    color: "#2563eb",
+    bgColor: "#eff6ff",
+    borderColor: "#bfdbfe",
+    text: "Completed",
   },
 };
 
@@ -37,6 +49,7 @@ const MedicalReceived = () => {
         const response = await axiosInstance.get(
           `/api/nurses/${userId}/medical-registrations`
         );
+        console.log("Medical Registrations:", response.data);
         setData(response.data.items || []);
         setTotal(response.data.count || 0);
       } catch (error) {
@@ -55,17 +68,52 @@ const MedicalReceived = () => {
     item.medicalRegistrationDetails.length > 0 &&
     item.medicalRegistrationDetails.every((dose) => dose.isCompleted);
 
+  // Sửa lại function để determine status
+  const getRegistrationStatus = (item) => {
+    const registration = item.medicalRegistration;
+
+    // Nếu bị cancelled
+    if (registration.status === false) {
+      return statusConfig.cancelled;
+    }
+
+    // Nếu chưa được approve
+    if (registration.status === null || registration.status === undefined) {
+      return statusConfig.pending;
+    }
+
+    // Nếu đã approve
+    if (registration.status === true) {
+      // Check xem đã complete hết dose chưa
+      const allDoseCompleted = isAllDoseCompleted(item);
+      return allDoseCompleted ? statusConfig.completed : statusConfig.approved;
+    }
+
+    return statusConfig.pending;
+  };
+
   const filteredData = data.filter((item) => {
-    if (filterStatus === "done") return isAllDoseCompleted(item);
-    if (filterStatus === "notyet") return !isAllDoseCompleted(item);
+    const registration = item.medicalRegistration;
+
+    if (filterStatus === "approved") {
+      return registration.status === true;
+    }
+    if (filterStatus === "cancelled") {
+      return registration.status === false;
+    }
+    if (filterStatus === "pending") {
+      return registration.status === null || registration.status === undefined;
+    }
+    if (filterStatus === "completed") {
+      return registration.status === true && isAllDoseCompleted(item);
+    }
     return true;
   });
 
   const noData = filteredData.length === 0;
 
   const MedicalCard = ({item}) => {
-    const done = isAllDoseCompleted(item);
-    const status = done ? statusConfig.done : statusConfig.notyet;
+    const status = getRegistrationStatus(item);
 
     return (
       <Card
@@ -212,7 +260,7 @@ const MedicalReceived = () => {
                 Parent Notes:
               </span>{" "}
               <span style={{fontWeight: 500, fontStyle: "italic"}}>
-                {item.medicalRegistration.notes}
+                {item.medicalRegistration.notes || "No notes"}
               </span>
             </div>
           </div>
@@ -235,7 +283,7 @@ const MedicalReceived = () => {
                 padding: "7px 18px",
                 fontSize: 14,
                 fontWeight: 700,
-                minWidth: 100,
+                minWidth: 120,
                 textAlign: "center",
                 marginBottom: 6,
               }}
@@ -318,19 +366,20 @@ const MedicalReceived = () => {
             gap: 12,
           }}
         >
-          {/* <FilterOutlined style={{fontSize: 16, color: "#ffffff"}} /> */}
           <span style={{fontSize: 22, fontWeight: 500, color: "#ffffff"}}>
             Status:
           </span>
           <Select
             value={filterStatus}
-            style={{width: 120, height: 30, borderRadius: 10}}
+            style={{width: 140, height: 30, borderRadius: 10}}
             onChange={setFilterStatus}
             size="large"
           >
             <Select.Option value="all">All</Select.Option>
-            <Select.Option value="notyet">Not Yet</Select.Option>
-            <Select.Option value="done">Done</Select.Option>
+            <Select.Option value="pending">Pending</Select.Option>
+            <Select.Option value="approved">Approved</Select.Option>
+            <Select.Option value="cancelled">Cancelled</Select.Option>
+            <Select.Option value="completed">Completed</Select.Option>
           </Select>
         </div>
       </div>

@@ -11,7 +11,7 @@ const MedicalRegistrationList = () => {
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const pageSize = 10;
-  const [filterStatus, setFilterStatus] = useState("all"); // "all" | "notyet" | "done"
+  const [filterStatus, setFilterStatus] = useState("all");
   const [showList, setShowList] = useState(false);
   const [dotIndex, setDotIndex] = useState(0);
   const [studentsData, setStudentsData] = useState({}); // Cache for student data
@@ -136,11 +136,81 @@ const MedicalRegistrationList = () => {
     item.medicalRegistrationDetails.length > 0 &&
     item.medicalRegistrationDetails.every((dose) => dose.isCompleted);
 
-  // Lọc data theo filter
+  // Get registration status - Thêm function mới
+  const getRegistrationStatus = (item) => {
+    const registration = item.medicalRegistration;
+
+    // Nếu bị cancelled
+    if (registration.status === false) {
+      return {
+        text: "Cancelled",
+        color: "error",
+        bgColor: "#fef2f2",
+        textColor: "#dc2626",
+        borderColor: "#fecaca",
+      };
+    }
+
+    // Nếu chưa được approve
+    if (registration.status === null || registration.status === undefined) {
+      return {
+        text: "Pending",
+        color: "warning",
+        bgColor: "#fffbeb",
+        textColor: "#f59e0b",
+        borderColor: "#fed7aa",
+      };
+    }
+
+    // Nếu đã approve
+    if (registration.status === true) {
+      // Check xem đã complete hết dose chưa
+      const allDoseCompleted = isAllDoseCompleted(item);
+      if (allDoseCompleted) {
+        return {
+          text: "Completed",
+          color: "success",
+          bgColor: "#eff6ff",
+          textColor: "#2563eb",
+          borderColor: "#bfdbfe",
+        };
+      } else {
+        return {
+          text: "Approved",
+          color: "processing",
+          bgColor: "#ecfdf5",
+          textColor: "#10b981",
+          borderColor: "#a7f3d0",
+        };
+      }
+    }
+
+    // Default fallback
+    return {
+      text: "Unknown",
+      color: "default",
+      bgColor: "#f9fafb",
+      textColor: "#6b7280",
+      borderColor: "#d1d5db",
+    };
+  };
+
   const filteredData = data.filter((item) => {
-    if (filterStatus === "done") return isAllDoseCompleted(item);
-    if (filterStatus === "notyet") return !isAllDoseCompleted(item);
-    return true; // "all"
+    const registration = item.medicalRegistration;
+
+    if (filterStatus === "pending") {
+      return registration.status === null || registration.status === undefined;
+    }
+    if (filterStatus === "approved") {
+      return registration.status === true && !isAllDoseCompleted(item);
+    }
+    if (filterStatus === "cancelled") {
+      return registration.status === false;
+    }
+    if (filterStatus === "completed") {
+      return registration.status === true && isAllDoseCompleted(item);
+    }
+    return true; 
   });
 
   return (
@@ -260,7 +330,7 @@ const MedicalRegistrationList = () => {
           </div>
         </div>
 
-        {/* Filter */}
+        {/* Filter - Cập nhật options */}
         <div
           style={{
             padding: "0 24px",
@@ -273,12 +343,14 @@ const MedicalRegistrationList = () => {
           <b>Filter: </b>
           <Select
             value={filterStatus}
-            style={{width: 160}}
+            style={{width: 180}}
             onChange={setFilterStatus}
           >
             <Select.Option value="all">All</Select.Option>
-            <Select.Option value="notyet">Not Yet</Select.Option>
-            <Select.Option value="done">Done</Select.Option>
+            <Select.Option value="pending">Pending</Select.Option>
+            <Select.Option value="approved">Approved</Select.Option>
+            <Select.Option value="cancelled">Cancelled</Select.Option>
+            <Select.Option value="completed">Completed</Select.Option>
           </Select>
         </div>
 
@@ -332,191 +404,221 @@ const MedicalRegistrationList = () => {
               }}
             >
               <div style={{display: "flex", flexDirection: "column", gap: 16}}>
-                {filteredData.map((item) => (
-                  <Card
-                    key={item.medicalRegistration.registrationId}
-                    style={{
-                      borderRadius: 12,
-                      width: "100%",
-                      boxShadow: "0 2px 8px #f0f1f2",
-                      padding: 0,
-                      border: "1px solid #f0f0f0",
-                    }}
-                    bodyStyle={{padding: 20}}
-                  >
-                    <div
+                {filteredData.map((item) => {
+                  const status = getRegistrationStatus(item);
+
+                  return (
+                    <Card
+                      key={item.medicalRegistration.registrationId}
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
+                        borderRadius: 12,
+                        width: "100%",
+                        boxShadow: "0 2px 8px #f0f1f2",
+                        padding: 0,
+                        border: `2px solid ${status.borderColor}`,
                       }}
+                      bodyStyle={{padding: 20}}
                     >
-                      {/* Left section with avatar and student name */}
                       <div
                         style={{
                           display: "flex",
-                          alignItems: "center",
-                          gap: 15,
-                          width: "30%",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
                         }}
                       >
+                        {/* Left section with avatar and student name */}
                         <div
                           style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: "50%",
-                            background:
-                              "linear-gradient(180deg, #2B5DC4 0%, #2B5DC4 100%)",
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            fontWeight: 700,
-                            fontSize: 22,
-                            color: "#fff",
+                            gap: 15,
+                            width: "30%",
                           }}
                         >
-                          {item.student?.studentFullName?.[0] || "U"}
+                          <div
+                            style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: "50%",
+                              background:
+                                "linear-gradient(180deg, #2B5DC4 0%, #2B5DC4 100%)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: 700,
+                              fontSize: 22,
+                              color: "#fff",
+                            }}
+                          >
+                            {item.student?.studentFullName?.[0] || "U"}
+                          </div>
+                          <div>
+                            <div style={{fontWeight: 700, fontSize: 18}}>
+                              {item.student?.studentFullName}
+                            </div>
+                            <div style={{color: "#666", fontSize: 14}}>
+                              Student ID: {getStudentCode(item)}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <div style={{fontWeight: 700, fontSize: 18}}>
-                            {item.student?.studentFullName}
+
+                        {/* Status and Details section (right aligned) */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 15,
+                          }}
+                        >
+                          {/* Sử dụng custom status styling */}
+                          <div
+                            style={{
+                              backgroundColor: status.bgColor,
+                              color: status.textColor,
+                              border: `2px solid ${status.textColor}`,
+                              borderRadius: 18,
+                              padding: "6px 16px",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              minWidth: 140,
+                              textAlign: "center",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              height: 32,
+                            }}
+                          >
+                            {status.text}
                           </div>
-                          <div style={{color: "#666", fontSize: 14}}>
-                            Student ID: {getStudentCode(item)}
-                          </div>
+
+                          <Button
+                            style={{
+                              borderRadius: 8,
+                              background: "#355383",
+                              color: "#fff",
+                              fontWeight: 600,
+                              minWidth: 90,
+                              height: 40,
+                              border: "none",
+                            }}
+                            onClick={() => {
+                              navigate(`/parent/medical-registration/detail`, {
+                                state: {
+                                  registrationId:
+                                    item.medicalRegistration.registrationId,
+                                  studentId: item.student.studentId,
+                                },
+                              });
+                            }}
+                          >
+                            Details
+                          </Button>
                         </div>
                       </div>
 
-                      {/* Status and Details section (right aligned) */}
+                      {/* Medication and Dates section */}
                       <div
                         style={{
+                          marginTop: 12,
                           display: "flex",
-                          alignItems: "center",
-                          gap: 15,
+                          gap: 12,
                         }}
                       >
-                        <Tag
-                          color={
-                            isAllDoseCompleted(item) ? "processing" : "warning"
-                          }
+                        {/* Date badge */}
+                        <div
                           style={{
-                            fontWeight: 600,
-                            borderRadius: 20,
-                            fontSize: 14,
-                            padding: "4px 16px",
-                            height: 32,
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          {isAllDoseCompleted(item) ? "Done" : "Not Yet"}
-                        </Tag>
-
-                        <Button
-                          style={{
+                            padding: "6px 14px",
+                            backgroundColor: "#f0f7ff",
                             borderRadius: 8,
-                            background: "#355383",
-                            color: "#fff",
-                            fontWeight: 600,
-                            minWidth: 90,
-                            height: 40,
-                            border: "none",
-                          }}
-                          onClick={() => {
-                            navigate(`/parent/medical-registration/detail`, {
-                              state: {
-                                registrationId:
-                                  item.medicalRegistration.registrationId,
-                                studentId: item.student.studentId,
-                              },
-                            });
                           }}
                         >
-                          Details
-                        </Button>
-                      </div>
-                    </div>
+                          <span style={{marginRight: 8, color: "#5b8cff"}}>
+                            Date:
+                          </span>
+                          <span style={{color: "#355383", fontWeight: 500}}>
+                            {item.medicalRegistration.dateSubmitted}
+                          </span>
+                        </div>
 
-                    {/* Medication and Dates section */}
-                    <div
-                      style={{
-                        marginTop: 12,
-                        display: "flex",
-                        gap: 12,
-                      }}
-                    >
-                      {/* Date badge */}
+                        {/* Medication badge */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "6px 14px",
+                            backgroundColor: "#fff9f6",
+                            borderRadius: 8,
+                          }}
+                        >
+                          <span style={{marginRight: 8, color: "#ff7d4d"}}>
+                            Medication:
+                          </span>
+                          <span style={{color: "#ff7d4d", fontWeight: 500}}>
+                            {item.medicalRegistration.medicationName ||
+                              "No medication"}
+                          </span>
+                        </div>
+
+                        {/* Dosages badge */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "6px 14px",
+                            backgroundColor: "#f6f0ff",
+                            borderRadius: 8,
+                          }}
+                        >
+                          <span style={{marginRight: 8, color: "#a259e6"}}>
+                            Dosages:
+                          </span>
+                          <span style={{color: "#a259e6", fontWeight: 500}}>
+                            {item.medicalRegistration.totalDosages}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Notes section - full width at bottom */}
                       <div
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "6px 14px",
-                          backgroundColor: "#f0f7ff",
-                          borderRadius: 8,
+                          marginTop: 12,
+                          paddingTop: 12,
+                          borderTop: "1px solid #f0f0f0",
+                          color: "#666",
+                          fontSize: 14,
                         }}
                       >
-                        <span style={{marginRight: 8, color: "#5b8cff"}}>
-                          Date:
-                        </span>
-                        <span style={{color: "#355383", fontWeight: 500}}>
-                          {item.medicalRegistration.dateSubmitted}
-                        </span>
+                        <div style={{ marginBottom: 8, marginLeft: 4 }}>
+                          <span style={{fontWeight: 600}}>Parent Notes: </span>
+                          {item.medicalRegistration.notes || "No notes provided"}
+                        </div>
+                        {/* Thêm dòng Nurse Notes */}
+                        <div style={{ 
+                          backgroundColor: item.medicalRegistration.nurseNotes ? "#f0f9ff" : "#f9fafb",
+                          padding: "8px 12px",
+                          borderRadius: 6,
+                          border: `1px solid ${item.medicalRegistration.nurseNotes ? "#bae6fd" : "#e5e7eb"}`,
+                          marginTop: 8
+                        }}>
+                          <span style={{
+                            fontWeight: 600, 
+                            color: item.medicalRegistration.nurseNotes ? "#0c4a6e" : "#6b7280"
+                          }}>
+                            Nurse Notes: 
+                          </span>
+                          <span style={{ 
+                            color: item.medicalRegistration.nurseNotes ? "#0c4a6e" : "#9ca3af", 
+                            fontStyle: "italic" 
+                          }}>
+                            {item.medicalRegistration.nurseNotes || "No nurse notes"}
+                          </span>
+                        </div>
                       </div>
-
-                      {/* Medication badge */}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "6px 14px",
-                          backgroundColor: "#fff9f6",
-                          borderRadius: 8,
-                        }}
-                      >
-                        <span style={{marginRight: 8, color: "#ff7d4d"}}>
-                          Medication:
-                        </span>
-                        <span style={{color: "#ff7d4d", fontWeight: 500}}>
-                          {item.medicalRegistration.medicationName ||
-                            "No medication"}
-                        </span>
-                      </div>
-
-                      {/* Dosages badge */}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "6px 14px",
-                          backgroundColor: "#f6f0ff",
-                          borderRadius: 8,
-                        }}
-                      >
-                        <span style={{marginRight: 8, color: "#a259e6"}}>
-                          Dosages:
-                        </span>
-                        <span style={{color: "#a259e6", fontWeight: 500}}>
-                          {item.medicalRegistration.totalDosages}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Notes section - full width at bottom */}
-                    <div
-                      style={{
-                        marginTop: 12,
-                        paddingTop: 12,
-                        borderTop: "1px solid #f0f0f0",
-                        color: "#666",
-                        fontSize: 14,
-                      }}
-                    >
-                      <span style={{fontWeight: 600}}>Notes: </span>
-                      {item.medicalRegistration.notes || "No notes provided"}
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           )}
