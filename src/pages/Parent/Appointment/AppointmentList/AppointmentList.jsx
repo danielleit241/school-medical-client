@@ -31,10 +31,18 @@ const AppointmentList = () => {
   const [success, setSuccess] = useState("");
   const [bookedSlots, setBookedSlots] = useState([]);
   const [nurseProfile, setNurseProfile] = useState(null);
-  const [hasBookedToday, setHasBookedToday] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [checkingBookingStatus, setCheckingBookingStatus] = useState(true);
 
   const userId = useSelector((state) => state.user?.userId);
   const parentId = localStorage.getItem("parentId") || userId;
+  
+  // Khởi tạo hasBookedToday từ localStorage
+  const [hasBookedToday, setHasBookedToday] = useState(() => {
+    const cached = localStorage.getItem(`hasBookedToday_${parentId}`);
+    return cached === 'true';
+  });
+
   console.log("Parent ID:", parentId);
   const listStudentParent = useSelector(
     (state) => state.listStudentParent.listStudentParent
@@ -46,55 +54,74 @@ const AppointmentList = () => {
   const [step2EndTime, setStep2EndTime] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState(studentId);
 
-  // Update the Checking function to only check parent booking status
+  // Cải thiện function checkParentBookingStatus
   const checkParentBookingStatus = async () => {
-    if (!userId) return false;
+    if (!parentId) return false;
+    
     try {
       const res = await axiosInstance.get(
         `/api/parents/${parentId}/appointments/has-booked`
       );
       console.log("Check booked response:", res.data);
 
-      // If returns 200 and data is "User has not booked any appointments."
-      if (res.data === "User has not booked any appointments.") {
-        setHasBookedToday(false);
-        return false;
+      // Nếu API trả về thành công mà không có lỗi
+      if (res.status === 200 && res.data === "User has not booked any appointments.") {
+        const hasBooked = false;
+        setHasBookedToday(hasBooked);
+        // Cache vào localStorage
+        localStorage.setItem(`hasBookedToday_${parentId}`, hasBooked.toString());
+        return hasBooked;
       }
-      // Other cases (preventive)
-      setHasBookedToday(false);
-      return false;
+      
+      // Nếu có data khác, coi như đã book
+      const hasBooked = true;
+      setHasBookedToday(hasBooked);
+      localStorage.setItem(`hasBookedToday_${parentId}`, hasBooked.toString());
+      return hasBooked;
+      
     } catch (error) {
-      console.error("Error checking user ID:", error);
-      // If returns 400 and data is "User has booked appointments."
+      console.error("Error checking booking status:", error);
+      
+      // Nếu API trả về 400 với message "User has booked appointments."
       if (
         error.response?.status === 400 &&
         error.response?.data === "User has booked appointments."
       ) {
-        setHasBookedToday(true);
+        const hasBooked = true;
+        setHasBookedToday(hasBooked);
+        localStorage.setItem(`hasBookedToday_${parentId}`, hasBooked.toString());
+        
         Swal.fire({
           toast: true,
           position: "top-end",
-          icon: "error",
+          icon: "warning",
           title: "You already booked appointment today.",
           showConfirmButton: false,
-          timer: 2500,
+          timer: 3000,
           timerProgressBar: true,
         });
-        return true;
+        return hasBooked;
       }
-      setHasBookedToday(false);
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        icon: "error",
-        title: "Error checking appointment status.",
-        showConfirmButton: false,
-        timer: 2500,
-        timerProgressBar: true,
-      });
-      return false; // Changed to false to not wrongly prevent booking
+      
+      // Với các lỗi khác, không block user
+      const hasBooked = false;
+      setHasBookedToday(hasBooked);
+      localStorage.setItem(`hasBookedToday_${parentId}`, hasBooked.toString());
+      return hasBooked;
     }
   };
+
+  // Clear cache khi sang ngày mới
+  useEffect(() => {
+    const today = dayjs().format("YYYY-MM-DD");
+    const lastCheckDate = localStorage.getItem(`lastCheckDate_${parentId}`);
+    
+    if (lastCheckDate !== today) {
+      localStorage.removeItem(`hasBookedToday_${parentId}`);
+      localStorage.setItem(`lastCheckDate_${parentId}`, today);
+      setHasBookedToday(false);
+    }
+  }, [parentId]);
 
   // Tự động cập nhật ngày khi sang ngày mới
   useEffect(() => {
@@ -108,19 +135,30 @@ const AppointmentList = () => {
         setStep2EndTime("");
         setAppointmentStartTime("");
         setAppointmentEndTime("");
+        
+        // Reset booking status khi sang ngày mới
+        localStorage.removeItem(`hasBookedToday_${parentId}`);
+        localStorage.setItem(`lastCheckDate_${parentId}`, today);
+        setHasBookedToday(false);
       }
-    }, 60 * 1000 * 86400); // kiểm tra mỗi phút
+    }, 60 * 1000); // kiểm tra mỗi phút
     return () => clearInterval(interval);
-  }, [dateRequest]);
+  }, [dateRequest, parentId]);
 
+  // Cải thiện useEffect chính
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // First check if parent has already booked
+        setLoading(true);
+        setCheckingBookingStatus(true);
+        
+        // Check booking status first
         const hasBooked = await checkParentBookingStatus();
         console.log("Has booked today:", hasBooked);
-
-        // Then fetch all nurses and available nurses separately
+        
+        setCheckingBookingStatus(false);
+        
+        // Fetch nurses data regardless of booking status
         const [nurseRes, freeRes] = await Promise.all([
           axiosInstance.get("/api/nurses"),
           axiosInstance.get("/api/users/free-nurses"),
@@ -135,12 +173,16 @@ const AppointmentList = () => {
             : []
         );
       } catch (error) {
-        console.error("Error fetching nurse data:", error);
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    
+    if (parentId) {
+      fetchData();
+    }
+  }, [parentId]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -266,6 +308,10 @@ const AppointmentList = () => {
       };
       localStorage.setItem("nurseMap", JSON.stringify(nurseMap));
 
+      // Update booking status sau khi book thành công
+      setHasBookedToday(true);
+      localStorage.setItem(`hasBookedToday_${parentId}`, 'true');
+
       console.log("Appointment API response:", res);
       localStorage.setItem(
         "appointmentId",
@@ -350,20 +396,6 @@ const AppointmentList = () => {
     );
   };
 
-  // Hiện hiệu ứng 3 dấu chấm lần lượt trong 2s rồi show list
-  useEffect(() => {
-    let interval = null;
-    let timeout = null;
-    timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, 300); // tổng thời gian loading 0.3s
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, []); // chỉ chạy 1 lần khi mount
-
   // State cho popup info box
   const [showInfoBox, setShowInfoBox] = useState(false);
   const infoBoxRef = useRef(null);
@@ -386,6 +418,25 @@ const AppointmentList = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showInfoBox]);
+
+  // Hiển thị loading khi đang check
+  if (loading || checkingBookingStatus) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center",
+        height: "100vh",
+        flexDirection: "column",
+        gap: 16
+      }}>
+        <Spin size="large" />
+        <span style={{ fontSize: 16, color: "#666" }}>
+          {checkingBookingStatus ? "Checking booking status..." : "Loading..."}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -595,8 +646,6 @@ const AppointmentList = () => {
                                 width: "95%",
                                 height: "95%",
                                 borderRadius: "20%",
-                                // objectFit: "contain",
-                                // filter: "brightness(0) invert(1)",
                               }}
                             />
                           )}
@@ -1816,56 +1865,84 @@ const AppointmentList = () => {
       </button>
 
       {/* Popup Info Box */}
-      {showInfoBox && (
+     {showInfoBox && (
         <div
           ref={infoBoxRef}
           style={{
             position: "fixed",
             bottom: 100,
             right: 40,
-            background: "#fafbfc",
-            borderRadius: 16,
-            border: "1px solid #ccc",
-            padding: 28,
-            minWidth: 340,
-            maxWidth: 380,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+            background: "#ffffff",
+            borderRadius: 20,
+            border: "1px solid #d0d7de",
+            padding: "24px 28px",
+            minWidth: 360,
+            maxWidth: 400,
+            boxShadow: "0 6px 30px rgba(0,0,0,0.08)",
             zIndex: 1002,
-            animation: "fadeIn 0.3s",
+            animation: "fadeIn 0.3s ease-in-out",
+            fontFamily: "Segoe UI, sans-serif",
+            color: "#333",
           }}
         >
-          <div style={{fontWeight: 700, fontSize: 20, marginBottom: 12}}>
-            Thông tin tư vấn y tế
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: 22,
+              marginBottom: 16,
+              color: "#1a73e8", // blue
+            }}
+          >
+            Medical Consultation Info
           </div>
-          <div style={{color: "#555", marginBottom: 8}}>
-            <b>Giờ làm việc phòng y tế:</b>
-            <br />
-            Thứ 2 - Thứ 6: 8:30 - 17:00
-            <br />
-            Thứ 7: 8:30 - 12:00
+
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontWeight: 600, marginBottom: 4, color: "#444" }}>
+              Working Hours:
+            </div>
+            <div style={{ color: "#666" }}>
+              Mon - Fri: 8:30 AM - 5:00 PM
+              <br />
+              Saturday: 8:30 AM - 12:00 PM
+            </div>
           </div>
-          <div style={{color: "#555", marginBottom: 8}}>
-            <b>Liên hệ khẩn cấp:</b>
-            <br />
-            Phòng y tế: 028.1234.5678
-            <br />
-            Văn phòng trường: 028.1234.5679
+
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontWeight: 600, marginBottom: 4, color: "#444" }}>
+              Booking Appointment:
+            </div>
+            <div style={{ color: "#666" }}>Mon - Fri: 9:00 AM - 11:30 AM</div>
           </div>
-          <div style={{color: "#555", marginBottom: 8}}>
-            <b>Lưu ý:</b>
+
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontWeight: 600, marginBottom: 4, color: "#444" }}>
+              Emergency Contact:
+            </div>
+            <div style={{ color: "#666" }}>
+              Medical Office: <span style={{ fontWeight: 500 }}>028.1234.5678</span>
+              <br />
+              School Office: <span style={{ fontWeight: 500 }}>028.1234.5679</span>
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 4, color: "#444" }}>
+              Note:
+            </div>
             <ul
               style={{
-                margin: "6px 0 0 18px",
-                padding: 0,
-                color: "#888",
+                margin: 0,
+                paddingLeft: 18,
+                color: "#777",
                 fontSize: 14,
+                lineHeight: "1.6",
               }}
             >
-              <li>Đặt lịch hẹn trước ít nhất 1 ngày.</li>
-              <li>Vui lòng đến đúng giờ hẹn.</li>
+              <li>Please book an appointment at least 1 day in advance.</li>
+              <li>Please arrive on time for your appointment.</li>
               <li>
-                Nếu cần thay đổi lịch hẹn, hãy thông báo trước 24 giờ để được hỗ
-                trợ.
+                If you need to reschedule, kindly inform us at least 24 hours in
+                advance.
               </li>
             </ul>
           </div>
