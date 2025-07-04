@@ -396,7 +396,7 @@ const Header = () => {
           style={{
             position: "absolute",
             top: 150,
-            right: 50,
+            right: 90,
             width: 350,
             background: "#fff",
             borderRadius: 10,
