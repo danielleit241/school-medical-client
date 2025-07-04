@@ -33,6 +33,10 @@ const AppointmentList = () => {
   const [nurseProfile, setNurseProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkingBookingStatus, setCheckingBookingStatus] = useState(true);
+  
+  // Thêm state cho cancel tracking
+  const [totalCancelled, setTotalCancelled] = useState(0);
+  const [isBlockedFromBooking, setIsBlockedFromBooking] = useState(false);
 
   const userId = useSelector((state) => state.user?.userId);
   const parentId = localStorage.getItem("parentId") || userId;
@@ -53,6 +57,40 @@ const AppointmentList = () => {
   const [step2StartTime, setStep2StartTime] = useState("");
   const [step2EndTime, setStep2EndTime] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState(studentId);
+
+  // Thêm function để check total cancelled
+  const checkTotalCancelled = async () => {
+    if (!userId) return 0;
+    
+    try {
+      const res = await axiosInstance.get(`/api/parents/${userId}/appointments/total-cancel`);
+      console.log("Total cancelled response:", res.data);
+      
+      const cancelled = res.data.totalCancelled || 0;
+      setTotalCancelled(cancelled);
+      
+      // Nếu đã cancel 3 lần trong tháng, block booking
+      if (cancelled >= 3) {
+        setIsBlockedFromBooking(true);
+        Swal.fire({
+          icon: "warning",
+          title: "Booking Restricted",
+          text: `You have cancelled ${cancelled} appointments this month. You cannot book new appointments until next month.`,
+          confirmButtonText: "I understand",
+          confirmButtonColor: "#f5222d",
+        });
+      } else {
+        setIsBlockedFromBooking(false);
+      }
+      
+      return cancelled;
+    } catch (error) {
+      console.error("Error checking total cancelled:", error);
+      setTotalCancelled(0);
+      setIsBlockedFromBooking(false);
+      return 0;
+    }
+  };
 
   // Cải thiện function checkParentBookingStatus
   const checkParentBookingStatus = async () => {
@@ -123,10 +161,24 @@ const AppointmentList = () => {
     }
   }, [parentId]);
 
+  // Clear cache khi sang tháng mới
+  useEffect(() => {
+    const currentMonth = dayjs().format("YYYY-MM");
+    const lastCheckMonth = localStorage.getItem(`lastCheckMonth_${parentId}`);
+    
+    if (lastCheckMonth !== currentMonth) {
+      localStorage.setItem(`lastCheckMonth_${parentId}`, currentMonth);
+      setTotalCancelled(0);
+      setIsBlockedFromBooking(false);
+    }
+  }, [parentId]);
+
   // Tự động cập nhật ngày khi sang ngày mới
   useEffect(() => {
     const interval = setInterval(() => {
       const today = dayjs().format("YYYY-MM-DD");
+      const currentMonth = dayjs().format("YYYY-MM");
+      
       if (dateRequest !== today) {
         setDateRequest(today);
         setStep(1);
@@ -141,6 +193,14 @@ const AppointmentList = () => {
         localStorage.setItem(`lastCheckDate_${parentId}`, today);
         setHasBookedToday(false);
       }
+      
+      // Reset cancel count khi sang tháng mới
+      const lastCheckMonth = localStorage.getItem(`lastCheckMonth_${parentId}`);
+      if (lastCheckMonth !== currentMonth) {
+        localStorage.setItem(`lastCheckMonth_${parentId}`, currentMonth);
+        setTotalCancelled(0);
+        setIsBlockedFromBooking(false);
+      }
     }, 60 * 1000); // kiểm tra mỗi phút
     return () => clearInterval(interval);
   }, [dateRequest, parentId]);
@@ -152,9 +212,14 @@ const AppointmentList = () => {
         setLoading(true);
         setCheckingBookingStatus(true);
         
-        // Check booking status first
-        const hasBooked = await checkParentBookingStatus();
+        // Check booking status và total cancelled song song
+        const [hasBooked, cancelled] = await Promise.all([
+          checkParentBookingStatus(),
+          checkTotalCancelled()
+        ]);
+        
         console.log("Has booked today:", hasBooked);
+        console.log("Total cancelled this month:", cancelled);
         
         setCheckingBookingStatus(false);
         
@@ -182,6 +247,7 @@ const AppointmentList = () => {
     if (parentId) {
       fetchData();
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parentId]);
 
   useEffect(() => {
@@ -550,6 +616,7 @@ const AppointmentList = () => {
                 maxHeight: "calc(100vh - 120px)",
               }}
             >
+              {/* Thông báo đã book hôm nay */}
               {hasBookedToday && (
                 <span
                   style={{
@@ -570,6 +637,39 @@ const AppointmentList = () => {
                 </span>
               )}
 
+              {/* Thông báo số lần cancel trong tháng */}
+              {totalCancelled > 0 && (
+                <div
+                  style={{
+                    display: "block",
+                    color: totalCancelled >= 3 ? "#f5222d" : "#fa8c16",
+                    background: totalCancelled >= 3 ? "#fff1f0" : "#fff7e6",
+                    border: `1px solid ${totalCancelled >= 3 ? "#ffd6d6" : "#ffd591"}`,
+                    borderRadius: 8,
+                    padding: "12px 18px",
+                    marginBottom: 18,
+                    fontWeight: 600,
+                    fontSize: 16,
+                    textAlign: "center",
+                    letterSpacing: 0.2,
+                  }}
+                >
+                  {totalCancelled >= 3 ? (
+                    <>
+                      <span style={{ fontSize: 18, marginRight: 8 }}>🚫</span>
+                      You have cancelled {totalCancelled} appointments this month. 
+                      Booking is restricted until next month.
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: 18, marginRight: 8 }}>⚠️</span>
+                      You have cancelled {totalCancelled} appointment{totalCancelled > 1 ? 's' : ''} this month. 
+                      {totalCancelled === 2 ? " One more cancellation will restrict your booking." : ""}
+                    </>
+                  )}
+                </div>
+              )}
+
               {/* Clean nurse cards */}
               <div
                 style={{
@@ -583,6 +683,10 @@ const AppointmentList = () => {
                   const isNurseAvailable = freeNurseIds.includes(
                     n.userId || n.staffNurseId
                   );
+                  
+                  // Kiểm tra có thể book hay không
+                  const canBook = isNurseAvailable && !hasBookedToday && !isBlockedFromBooking;
+                  
                   const nurseInfo = {
                     specialty: "School Nurse",
                     workingDays: "Monday - Friday (9:30 - 11:30)",
@@ -606,6 +710,7 @@ const AppointmentList = () => {
                         padding: "28px 32px",
                         border: "1px solid #e6eaf3",
                         minHeight: 120,
+                        opacity: canBook ? 1 : 0.7,
                       }}
                     >
                       {/* Left: Info */}
@@ -722,27 +827,20 @@ const AppointmentList = () => {
                           {isNurseAvailable ? "Available" : "Unavailable"}
                         </span>
                         <Button
-                          disabled={!isNurseAvailable || hasBookedToday}
+                          disabled={!canBook}
                           style={{
                             borderRadius: 8,
-                            background:
-                              isNurseAvailable && !hasBookedToday
-                                ? "#355383"
-                                : "#ccc",
+                            background: canBook ? "#355383" : "#ccc",
                             color: "#fff",
                             fontWeight: 700,
                             fontSize: 16,
                             padding: "8px 28px",
-                            opacity:
-                              isNurseAvailable && !hasBookedToday ? 1 : 0.7,
-                            pointerEvents:
-                              isNurseAvailable && !hasBookedToday
-                                ? "auto"
-                                : "none",
+                            opacity: canBook ? 1 : 0.7,
+                            pointerEvents: canBook ? "auto" : "none",
                           }}
                           onClick={() => handleSelect(n)}
                         >
-                          Book Now
+                          {isBlockedFromBooking ? "Restricted" : "Book Now"}
                         </Button>
                       </div>
                     </div>

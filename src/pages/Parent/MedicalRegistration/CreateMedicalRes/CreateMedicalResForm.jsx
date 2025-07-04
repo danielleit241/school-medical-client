@@ -13,6 +13,7 @@ import {
   Row,
   Col,
   Upload,
+  Spin,
 } from "antd";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
@@ -33,6 +34,7 @@ const CreateMedicalResForm = () => {
   const [students, setStudents] = useState([]);
   const [nurses, setNurses] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [totalDosages, setTotalDosages] = useState("1");
   const [doseDetails, setDoseDetails] = useState([
     {doseNumber: "1", doseTime: "Morning", notes: ""},
@@ -40,34 +42,81 @@ const CreateMedicalResForm = () => {
   const [pictureUrl, setPictureUrl] = useState("");
   const [uploading, setUploading] = useState(false);
 
+  // Thêm state cho medical registration cancel tracking
+  const [totalCancelledMedical, setTotalCancelledMedical] = useState(0);
+  const [isBlockedFromMedicalReg, setIsBlockedFromMedicalReg] = useState(false);
+
+  // Function để check total cancelled medical registrations
+  const checkTotalCancelledMedical = async () => {
+    if (!parentId) return 0;
+    
+    try {
+      const res = await axiosInstance.get(`/api/parents/${parentId}/medical-registrations/total-cancel`);
+      console.log("Total cancelled medical registrations response:", res.data);
+      
+      const cancelled = res.data.totalCancelled || 0;
+      setTotalCancelledMedical(cancelled);
+      
+      // Nếu đã cancel 3 lần trong tháng, block medical registration
+      if (cancelled >= 3) {
+        setIsBlockedFromMedicalReg(true);
+      } else {
+        setIsBlockedFromMedicalReg(false);
+      }
+      
+      return cancelled;
+    } catch (error) {
+      console.error("Error checking total cancelled medical registrations:", error);
+      setTotalCancelledMedical(0);
+      setIsBlockedFromMedicalReg(false);
+      return 0;
+    }
+  };
+
+  // Clear cache khi sang tháng mới
   useEffect(() => {
-    const fetchStudents = async () => {
+    const currentMonth = dayjs().format("YYYY-MM");
+    const lastCheckMonth = localStorage.getItem(`lastCheckMedicalMonth_${parentId}`);
+    
+    if (lastCheckMonth !== currentMonth) {
+      localStorage.setItem(`lastCheckMedicalMonth_${parentId}`, currentMonth);
+      setTotalCancelledMedical(0);
+      setIsBlockedFromMedicalReg(false);
+    }
+  }, [parentId]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setPageLoading(true);
       try {
-        const response = await axiosInstance.get(
+        // Check cancelled medical registrations first
+        await checkTotalCancelledMedical();
+        
+        // Fetch students
+        const studentsResponse = await axiosInstance.get(
           `/api/parents/${parentId}/students`
         );
-        setStudents(response.data);
-        dispatch(setListStudentParent(response.data));
+        setStudents(studentsResponse.data);
+        dispatch(setListStudentParent(studentsResponse.data));
+        
+        // Fetch nurses
+        const nursesResponse = await axiosInstance.get("/api/users/free-nurses");
+        setNurses(Array.isArray(nursesResponse.data) ? nursesResponse.data : []);
+        
       } catch (error) {
-        console.error("Error fetching students:", error);
+        console.error("Error fetching data:", error);
         setStudents([]);
-      }
-    };
-    if (parentId) fetchStudents();
-  }, [parentId, dispatch]);
-  useEffect(() => {
-    const fetchNurses = async () => {
-      try {
-        const response = await axiosInstance.get("/api/users/free-nurses");
-        setNurses(Array.isArray(response.data) ? response.data : []);
-        console.log("Fetched nurses:", response.data);
-      } catch (error) {
-        console.error("Error fetching nurses:", error);
         setNurses([]);
+      } finally {
+        setPageLoading(false);
       }
     };
-    fetchNurses();
-  }, []);
+    
+    if (parentId) {
+      fetchData();
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parentId, dispatch]);
 
   const handleTotalDosagesChange = (value) => {
     setTotalDosages(value);
@@ -137,6 +186,17 @@ const CreateMedicalResForm = () => {
   };
 
   const onFinish = async (values) => {
+    // Kiểm tra lại trước khi submit
+    if (isBlockedFromMedicalReg) {
+      Swal.fire({
+        icon: "error",
+        title: "Medical Registration Restricted",
+        text: "You cannot create new medical registrations due to too many cancellations this month.",
+        confirmButtonColor: "#f5222d",
+      });
+      return;
+    }
+
     const date = values.dateSubmitted.format("YYYY-MM-DD");
     const medicalRegistration = {
       studentId: values.studentId,
@@ -147,13 +207,14 @@ const CreateMedicalResForm = () => {
       totalDosages: String(values.totalDosages),
       notes: values.notes,
       parentConsent: values.parentConsent,
-      pictureUrl: pictureUrl, // Thêm ảnh vào đây
+      pictureUrl: pictureUrl,
     };
     const medicalRegistrationDetails = doseDetails.map((item) => ({
       doseNumber: item.doseNumber,
       doseTime: item.doseTime,
       notes: item.notes,
     }));
+    
     setLoading(true);
     try {
       // Bước 1: Đăng ký thuốc
@@ -192,6 +253,78 @@ const CreateMedicalResForm = () => {
       setLoading(false);
     }
   };
+
+  // Hiển thị loading khi đang check
+  if (pageLoading) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center",
+        height: "100vh",
+        flexDirection: "column",
+        gap: 16
+      }}>
+        <Spin size="large" />
+        <span style={{ fontSize: 16, color: "#666" }}>
+          Checking medical registration permissions...
+        </span>
+      </div>
+    );
+  }
+
+  // Nếu bị block thì không hiển thị form
+  if (isBlockedFromMedicalReg) {
+    return (
+      <div
+        style={{
+          minHeight: "calc(100vh - 120px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f7f8fa",
+        }}
+      >
+        <Card
+          style={{
+            maxWidth: 600,
+            width: "100%",
+            borderRadius: 20,
+            boxShadow: "0 8px 32px 0 rgba(245, 34, 45, 0.15)",
+            padding: 40,
+            textAlign: "center",
+            border: "2px solid #ffccc7",
+          }}
+        >
+          <div style={{ marginBottom: 24 }}>
+            <span style={{ fontSize: 60, color: "#f5222d" }}>🚫</span>
+          </div>
+          <h2 style={{ color: "#f5222d", marginBottom: 16, fontSize: 24 }}>
+            Medical Registration Restricted
+          </h2>
+          <p style={{ color: "#666", fontSize: 16, marginBottom: 24, lineHeight: 1.6 }}>
+            You have cancelled {totalCancelledMedical} medical registrations this month. 
+            You cannot create new medical registrations until next month.
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => navigate("/parent/medical-registration/list")}
+              style={{
+                background: "#f5222d",
+                borderColor: "#f5222d",
+                borderRadius: 8,
+                fontWeight: 600,
+              }}
+            >
+              Back to Medical Registration List
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -272,6 +405,35 @@ const CreateMedicalResForm = () => {
             Medication Registration
           </span>
         </div>
+
+        {/* Thông báo cancel warning nếu có */}
+        {totalCancelledMedical > 0 && totalCancelledMedical < 3 && (
+          <div
+            style={{
+              background: totalCancelledMedical === 2 ? "#fff1f0" : "#fff7e6",
+              border: `1px solid ${totalCancelledMedical === 2 ? "#ffd6d6" : "#ffd591"}`,
+              color: totalCancelledMedical === 2 ? "#f5222d" : "#fa8c16",
+              padding: "12px 24px",
+              textAlign: "center",
+              fontWeight: 600,
+              fontSize: 15,
+            }}
+          >
+            {totalCancelledMedical === 2 ? (
+              <>
+                <span style={{ fontSize: 16, marginRight: 8 }}>⚠️</span>
+                You have cancelled {totalCancelledMedical} medical registrations this month. 
+                One more cancellation will restrict your registration ability.
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: 16, marginRight: 8 }}>ℹ️</span>
+                You have cancelled {totalCancelledMedical} medical registration this month.
+              </>
+            )}
+          </div>
+        )}
+
         <Row
           gutter={0}
           style={{
@@ -382,6 +544,7 @@ const CreateMedicalResForm = () => {
                   You can select an image from your device.
                 </div>
               </Form.Item>
+
               <Form.Item
                 label="Total Dosages (per day)"
                 name="totalDosages"
@@ -441,16 +604,19 @@ const CreateMedicalResForm = () => {
                   type="primary"
                   htmlType="submit"
                   loading={loading}
+                  disabled={isBlockedFromMedicalReg}
                   size="large"
                   style={{
                     width: 140,
-                    background:
-                      "linear-gradient(90deg, #2B5DC4 0%, #355383 100%)",
+                    background: isBlockedFromMedicalReg 
+                      ? "#ccc" 
+                      : "linear-gradient(90deg, #2B5DC4 0%, #355383 100%)",
                     border: "none",
                     fontWeight: 600,
                     fontSize: 17,
                     borderRadius: 8,
                     marginTop: 8,
+                    opacity: isBlockedFromMedicalReg ? 0.6 : 1,
                   }}
                 >
                   Submit
