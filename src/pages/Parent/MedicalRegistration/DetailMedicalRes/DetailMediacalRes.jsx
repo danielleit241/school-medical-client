@@ -465,7 +465,7 @@ const DetailMedicalRes = () => {
                   </td>
                 </tr>
                 {/* Thêm Nurse Notes row nếu có */}
-                {status.showNurseNotes && medicalRegistration?.nurseNotes && (
+                {status.showNurseNotes && medicalRegistration?.nurseNotes && medicalRegistration.status === true && (
                   <tr style={{borderBottom: "1px solid #eee"}}>
                     <td
                       style={{
