@@ -495,7 +495,16 @@ const CreateHealthCheck = () => {
           </Col>
         </Row>
         <div style={{textAlign: "center", marginTop: 24}}>
-          <Button type="primary" htmlType="submit" loading={loading}>
+          <Button
+            style={{
+              background: "#355383",
+              borderColor: "#355383",
+              color: "#fff",
+            }}
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+          >
             Create Campaign
           </Button>
         </div>
