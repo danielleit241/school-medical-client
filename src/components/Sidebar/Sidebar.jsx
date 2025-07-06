@@ -43,6 +43,23 @@ const Sidebar = () => {
   const notificationRef = useRef(null);
   const avatarContainerRef = useRef(null);
   const token = localStorage.getItem("accessToken");
+  const [totalHealthDeclarations, setTotalHealthDeclarations] = useState(0);
+
+  useEffect(() => {
+    const fetchHealthDeclarations = async () => {
+      if (!userId) return;
+      try {
+        const response = await axiosInstance.get(
+          `/api/parents/${userId}/students/total-health-declarations`
+        );
+        setTotalHealthDeclarations(response.data);
+        // eslint-disable-next-line no-unused-vars
+      } catch (error) {
+        // console.error("Error fetching health declarations:", error);
+      }
+    };
+    fetchHealthDeclarations();
+  }, [userId]);
 
   useEffect(() => {
     // Lấy user profile
@@ -339,7 +356,32 @@ const Sidebar = () => {
         ],
       },
       {
-        label: "Health Profile",
+        label: (
+          <span style={{position: "relative", display: "inline-block"}}>
+            Health Profile
+            {totalHealthDeclarations > 0 && (
+              <Badge
+                size="small"
+                count={totalHealthDeclarations}
+                style={{
+                  position: "absolute",
+                  top: 4,
+                  right: 115,
+                  display: "inline-block",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "red",
+                  color: "#fff",
+                  fontSize: 8,
+                  minWidth: 11,
+                  height: 11,
+                  marginLeft: 8,
+                  verticalAlign: "middle",
+                }}
+              />
+            )}
+          </span>
+        ),
         key: "health-profile",
         icon: <FileTextOutlined />,
         dropdown: [

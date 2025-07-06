@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import "./Header.scss";
 import {NavLink, useNavigate} from "react-router-dom";
 import HeaderLogoTop from "../../assets/images/Medical.svg";
@@ -8,12 +8,7 @@ import Clock_Icon from "../../assets/images/Clock_Icon.svg";
 import Location_Icon from "../../assets/images/Location_Icon.svg";
 import {useSelector} from "react-redux";
 import {Badge, Dropdown, Avatar, Menu} from "antd";
-import {
-  BellOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
+import {LogoutOutlined} from "@ant-design/icons";
 import {RiArrowDownSFill} from "react-icons/ri";
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import axiosInstance from "../../api/axios";
@@ -32,6 +27,22 @@ const Header = () => {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const notificationRef = useRef(null);
   const avatarContainerRef = useRef(null);
+  const [totalHealthDeclarations, setTotalHealthDeclarations] = useState(0);
+
+  useEffect(() => {
+    const fetchHealthDeclarations = async () => {
+      if (!userId) return;
+      try {
+        const response = await axiosInstance.get(
+          `/api/parents/${userId}/students/total-health-declarations`
+        );
+        setTotalHealthDeclarations(response.data);
+      } catch (error) {
+        console.error("Error fetching health declarations:", error);
+      }
+    };
+    fetchHealthDeclarations();
+  }, [userId]);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -252,7 +263,22 @@ const Header = () => {
                   Contact
                 </NavLink>
               </li>
-              <li className="header__bottom-item">
+              <li className="header__bottom-item relative">
+                <div className="absolute right-[-10px] top-[-10px]">
+                  {totalHealthDeclarations > 0 && (
+                    <Badge
+                      size="small"
+                      count={totalHealthDeclarations}
+                      style={{
+                        backgroundColor: "red",
+                        color: "#fff",
+                        fontSize: 0,
+                        minWidth: 10,
+                        height: 10,
+                      }}
+                    />
+                  )}
+                </div>
                 <NavLink
                   to="/parent"
                   style={{textDecoration: "none", fontSize: 20}}

@@ -240,10 +240,10 @@ const MyChildren = () => {
                               style={{
                                 backgroundColor: "#fff7ed",
                                 color: "#f97316",
+                                gap: "0.25rem",
                               }}
                             >
-                              <Shield className="w-3 h-3 mr-1" />
-                              Not Declared
+                              <Shield className="w-3 h-3 mr-1" /> Not Declared
                             </span>
                           )}
                         </div>
