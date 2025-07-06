@@ -120,8 +120,14 @@ const HealthCheckDetail = () => {
       setToParentData(toParent);
       setToNurseData(toNurse);
 
-      localStorage.setItem(`toParentData_${scheduleId}`, JSON.stringify(toParent));
-      localStorage.setItem(`toNurseData_${scheduleId}`, JSON.stringify(toNurse));
+      localStorage.setItem(
+        `toParentData_${scheduleId}`,
+        JSON.stringify(toParent)
+      );
+      localStorage.setItem(
+        `toNurseData_${scheduleId}`,
+        JSON.stringify(toNurse)
+      );
 
       Swal.fire({
         icon: "success",
@@ -212,8 +218,14 @@ const HealthCheckDetail = () => {
   // Handle showing student list
   const handleShowStudentList = (roundId) => {
     localStorage.setItem("selectedHealthCheckRoundId", roundId);
-    localStorage.setItem(`toParentData_${scheduleId}`, JSON.stringify(toParentData));
-    localStorage.setItem(`toNurseData_${scheduleId}`, JSON.stringify(toNurseData));
+    localStorage.setItem(
+      `toParentData_${scheduleId}`,
+      JSON.stringify(toParentData)
+    );
+    localStorage.setItem(
+      `toNurseData_${scheduleId}`,
+      JSON.stringify(toNurseData)
+    );
     navigate(`/${roleName}/health-check/details/student-list`);
   };
 
@@ -248,96 +260,103 @@ const HealthCheckDetail = () => {
       setAddRoundLoading(true);
       const values = await formAddRound.validateFields();
       const res = await axiosInstance.get(
-          `/api/health-checks/schedules/${scheduleId}`
-        );
-        const rounds = Array.isArray(res.data) ? res.data : [];
+        `/api/health-checks/schedules/${scheduleId}`
+      );
+      const rounds = Array.isArray(res.data) ? res.data : [];
 
-        // Validate targetGrade trùng
-        const existed = rounds.some(
-          (r) =>
-            r.healthCheckRoundInformation?.targetGrade?.trim().toLowerCase() ===
-            values.targetGrade.trim().toLowerCase()
-        );
-        if (existed) {
-          formAddRound.setFields([
-            {
-              name: "targetGrade",
-              errors: ["This target grade already exists in another round!"],
-            },
-          ]);
-          setAddRoundLoading(false);
-          return;
+      // Validate targetGrade trùng
+      const existed = rounds.some(
+        (r) =>
+          r.healthCheckRoundInformation?.targetGrade?.trim().toLowerCase() ===
+          values.targetGrade.trim().toLowerCase()
+      );
+      if (existed) {
+        formAddRound.setFields([
+          {
+            name: "targetGrade",
+            errors: ["This target grade already exists in another round!"],
+          },
+        ]);
+        setAddRoundLoading(false);
+        return;
+      }
+
+      // Validate startTime, endTime
+      let maxEndTime = null;
+      if (rounds.length > 0) {
+        maxEndTime = rounds
+          .map((r) => r.healthCheckRoundInformation?.endTime)
+          .filter(Boolean)
+          .map((t) => dayjs(t))
+          .sort((a, b) => b.valueOf() - a.valueOf())[0];
+
+        const newStart = values.startTime;
+        const newEnd = values.endTime;
+
+        if (modalType === "supplement") {
+          if (
+            !newStart.isAfter(maxEndTime, "day") ||
+            !newEnd.isAfter(maxEndTime, "day")
+          ) {
+            formAddRound.setFields([
+              {
+                name: "startTime",
+                errors: [
+                  "Start time must be after all existing rounds (next day).",
+                ],
+              },
+              {
+                name: "endTime",
+                errors: [
+                  "End time must be after all existing rounds (next day).",
+                ],
+              },
+            ]);
+            setAddRoundLoading(false);
+            return;
+          }
         }
-
-        // Validate startTime, endTime
-        let maxEndTime = null;
-        if (rounds.length > 0) {
-          maxEndTime = rounds
-            .map((r) => r.healthCheckRoundInformation?.endTime)
-            .filter(Boolean)
-            .map((t) => dayjs(t))
-            .sort((a, b) => b.valueOf() - a.valueOf())[0];
-         
-            const newStart = values.startTime;
-            const newEnd = values.endTime;
-
-            if (modalType === "supplement") {
-              if (
-                !newStart.isAfter(maxEndTime, "day") ||
-                !newEnd.isAfter(maxEndTime, "day")
-              ) {
-                formAddRound.setFields([
-                  {
-                    name: "startTime",
-                    errors: ["Start time must be after all existing rounds (next day)."],
-                  },
-                  {
-                    name: "endTime",
-                    errors: ["End time must be after all existing rounds (next day)."],
-                  },
-                ]);
-                setAddRoundLoading(false);
-                return;
-              }
-            } 
-            if (modalType === "new") {
-              if (
-                newStart.isSame(maxEndTime, "day") ||
-                newEnd.isSame(maxEndTime, "day")
-              ) {
-                const overlap = rounds.some((r) => {
-                  const rNurseId = String(r.nurseId || r.nurse?.nurseId || "");
-                  const formNurseId = String(values.nurseId || "");
-                  const rStart = r.healthCheckRoundInformation?.startTime
-                    ? dayjs(r.healthCheckRoundInformation.startTime)
-                    : null;
-                  const rEnd = r.healthCheckRoundInformation?.endTime
-                    ? dayjs(r.healthCheckRoundInformation.endTime)
-                    : null;
-                  return (
-                    rNurseId === formNurseId &&
-                    rStart &&
-                    rEnd &&
-                    newStart.isBefore(rEnd) &&
-                    newEnd.isAfter(rStart)
-                  );
-                });
-                if (overlap) {
-                  formAddRound.setFields([
-                    {
-                      name: "startTime",
-                      errors: ["This nurse already has a round in this time range."],
-                    },
-                    {
-                      name: "endTime",
-                      errors: ["This nurse already has a round in this time range."],
-                    },
-                  ]);
-                  setAddRoundLoading(false);
-                  return;
-                }
-              }
-          
+        if (modalType === "new") {
+          if (
+            newStart.isSame(maxEndTime, "day") ||
+            newEnd.isSame(maxEndTime, "day")
+          ) {
+            const overlap = rounds.some((r) => {
+              const rNurseId = String(r.nurseId || r.nurse?.nurseId || "");
+              const formNurseId = String(values.nurseId || "");
+              const rStart = r.healthCheckRoundInformation?.startTime
+                ? dayjs(r.healthCheckRoundInformation.startTime)
+                : null;
+              const rEnd = r.healthCheckRoundInformation?.endTime
+                ? dayjs(r.healthCheckRoundInformation.endTime)
+                : null;
+              return (
+                rNurseId === formNurseId &&
+                rStart &&
+                rEnd &&
+                newStart.isBefore(rEnd) &&
+                newEnd.isAfter(rStart)
+              );
+            });
+            if (overlap) {
+              formAddRound.setFields([
+                {
+                  name: "startTime",
+                  errors: [
+                    "This nurse already has a round in this time range.",
+                  ],
+                },
+                {
+                  name: "endTime",
+                  errors: [
+                    "This nurse already has a round in this time range.",
+                  ],
+                },
+              ]);
+              setAddRoundLoading(false);
+              return;
+            }
+          }
         }
       await axiosInstance.post("/api/schedules/health-check-rounds", {
         scheduleId,
@@ -403,28 +422,29 @@ const HealthCheckDetail = () => {
     setEditRoundModalVisible(true);
     
     try {
+
           const res = await axiosInstance.get("/api/nurses");
           setNurses(res.data || []);
         } catch {
           setNurses([]);
         }
-        
+     
     console.log("Nurses data:", round);
     setTimeout(() => {
-  formEditRound.setFieldsValue({
-    roundName: round.healthCheckRoundInformation.roundName,
-    targetGrade: round.healthCheckRoundInformation.targetGrade,
-    description: round.healthCheckRoundInformation.description,
-    startTime: dayjs(round.healthCheckRoundInformation.startTime),
-    endTime: dayjs(round.healthCheckRoundInformation.endTime),
-    nurseId:
-      round.nurse?.staffNurseId ||
-      round.nurse?.nurseId ||
-      round.nurseId ||
-      round.healthCheckRoundInformation.nurseId ||
-      undefined,
-  });
-}, 0);
+      formEditRound.setFieldsValue({
+        roundName: round.healthCheckRoundInformation.roundName,
+        targetGrade: round.healthCheckRoundInformation.targetGrade,
+        description: round.healthCheckRoundInformation.description,
+        startTime: dayjs(round.healthCheckRoundInformation.startTime),
+        endTime: dayjs(round.healthCheckRoundInformation.endTime),
+        nurseId:
+          round.nurse?.staffNurseId ||
+          round.nurse?.nurseId ||
+          round.nurseId ||
+          round.healthCheckRoundInformation.nurseId ||
+          undefined,
+      });
+    }, 0);
   };
 
   // Handle submit edit round
@@ -464,7 +484,6 @@ const HealthCheckDetail = () => {
           }
         }
       }
-
       // Chỉ validate targetGrade nếu round chưa có students
       const roundHasStudents = isRoundHasStudents(editRoundData.healthCheckRoundInformation.roundId);
       
@@ -505,26 +524,38 @@ const HealthCheckDetail = () => {
           return;
         }
       }
-
-      // Validate nurse overlap (giữ nguyên)
       const overlap = rounds.some((r) => {
-        if (r.healthCheckRoundInformation.roundId === editRoundData.healthCheckRoundInformation.roundId) return false;
+        if (
+          r.healthCheckRoundInformation.roundId ===
+          editRoundData.healthCheckRoundInformation.roundId
+        )
+          return false;
 
-        let rNurseId = r.nurse?.staffNurseId || r.nurseId || r.healthCheckRoundInformation.nurseId || "";
+        let rNurseId =
+          r.nurse?.staffNurseId ||
+          r.nurseId ||
+          r.healthCheckRoundInformation.nurseId ||
+          "";
 
         if (!rNurseId && r.nurse?.nurseName && nurses.length > 0) {
-          const found = nurses.find(n => n.fullName === r.nurse.nurseName);
+          const found = nurses.find((n) => n.fullName === r.nurse.nurseName);
           if (found) rNurseId = found.staffNurseId;
         }
 
-        if (!rNurseId && r.healthCheckRoundInformation.nurseName && nurses.length > 0) {
-          const found = nurses.find(n => n.fullName === r.healthCheckRoundInformation.nurseName);
+        if (
+          !rNurseId &&
+          r.healthCheckRoundInformation.nurseName &&
+          nurses.length > 0
+        ) {
+          const found = nurses.find(
+            (n) => n.fullName === r.healthCheckRoundInformation.nurseName
+          );
           if (found) rNurseId = found.staffNurseId;
         }
 
         if (nurses.length > 0 && rNurseId) {
           const found = nurses.find(
-            n =>
+            (n) =>
               String(n.nurseId) === String(rNurseId) ||
               String(n.staffNurseId) === String(rNurseId)
           );
@@ -532,34 +563,34 @@ const HealthCheckDetail = () => {
         }
 
         const formNurseId = String(values.nurseId || "");
-        const rStart = r.healthCheckRoundInformation.startTime ? dayjs(r.healthCheckRoundInformation.startTime) : null;
-        const rEnd = r.healthCheckRoundInformation.endTime ? dayjs(r.healthCheckRoundInformation.endTime) : null;
+        const rStart = r.healthCheckRoundInformation.startTime
+          ? dayjs(r.healthCheckRoundInformation.startTime)
+          : null;
+        const rEnd = r.healthCheckRoundInformation.endTime
+          ? dayjs(r.healthCheckRoundInformation.endTime)
+          : null;
         const newStart = values.startTime;
         const newEnd = values.endTime;
 
         const isSameDay = rStart && newStart && rStart.isSame(newStart, "day");
         const isOverlap =
-          rStart &&
-          rEnd &&
-          newStart.isBefore(rEnd) &&
-          newEnd.isAfter(rStart);
+          rStart && rEnd && newStart.isBefore(rEnd) && newEnd.isAfter(rStart);
 
-        return (
-          rNurseId &&
-          rNurseId === formNurseId &&
-          isSameDay &&
-          isOverlap
-        );
+        return rNurseId && rNurseId === formNurseId && isSameDay && isOverlap;
       });
       if (overlap) {
         formEditRound.setFields([
           {
             name: "startTime",
-            errors: ["This nurse already has a round in this time range on this day."],
+            errors: [
+              "This nurse already has a round in this time range on this day.",
+            ],
           },
           {
             name: "endTime",
-            errors: ["This nurse already has a round in this time range on this day."],
+            errors: [
+              "This nurse already has a round in this time range on this day.",
+            ],
           },
         ]);
         setEditRoundLoading(false);
@@ -600,8 +631,10 @@ const HealthCheckDetail = () => {
   useEffect(() => {
     if (scheduleId) {
       axiosInstance
-        .get(`/api/schedules/${scheduleId}/health-check-rounds/supplementary/total-students`)
-        .then(res => setSupplementStudents(res.data?.supplementStudents ?? 0))
+        .get(
+          `/api/schedules/${scheduleId}/health-check-rounds/supplementary/total-students`
+        )
+        .then((res) => setSupplementStudents(res.data?.supplementStudents ?? 0))
         .catch(() => setSupplementStudents(0));
     }
   }, [scheduleId]);
@@ -621,15 +654,15 @@ const HealthCheckDetail = () => {
     );
   }
 
-  const disableSupplementRound = rounds.some(
-    (r) => r.healthCheckRoundInformation?.status === false
-  ) || supplementStudents === 0;
+  const disableSupplementRound =
+    rounds.some((r) => r.healthCheckRoundInformation?.status === false) ||
+    supplementStudents === 0;
 
-const hasSupplementRound = rounds.some(
-  (r) =>
-    r.healthCheckRoundInformation?.roundName?.trim().toLowerCase() ===
-    "supplement round"
-);
+  const hasSupplementRound = rounds.some(
+    (r) =>
+      r.healthCheckRoundInformation?.roundName?.trim().toLowerCase() ===
+      "supplement round"
+  );
 
   return (
     <Card
@@ -654,7 +687,7 @@ const hasSupplementRound = rounds.some(
                 {
                   key: "1",
                   label: (
-                    <span style={hasSupplementRound ? { color: "#aaa" } : {}}>
+                    <span style={hasSupplementRound ? {color: "#aaa"} : {}}>
                       Add New Round
                     </span>
                   ),
@@ -666,7 +699,13 @@ const hasSupplementRound = rounds.some(
                 {
                   key: "2",
                   label: (
-                    <span style={hasSupplementRound || supplementStudents === 0 ? { color: "#aaa" } : {}}>
+                    <span
+                      style={
+                        hasSupplementRound || supplementStudents === 0
+                          ? {color: "#aaa"}
+                          : {}
+                      }
+                    >
                       Add Supplement Round
                     </span>
                   ),
@@ -695,6 +734,10 @@ const hasSupplementRound = rounds.some(
             Add Student
           </Button>
           <Button
+            style={{
+              background: toNurseData.length === 0 ? "#d9d9d9" : "#355383",
+              color: toNurseData.length === 0 ? "#00000040" : "#fff",
+            }}
             type="primary"
             onClick={handleSendNotiNurse}
             disabled={toNurseData.length === 0}
@@ -702,6 +745,10 @@ const hasSupplementRound = rounds.some(
             Send to Nurse
           </Button>
           <Button
+            style={{
+              background: toParentData.length === 0 ? "#d9d9d9" : "#355383",
+              color: toParentData.length === 0 ? "#00000040" : "#fff",
+            }}
             type="primary"
             onClick={handleSendNotiParent}
             disabled={toParentData.length === 0}
@@ -721,17 +768,23 @@ const hasSupplementRound = rounds.some(
           const start = dayjs(round.healthCheckRoundInformation.startTime);
           const end = dayjs(round.healthCheckRoundInformation.endTime);
           const isEditingDisabled =
-           (now.isSame(start, "day") ||
+            now.isSame(start, "day") ||
             now.isSame(end, "day") ||
             (now.isAfter(start) && now.isBefore(end)) ||
-            round.healthCheckRoundInformation.status === true);
+            round.healthCheckRoundInformation.status === true;
 
           return (
-            <Col xs={24} md={12} key={round.healthCheckRoundInformation.roundId}>
+            <Col
+              xs={24}
+              md={12}
+              key={round.healthCheckRoundInformation.roundId}
+            >
               <Card
                 type="inner"
-                title={`Round ${idx + 1}: ${round.healthCheckRoundInformation.roundName}`}
-                style={{ background: "#E6F7FF" }}
+                title={`Round ${idx + 1}: ${
+                  round.healthCheckRoundInformation.roundName
+                }`}
+                style={{background: "#E6F7FF"}}
                 extra={
                   <Space>
                     {round.healthCheckRoundInformation.status ? (
@@ -743,7 +796,9 @@ const hasSupplementRound = rounds.some(
                       size="small"
                       icon={<EyeOutlined />}
                       onClick={() =>
-                        handleRoundDetail(round.healthCheckRoundInformation.roundId)
+                        handleRoundDetail(
+                          round.healthCheckRoundInformation.roundId
+                        )
                       }
                     >
                       Detail
@@ -752,7 +807,9 @@ const hasSupplementRound = rounds.some(
                       size="small"
                       icon={<TeamOutlined />}
                       onClick={() =>
-                        handleShowStudentList(round.healthCheckRoundInformation.roundId)
+                        handleShowStudentList(
+                          round.healthCheckRoundInformation.roundId
+                        )
                       }
                     >
                       List Students
@@ -782,9 +839,9 @@ const hasSupplementRound = rounds.some(
                   </Descriptions.Item>
                   <Descriptions.Item label="Start Time">
                     {round.healthCheckRoundInformation.startTime
-                      ? dayjs(round.healthCheckRoundInformation.startTime).format(
-                          "YYYY-MM-DD HH:mm"
-                        )
+                      ? dayjs(
+                          round.healthCheckRoundInformation.startTime
+                        ).format("YYYY-MM-DD HH:mm")
                       : ""}
                   </Descriptions.Item>
                   <Descriptions.Item label="End Time">
@@ -975,7 +1032,7 @@ const hasSupplementRound = rounds.some(
               <Form.Item
                 label="Round Name"
                 name="roundName"
-                rules={[{ required: true, message: "Please input round name!" }]}
+                rules={[{required: true, message: "Please input round name!"}]}
               >
                 <Input />
               </Form.Item>
@@ -984,7 +1041,9 @@ const hasSupplementRound = rounds.some(
               <Form.Item
                 label="Target Grade"
                 name="targetGrade"
-                rules={[{ required: true, message: "Please select target grade!" }]}
+                rules={[
+                  {required: true, message: "Please select target grade!"},
+                ]}
               >
                 <Select
                   placeholder="Select class"
@@ -1019,25 +1078,25 @@ const hasSupplementRound = rounds.some(
               <Form.Item
                 label="Start Time"
                 name="startTime"
-                rules={[{ required: true, message: "Please select start time!" }]}
+                rules={[{required: true, message: "Please select start time!"}]}
               >
-                <DatePicker showTime style={{ width: "100%" }} />
+                <DatePicker showTime style={{width: "100%"}} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 label="End Time"
                 name="endTime"
-                rules={[{ required: true, message: "Please select end time!" }]}
+                rules={[{required: true, message: "Please select end time!"}]}
               >
-                <DatePicker showTime style={{ width: "100%" }} />
+                <DatePicker showTime style={{width: "100%"}} />
               </Form.Item>
             </Col>
           </Row>
           <Form.Item
             label="Nurse"
             name="nurseId"
-            rules={[{ required: true, message: "Please select nurse!" }]}
+            rules={[{required: true, message: "Please select nurse!"}]}
           >
             <Select placeholder="Select nurse">
               {nurses.map((nurse) => (
