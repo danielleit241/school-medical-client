@@ -68,6 +68,8 @@ const DetailCampaign = () => {
   const [toNurseData, setToNurseData] = useState([]);
   const [roundsWithNurse, setRoundsWithNurse] = useState([]);
   const [classes, setClasses] = useState([]); // Thêm state để lưu danh sách lớp
+  const [roundsWithStudents, setRoundsWithStudents] = useState(new Set());
+
 
   // Edit round modal state
   const [editRoundModalVisible, setEditRoundModalVisible] = useState(false);
@@ -136,7 +138,6 @@ const DetailCampaign = () => {
     axiosInstance
       .get("/api/students/classes")
       .then((res) => {
-        // Xử lý dữ liệu để loại bỏ khoảng trắng thừa
         const formattedClasses = res.data.map((cls) => cls.trim());
         setClasses(formattedClasses);
       })
@@ -163,8 +164,6 @@ const DetailCampaign = () => {
       })
       .finally(() => setRoundLoading(false));
   };
-
-  // Removed duplicate handleModalClose function to fix redeclaration error
 
   // Thêm state để quản lý loại modal
   const [modalType, setModalType] = useState("new"); // "new" hoặc "supplement"
@@ -369,8 +368,7 @@ const DetailCampaign = () => {
         JSON.stringify(toNurse)
       );
 
-      console.log("To Parent Data:", toParent);
-      console.log("To Nurse Data:", toNurse);
+      
       Swal.fire({
         icon: "success",
         title: "Students added!",
@@ -480,7 +478,18 @@ const DetailCampaign = () => {
 
   // Handle open edit round modal
   const handleEditRound = async (round) => {
+     
     setEditRoundData(round);
+       
+    const hasStudents = await checkRoundHasStudents(round.roundId);
+    
+    if (hasStudents) {
+      setRoundsWithStudents(prev => {
+        const newSet = new Set([...prev, round.roundId]);
+        return newSet;
+      });
+    }
+    
     setEditRoundModalVisible(true);
 
     // Lấy lại danh sách nurse mới nhất trước khi setFieldsValue
@@ -503,6 +512,24 @@ const DetailCampaign = () => {
       });
     }, 0);
   };
+
+const checkRoundHasStudents = async (roundId) => {
+  try {
+    const response = await axiosInstance.get(`/api/managers/vaccination-rounds/${roundId}/students`);
+    const data = response.data;
+        
+    const hasStudents = data && data.count > 0;
+    
+    return hasStudents;
+  } catch (error) {
+    console.error(`Error checking students in round ${roundId}:`, error);
+    return false;
+  }
+};
+
+const isRoundHasStudents = (roundId) => {
+  return roundsWithStudents.has(roundId);
+};
 
   // Handle submit edit round
   const handleSubmitEditRound = async () => {
@@ -1271,6 +1298,7 @@ const DetailCampaign = () => {
                 <Select
                   placeholder="Select class"
                   showSearch
+                  disabled={editRoundData ? isRoundHasStudents(editRoundData.roundId) : false}
                   filterOption={(input, option) =>
                     (option?.value ?? "")
                       .toLowerCase()
@@ -1284,6 +1312,12 @@ const DetailCampaign = () => {
                   ))}
                 </Select>
               </Form.Item>
+              {editRoundData && isRoundHasStudents(editRoundData.roundId) && (
+                <div style={{ fontSize: 12, color: '#d4380d', marginTop: -20, marginBottom: 16 }}>
+                  <ExclamationCircleOutlined style={{ marginRight: 4 }} />
+                  Target Grade cannot be changed - this round already has students
+                </div>
+              )}
             </Col>
           </Row>
           <Form.Item label="Description" name="description">

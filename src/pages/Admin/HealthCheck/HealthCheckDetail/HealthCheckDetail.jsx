@@ -29,6 +29,7 @@ import {
   PlusOutlined,
   DownOutlined,
   EditOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
@@ -62,6 +63,8 @@ const HealthCheckDetail = () => {
   const [toNurseData, setToNurseData] = useState([]);
   const [nurses, setNurses] = useState([]);
   const [classes, setClasses] = useState([]);
+
+  const [roundsWithStudents, setRoundsWithStudents] = useState(new Set());
 
   // Fetch health check schedule details
   useEffect(() => {
@@ -355,7 +358,6 @@ const HealthCheckDetail = () => {
             }
           }
         }
-      }
       await axiosInstance.post("/api/schedules/health-check-rounds", {
         scheduleId,
         roundName: values.roundName,
@@ -372,25 +374,61 @@ const HealthCheckDetail = () => {
       const updated = await axiosInstance.get(
         `/api/health-checks/schedules/${scheduleId}`
       );
-      setRounds(updated.data || []);
-      // eslint-disable-next-line no-unused-vars
-    } catch (err) {
+      setRounds(updated.data || []);   
+    }
+  } catch (error) {
+      console.error("Error adding round:", error);
       message.error("Add round failed!");
-    } finally {
       setAddRoundLoading(false);
     }
   };
 
-  // Handle open edit round modal
-  const handleEditRound = async (round) => {
-    setEditRoundData(round);
-    setEditRoundModalVisible(true);
+  // Function kiểm tra round có students qua API
+  const checkRoundHasStudents = async (roundId) => {
     try {
-      const res = await axiosInstance.get("/api/nurses");
-      setNurses(res.data || []);
-    } catch {
-      setNurses([]);
+      const response = await axiosInstance.get(`/api/managers/health-check-rounds/${roundId}/students`);
+      const data = response.data;
+      
+      console.log(`API Response for round ${roundId}:`, data);
+      
+      // Kiểm tra nếu count > 0
+      const hasStudents = data && data.count > 0;
+      console.log(`Round ${roundId} has students (count: ${data?.count}):`, hasStudents);
+      
+      return hasStudents;
+    } catch (error) {
+      console.error(`Error checking students in round ${roundId}:`, error);
+      return false;
     }
+  };
+
+  // Function kiểm tra từ state
+  const isRoundHasStudents = (roundId) => {
+    return roundsWithStudents.has(roundId);
+  };
+
+  const handleEditRound = async (round) => {  
+    setEditRoundData(round);
+    
+    const hasStudents = await checkRoundHasStudents(round.healthCheckRoundInformation.roundId);
+    
+    if (hasStudents) {
+      setRoundsWithStudents(prev => {
+        const newSet = new Set([...prev, round.healthCheckRoundInformation.roundId]);
+        return newSet;
+      });
+    }
+    
+    setEditRoundModalVisible(true);
+    
+    try {
+
+          const res = await axiosInstance.get("/api/nurses");
+          setNurses(res.data || []);
+        } catch {
+          setNurses([]);
+        }
+     
     console.log("Nurses data:", round);
     setTimeout(() => {
       formEditRound.setFieldsValue({
@@ -419,16 +457,8 @@ const HealthCheckDetail = () => {
       if (isSupplementRound) {
         // Lấy maxEndTime của các round khác (trừ round đang sửa)
         const maxEndTime = rounds
-          .filter(
-            (r) =>
-              r.healthCheckRoundInformation.roundId !==
-              editRoundData.healthCheckRoundInformation.roundId
-          )
-          .map((r) =>
-            r.healthCheckRoundInformation.endTime
-              ? dayjs(r.healthCheckRoundInformation.endTime)
-              : null
-          )
+          .filter((r) => r.healthCheckRoundInformation.roundId !== editRoundData.healthCheckRoundInformation.roundId)
+          .map((r) => r.healthCheckRoundInformation.endTime ? dayjs(r.healthCheckRoundInformation.endTime) : null)
           .filter(Boolean)
           .sort((a, b) => b.valueOf() - a.valueOf())[0];
 
@@ -442,15 +472,11 @@ const HealthCheckDetail = () => {
             formEditRound.setFields([
               {
                 name: "startTime",
-                errors: [
-                  "Start time must be after all existing rounds (next day).",
-                ],
+                errors: ["Start time must be after all existing rounds (next day)."],
               },
               {
                 name: "endTime",
-                errors: [
-                  "End time must be after all existing rounds (next day).",
-                ],
+                errors: ["End time must be after all existing rounds (next day)."],
               },
             ]);
             setEditRoundLoading(false);
@@ -458,45 +484,45 @@ const HealthCheckDetail = () => {
           }
         }
       }
+      // Chỉ validate targetGrade nếu round chưa có students
+      const roundHasStudents = isRoundHasStudents(editRoundData.healthCheckRoundInformation.roundId);
+      
+      if (!roundHasStudents) {
+        // Validate targetGrade trùng (trừ chính round đang sửa)
+        const existed = rounds.some(
+          (r) =>
+            r.healthCheckRoundInformation.roundId !== editRoundData.healthCheckRoundInformation.roundId &&
+            r.healthCheckRoundInformation.targetGrade?.trim().toLowerCase() === values.targetGrade.trim().toLowerCase()
+        );
+        if (existed) {
+          formEditRound.setFields([
+            {
+              name: "targetGrade",
+              errors: ["This target grade already exists in another round!"],
+            },
+          ]);
+          setEditRoundLoading(false);
+          return;
+        }
 
-      // Validate targetGrade trùng (trừ chính round đang sửa)
-      const existed = rounds.some(
-        (r) =>
-          r.healthCheckRoundInformation.roundId !==
-            editRoundData.healthCheckRoundInformation.roundId &&
-          r.healthCheckRoundInformation.targetGrade?.trim().toLowerCase() ===
-            values.targetGrade.trim().toLowerCase()
-      );
-      if (existed) {
-        formEditRound.setFields([
-          {
-            name: "targetGrade",
-            errors: ["This target grade already exists in another round!"],
-          },
-        ]);
-        setEditRoundLoading(false);
-        return;
-      }
-
-      // Không cho sửa thành Supplement nếu đã có Supplement Round khác
-      const isEditingToSupplement =
-        values.targetGrade.trim().toLowerCase() === "supplement";
-      const hasOtherSupplement = rounds.some(
-        (r) =>
-          r.healthCheckRoundInformation.roundId !==
-            editRoundData.healthCheckRoundInformation.roundId &&
-          r.healthCheckRoundInformation.targetGrade?.trim().toLowerCase() ===
-            "supplement"
-      );
-      if (isEditingToSupplement && hasOtherSupplement) {
-        formEditRound.setFields([
-          {
-            name: "targetGrade",
-            errors: ["There is already a Supplement round!"],
-          },
-        ]);
-        setEditRoundLoading(false);
-        return;
+        // Không cho sửa thành Supplement nếu đã có Supplement Round khác
+        const isEditingToSupplement =
+          values.targetGrade.trim().toLowerCase() === "supplement";
+        const hasOtherSupplement = rounds.some(
+          (r) =>
+            r.healthCheckRoundInformation.roundId !== editRoundData.healthCheckRoundInformation.roundId &&
+            r.healthCheckRoundInformation.targetGrade?.trim().toLowerCase() === "supplement"
+        );
+        if (isEditingToSupplement && hasOtherSupplement) {
+          formEditRound.setFields([
+            {
+              name: "targetGrade",
+              errors: ["There is already a Supplement round!"],
+            },
+          ]);
+          setEditRoundLoading(false);
+          return;
+        }
       }
       const overlap = rounds.some((r) => {
         if (
@@ -1022,6 +1048,7 @@ const HealthCheckDetail = () => {
                 <Select
                   placeholder="Select class"
                   showSearch
+                  disabled={editRoundData ? isRoundHasStudents(editRoundData.healthCheckRoundInformation.roundId) : false}
                   filterOption={(input, option) =>
                     (option?.value ?? "")
                       .toLowerCase()
@@ -1035,6 +1062,12 @@ const HealthCheckDetail = () => {
                   ))}
                 </Select>
               </Form.Item>
+              {editRoundData && isRoundHasStudents(editRoundData.healthCheckRoundInformation.roundId) && (
+                <div style={{ fontSize: 12, color: '#d4380d', marginTop: -20, marginBottom: 16 }}>
+                  <ExclamationCircleOutlined style={{ marginRight: 4 }} />
+                  Target Grade cannot be changed - this round already has students
+                </div>
+              )}
             </Col>
           </Row>
           <Form.Item label="Description" name="description">

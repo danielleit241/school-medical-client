@@ -80,7 +80,7 @@ const MedicalReceivedDetail = () => {
           staffNurseId: nurseId,
           doseNumber: String(dose.doseNumber),
           dateCompleted: dayjs().format("YYYY-MM-DD"),
-          nurseNote: doseNotes[doseIdx] ?? "Medication administered on time.",
+          notes: doseNotes[doseIdx] ?? "Medication administered on time.",
         }
       );
       const {notificationTypeId, receiverId, senderId} = res.data
@@ -88,14 +88,19 @@ const MedicalReceivedDetail = () => {
         notificationTypeId,
         senderId,
         receiverId,
-      })
-      setTimeout(async () => {
-        const response = await axiosInstance.get(
-          `/api/nurses/medical-registrations/${medicalRegistrationId}`
-        );
+      });
+      const response = await axiosInstance.get(
+        `/api/nurses/medical-registrations/${medicalRegistrationId}`
+      );
+      Swal.fire({
+          icon: "success",
+          title: "Dose completed!",
+          showConfirmButton: false,
+          timer: 1200,
+        });
         setDetail(response.data);
         setDoseNotes((prev) => ({ ...prev, [doseIdx]: "" }));
-      }, 1000);
+   
     } catch (error) {
       setTimeout(async () => {
         const response = await axiosInstance.get(
@@ -767,20 +772,6 @@ const MedicalReceivedDetail = () => {
                           )}
                           {!dose.isCompleted && (
                             <div style={{ marginTop: 6 }}>
-                              <Input.TextArea
-                                rows={2}
-                                placeholder="Nurse notes for this dose..."
-                                value={
-                                  doseNotes[idx] ?? "Medication administered on time."
-                                }
-                                onChange={(e) =>
-                                  setDoseNotes((prev) => ({
-                                    ...prev,
-                                    [idx]: e.target.value,
-                                  }))
-                                }
-                                style={{ marginBottom: 6, fontSize: 13 }}
-                              />
                               <Button
                                 type="primary"
                                 loading={confirmingDose === idx}
