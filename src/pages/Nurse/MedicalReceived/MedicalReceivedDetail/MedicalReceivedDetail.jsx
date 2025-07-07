@@ -10,6 +10,7 @@ import {
   Avatar,
   Divider,
   Modal,
+  Tooltip
 } from "antd";
 import { UserOutlined, CalendarOutlined, FileTextOutlined, EnvironmentOutlined, ArrowLeftOutlined, PictureOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
@@ -28,6 +29,8 @@ const MedicalReceivedDetail = () => {
   const [approving, setApproving] = useState(false);
   const [cancelling, setCancelling] = useState(false); // Thêm state cho cancel
   const [parentId, setParentId] = useState(null);
+    const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+
   
   // Thêm states cho modal
   const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
@@ -616,6 +619,25 @@ const MedicalReceivedDetail = () => {
                   marginBottom: 4,
                 }}
               >
+                <Tooltip
+                  title={
+                    medicalRegistration?.pictureUrl
+                    ? "Click to view full screen"
+                    : "No image available"
+                  }
+                      placement="top"
+                >
+                  <div
+                    style={{
+                      cursor: medicalRegistration?.pictureUrl
+                        ? "pointer"
+                        : "default",
+                    }}
+                    onClick={() =>
+                      medicalRegistration?.pictureUrl &&
+                      setIsImageModalVisible(true)
+                    }
+                  >
                 {medicalRegistration?.pictureUrl ? (
                   <img
                     src={medicalRegistration.pictureUrl}
@@ -633,6 +655,8 @@ const MedicalReceivedDetail = () => {
                 ) : (
                   <PictureOutlined style={{ fontSize: 32, color: "#bbb" }} />
                 )}
+                </div>
+                </Tooltip>
               </div>
               <span style={{ fontSize: 12, color: "#888" }}>Medicine Picture</span>
             </div>
@@ -895,6 +919,30 @@ const MedicalReceivedDetail = () => {
               Preview: "{nurseNote.trim()}"
             </div>
           )}
+        </div>
+      </Modal>
+       <Modal
+        open={isImageModalVisible}
+        onCancel={() => setIsImageModalVisible(false)}
+        footer={null}
+        centered
+        width="100%"
+        style={{ maxWidth: 1000 }}
+        bodyStyle={{ padding: 0 }}
+      >
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <img
+            src={medicalRegistration?.pictureUrl}
+            alt="Medicine Full View"
+            style={{
+              width: "100%",
+              maxWidth: "100%",
+              height: "auto",
+              borderRadius: 12,
+              border: "2px solid #e5e7eb",
+              objectFit: "contain",
+            }}
+          />
         </div>
       </Modal>
     </div>
