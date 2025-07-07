@@ -171,11 +171,13 @@ const StudentVaccineList = () => {
       title: "Parent Confirm",
       dataIndex: ["parentsOfStudent", "parentConfirm"],
       key: "parentConfirm",
-      render: (confirmed) => (
-        <Tag color={confirmed ? "green" : "orange"}>
-          {confirmed ? "Confirmed" : "Pending"}
-        </Tag>
-      ),
+      render: (confirmed) => {
+        if (confirmed === true)
+          return <Tag color="green">Confirmed</Tag>;
+        if (confirmed === false)
+          return <Tag color="red">Not Confirmed</Tag>;
+        return <Tag color="orange">Pending</Tag>;
+      },
     },
     {
       title: "Action",
