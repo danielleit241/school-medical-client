@@ -4,8 +4,12 @@ import {axiosFormData} from "../../../../api/axios";
 import {Button, Upload, Alert} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 import "antd/dist/reset.css";
+import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 const AddInventory = () => {
+  const navigate = useNavigate();
+  const role = useSelector((state) => state.user.role);
   const [data, setData] = React.useState([]);
   const [fileList, setFileList] = React.useState([]);
   const [uploading, setUploading] = React.useState(false);
@@ -45,8 +49,9 @@ const AddInventory = () => {
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
+        navigate(`/${role}/inventory/inventoryList`);
         window.location.reload();
-      }, 3000);
+      }, 1500);
       setFileList([]);
       setData([]);
     } catch (error) {

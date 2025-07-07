@@ -4,8 +4,12 @@ import {axiosFormData} from "../../../../api/axios";
 import {Button, Upload, Alert, Input} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 import "antd/dist/reset.css";
+import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 const AddStudent = () => {
+  const navigate = useNavigate();
+  const role = useSelector((state) => state.user.role);
   const [data, setData] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -127,11 +131,13 @@ const AddStudent = () => {
       );
       console.log("Upload response:", response);
       setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
       setFileList([]);
       setData([]);
       setEditableData([]);
-      window.location.reload(); 
+      setTimeout(() => {
+        navigate(`/${role}/student-management/student-list`);
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error("Upload failed:", error);
       setShowErrorAlert(true);
