@@ -38,7 +38,7 @@ const MedicalReceived = () => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const pageSize = 10;
+  const pageSize = 5;
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -47,7 +47,13 @@ const MedicalReceived = () => {
       setLoading(true);
       try {
         const response = await axiosInstance.get(
-          `/api/nurses/${userId}/medical-registrations`
+          `/api/nurses/${userId}/medical-registrations`,
+          {
+            params: {
+              pageIndex,
+              pageSize,
+            },
+          }
         );
         console.log("Medical Registrations:", response.data);
         setData(response.data.items || []);
@@ -386,10 +392,7 @@ const MedicalReceived = () => {
 
       <div
         style={{
-          maxHeight: "650px",
-          padding: "32px 0",
           boxSizing: "border-box",
-          position: "relative",
         }}
       >
         {/* Loading & List */}
@@ -420,9 +423,6 @@ const MedicalReceived = () => {
         ) : (
           <div
             style={{
-              maxHeight: "650px",
-              overflowY: "auto",
-              padding: "32px 0",
               boxSizing: "border-box",
             }}
           >
@@ -442,31 +442,28 @@ const MedicalReceived = () => {
             ))}
           </div>
         )}
+      </div>
 
-        {/* Pagination */}
-        <div
+      {/* Pagination */}
+      <div
+        style={{
+          width: "100%",
+          marginTop: 32,
+        }}
+      >
+        <Pagination
+          current={pageIndex}
+          pageSize={pageSize}
+          total={total}
+          onChange={(page) => setPageIndex(page)}
+          showSizeChanger={false}
           style={{
-            position: "absolute",
-            bottom: -150,
-            width: "100%",
-            marginTop: 40,
-            marginBottom: 32,
+            background: "#fff",
+            borderRadius: 8,
+            boxShadow: "0 2px 8px #e6f7ff",
+            padding: "12px 24px",
           }}
-        >
-          <Pagination
-            current={pageIndex}
-            pageSize={pageSize}
-            total={total}
-            onChange={(page) => setPageIndex(page)}
-            showSizeChanger={false}
-            style={{
-              background: "#fff",
-              borderRadius: 8,
-              boxShadow: "0 2px 8px #e6f7ff",
-              padding: "12px 24px",
-            }}
-          />
-        </div>
+        />
       </div>
     </div>
   );

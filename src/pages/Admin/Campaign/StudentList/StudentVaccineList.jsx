@@ -98,7 +98,7 @@ const StudentVaccineList = () => {
   // Handle back button
   const handleBack = () => {
     localStorage.removeItem("selectedVaccinationRoundId");
-    navigate(`/${roleName}/vaccine/vaccine-schedule-details/`);
+    navigate(`/${roleName}/vaccine/vaccine-schedule`);
   };
 
 
@@ -178,6 +178,39 @@ const StudentVaccineList = () => {
           return <Tag color="red">Not Confirmed</Tag>;
         return <Tag color="orange">Pending</Tag>;
       },
+    },
+    {
+      title: "Result Status",
+      dataIndex: ["studentsOfRoundResponse", "resultStatus"],
+      key: "resultStatus",
+     render: (status, record) => {
+      const parentConfirm = record?.parentsOfStudent?.parentConfirm;
+      if (parentConfirm === false) {
+        return (
+          <Tag color="red" style={{ fontWeight: 600 }}>
+            Parent Not Confirmed
+          </Tag>
+        );
+      }
+      if (status === "Completed")
+        return <Tag color="green">Completed</Tag>;
+      if (status === "Failed")
+        return <Tag color="red">Failed</Tag>;
+      if (status === "Not Qualified")
+        return (
+          <Tag
+            style={{
+              border: "2px solid #fa8c16",
+              color: "#fa8c16",
+              fontWeight: 600,
+              background: "#fff",
+            }}
+          >
+            Not Qualified
+          </Tag>
+        );
+      return <Tag color="orange">Pending</Tag>;
+    },
     },
     {
       title: "Action",

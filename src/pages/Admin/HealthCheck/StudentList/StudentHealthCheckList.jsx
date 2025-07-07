@@ -103,7 +103,7 @@ const StudentHealthCheckList = () => {
   // Handle back button
   const handleBack = () => {
     localStorage.removeItem("selectedHealthCheckRoundId");
-    navigate(`/${roleName}/health-check/details`);
+    navigate(`/${roleName}/health-check/schedules`);
   };
 
   // Export to Excel (placeholder function)
@@ -218,6 +218,26 @@ const StudentHealthCheckList = () => {
         return <Tag color="orange">Pending</Tag>;
       },
     },
+    {
+      title: "Result Status",
+      dataIndex: ["studentsOfRoundResponse", "resultStatus"],
+      key: "resultStatus",
+     render: (status, record) => {
+      const parentConfirm = record?.parentOfStudent?.parentConfirm;
+      if (parentConfirm === false) {
+        return (
+          <Tag color="red" style={{ fontWeight: 600 }}>
+            Parent Not Confirmed
+          </Tag>
+        );
+      }
+      if (status === "Completed")
+        return <Tag color="green">Completed</Tag>;
+      if (status === "Failed")
+        return <Tag color="red">Failed</Tag>;
+      return <Tag color="orange">Pending</Tag>;
+    },
+    },    
     {
       title: "Action",
       key: "action",

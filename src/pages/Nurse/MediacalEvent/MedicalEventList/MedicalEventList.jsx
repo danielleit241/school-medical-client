@@ -30,7 +30,12 @@ const MedicalEventList = () => {
   const pageSize = 3;
   const [loading, setLoading] = useState(false);
   const [severityFilter, setSeverityFilter] = useState("All");
+  const search = "All";
 
+  // State cho all data (không phân trang) để dùng cho stats bar
+  const [allData, setAllData] = useState([]);
+
+  // Fetch paginated data
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -41,6 +46,7 @@ const MedicalEventList = () => {
             params: {
               pageIndex,
               pageSize,
+              search,
             },
           }
         );
@@ -55,15 +61,43 @@ const MedicalEventList = () => {
       }
     };
     fetchData();
-  }, [navigate, pageIndex, pageSize]);
+  }, [navigate, pageIndex, pageSize, search]);
 
-  // Lọc theo severity
+  // Fetch all data for stats bar (không phân trang)
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const response = await axiosInstance.get(
+          "/api/nurses/students/medical-events/all",
+        );
+      setAllData(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Error fetching all medical events:", error);
+        setAllData([]);
+      }
+    };
+    fetchAllData();
+  }, [search]);
+
+  // Lọc theo severity cho bảng hiển thị
   const filteredData =
     severityFilter === "All"
       ? data
       : data.filter(
           (item) => item.medicalEvent.severityLevel === severityFilter
         );
+
+  // Stats bar dùng allData (không phân trang)
+  const statsTotal = allData.length;
+  const statsLow = allData.filter(
+    (item) => item.medicalEvent.severityLevel === "Low"
+  ).length;
+  const statsMedium = allData.filter(
+    (item) => item.medicalEvent.severityLevel === "Medium"
+  ).length;
+  const statsHigh = allData.filter(
+    (item) => item.medicalEvent.severityLevel === "High"
+  ).length;
 
   return (
     <div
@@ -118,7 +152,6 @@ const MedicalEventList = () => {
             gap: 12,
           }}
         >
-          {/* <FilterOutlined style={{fontSize: 16, color: "#fff"}} /> */}
           <span style={{fontWeight: 500, fontSize: 22, color: "#fff"}}>
             Severity:{" "}
           </span>
@@ -147,7 +180,7 @@ const MedicalEventList = () => {
           gap: 32,
         }}
       >
-        {/* Stats Bar */}
+        {/* Stats Bar - dùng allData */}
         <div
           style={{
             display: "flex",
@@ -177,7 +210,7 @@ const MedicalEventList = () => {
                 color: "#1f2937",
               }}
             >
-              {total}
+              {statsTotal}
             </h3>
             <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
               Total Events
@@ -202,10 +235,7 @@ const MedicalEventList = () => {
                 color: "#10b981",
               }}
             >
-              {
-                data.filter((item) => item.medicalEvent.severityLevel === "Low")
-                  .length
-              }
+              {statsLow}
             </h3>
             <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
               Low Severity
@@ -230,11 +260,7 @@ const MedicalEventList = () => {
                 color: "#f59e0b",
               }}
             >
-              {
-                data.filter(
-                  (item) => item.medicalEvent.severityLevel === "Medium"
-                ).length
-              }
+              {statsMedium}
             </h3>
             <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
               Medium Severity
@@ -259,11 +285,7 @@ const MedicalEventList = () => {
                 color: "#ef4444",
               }}
             >
-              {
-                data.filter(
-                  (item) => item.medicalEvent.severityLevel === "High"
-                ).length
-              }
+              {statsHigh}
             </h3>
             <p style={{margin: 0, color: "#6b7280", fontWeight: 600}}>
               High Severity
