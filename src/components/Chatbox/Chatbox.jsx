@@ -88,7 +88,7 @@ const Chatbox = () => {
         <div className="chat-header">
           <div className="header-info">
             <ChatbotIcon />
-            <h2 className="logo-text">Chatbot</h2>
+            <h2 className="logo-text">Ask Dr.Meddy</h2>
           </div>
           <button
             className="material-symbols-outlined"
