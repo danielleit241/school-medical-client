@@ -30,7 +30,6 @@ const MedicalEventList = () => {
   const pageSize = 3;
   const [loading, setLoading] = useState(false);
   const [severityFilter, setSeverityFilter] = useState("All");
-  const search = "All";
 
   // State cho all data (không phân trang) để dùng cho stats bar
   const [allData, setAllData] = useState([]);
@@ -46,7 +45,7 @@ const MedicalEventList = () => {
             params: {
               pageIndex,
               pageSize,
-              search,
+              search: severityFilter,
             },
           }
         );
@@ -61,9 +60,8 @@ const MedicalEventList = () => {
       }
     };
     fetchData();
-  }, [navigate, pageIndex, pageSize, search]);
+  }, [navigate, pageIndex, pageSize, severityFilter]);
 
-  // Fetch all data for stats bar (không phân trang)
   useEffect(() => {
     const fetchAllData = async () => {
       try {
@@ -77,9 +75,8 @@ const MedicalEventList = () => {
       }
     };
     fetchAllData();
-  }, [search]);
+  }, []);
 
-  // Lọc theo severity cho bảng hiển thị
   const filteredData =
     severityFilter === "All"
       ? data
@@ -157,7 +154,7 @@ const MedicalEventList = () => {
           </span>
           <Select
             value={severityFilter}
-            onChange={setSeverityFilter}
+              onChange={value => setSeverityFilter(value)}
             style={{width: 120, height: 30, borderRadius: 10}}
             size="middle"
           >
