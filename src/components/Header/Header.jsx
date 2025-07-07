@@ -21,7 +21,7 @@ const Header = () => {
   const token = localStorage.getItem("accessToken");
   const role = useSelector((state) => state.user.role);
   const userId = useSelector((state) => state.user.userId);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
   const [unreadCount, setUnreadCount] = useState(0);
   const unreadCountRef = useRef(0);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
@@ -60,7 +60,6 @@ const Header = () => {
     };
     fetchUserProfile();
   }, [userId]);
-
   useEffect(() => {
     // Lấy số lượng chưa đọc
     const fetchUnread = async () => {
@@ -131,7 +130,7 @@ const Header = () => {
         disabled
         style={{cursor: "default", color: "#333", fontWeight: "500"}}
       >
-        Hello, {role}
+        Hello, {user.fullName ? user.fullName : role}
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item

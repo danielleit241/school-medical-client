@@ -14,6 +14,7 @@ import {
   Col,
   Descriptions,
   Tabs,
+  Divider,
 } from "antd";
 import {
   CalendarOutlined,
@@ -253,48 +254,79 @@ const Timeable = () => {
             <Row gutter={24}>
               {/* Vaccination Round Information */}
               <Col xs={24} lg={16}>
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-1">
                   <div>
                     <Title level={4} style={{marginBottom: 8}}>
                       {round.vaccinationRoundInformation.roundName}
                     </Title>
                     <Space className="mb-2">
-                      <ClockCircleOutlined />
-                      <Text>
-                        {formatDate(
-                          round.vaccinationRoundInformation.startTime
-                        )}{" "}
-                        -
-                        {formatTime(
-                          round.vaccinationRoundInformation.startTime
-                        )}{" "}
-                        to{" "}
-                        {formatTime(round.vaccinationRoundInformation.endTime)}
-                      </Text>
-                      <BookOutlined />
-                      <Text>
-                        Class {round.vaccinationRoundInformation.targetGrade}
-                      </Text>
+                      <div>
+                        <ClockCircleOutlined />
+                        <Text>
+                          {formatDate(
+                            round.vaccinationRoundInformation.startTime
+                          )}{" "}
+                          -
+                          {formatTime(
+                            round.vaccinationRoundInformation.startTime
+                          )}{" "}
+                          to{" "}
+                          {formatTime(
+                            round.vaccinationRoundInformation.endTime
+                          )}
+                        </Text>
+                      </div>
+                      <div>
+                        <BookOutlined />
+                        <Text>
+                          Class {round.vaccinationRoundInformation.targetGrade}
+                        </Text>
+                      </div>
                     </Space>
                   </div>
                   <Tag
                     color={
                       round.vaccinationRoundInformation.status
-                        ? "success"
-                        : "default"
+                        ? "green" // Complete
+                        : "orange" // Pending
                     }
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 12,
+                      padding: "2px 10px",
+                      borderRadius: 12,
+                    }}
                   >
                     {round.vaccinationRoundInformation.status
-                      ? "Active"
-                      : "Inactive"}
+                      ? "Complete"
+                      : "Pending"}
                   </Tag>
                 </div>
-
-                <Paragraph>
-                  {round.vaccinationRoundInformation.description ||
-                    "No description available"}
-                </Paragraph>
-
+                <div
+                  style={{
+                    background: "#F9F9F9",
+                    borderRadius: 8,
+                    padding: "10px 10px",
+                  }}
+                >
+                  <Paragraph
+                    style={{
+                      margin: 0,
+                      color: "#444",
+                      fontSize: 15,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <p style={{margin: 0, fontWeight: 600}}>Description:</p>
+                    {round.vaccinationRoundInformation.description || (
+                      <span style={{color: "#aaa"}}>
+                        No description available
+                      </span>
+                    )}
+                  </Paragraph>
+                </div>
                 {/* Student Information */}
                 <Card type="inner" title="Student Information" className="mt-4">
                   <Descriptions column={{xs: 1, sm: 2}} size="small">

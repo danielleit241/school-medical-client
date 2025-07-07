@@ -1,16 +1,19 @@
-import React, { useState} from "react";
+import React, {useState} from "react";
 import * as XLSX from "xlsx";
 import {axiosFormData} from "../../../../api/axios";
 import {Button, Upload, Alert} from "antd";
 import {UploadOutlined} from "@ant-design/icons";
 import "antd/dist/reset.css";
+import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 const AddVaccine = () => {
+  const navigate = useNavigate();
+  const role = useSelector((state) => state.user.role);
   const [data, setData] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
-
 
   const handleBeforeUpload = (file) => {
     const reader = new FileReader();
@@ -43,12 +46,12 @@ const AddVaccine = () => {
       const res = await axiosFormData.post("/vaccines/upload-excel", formData);
       console.log("Upload response:", res.data.items);
       setShowAlert(true);
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
-      window.location.reload();
       setFileList([]);
       setData([]);
+      setTimeout(() => {
+        navigate(`/${role}/vaccine/inventoryList`);
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error("Upload error:", error);
       setShowErrorAlert(true);
