@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
@@ -7,17 +7,14 @@ import {
   Tag,
   Button,
   Spin,
-  Descriptions,
   Typography,
   Space,
   Row,
   Col,
-  Progress,
   Collapse,
   Empty,
   message,
   Tabs,
-  Tooltip,
 } from "antd";
 import {
   TeamOutlined,
@@ -27,11 +24,8 @@ import {
   CalendarOutlined,
   CheckCircleOutlined,
   PlayCircleOutlined,
-  ClockCircleOutlined,
   EnvironmentOutlined,
   EditOutlined,
-  ReloadOutlined,
-  PlusOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -757,9 +751,9 @@ const HealthCheckList = () => {
                   fontWeight: activeTab === "scheduled" ? 500 : 400,
                 }}
               >
-                <ClockCircleOutlined
+                {/* <ClockCircleOutlined
                   style={{color: "#faad14", marginRight: 6}}
-                />
+                /> */}
                 Scheduled
               </span>
             }
@@ -811,9 +805,9 @@ const HealthCheckList = () => {
                   fontWeight: activeTab === "expired" ? 500 : 400,
                 }}
               >
-                <ClockCircleOutlined
+                {/* <ClockCircleOutlined
                   style={{color: "#f5222d", marginRight: 6}}
-                />
+                /> */}
                 Expired
               </span>
             }
