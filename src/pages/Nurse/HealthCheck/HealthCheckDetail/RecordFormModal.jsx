@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Form, Input, Button, Row, Col, Typography, DatePicker, Select, message } from "antd";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
+import Swal from "sweetalert2";
 
 
 const { Title } = Typography;
@@ -34,6 +35,22 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
 
 
   const handleFinish = async (values) => {
+    if (values.status === "Failed") {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "Save with status 'Failed'?",
+      text: "Some required health check information is missing. Are you sure you want to save?",
+      showCancelButton: true,
+      confirmButtonText: "OK",
+      cancelButtonText: "Back",
+      confirmButtonColor: "#2563eb",
+      cancelButtonColor: "#aaa",
+    });
+    if (!result.isConfirmed) {
+      setLoading(false);
+      return;
+    }
+  }
     setLoading(true);
     try {
       const { healthCheckResultId } = student;
@@ -97,7 +114,6 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
             maxWidth: 900,
             margin: "0 auto"
           }}>
-            <Title level={5} style={{ color: "#355383", marginBottom: 24 }}>Health Check Record</Title>
             <Form
               form={form}
               layout="vertical"
@@ -182,26 +198,65 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                   >
                     <Input suffix="kg" style={{ borderRadius: 8 }} />
                   </Form.Item>
-                  <Form.Item
-                    label="Vision Left (/10)"
-                    name="visionLeft"
-                    rules={[
-                      { required: true, message: "Please enter vision left" },
-                      { pattern: /^\d+(\.\d+)?$/, message: "Vision left must be a number" },
-                    ]}
-                  >
-                    <Input suffix="/10" style={{ borderRadius: 8 }} />
+                  <Form.Item label="Blood Pressure">
+                    <Input.Group compact>
+                      <Form.Item
+                        name="systolic"
+                        noStyle
+                        rules={[
+                          { required: true, message: "Enter systolic" },
+                          { pattern: /^\d+$/, message: "Must be a number" },
+                        ]}
+                      >
+                        <Input
+                          style={{
+                            width: 70,
+                            textAlign: "center",
+                            borderRadius: 8,
+                            marginRight: 1, 
+                          }}
+                          placeholder="SYS"
+                          maxLength={3}
+                        />
+                      </Form.Item>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: 18,
+                          textAlign: "center",
+                          fontWeight: 600,
+                          fontSize: 18,
+                          background: "none", 
+                          border: "none",     
+                          lineHeight: "32px",
+                          marginRight: 1,     
+                          marginLeft: 1,      
+                        }}
+                      >/</span>
+                      <Form.Item
+                        name="diastolic"
+                        noStyle
+                        rules={[
+                          { required: true, message: "Enter diastolic" },
+                          { pattern: /^\d+$/, message: "Must be a number" },
+                        ]}
+                      >
+                        <Input
+                          style={{
+                            width: 70,
+                            textAlign: "center",
+                            borderRadius: 8,
+                            borderLeft: 0,
+                          }}
+                          placeholder="DIA"
+                          maxLength={3}
+                        />
+                      </Form.Item>
+                      <span style={{ marginLeft: 8, color: "#555" }}>mmHg</span>
+                    </Input.Group>
                   </Form.Item>
-                  <Form.Item
-                    label="Vision Right (/10)"
-                    name="visionRight"
-                    rules={[
-                      { required: true, message: "Please enter vision right" },
-                      { pattern: /^\d+(\.\d+)?$/, message: "Vision right must be a number" },
-                    ]}
-                  >
-                    <Input suffix="/10" style={{ borderRadius: 8 }} />
-                  </Form.Item>
+                 
+                  
                 </Col>
                 <Col xs={24} md={12}>
                   <Form.Item
@@ -303,109 +358,76 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                       </Form.Item>
                     </Form>
                   </Modal>
-                  <Form.Item label="Blood Pressure">
-                    <Input.Group compact>
-                      <Form.Item
-                        name="systolic"
-                        noStyle
-                        rules={[
-                          { required: true, message: "Enter systolic" },
-                          { pattern: /^\d+$/, message: "Must be a number" },
-                        ]}
-                      >
-                        <Input
-                          style={{
-                            width: 70,
-                            textAlign: "center",
-                            borderRadius: 8,
-                            marginRight: 1, 
-                          }}
-                          placeholder="SYS"
-                          maxLength={3}
-                        />
-                      </Form.Item>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          width: 18,
-                          textAlign: "center",
-                          fontWeight: 600,
-                          fontSize: 18,
-                          background: "none", 
-                          border: "none",     
-                          lineHeight: "32px",
-                          marginRight: 1,     
-                          marginLeft: 1,      
-                        }}
-                      >/</span>
-                      <Form.Item
-                        name="diastolic"
-                        noStyle
-                        rules={[
-                          { required: true, message: "Enter diastolic" },
-                          { pattern: /^\d+$/, message: "Must be a number" },
-                        ]}
-                      >
-                        <Input
-                          style={{
-                            width: 70,
-                            textAlign: "center",
-                            borderRadius: 8,
-                            borderLeft: 0,
-                          }}
-                          placeholder="DIA"
-                          maxLength={3}
-                        />
-                      </Form.Item>
-                      <span style={{ marginLeft: 8, color: "#555" }}>mmHg</span>
-                    </Input.Group>
-                  </Form.Item>
-                  <Form.Item label="Notes" name="notes">
-                    <Input.TextArea rows={3} style={{ borderRadius: 8 }} />
+                <Form.Item
+                    label="Vision Left (/10)"
+                    name="visionLeft"
+                    rules={[
+                      { required: true, message: "Please enter vision left" },
+                      { pattern: /^\d+(\.\d+)?$/, message: "Vision left must be a number" },
+                    ]}
+                  >
+                    <Input suffix="/10" style={{ borderRadius: 8 }} />
                   </Form.Item>
                   <Form.Item
-                    label="Status"
-                    shouldUpdate={(prev, curr) => prev.status !== curr.status}
+                    label="Vision Right (/10)"
+                    name="visionRight"
+                    rules={[
+                      { required: true, message: "Please enter vision right" },
+                      { pattern: /^\d+(\.\d+)?$/, message: "Vision right must be a number" },
+                    ]}
                   >
-                    {({ getFieldValue }) => {
-                      const status = getFieldValue("status");
-                      return (
-                        <Typography.Text
-                          strong
-                          style={{
-                            color: status === "Completed" ? "#22c55e" : "#ef4444",
-                            fontWeight: 600,
-                            fontSize: 16,
-                          }}
-                        >
-                          {status}
-                        </Typography.Text>
-                      );
-                    }}
+                    <Input suffix="/10" style={{ borderRadius: 8 }} />
                   </Form.Item>
-                  <Form.Item name="status" hidden>
-                    <Input />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      style={{
-                        width: "100%",
-                        borderRadius: 8,
-                        background: "linear-gradient(90deg, #2563eb 0%, #60a5fa 100%)",
-                        fontWeight: 600,
-                        fontSize: 16,
-                        boxShadow: "0 2px 8px #2563eb22",
-                        marginTop: 8,
-                      }}
-                      loading={loading}
-                    >
-                      Save
-                    </Button>
-                  </Form.Item>
+
+                  
+                  
                 </Col>
               </Row>
+              {/* Notes full width */}
+              <Form.Item label="Notes" name="notes" style={{ marginTop: 8 }}>
+                <Input.TextArea rows={3} style={{ borderRadius: 8, width: "100%" }} />
+              </Form.Item>
+              <Form.Item
+                label="Status"
+                shouldUpdate={(prev, curr) => prev.status !== curr.status}
+              >
+                {({ getFieldValue }) => {
+                  const status = getFieldValue("status");
+                    return (
+                      <Input
+                        readOnly
+                        strong
+                        value={status}
+                        style={{
+                          color: status === "Completed" ? "#22c55e" : "#ef4444",
+                          fontWeight: 600,
+                          fontSize: 16,
+                        }}
+                      />                        
+                      );
+                }}
+              </Form.Item>
+              <Form.Item name="status" hidden>
+                <Input />
+              </Form.Item>
+              {/* Save button center */}
+              <Form.Item style={{ textAlign: "center", marginTop: 8 }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{
+                    width: 200,
+                    borderRadius: 8,
+                    background: "linear-gradient(90deg, #2563eb 0%, #60a5fa 100%)",
+                    fontWeight: 600,
+                    fontSize: 16,
+                    boxShadow: "0 2px 8px #2563eb22",
+                  }}
+                  loading={loading}
+                >
+                  Save
+                </Button>
+              </Form.Item>
             </Form>
           </div>
         </Col>

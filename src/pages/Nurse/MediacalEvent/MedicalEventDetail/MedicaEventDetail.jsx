@@ -29,6 +29,18 @@ const MedicaEventDetail = () => {
   const [eventDetail, setEventDetail] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const formatPhone = (phone) => {
+  if (!phone) return "";
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `${digits.slice(0,4)}.${digits.slice(4,7)}.${digits.slice(7,10)}`;
+    }
+    if (digits.length === 11) {
+      return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}.${digits.slice(9,11)}`;
+    }
+      return phone; // fallback
+  };
+
   useEffect(() => {
     const fetchEventDetail = async () => {
       try {
@@ -222,6 +234,7 @@ const MedicaEventDetail = () => {
               >
                 Student Code: {studentInfo?.studentCode || "N/A"}
               </p>
+              
             </div>
             <div
               style={{
@@ -296,6 +309,25 @@ const MedicaEventDetail = () => {
               </div>
               <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
                 {medicalEvent?.location || ""}
+              </p>           
+            </div>
+            <div
+              style={{
+                backgroundColor: "#f8fafc",
+                padding: 14,
+                borderRadius: 10,
+                border: "1.5px solid #e2e8f0",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+                <UserOutlined style={{ color: "#0ea5e9", fontSize: 16, marginRight: 8 }} />
+                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Parent Info</h4>
+              </div>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
+                {studentInfo?.parentFullName || "N/A"} - {formatPhone(studentInfo?.parentPhoneNumber || "N/A")}
               </p>
             </div>
           </div>

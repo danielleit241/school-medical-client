@@ -13,7 +13,22 @@ const DetailMedicalRes = () => {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
-  
+  const [nurseInfo, setNurseInfo] = useState(null);
+
+  const formatPhone = (phone) => {
+    if (!phone) return "";
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length === 10) {
+        return `${digits.slice(0,4)}.${digits.slice(4,7)}.${digits.slice(7,10)}`;
+      }
+      if (digits.length === 11) {
+        return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}.${digits.slice(9,11)}`;
+      }
+        return phone; // fallback
+  };
+
+
+
   useEffect(() => {
     const fetchApi = async () => {
       setLoading(true);
@@ -22,6 +37,10 @@ const DetailMedicalRes = () => {
           `/api/parents/medical-registrations/${medicalRegistrationId}`
         );
         setDetail(response.data);
+        const res = await axiosInstance.get(
+          `/api/user-profile/${response.data.nurseApproved.staffNurseId}`
+        );
+        setNurseInfo(res.data);
       } catch (error) {
         console.error("Error fetching medical registration details:", error);
         Swal.fire({
@@ -51,6 +70,8 @@ const DetailMedicalRes = () => {
   if (!medicalRegistrationId) {
     return <div>No medical registration data available.</div>;
   }
+
+  
 
   if (loading || !detail) {
     return (
@@ -307,6 +328,42 @@ const DetailMedicalRes = () => {
                     {student?.studentFullName}
                   </td>
                 </tr>
+                <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                      padding: "12px 16px",
+                      background: "#f9f9f9",
+                      height: "80px",
+                      fontWeight: "600",
+                      width: "40%",
+                      fontSize: "16px",
+                      borderRight: "2px solid #eee", // Thêm dòng này
+                  }}
+                >
+                  Nurse
+                </td>
+                <td
+                  style={{
+                    padding: "12px 16px",
+                    width: "250px",
+                    fontSize: "16px",
+                    borderRight: "2px solid #eee", // Thêm dòng này
+                  }}
+                >
+                  {nurseInfo.fullName || "N/A"}
+                </td>
+                <td
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    padding: "12px 16px",
+                    fontSize: "16px",
+                    marginTop: "16px",
+                  }}
+                >
+                  <p style={{fontWeight: 600}}> Phone:</p> {formatPhone(nurseInfo.phoneNumber) }
+                </td>
+              </tr>
                 <tr style={{borderBottom: "1px solid #eee"}}>
                   <td
                     style={{
