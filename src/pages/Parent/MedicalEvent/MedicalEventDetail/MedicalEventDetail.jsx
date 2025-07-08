@@ -36,11 +36,15 @@ const MedicalEventDetail = () => {
       .get(`/api/parents/students/medical-events/${eventId}`)
       .then((res) => {
         setEventDetail(res.data);
-        setNurseInfo(res.data.studentInfo);
+        return axiosInstance.get(`/api/user-profile/${res.data.medicalEvent.staffNurseId}`);
+      })
+      .then((res) => {
+        setNurseInfo(res.data);
       })
       .catch(() => setEventDetail(null))
       .finally(() => setLoadingDetail(false));
   }, [eventId]);
+
 
   const handleBack = () => {
     localStorage.removeItem("eventId");
@@ -302,7 +306,7 @@ const MedicalEventDetail = () => {
                     borderRight: "2px solid #eee", // Thêm dòng này
                   }}
                 >
-                  {nurseInfo.nurseName || "N/A"}
+                  {nurseInfo.fullName || "N/A"}
                 </td>
                 <td
                   style={{
