@@ -737,7 +737,7 @@ const CampaignList = () => {
         <TabPane
           tab={
             <span>
-              <ClockCircleOutlined style={{color: "#faad14", marginRight: 4}} />
+              {/* <ClockCircleOutlined style={{color: "#faad14", marginRight: 4}} /> */}
               <span>Scheduled</span>
             </span>
           }
@@ -764,7 +764,7 @@ const CampaignList = () => {
         <TabPane
           tab={
             <span>
-              <ClockCircleOutlined style={{color: "#f5222d", marginRight: 4}} />
+              {/* <ClockCircleOutlined style={{color: "#f5222d", marginRight: 4}} /> */}
               <span>Expired</span>
             </span>
           }
