@@ -23,6 +23,7 @@ import {Syringe} from "lucide-react"
 import {MedicineBoxOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 
 const {Title, Text} = Typography;
 
@@ -237,6 +238,24 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
   };
 
   const handleFinish = async (values) => {
+    const vaccinated = values.vaccinated;
+    const status = vaccinated ? "Completed" : "Failed";
+    if (status === "Failed") {
+      const result = await Swal.fire({
+        icon: "warning",
+        title: "Save with vaccination status 'Failed'?",
+        text: "Vaccination status is missing. Are you sure you want to save?",
+      showCancelButton: true,
+      confirmButtonText: "OK",
+      cancelButtonText: "Back",
+      confirmButtonColor: "#2563eb",
+      cancelButtonColor: "#aaa",
+    });
+    if (!result.isConfirmed) {
+      setLoading(false);
+      return;
+    }
+  }
     setLoading(true);
     try {
       const vaccinationResultId = student?.vaccinationResultId;
@@ -402,7 +421,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 onClick={() => handleQualified(false)}
                 style={{ minWidth: 110, fontWeight: 500 }}
               >
-                Cancel
+                Not Qualified
               </Button>
               <Button
                 type="primary"
@@ -410,7 +429,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 onClick={() => handleQualified(true)}
                 style={{ minWidth: 110, fontWeight: 500 }}
               >
-                Confirm
+                Qualified
               </Button>
             </Space>
           </Row>

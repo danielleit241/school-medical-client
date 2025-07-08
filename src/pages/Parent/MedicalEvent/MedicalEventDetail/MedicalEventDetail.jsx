@@ -7,9 +7,21 @@ const MedicalEventDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const eventId = location.state?.eventId || localStorage.getItem("eventId");
-
+  const [nurseInfo, setNurseInfo] = useState(null);
   const [eventDetail, setEventDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+
+  const formatPhone = (phone) => {
+    if (!phone) return "";
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length === 10) {
+        return `${digits.slice(0,4)}.${digits.slice(4,7)}.${digits.slice(7,10)}`;
+      }
+      if (digits.length === 11) {
+        return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}.${digits.slice(9,11)}`;
+      }
+        return phone; // fallback
+  };
 
   useEffect(() => {
     if (!eventId) {
@@ -22,7 +34,10 @@ const MedicalEventDetail = () => {
     setLoadingDetail(true);
     axiosInstance
       .get(`/api/parents/students/medical-events/${eventId}`)
-      .then((res) => setEventDetail(res.data))
+      .then((res) => {
+        setEventDetail(res.data);
+        setNurseInfo(res.data.studentInfo);
+      })
       .catch(() => setEventDetail(null))
       .finally(() => setLoadingDetail(false));
   }, [eventId]);
@@ -265,6 +280,42 @@ const MedicalEventDetail = () => {
                     )}
                   </td>
                 </tr>
+               <tr style={{borderBottom: "1px solid #eee"}}>
+                <td
+                  style={{
+                    padding: "12px 16px",
+                    background: "#f9f9f9",
+                    height: "80px",
+                    fontWeight: "600",
+                    width: "40%",
+                    fontSize: "16px",
+                    borderRight: "2px solid #eee", // Thêm dòng này
+                  }}
+                >
+                  Nurse
+                </td>
+                <td
+                  style={{
+                    padding: "12px 16px",
+                    width: "250px",
+                    fontSize: "16px",
+                    borderRight: "2px solid #eee", // Thêm dòng này
+                  }}
+                >
+                  {nurseInfo.nurseName || "N/A"}
+                </td>
+                <td
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    padding: "12px 16px",
+                    fontSize: "16px",
+                    marginTop: "16px",
+                  }}
+                >
+                  <p style={{fontWeight: 600}}> Phone:</p> {formatPhone(nurseInfo.phoneNumber) || "N/A"}
+                </td>
+              </tr>
                 <tr style={{borderBottom: "1px solid #eee"}}>
                   <td
                     style={{
