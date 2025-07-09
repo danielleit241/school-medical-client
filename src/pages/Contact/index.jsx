@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import ContactModal from "./ContactModal"
-import {useNavigate} from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import ContactModal from "./ContactModal";
+import { useNavigate } from "react-router-dom";
 const Contact = () => {
-  const navigate = useNavigate()
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalType, setModalType] = useState("message") // message or appointment
-  const [activeCard, setActiveCard] = useState(null)
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("message"); // message or appointment
+  const [activeCard, setActiveCard] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
-  })
-  const [formErrors, setFormErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitSuccess, setSubmitSuccess] = useState(false)
-  const mapRef = useRef(null)
-  const headerRef = useRef(null)
-  const cardsRef = useRef([])
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const mapRef = useRef(null);
+  const headerRef = useRef(null);
+  const cardsRef = useRef([]);
 
   // Contact information
   const contactInfo = {
@@ -27,92 +27,90 @@ const Contact = () => {
     description:
       "We are always ready to support the health of students, parents, and teachers. We listen to all feedback to improve the quality of school healthcare services.",
     hotline: "079-999-5828",
-    email: "gcteam2023@gmail.com",
+    email: "globalcitizens1205@gmail.com",
     address: "FPT University, HCMC",
-    hours: "Monday - Friday: 7:30 AM - 5:00 PM",
+    hours: "Monday - Friday: 8:00 AM - 5:00 PM",
     socialMedia: [
       { name: "Facebook", icon: "📘", url: "#" },
       { name: "Twitter", icon: "📘", url: "#" },
       { name: "Instagram", icon: "📷", url: "#" },
     ],
-  }
-
+  };
 
   useEffect(() => {
-
     // Parallax effect on scroll
     const handleScroll = () => {
       if (headerRef.current) {
-        const scrollY = window.scrollY
-        headerRef.current.style.transform = `translateY(${scrollY * 0.4}px)`
-        headerRef.current.style.opacity = 1 - scrollY * 0.003
+        const scrollY = window.scrollY;
+        headerRef.current.style.transform = `translateY(${scrollY * 0.4}px)`;
+        headerRef.current.style.opacity = 1 - scrollY * 0.003;
       }
 
       // Animate cards on scroll
       cardsRef.current.forEach((card) => {
-        if (!card) return
-        const rect = card.getBoundingClientRect()
-        const isVisible = rect.top < window.innerHeight - 100
+        if (!card) return;
+        const rect = card.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight - 100;
         if (isVisible) {
-          card.style.opacity = "1"
-          card.style.transform = "translateY(0)"
+          card.style.opacity = "1";
+          card.style.transform = "translateY(0)";
         }
-      })
-    }
+      });
+    };
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll);
 
     // Initialize map (simulated)
     if (mapRef.current) {
       // In a real application, you would initialize a map library here
-      console.log("Map initialized")
+      console.log("Map initialized");
     }
 
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [])
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-    })
+    });
     // Clear error when user types
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
         [name]: "",
-      })
+      });
     }
-  }
+  };
 
   const validateForm = () => {
-    const errors = {}
-    if (!formData.name.trim()) errors.name = "Name is required"
+    const errors = {};
+    if (!formData.name.trim()) errors.name = "Name is required";
     if (!formData.email.trim()) {
-      errors.email = "Email is required"
+      errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Email is invalid"
+      errors.email = "Email is invalid";
     }
-    if (!formData.message.trim()) errors.message = "Message is required"
-    return errors
-  }
+    if (!formData.message.trim()) errors.message = "Message is required";
+    return errors;
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    const errors = validateForm()
+    e.preventDefault();
+    const errors = validateForm();
     if (Object.keys(errors).length > 0) {
-      setFormErrors(errors)
-      return
+      setFormErrors(errors);
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     // Simulate form submission
     setTimeout(() => {
-      setIsSubmitting(false)
-      setSubmitSuccess(true)
+      setIsSubmitting(false);
+      setSubmitSuccess(true);
       // Reset form after successful submission
       setTimeout(() => {
         setFormData({
@@ -120,20 +118,20 @@ const Contact = () => {
           email: "",
           subject: "",
           message: "",
-        })
-        setSubmitSuccess(false)
-      }, 3000)
-    }, 2000)
-  }
+        });
+        setSubmitSuccess(false);
+      }, 3000);
+    }, 2000);
+  };
 
   const openModal = (type) => {
-    setModalType(type)
-    setIsModalOpen(true)
-  }
+    setModalType(type);
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const keyframes = `
     @keyframes fadeIn {
@@ -173,7 +171,7 @@ const Contact = () => {
       50% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
-  `
+  `;
 
   const styles = {
     container: {
@@ -464,8 +462,7 @@ const Contact = () => {
       backgroundColor: "rgba(37, 99, 235, 0.1)",
       pointerEvents: "none",
     },
-   
-  }
+  };
 
   // Generate random positions for header icons
   const headerIcons = [
@@ -475,9 +472,7 @@ const Contact = () => {
     { icon: "🏥", top: "60%", left: "85%", delay: "3s" },
     { icon: "👨‍⚕️", top: "15%", left: "40%", delay: "4s" },
     { icon: "👩‍⚕️", top: "80%", left: "60%", delay: "5s" },
-  ]
-
- 
+  ];
 
   return (
     <>
@@ -506,8 +501,9 @@ const Contact = () => {
           <div style={styles.headerContent}>
             <h1 style={styles.headerTitle}>Contact Us</h1>
             <p style={styles.headerSubtitle}>
-              We are always ready to support the health of students, parents, and teachers. We listen to all feedback to
-              improve the quality of school healthcare services.
+              We are always ready to support the health of students, parents,
+              and teachers. We listen to all feedback to improve the quality of
+              school healthcare services.
             </p>
           </div>
           <div style={styles.headerWave}></div>
@@ -521,9 +517,11 @@ const Contact = () => {
               Get in Touch
               <div style={styles.sectionTitleLine}></div>
             </h2>
-            <p style={{ maxWidth: "600px", margin: "0 auto", color: "#4b5563" }}>
-              Don't hesitate to contact us through the channels below for consultation, appointment booking, or
-              feedback!
+            <p
+              style={{ maxWidth: "600px", margin: "0 auto", color: "#4b5563" }}
+            >
+              Don't hesitate to contact us through the channels below for
+              consultation, appointment booking, or feedback!
             </p>
           </div>
 
@@ -547,18 +545,19 @@ const Contact = () => {
               <div style={styles.cardBody}>
                 <p style={styles.cardInfo}>{contactInfo.hotline}</p>
                 <p style={{ color: "#6b7280", marginBottom: "1.5rem" }}>
-                  Emergency medical support and health consultation during office hours.
+                  Emergency medical support and health consultation during
+                  office hours.
                 </p>
                 <button
                   style={styles.cardButton}
                   onClick={() => navigate("/parent/appointments-list")}
                   onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = "#355383"
-                    e.target.style.transform = "translateY(-2px)"
+                    e.target.style.backgroundColor = "#355383";
+                    e.target.style.transform = "translateY(-2px)";
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = "#355383"
-                    e.target.style.transform = "translateY(0)"
+                    e.target.style.backgroundColor = "#355383";
+                    e.target.style.transform = "translateY(0)";
                   }}
                 >
                   Book Appointment
@@ -585,18 +584,19 @@ const Contact = () => {
               <div style={styles.cardBody}>
                 <p style={styles.cardInfo}>{contactInfo.email}</p>
                 <p style={{ color: "#6b7280", marginBottom: "1.5rem" }}>
-                  Send questions, feedback, or administrative support requests. Response within 24 hours.
+                  Send questions, feedback, or administrative support requests.
+                  Response within 24 hours.
                 </p>
                 <button
                   style={styles.cardButton}
                   onClick={() => openModal("message")}
                   onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = "#355383"
-                    e.target.style.transform = "translateY(-2px)"
+                    e.target.style.backgroundColor = "#355383";
+                    e.target.style.transform = "translateY(-2px)";
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = "#355383"
-                    e.target.style.transform = "translateY(0)"
+                    e.target.style.backgroundColor = "#355383";
+                    e.target.style.transform = "translateY(0)";
                   }}
                 >
                   Send Message
@@ -623,23 +623,29 @@ const Contact = () => {
               <div style={styles.cardBody}>
                 <p style={styles.cardInfo}>{contactInfo.address}</p>
                 <p style={{ color: "#6b7280", marginBottom: "1.5rem" }}>
-                  School medical office, dedicated to providing student healthcare. {contactInfo.hours}
+                  School medical office, dedicated to providing student
+                  healthcare.
+                  <p>
+                    <b>{contactInfo.hours}</b>
+                  </p>
                 </p>
                 <button
                   style={styles.cardButton}
                   onClick={() => {
                     window.open(
-                      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contactInfo.address)}`,
-                      "_blank",
-                    )
+                      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        contactInfo.address
+                      )}`,
+                      "_blank"
+                    );
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = "#355383"
-                    e.target.style.transform = "translateY(-2px)"
+                    e.target.style.backgroundColor = "#355383";
+                    e.target.style.transform = "translateY(-2px)";
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = "#355383"
-                    e.target.style.transform = "translateY(0)"
+                    e.target.style.backgroundColor = "#355383";
+                    e.target.style.transform = "translateY(0)";
                   }}
                 >
                   Get Directions
@@ -664,13 +670,19 @@ const Contact = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     style={styles.formInput}
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                    onFocus={(e) =>
+                      Object.assign(e.target.style, styles.formInputFocus)
+                    }
                     onBlur={(e) => {
-                      e.target.style.borderColor = formErrors.name ? "#ef4444" : "#e5e7eb"
-                      e.target.style.boxShadow = "none"
+                      e.target.style.borderColor = formErrors.name
+                        ? "#ef4444"
+                        : "#e5e7eb";
+                      e.target.style.boxShadow = "none";
                     }}
                   />
-                  {formErrors.name && <div style={styles.formError}>{formErrors.name}</div>}
+                  {formErrors.name && (
+                    <div style={styles.formError}>{formErrors.name}</div>
+                  )}
                 </div>
 
                 <div style={styles.formGroup}>
@@ -684,13 +696,19 @@ const Contact = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     style={styles.formInput}
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                    onFocus={(e) =>
+                      Object.assign(e.target.style, styles.formInputFocus)
+                    }
                     onBlur={(e) => {
-                      e.target.style.borderColor = formErrors.email ? "#ef4444" : "#e5e7eb"
-                      e.target.style.boxShadow = "none"
+                      e.target.style.borderColor = formErrors.email
+                        ? "#ef4444"
+                        : "#e5e7eb";
+                      e.target.style.boxShadow = "none";
                     }}
                   />
-                  {formErrors.email && <div style={styles.formError}>{formErrors.email}</div>}
+                  {formErrors.email && (
+                    <div style={styles.formError}>{formErrors.email}</div>
+                  )}
                 </div>
 
                 <div style={styles.formGroup}>
@@ -704,10 +722,12 @@ const Contact = () => {
                     value={formData.subject}
                     onChange={handleInputChange}
                     style={styles.formInput}
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                    onFocus={(e) =>
+                      Object.assign(e.target.style, styles.formInputFocus)
+                    }
                     onBlur={(e) => {
-                      e.target.style.borderColor = "#e5e7eb"
-                      e.target.style.boxShadow = "none"
+                      e.target.style.borderColor = "#e5e7eb";
+                      e.target.style.boxShadow = "none";
                     }}
                   />
                 </div>
@@ -722,13 +742,19 @@ const Contact = () => {
                     value={formData.message}
                     onChange={handleInputChange}
                     style={styles.formTextarea}
-                    onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                    onFocus={(e) =>
+                      Object.assign(e.target.style, styles.formInputFocus)
+                    }
                     onBlur={(e) => {
-                      e.target.style.borderColor = formErrors.message ? "#ef4444" : "#e5e7eb"
-                      e.target.style.boxShadow = "none"
+                      e.target.style.borderColor = formErrors.message
+                        ? "#ef4444"
+                        : "#e5e7eb";
+                      e.target.style.boxShadow = "none";
                     }}
                   ></textarea>
-                  {formErrors.message && <div style={styles.formError}>{formErrors.message}</div>}
+                  {formErrors.message && (
+                    <div style={styles.formError}>{formErrors.message}</div>
+                  )}
                 </div>
 
                 <button
@@ -739,18 +765,25 @@ const Contact = () => {
                   }}
                   disabled={isSubmitting}
                   onMouseEnter={(e) => {
-                    if (!isSubmitting) Object.assign(e.target.style, styles.formButtonHover)
+                    if (!isSubmitting)
+                      Object.assign(e.target.style, styles.formButtonHover);
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = isSubmitting ? "#355383" : "#355383"
-                    e.target.style.transform = "translateY(0)"
-                    e.target.style.boxShadow = "none"
+                    e.target.style.backgroundColor = isSubmitting
+                      ? "#355383"
+                      : "#355383";
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = "none";
                   }}
                 >
                   {isSubmitting ? "Sending..." : "Send Message"}
                 </button>
 
-                {submitSuccess && <div style={styles.formSuccess}>Message sent successfully!</div>}
+                {submitSuccess && (
+                  <div style={styles.formSuccess}>
+                    Message sent successfully!
+                  </div>
+                )}
               </form>
             </div>
 
@@ -770,10 +803,16 @@ const Contact = () => {
         </main>
 
         {/* Modal */}
-        {isModalOpen && <ContactModal type={modalType} onClose={closeModal} contactInfo={contactInfo} />}
+        {isModalOpen && (
+          <ContactModal
+            type={modalType}
+            onClose={closeModal}
+            contactInfo={contactInfo}
+          />
+        )}
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Contact
+export default Contact;
