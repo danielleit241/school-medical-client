@@ -393,7 +393,7 @@ const Timeable = () => {
                       >
                         {round.parent.parentConfirm
                           ? "Confirmed"
-                          : "Not confirmed"}
+                          : "Declined"}
                       </Tag>
                     </Descriptions.Item>
                   </Descriptions>
