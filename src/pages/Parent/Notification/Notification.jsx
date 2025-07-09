@@ -37,15 +37,15 @@ const Notifications = () => {
   };
 
   const notificationIconMap = {
-    1: <CalendarOutlined style={{color: "#1677ff", fontSize: 24}} />,                // Appointment
-    2: <MedicineBoxOutlined style={{color: "#52c41a", fontSize: 24}} />,             // Health Check Up
-    3: <ExclamationCircleOutlined style={{color: "#faad14", fontSize: 24}} />,       // Medical Event
-    4: <FileTextOutlined style={{color: "#722ed1", fontSize: 24}} />,                // Medical Registration
-    5: <SafetyCertificateOutlined style={{color: "#1890ff", fontSize: 24}} />,       // Vaccination
-    6: <BellOutlined style={{color: "#355383", fontSize: 24}} />,                    // General Notification
-    7: <EyeOutlined style={{color: "#13c2c2", fontSize: 24}} />,                     // Vaccination Observation
-    8: <CheckCircleOutlined style={{color: "#52c41a", fontSize: 24}} />,             // Vaccination Result
-    9: <MedicineBoxOutlined style={{color: "#fa541c", fontSize: 24}} />,             // Health Check Up Result
+    1: <CalendarOutlined style={{color: "#1677ff", fontSize: 24}} />, // Appointment
+    2: <MedicineBoxOutlined style={{color: "#52c41a", fontSize: 24}} />, // Health Check Up
+    3: <ExclamationCircleOutlined style={{color: "#faad14", fontSize: 24}} />, // Medical Event
+    4: <FileTextOutlined style={{color: "#722ed1", fontSize: 24}} />, // Medical Registration
+    5: <SafetyCertificateOutlined style={{color: "#1890ff", fontSize: 24}} />, // Vaccination
+    6: <BellOutlined style={{color: "#355383", fontSize: 24}} />, // General Notification
+    7: <EyeOutlined style={{color: "#13c2c2", fontSize: 24}} />, // Vaccination Observation
+    8: <CheckCircleOutlined style={{color: "#52c41a", fontSize: 24}} />, // Vaccination Result
+    9: <MedicineBoxOutlined style={{color: "#fa541c", fontSize: 24}} />, // Health Check Up Result
   };
 
   // Cập nhật lại mỗi phút để làm mới thời gian
@@ -157,6 +157,7 @@ const Notifications = () => {
           padding: "0",
           maxHeight: 700,
           overflowY: "auto",
+          overflowX: "hidden",
           minHeight: 300,
           display: "flex",
           flexDirection: "column",
@@ -288,7 +289,11 @@ const Notifications = () => {
                     >
                       Details
                     </Button>
-                    {(noti.type === 7 || noti.content.includes(" not qualified") || noti.content.includes("not received the vaccination") ? "" :(
+                    {noti.type === 7 ||
+                    noti.content.includes(" not qualified") ||
+                    noti.content.includes("not received the vaccination") ? (
+                      ""
+                    ) : (
                       <Button
                         size="small"
                         style={{
@@ -304,7 +309,7 @@ const Notifications = () => {
                       >
                         View
                       </Button>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>

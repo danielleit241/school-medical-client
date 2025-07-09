@@ -40,10 +40,15 @@ function HomePage() {
     <>
       <div className="relative home">
         {/* Đặt Chatbox ở đây để nó nằm trên Carousel */}
+        {!userId && (
+          <div className="absolute guide top-5 left-25 z-10 underline text-red-400">
+            <Link to="/guide">
+              <p>Website usage guide for parents</p>
+            </Link>
+          </div>
+        )}
         <Chatbox />
-        <div className="absolute guide top-5 left-20 z-10 underline text-red-400">
-          {!userId && <Link to="/guide">Website usage guide for parents</Link>}
-        </div>
+
         <div className="home__carousel">
           <Carousel autoplay />
         </div>
