@@ -1,11 +1,10 @@
 import React, {useState} from "react";
-import {Eye, EyeOff} from "lucide-react";
+import {CircleCheck} from "lucide-react";
 import axiosInstance from "../../api/axios";
 import "./index.scss";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
 import {useLocation, useNavigate} from "react-router-dom";
-import {CircleCheck} from "lucide-react";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -235,7 +234,7 @@ const ResetPassword = () => {
                       zIndex: 11,
                     }}
                   />
-                  <div style={{fontWeight: 600, marginBottom: 6}}>Sử dụng:</div>
+                  <div style={{fontWeight: 600, marginBottom: 6}}>Usage:</div>
                   <ul style={{paddingLeft: 20, margin: 0, listStyle: "none"}}>
                     <li
                       style={{

@@ -3,6 +3,7 @@ import "./index.scss";
 import axiosInstance from "../../api/axios";
 import {Alert, Button} from "antd";
 import {useNavigate} from "react-router-dom";
+import {Eye, EyeOff, CircleCheck} from "lucide-react"; // đã có
 
 const ChangePassword = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -25,6 +26,8 @@ const ChangePassword = () => {
   const [countdown, setCountdown] = useState(60);
   const [showResend, setShowResend] = useState(false);
   const navigate = useNavigate();
+  const [showPasswordGuide, setShowPasswordGuide] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const OTP_LENGTH = 6;
   const [otpArray, setOtpArray] = useState(Array(OTP_LENGTH).fill(""));
@@ -355,59 +358,173 @@ const ChangePassword = () => {
 
         {step === 3 && (
           <form onSubmit={handleResetPassword} className={stepAnimation}>
-            <div className="reset_form__input">
+            <div className="reset_form__input relative">
               <label>New Password</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={handleNewPasswordChange}
-                placeholder="Enter new password"
-                required
-              />
-              <div style={{fontSize: 13, marginTop: 4}}>
-                <p
+              <div style={{position: "relative"}}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={handleNewPasswordChange}
+                  placeholder="Enter new password"
+                  required
+                  onFocus={() => setShowPasswordGuide(true)}
+                  onBlur={() => setShowPasswordGuide(false)}
+                  style={{position: "relative", paddingRight: 36}}
+                />
+                {/* Only one eye icon here */}
+                <span
+                  onClick={() => setShowPassword((prev) => !prev)}
                   style={{
-                    color: passwordWarning.length ? "green" : "red",
-                    margin: 0,
+                    position: "absolute",
+                    right: 10,
+                    bottom: "50%",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    color: "#888",
+                    fontSize: 18,
+                    zIndex: 2,
                   }}
+                  tabIndex={0}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  • At least 6 characters
-                </p>
-                <p
-                  style={{
-                    color: passwordWarning.uppercase ? "green" : "red",
-                    margin: 0,
-                  }}
-                >
-                  • At least one uppercase letter
-                </p>
-                <p
-                  style={{
-                    color: passwordWarning.number ? "green" : "red",
-                    margin: 0,
-                  }}
-                >
-                  • At least one number
-                </p>
-                <p
-                  style={{
-                    color: passwordWarning.special ? "green" : "red",
-                    margin: 0,
-                  }}
-                >
-                  • At least one special character
-                </p>
+                  {showPassword ? (
+                    <p
+                      style={{
+                        color: "#ccc",
+                        fontSize: 11,
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Hide password
+                    </p>
+                  ) : (
+                    <p
+                      style={{
+                        color: "#ccc",
+                        fontSize: 11,
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Show password
+                    </p>
+                  )}
+                </span>
+                {/* Password guide popup giữ nguyên */}
+                {showPasswordGuide && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: "calc(100% + 10px)",
+                      zIndex: 10,
+                      background: "#fff",
+                      border: "1px solid #e0e7ef",
+                      borderRadius: 8,
+                      padding: "14px 22px",
+                      minWidth: 300,
+                      fontSize: 14,
+                      color: "#222",
+                      filter: "drop-shadow(0 2px 8px #e0e7ef)",
+                    }}
+                  >
+                    {/* Arrow */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 16,
+                        left: -12,
+                        width: 0,
+                        height: 0,
+                        borderTop: "10px solid transparent",
+                        borderBottom: "10px solid transparent",
+                        borderRight: "12px solid #fff",
+                        filter: "drop-shadow(-1px 0 0 #e0e7ef)",
+                        zIndex: 11,
+                      }}
+                    />
+                    <div style={{fontWeight: 600, marginBottom: 6}}>Usage:</div>
+                    <ul style={{paddingLeft: 20, margin: 0, listStyle: "none"}}>
+                      <li
+                        style={{
+                          color: passwordWarning.length ? "#16a34a" : "#888",
+                          marginBottom: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <CircleCheck
+                          size={18}
+                          color={passwordWarning.length ? "#16a34a" : "#888"}
+                          style={{minWidth: 18}}
+                        />
+                        8 - 64 characters
+                      </li>
+                      <li
+                        style={{
+                          color: passwordWarning.uppercase ? "#16a34a" : "#888",
+                          marginBottom: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <CircleCheck
+                          size={18}
+                          color={passwordWarning.uppercase ? "#16a34a" : "#888"}
+                          style={{minWidth: 18}}
+                        />
+                        Uppercase and lowercase letters
+                      </li>
+                      <li
+                        style={{
+                          color: passwordWarning.number ? "#16a34a" : "#888",
+                          marginBottom: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <CircleCheck
+                          size={18}
+                          color={passwordWarning.number ? "#16a34a" : "#888"}
+                          style={{minWidth: 18}}
+                        />
+                        Numbers
+                      </li>
+                      <li
+                        style={{
+                          color: passwordWarning.special ? "#16a34a" : "#888",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <CircleCheck
+                          size={18}
+                          color={passwordWarning.special ? "#16a34a" : "#888"}
+                          style={{minWidth: 18}}
+                        />
+                        Special characters (!@#$%^&*)
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="reset_form__input">
+            <div className="reset_form__input relative">
               <label>Confirm New Password</label>
-              <input
-                type="password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                placeholder="Confirm new password"
-                required
-              />
+              <div style={{position: "relative"}}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                  required
+                  style={{paddingRight: 36}}
+                />
+                {/* Không có icon con mắt ở đây */}
+              </div>
             </div>
             <button type="submit">Reset Password</button>
           </form>

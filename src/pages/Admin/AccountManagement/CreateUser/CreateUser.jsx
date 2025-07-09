@@ -1,13 +1,15 @@
 import React, {useState} from "react";
 import Swal from "sweetalert2";
-import "./index.scss"; 
+import "./index.scss";
 import axiosInstance from "../../../../api/axios";
+// Thêm icon mắt
+import {EyeOutlined, EyeInvisibleOutlined} from "@ant-design/icons";
 
 const initialState = {
   phoneNumber: "",
   fullName: "",
   email: "",
-  password: "",
+  password: "123@123@123",
   roleName: "",
 };
 
@@ -20,6 +22,8 @@ const CreateUpdateUser = ({onSuccess}) => {
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
+  // State để show/hide password
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const {name, value} = e.target;
@@ -47,7 +51,7 @@ const CreateUpdateUser = ({onSuccess}) => {
         showConfirmButton: false,
       });
       setForm(initialState);
-      if (onSuccess) onSuccess(); 
+      if (onSuccess) onSuccess();
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -97,13 +101,33 @@ const CreateUpdateUser = ({onSuccess}) => {
             />
 
             <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+            <div style={{position: "relative"}}>
+              <input
+                type={showPassword ? "password" : "text"}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                style={{paddingRight: 36, width: "100%"}}
+              />
+              <span
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: "absolute",
+                  right: 10,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  color: "#888",
+                  fontSize: 18,
+                  zIndex: 2,
+                }}
+                tabIndex={0}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+              </span>
+            </div>
 
             <label>Role</label>
             <select
