@@ -7,7 +7,6 @@ import blogImg3 from "../../assets/images/11.png";
 import blogImg4 from "../../assets/images/12.png";
 import blogImg5 from "../../assets/images/13.png";
 import blogImg6 from "../../assets/images/14.png";
-import blogImg7 from "../../assets/images/15.png";
 
 const vaccineData = [
   {
@@ -84,18 +83,6 @@ const vaccineData = [
     schedule: "Annual vaccination before flu season begins.",
     additionalInfo:
       "Annual flu vaccination is recommended for everyone 6 months and older. The vaccine is updated each year to protect against the viruses expected to circulate.",
-  },
-  {
-    id: "covid-19",
-    name: "COVID-19",
-    image: blogImg7,
-    details: [
-      "Spreads rapidly, causes severe illness in people with underlying conditions.",
-      "Vaccination reduces death and controls outbreaks.",
-    ],
-    schedule: "Initial series plus boosters as recommended.",
-    additionalInfo:
-      "COVID-19 vaccines are safe and effective at preventing severe illness, hospitalization, and death. Boosters help maintain protection as immunity wanes over time.",
   },
 ];
 

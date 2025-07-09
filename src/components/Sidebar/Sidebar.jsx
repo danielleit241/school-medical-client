@@ -342,7 +342,7 @@ const Sidebar = () => {
         icon: <SolutionOutlined />,
         dropdown: [
           {
-            label: "Appointment List",
+            label: "Appointment Booking",
             key: "/parent/appointments-list",
             link: "/parent/appointments-list",
             icon: <FileTextOutlined />,
@@ -405,7 +405,7 @@ const Sidebar = () => {
             icon: <FileAddOutlined />,
           },
           {
-            label: "Medical Registration List",
+            label: "Medical Registration History",
             key: "/parent/medical-registration/list",
             link: "/parent/medical-registration/list",
             icon: <FileTextOutlined />,
@@ -463,9 +463,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     localStorage.removeItem("userId");
-    localStorage.removeItem("role");
     dispatch(setUserInfo({role: null, userId: null}));
     navigate("/login");
   };

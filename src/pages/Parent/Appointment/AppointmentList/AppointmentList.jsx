@@ -21,7 +21,7 @@ const AppointmentList = () => {
   const [selectedNurse, setSelectedNurse] = useState(null);
   const [step, setStep] = useState(1);
   const [dateRequest, setDateRequest] = useState(() => {
-    return dayjs().format("YYYY-MM-DD");
+    return dayjs().add(1, "day").format("YYYY-MM-DD");
   });
   const [radio, setRadio] = useState("low");
   const [topic, setTopic] = useState("");
@@ -33,18 +33,18 @@ const AppointmentList = () => {
   const [nurseProfile, setNurseProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkingBookingStatus, setCheckingBookingStatus] = useState(true);
-  
+
   // Thêm state cho cancel tracking
   const [totalCancelled, setTotalCancelled] = useState(0);
   const [isBlockedFromBooking, setIsBlockedFromBooking] = useState(false);
 
   const userId = useSelector((state) => state.user?.userId);
   const parentId = localStorage.getItem("parentId") || userId;
-  
+
   // Khởi tạo hasBookedToday từ localStorage
   const [hasBookedToday, setHasBookedToday] = useState(() => {
     const cached = localStorage.getItem(`hasBookedToday_${parentId}`);
-    return cached === 'true';
+    return cached === "true";
   });
 
   console.log("Parent ID:", parentId);
@@ -61,14 +61,16 @@ const AppointmentList = () => {
   // Thêm function để check total cancelled
   const checkTotalCancelled = async () => {
     if (!userId) return 0;
-    
+
     try {
-      const res = await axiosInstance.get(`/api/parents/${userId}/appointments/total-cancel`);
+      const res = await axiosInstance.get(
+        `/api/parents/${userId}/appointments/total-cancel`
+      );
       console.log("Total cancelled response:", res.data);
-      
+
       const cancelled = res.data.totalCancelled || 0;
       setTotalCancelled(cancelled);
-      
+
       // Nếu đã cancel 3 lần trong tháng, block booking
       if (cancelled >= 3) {
         setIsBlockedFromBooking(true);
@@ -82,7 +84,7 @@ const AppointmentList = () => {
       } else {
         setIsBlockedFromBooking(false);
       }
-      
+
       return cancelled;
     } catch (error) {
       console.error("Error checking total cancelled:", error);
@@ -95,7 +97,7 @@ const AppointmentList = () => {
   // Cải thiện function checkParentBookingStatus
   const checkParentBookingStatus = async () => {
     if (!parentId) return false;
-    
+
     try {
       const res = await axiosInstance.get(
         `/api/parents/${parentId}/appointments/has-booked`
@@ -103,23 +105,28 @@ const AppointmentList = () => {
       console.log("Check booked response:", res.data);
 
       // Nếu API trả về thành công mà không có lỗi
-      if (res.status === 200 && res.data === "User has not booked any appointments.") {
+      if (
+        res.status === 200 &&
+        res.data === "User has not booked any appointments."
+      ) {
         const hasBooked = false;
         setHasBookedToday(hasBooked);
         // Cache vào localStorage
-        localStorage.setItem(`hasBookedToday_${parentId}`, hasBooked.toString());
+        localStorage.setItem(
+          `hasBookedToday_${parentId}`,
+          hasBooked.toString()
+        );
         return hasBooked;
       }
-      
+
       // Nếu có data khác, coi như đã book
       const hasBooked = true;
       setHasBookedToday(hasBooked);
       localStorage.setItem(`hasBookedToday_${parentId}`, hasBooked.toString());
       return hasBooked;
-      
     } catch (error) {
       console.error("Error checking booking status:", error);
-      
+
       // Nếu API trả về 400 với message "User has booked appointments."
       if (
         error.response?.status === 400 &&
@@ -127,8 +134,11 @@ const AppointmentList = () => {
       ) {
         const hasBooked = true;
         setHasBookedToday(hasBooked);
-        localStorage.setItem(`hasBookedToday_${parentId}`, hasBooked.toString());
-        
+        localStorage.setItem(
+          `hasBookedToday_${parentId}`,
+          hasBooked.toString()
+        );
+
         Swal.fire({
           toast: true,
           position: "top-end",
@@ -140,7 +150,7 @@ const AppointmentList = () => {
         });
         return hasBooked;
       }
-      
+
       // Với các lỗi khác, không block user
       const hasBooked = false;
       setHasBookedToday(hasBooked);
@@ -153,7 +163,7 @@ const AppointmentList = () => {
   useEffect(() => {
     const today = dayjs().format("YYYY-MM-DD");
     const lastCheckDate = localStorage.getItem(`lastCheckDate_${parentId}`);
-    
+
     if (lastCheckDate !== today) {
       localStorage.removeItem(`hasBookedToday_${parentId}`);
       localStorage.setItem(`lastCheckDate_${parentId}`, today);
@@ -165,7 +175,7 @@ const AppointmentList = () => {
   useEffect(() => {
     const currentMonth = dayjs().format("YYYY-MM");
     const lastCheckMonth = localStorage.getItem(`lastCheckMonth_${parentId}`);
-    
+
     if (lastCheckMonth !== currentMonth) {
       localStorage.setItem(`lastCheckMonth_${parentId}`, currentMonth);
       setTotalCancelled(0);
@@ -176,24 +186,24 @@ const AppointmentList = () => {
   // Tự động cập nhật ngày khi sang ngày mới
   useEffect(() => {
     const interval = setInterval(() => {
-      const today = dayjs().format("YYYY-MM-DD");
+      const tomorrow = dayjs().add(1, "day").format("YYYY-MM-DD");
       const currentMonth = dayjs().format("YYYY-MM");
-      
-      if (dateRequest !== today) {
-        setDateRequest(today);
+
+      if (dateRequest !== tomorrow) {
+        setDateRequest(tomorrow);
         setStep(1);
         setSelectedNurse(null);
         setStep2StartTime("");
         setStep2EndTime("");
         setAppointmentStartTime("");
         setAppointmentEndTime("");
-        
+
         // Reset booking status khi sang ngày mới
         localStorage.removeItem(`hasBookedToday_${parentId}`);
-        localStorage.setItem(`lastCheckDate_${parentId}`, today);
+        localStorage.setItem(`lastCheckDate_${parentId}`, tomorrow);
         setHasBookedToday(false);
       }
-      
+
       // Reset cancel count khi sang tháng mới
       const lastCheckMonth = localStorage.getItem(`lastCheckMonth_${parentId}`);
       if (lastCheckMonth !== currentMonth) {
@@ -211,18 +221,18 @@ const AppointmentList = () => {
       try {
         setLoading(true);
         setCheckingBookingStatus(true);
-        
+
         // Check booking status và total cancelled song song
         const [hasBooked, cancelled] = await Promise.all([
           checkParentBookingStatus(),
-          checkTotalCancelled()
+          checkTotalCancelled(),
         ]);
-        
+
         console.log("Has booked today:", hasBooked);
         console.log("Total cancelled this month:", cancelled);
-        
+
         setCheckingBookingStatus(false);
-        
+
         // Fetch nurses data regardless of booking status
         const [nurseRes, freeRes] = await Promise.all([
           axiosInstance.get("/api/nurses"),
@@ -243,7 +253,7 @@ const AppointmentList = () => {
         setLoading(false);
       }
     };
-    
+
     if (parentId) {
       fetchData();
     }
@@ -376,7 +386,7 @@ const AppointmentList = () => {
 
       // Update booking status sau khi book thành công
       setHasBookedToday(true);
-      localStorage.setItem(`hasBookedToday_${parentId}`, 'true');
+      localStorage.setItem(`hasBookedToday_${parentId}`, "true");
 
       console.log("Appointment API response:", res);
       localStorage.setItem(
@@ -488,16 +498,18 @@ const AppointmentList = () => {
   // Hiển thị loading khi đang check
   if (loading || checkingBookingStatus) {
     return (
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center",
-        height: "100vh",
-        flexDirection: "column",
-        gap: 16
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
         <Spin size="large" />
-        <span style={{ fontSize: 16, color: "#666" }}>
+        <span style={{fontSize: 16, color: "#666"}}>
           {checkingBookingStatus ? "Checking booking status..." : "Loading..."}
         </span>
       </div>
@@ -644,7 +656,9 @@ const AppointmentList = () => {
                     display: "block",
                     color: totalCancelled >= 3 ? "#f5222d" : "#fa8c16",
                     background: totalCancelled >= 3 ? "#fff1f0" : "#fff7e6",
-                    border: `1px solid ${totalCancelled >= 3 ? "#ffd6d6" : "#ffd591"}`,
+                    border: `1px solid ${
+                      totalCancelled >= 3 ? "#ffd6d6" : "#ffd591"
+                    }`,
                     borderRadius: 8,
                     padding: "12px 18px",
                     marginBottom: 18,
@@ -656,15 +670,18 @@ const AppointmentList = () => {
                 >
                   {totalCancelled >= 3 ? (
                     <>
-                      <span style={{ fontSize: 18, marginRight: 8 }}>🚫</span>
-                      You have cancelled {totalCancelled} appointments this month. 
-                      Booking is restricted until next month.
+                      <span style={{fontSize: 18, marginRight: 8}}>🚫</span>
+                      You have cancelled {totalCancelled} appointments this
+                      month. Booking is restricted until next month.
                     </>
                   ) : (
                     <>
-                      <span style={{ fontSize: 18, marginRight: 8 }}>⚠️</span>
-                      You have cancelled {totalCancelled} appointment{totalCancelled > 1 ? 's' : ''} this month. 
-                      {totalCancelled === 2 ? " One more cancellation will restrict your booking." : ""}
+                      <span style={{fontSize: 18, marginRight: 8}}>⚠️</span>
+                      You have cancelled {totalCancelled} appointment
+                      {totalCancelled > 1 ? "s" : ""} this month.
+                      {totalCancelled === 2
+                        ? " One more cancellation will restrict your booking."
+                        : ""}
                     </>
                   )}
                 </div>
@@ -683,10 +700,13 @@ const AppointmentList = () => {
                   const isNurseAvailable = freeNurseIds.includes(
                     n.userId || n.staffNurseId
                   );
-                  
+
                   // Kiểm tra có thể book hay không
-                  const canBook = isNurseAvailable && !hasBookedToday && !isBlockedFromBooking;
-                  
+                  const canBook =
+                    isNurseAvailable &&
+                    !hasBookedToday &&
+                    !isBlockedFromBooking;
+
                   const nurseInfo = {
                     specialty: "School Nurse",
                     workingDays: "Monday - Friday (9:30 - 11:30)",
@@ -1963,7 +1983,7 @@ const AppointmentList = () => {
       </button>
 
       {/* Popup Info Box */}
-     {showInfoBox && (
+      {showInfoBox && (
         <div
           ref={infoBoxRef}
           style={{
@@ -1994,37 +2014,39 @@ const AppointmentList = () => {
             Medical Consultation Info
           </div>
 
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontWeight: 600, marginBottom: 4, color: "#444" }}>
+          <div style={{marginBottom: 14}}>
+            <div style={{fontWeight: 600, marginBottom: 4, color: "#444"}}>
               Working Hours:
             </div>
-            <div style={{ color: "#666" }}>
+            <div style={{color: "#666"}}>
               Mon - Fri: 8:30 AM - 5:00 PM
               <br />
               Saturday: 8:30 AM - 12:00 PM
             </div>
           </div>
 
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontWeight: 600, marginBottom: 4, color: "#444" }}>
+          <div style={{marginBottom: 14}}>
+            <div style={{fontWeight: 600, marginBottom: 4, color: "#444"}}>
               Booking Appointment:
             </div>
-            <div style={{ color: "#666" }}>Mon - Fri: 9:00 AM - 11:30 AM</div>
+            <div style={{color: "#666"}}>Mon - Fri: 9:00 AM - 11:30 AM</div>
           </div>
 
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontWeight: 600, marginBottom: 4, color: "#444" }}>
+          <div style={{marginBottom: 14}}>
+            <div style={{fontWeight: 600, marginBottom: 4, color: "#444"}}>
               Emergency Contact:
             </div>
-            <div style={{ color: "#666" }}>
-              Medical Office: <span style={{ fontWeight: 500 }}>028.1234.5678</span>
+            <div style={{color: "#666"}}>
+              Medical Office:{" "}
+              <span style={{fontWeight: 500}}>028.1234.5678</span>
               <br />
-              School Office: <span style={{ fontWeight: 500 }}>028.1234.5679</span>
+              School Office:{" "}
+              <span style={{fontWeight: 500}}>028.1234.5679</span>
             </div>
           </div>
 
           <div>
-            <div style={{ fontWeight: 600, marginBottom: 4, color: "#444" }}>
+            <div style={{fontWeight: 600, marginBottom: 4, color: "#444"}}>
               Note:
             </div>
             <ul

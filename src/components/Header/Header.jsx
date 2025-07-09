@@ -107,6 +107,9 @@ const Header = () => {
   }, [userId, token]);
 
   const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
     localStorage.removeItem("accessToken");
     navigate("/login");
   };
