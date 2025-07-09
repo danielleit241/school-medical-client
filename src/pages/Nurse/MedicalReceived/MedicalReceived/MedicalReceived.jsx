@@ -6,11 +6,11 @@ import {useSelector} from "react-redux";
 import {UserOutlined, FilterOutlined} from "@ant-design/icons";
 
 const statusConfig = {
-  approved: {
+  completed: {
     color: "#10b981",
     bgColor: "#ecfdf5",
     borderColor: "#a7f3d0",
-    text: "Approved",
+    text: "Completed",
   },
   cancelled: {
     color: "#dc2626",
@@ -24,11 +24,11 @@ const statusConfig = {
     borderColor: "#fed7aa",
     text: "Pending",
   },
-  completed: {
+  approved: {
     color: "#2563eb",
     bgColor: "#eff6ff",
     borderColor: "#bfdbfe",
-    text: "Completed",
+    text: "Approved",
   },
 };
 
@@ -327,7 +327,6 @@ const MedicalReceived = () => {
     );
   };
 
-  // Thống kê số lượng theo trạng thái
   const totalCount = data.length;
   const pendingCount = data.filter(
     (item) =>
