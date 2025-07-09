@@ -70,7 +70,7 @@ const AppointmentList = () => {
   const [dateRequestStart, setDateRequestStart] = useState(dayjs().format("YYYY-MM-DD"));
   const [dateRequestEnd, setDateRequestEnd] = useState(dayjs().add(1, 'day').format("YYYY-MM-DD"));
   const [pageIndex, setPageIndex] = useState(1);
-  const pageSize = 3;
+  const pageSize = 4;
   const [parentId, setParentId] = useState(null);
   const [parentInfo, setParentInfo] = useState(null);
   const [total, setTotal] = useState(0);
@@ -775,7 +775,7 @@ const AppointmentList = () => {
                   style={{
                     borderRadius: 12,
                     fontWeight: 600,
-                    fontSize: 15, // giảm từ 16
+                    fontSize: 15, 
                     height: 44,
                     paddingLeft: 20,
                     paddingRight: 20,
@@ -838,6 +838,15 @@ const AppointmentList = () => {
       </div>
     );
   };
+
+  // Sắp xếp: Pending lên đầu
+  const sortedAppointments = [...appointments].sort((a, b) => {
+    const aPending = !a.confirmationStatus && a.completionStatus === null;
+    const bPending = !b.confirmationStatus && b.completionStatus === null;
+    if (aPending && !bPending) return -1;
+    if (!aPending && bPending) return 1;
+    return 0;
+  });
 
   return (
     <div
@@ -1019,6 +1028,33 @@ const AppointmentList = () => {
                 <h3
                   style={{
                     margin: "0 0 8px 0",
+                    fontSize: 24, 
+                    fontWeight: 700,
+                    color: "#2563eb",
+                  }}
+                >
+                  {appointments.filter(
+                    (apt) => apt.confirmationStatus === true && (apt.completionStatus === null || apt.completionStatus === undefined)
+                  ).length}
+                </h3>
+                <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
+                  Confirmed
+                </p>
+              </div>
+              <div
+                style={{
+                  backgroundColor: "white",
+                  padding: "20px 32px",
+                  borderRadius: 16,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                  textAlign: "center",
+                  minWidth: 150,
+                  flex: 1,
+                }}
+              >
+                <h3
+                  style={{
+                    margin: "0 0 8px 0",
                     fontSize: 24, // giảm từ 28
                     fontWeight: 700,
                     color: "#f59e0b",
@@ -1108,13 +1144,13 @@ const AppointmentList = () => {
             ) : (
               <div
                 style={{
-                  maxHeight: "650px",
+                  maxHeight: "800px",
                   overflowY: "auto",
                   padding: "32px 0",
                   boxSizing: "border-box",
                 }}
               >
-                {appointments.map((item) => (
+                {sortedAppointments.map((item) => (
                   <div
                     style={{
                       width: "100%",
@@ -1122,6 +1158,7 @@ const AppointmentList = () => {
                       display: "flex",
                       flexDirection: "column",
                       gap: 20,
+                      marginBottom: 20,
                     }}
                     key={item.appointmentId}
                   >
@@ -1166,6 +1203,7 @@ const AppointmentList = () => {
           </div>
         )}
       </div>
+      {step === 1 && (
         <div style={{textAlign: "center", marginTop: 24, padding: "0 32px"}}>
           <Pagination
             current={pageIndex}
@@ -1176,7 +1214,8 @@ const AppointmentList = () => {
             }}
           />
         </div>
-      </div>
+      )}
+    </div>
   );
 };
 

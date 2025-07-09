@@ -38,7 +38,7 @@ const MedicalReceived = () => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const pageSize = 5;
+  const pageSize = 4;
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -327,6 +327,23 @@ const MedicalReceived = () => {
     );
   };
 
+  // Thống kê số lượng theo trạng thái
+  const totalCount = data.length;
+  const pendingCount = data.filter(
+    (item) =>
+      item.medicalRegistration.status === null ||
+      item.medicalRegistration.status === undefined
+  ).length;
+  const approvedCount = data.filter(
+    (item) => item.medicalRegistration.status === true && !isAllDoseCompleted(item)
+  ).length;
+  const completedCount = data.filter(
+    (item) => item.medicalRegistration.status === true && isAllDoseCompleted(item)
+  ).length;
+  const cancelledCount = data.filter(
+    (item) => item.medicalRegistration.status === false
+  ).length;
+
   return (
     <div className="min-h-screen bg-white py-8">
       {/* Header + Filter */}
@@ -363,6 +380,8 @@ const MedicalReceived = () => {
           Manage and review all medication requests from parents
         </div>
 
+        
+
         <div
           style={{
             marginTop: 14,
@@ -372,12 +391,12 @@ const MedicalReceived = () => {
             gap: 12,
           }}
         >
-          <span style={{fontSize: 22, fontWeight: 500, color: "#ffffff"}}>
+          <span style={{ fontSize: 22, fontWeight: 500, color: "#ffffff" }}>
             Status:
           </span>
           <Select
             value={filterStatus}
-            style={{width: 140, height: 30, borderRadius: 10}}
+            style={{ width: 140, height: 30, borderRadius: 10 }}
             onChange={setFilterStatus}
             size="large"
           >
@@ -395,6 +414,151 @@ const MedicalReceived = () => {
           boxSizing: "border-box",
         }}
       >
+        {/* Stats Bar giống AppointmentList step 1 */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-start",
+            marginBottom: 32,
+            gap: 20,
+            flexWrap: "wrap",
+            width: "100%",
+            padding: "20px 32px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px 32px",
+              borderRadius: 16,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              textAlign: "center",
+              minWidth: 150,
+              flex: 1,
+            }}
+          >
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 24,
+                fontWeight: 700,
+                color: "#1f2937",
+              }}
+            >
+              {totalCount}
+            </h3>
+            <p
+              style={{
+                margin: 0,
+                color: "#6b7280",
+                fontWeight: 600,
+                fontSize: 15,
+              }}
+            >
+              Total Requests
+            </p>
+          </div>
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px 32px",
+              borderRadius: 16,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              textAlign: "center",
+              minWidth: 150,
+              flex: 1,
+            }}
+          >
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 24,
+                fontWeight: 700,
+                color: "#f59e0b",
+              }}
+            >
+              {pendingCount}
+            </h3>
+            <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
+              Pending
+            </p>
+          </div>
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px 32px",
+              borderRadius: 16,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              textAlign: "center",
+              minWidth: 150,
+              flex: 1,
+            }}
+          >
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 24,
+                fontWeight: 700,
+                color: "#2563eb",
+              }}
+            >
+              {approvedCount}
+            </h3>
+            <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
+              Approved
+            </p>
+          </div>
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px 32px",
+              borderRadius: 16,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              textAlign: "center",
+              minWidth: 150,
+              flex: 1,
+            }}
+          >
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 24,
+                fontWeight: 700,
+                color: "#10b981",
+              }}
+            >
+              {completedCount}
+            </h3>
+            <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
+              Completed
+            </p>
+          </div>
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px 32px",
+              borderRadius: 16,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              textAlign: "center",
+              minWidth: 150,
+              flex: 1,
+            }}
+          >
+            <h3
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: 24,
+                fontWeight: 700,
+                color: "#dc2626",
+              }}
+            >
+              {cancelledCount}
+            </h3>
+            <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
+              Cancelled
+            </p>
+          </div>
+        </div>
         {/* Loading & List */}
         {loading ? (
           <div style={{textAlign: "center"}}>
