@@ -252,6 +252,18 @@ const StudentList = () => {
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
     },
     {
+      title: "Parent Account",
+      dataIndex: "parentAccountCreated",
+      key: "parentAccountCreated",
+      align: "center",
+      render: (value) =>
+        value === true ? (
+          <span style={{ color: "#52c41a", fontWeight: 700, fontSize: 18 }}>✔</span>
+        ) : (
+          <span style={{ color: "#f5222d", fontWeight: 700, fontSize: 18 }}>✘</span>
+        ),
+    },
+    {
       title: "Action",
       key: "action",
       align: "center",

@@ -135,12 +135,6 @@ const VaccineModal = ({ open, vaccineId, onClose, onSaved }) => {
           <Form.Item label="Description" name="description">
             <Input />
           </Form.Item>
-          <Form.Item label="Create At" name="createAt">
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
-          </Form.Item>
-          <Form.Item label="Update At" name="updateAt">
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
-          </Form.Item>
           
         </Form>
       </Spin>

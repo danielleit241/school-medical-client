@@ -383,7 +383,7 @@ const MedicalInventory = () => {
       )}
       <Spin spinning={loading}>
         <Table
-          dataSource={data}
+          dataSource={data.filter(item => item.status === true)} // chỉ hiển thị status true
           columns={columns}
           rowKey="itemName"
           pagination={false}
