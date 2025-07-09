@@ -160,7 +160,9 @@ const VaccineInventory = () => {
       }
     });
   };
-  const filterInventory = data.filter((item) =>
+  const filterInventory = data
+  .filter((item) => item.status === true) // chỉ lấy status true
+  .filter((item) =>
     item.vaccineName?.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -247,30 +249,6 @@ const VaccineInventory = () => {
       width: 200,
       render: (text) =>
         text ? <span>{text}</span> : <span style={{color: "#aaa"}}>N/A</span>,
-    },
-    {
-      title: "Created At",
-      dataIndex: "createAt",
-      key: "createAt",
-      render: (value) =>
-        value ? (
-          value.toString().slice(0, 10)
-        ) : (
-          <span style={{color: "#aaa"}}>N/A</span>
-        ),
-      align: "center",
-    },
-    {
-      title: "Updated At",
-      dataIndex: "updateAt",
-      key: "updateAt",
-      render: (value) =>
-        value ? (
-          value.toString().slice(0, 10)
-        ) : (
-          <span style={{color: "#aaa"}}>N/A</span>
-        ),
-      align: "center",
     },
     {
       title: "Action",
