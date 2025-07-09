@@ -568,9 +568,26 @@ const CreateMedicalResForm = () => {
               <Form.Item
                 label="Date Submitted"
                 name="dateSubmitted"
-                rules={[{required: true, message: "Please select date"}]}
+                rules={[
+                  { required: true, message: "Please select date" },
+                  {
+                    validator: (_, value) => {
+                      if (!value) return Promise.resolve();
+                      const now = dayjs();                      
+                      if (
+                        value.isSame(now, "day") &&
+                        now.hour() >= 17
+                      ) {
+                        return Promise.reject(
+                          "Working hours are over, please select the next day."
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
-                <DatePicker style={{width: "100%"}} size="large" />
+                <DatePicker style={{ width: "100%" }} size="large" />
               </Form.Item>
 
               <Form.Item label="Notes" name="notes">
