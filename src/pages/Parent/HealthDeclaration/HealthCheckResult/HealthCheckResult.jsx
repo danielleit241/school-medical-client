@@ -497,7 +497,7 @@ const HealthCheckResult = () => {
                           <div style={{display: "flex", alignItems: "center"}}>
                             <Calendar size={16} style={{marginRight: 8}} />
                             <Text strong>Date Performed: </Text>
-                            {dayjs(item.datePerformed).format("DD/MM/YYYY")}
+                            <Text style={{marginLeft: 4}}>{dayjs(item.datePerformed).format("DD/MM/YYYY")}</Text>
                           </div>
                         </Space>
                       </Col>
@@ -506,10 +506,12 @@ const HealthCheckResult = () => {
                           <div style={{display: "flex", alignItems: "center"}}>
                             <User size={16} style={{marginRight: 8}} />
                             <Text strong>Recorded By: </Text>
-                            {item.recordedBy?.nurseName}
-                            {" - "}
-                            {/* Replace PhoneOutlined with Phone */}
-                            {item.recordedBy?.nursePhone}
+                            <Text style={{marginLeft: 4}}>
+                              {item.recordedBy?.nurseName}
+                              {" - "}
+                              {/* Replace PhoneOutlined with Phone */}
+                              {item.recordedBy?.nursePhone}
+                            </Text>                           
                           </div>
                         </Space>
                       </Col>
@@ -517,8 +519,10 @@ const HealthCheckResult = () => {
                         <Space direction="vertical" size="small">
                           <div style={{display: "flex", alignItems: "center"}}>
                             <FileText size={16} style={{marginRight: 8}} />
-                            <Text strong>Notes: </Text>
-                            {item.notes || "No notes"}
+                            <Text strong>Notes: </Text>   
+                            <Text style={{marginLeft: 4}}>
+                              {item.notes || "No notes"}  
+                            </Text>                            
                           </div>
                         </Space>
                       </Col>
@@ -526,8 +530,10 @@ const HealthCheckResult = () => {
                         <Space direction="vertical" size="small">
                           <div style={{display: "flex", alignItems: "center"}}>
                             <Ruler size={16} style={{marginRight: 8}} />
-                            <Text strong>Height: </Text>
-                            {item.height}
+                            <Text strong>Height: </Text>  
+                            <Text style={{marginLeft: 4}}>
+                              {item.height} cm
+                            </Text>
                           </div>
                         </Space>
                       </Col>
@@ -536,7 +542,7 @@ const HealthCheckResult = () => {
                           <div style={{display: "flex", alignItems: "center"}}>
                             <Weight size={16} style={{marginRight: 8}} />
                             <Text strong>Weight: </Text>
-                            {item.weight}
+                            <Text style={{marginLeft: 4}}>{item.weight} kg</Text>
                           </div>
                         </Space>
                       </Col>
@@ -544,8 +550,10 @@ const HealthCheckResult = () => {
                         <Space direction="vertical" size="small">
                           <div style={{display: "flex", alignItems: "center"}}>
                             <Eye size={16} style={{marginRight: 8}} />
-                            <Text strong>Vision: </Text>
-                            Left: {item.visionLeft} - Right: {item.visionRight}
+                            <Text strong>Vision: Left: </Text>
+                            <Text style={{marginLeft: 4}}>
+                              {item.visionLeft}/10 - Right: {item.visionRight}/10
+                            </Text>
                           </div>
                         </Space>
                       </Col>
@@ -554,7 +562,9 @@ const HealthCheckResult = () => {
                           <div style={{display: "flex", alignItems: "center"}}>
                             <Ear size={16} style={{marginRight: 8}} />
                             <Text strong>Hearing: </Text>
-                            {item.hearing}
+                            <Text style={{marginLeft: 4}}>
+                              {item.hearing}
+                            </Text>
                           </div>
                         </Space>
                       </Col>
@@ -563,7 +573,9 @@ const HealthCheckResult = () => {
                           <div style={{display: "flex", alignItems: "center"}}>
                             <Stethoscope size={16} style={{marginRight: 8}} />
                             <Text strong>Nose: </Text>
-                            {item.nose}
+                            <Text style={{marginLeft: 4}}>
+                              {item.nose}
+                            </Text>
                           </div>
                         </Space>
                       </Col>
@@ -572,7 +584,9 @@ const HealthCheckResult = () => {
                           <div style={{display: "flex", alignItems: "center"}}>
                             <HeartPulse size={16} style={{marginRight: 8}} />
                             <Text strong>Blood Pressure: </Text>
-                            {item.bloodPressure}
+                            <Text style={{marginLeft: 4}}>
+                              {item.bloodPressure} mmHg
+                            </Text>
                           </div>
                         </Space>
                       </Col>

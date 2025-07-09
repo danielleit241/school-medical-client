@@ -21,6 +21,7 @@ import {
   CheckOutlined,
   SafetyOutlined,
 } from "@ant-design/icons";
+import {User} from "lucide-react";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
 import {LuSyringe} from "react-icons/lu";
@@ -37,6 +38,7 @@ const VaccineResult = () => {
   const [vaccinationResults, setVaccinationResults] = useState([]);
   const [expandedItems, setExpandedItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const[ nurseInfo, setNurseInfo] = useState(null);
   const pageSize = 3; // Số items mỗi trang
 
   const student = localStorage.getItem("selectedStudent");
@@ -47,12 +49,39 @@ const VaccineResult = () => {
     setLoading(true);
     axiosInstance
       .get(`/api/vaccination-results/students/${studentId}`)
-      .then((res) => {
-        setVaccinationResults(res.data?.items || []);
+      .then(async (res) => {
+        const items = res.data?.items || [];
+        setVaccinationResults(items);
+
+        const nurseIds = [
+          ...new Set(
+            items
+              .map((item) =>
+                item.vaccineDoseSummary?.vaccineResultDetails?.map((d) => d.nurseId)
+              )
+              .flat()
+              .filter(Boolean)
+          ),
+        ];
+
+        const nurseInfoObj = {};
+        await Promise.all(
+          nurseIds.map(async (nurseId) => {
+            try {
+              const res = await axiosInstance.get(`/api/user-profile/${nurseId}`);
+              nurseInfoObj[nurseId] = res.data;
+            } catch (err) {
+              console.error(`Error fetching nurse info for ID ${nurseId}:`, err);
+              nurseInfoObj[nurseId] = null;
+            }
+          })
+        );
+        setNurseInfo(nurseInfoObj);
       })
       .catch((err) => {
         console.error("Error fetching vaccination results:", err);
         setVaccinationResults([]);
+        setNurseInfo({});
       })
       .finally(() => {
         setLoading(false);
@@ -509,6 +538,17 @@ const VaccineResult = () => {
                                   {dayjs(detail.vaccinatedDate).format(
                                     "DD/MM/YYYY"
                                   )}
+                                </Text>
+                              </Space>
+                            </Col>
+                            <Col xs={24} md={8}>
+                              <Space direction="vertical" size="small">
+                                <div style={{display: "flex", alignItems: "center"}}>
+                                  <User size={16} style={{marginRight: 8}} />
+                                  <Text strong>Recorded By: </Text>
+                                </div>
+                                <Text style={{marginLeft: 24}}>
+                                  {nurseInfo?.[detail.nurseId]?.fullName || "N/A"} - {nurseInfo?.[detail.nurseId]?.phoneNumber || "N/A"}
                                 </Text>
                               </Space>
                             </Col>
