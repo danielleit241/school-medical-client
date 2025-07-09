@@ -19,7 +19,6 @@ import {
 import {
   CalendarOutlined,
   TeamOutlined,
-  ClockCircleOutlined,
   UserOutlined,
   CheckCircleOutlined,
   InfoCircleOutlined,
@@ -28,8 +27,6 @@ import {
   PlayCircleOutlined,
   UpOutlined,
   DownOutlined,
-  ReloadOutlined,
-  PlusOutlined,
 } from "@ant-design/icons";
 import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
@@ -746,7 +743,7 @@ const CampaignList = () => {
         <TabPane
           tab={
             <span>
-              <PlayCircleOutlined style={{color: "#1890ff", marginRight: 4}} />
+              {/* <PlayCircleOutlined style={{color: "#1890ff", marginRight: 4}} /> */}
               <span>In Progress</span>
             </span>
           }
@@ -755,7 +752,7 @@ const CampaignList = () => {
         <TabPane
           tab={
             <span>
-              <CheckCircleOutlined style={{color: "#52c41a", marginRight: 4}} />
+              {/* <CheckCircleOutlined style={{color: "#52c41a", marginRight: 4}} /> */}
               <span>Completed</span>
             </span>
           }
