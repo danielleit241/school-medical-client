@@ -164,7 +164,7 @@ const HealthCheckList = () => {
         bgColor: "#f6ffed",
         text: "Completed",
         status: "completed",
-        icon: <CheckCircleOutlined />,
+        // icon: <CheckCircleOutlined />,
       };
     }
     if (now.isAfter(startDate) && now.isBefore(endDate)) {
@@ -769,9 +769,9 @@ const HealthCheckList = () => {
                   fontWeight: activeTab === "inProgress" ? 500 : 400,
                 }}
               >
-                <PlayCircleOutlined
+                {/* <PlayCircleOutlined
                   style={{color: "#1890ff", marginRight: 6}}
-                />
+                /> */}
                 In Progress
               </span>
             }
@@ -787,9 +787,9 @@ const HealthCheckList = () => {
                   fontWeight: activeTab === "completed" ? 500 : 400,
                 }}
               >
-                <CheckCircleOutlined
+                {/* <CheckCircleOutlined
                   style={{color: "#52c41a", marginRight: 6}}
-                />
+                /> */}
                 Completed
               </span>
             }
