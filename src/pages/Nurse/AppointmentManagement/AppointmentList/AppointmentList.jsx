@@ -95,14 +95,14 @@ const AppointmentList = () => {
         const response = await axiosInstance.get(
           `/api/nurses/${staffNurseId}/appointments`,
           {
-            params: { dateRequestStart, dateRequestEnd, pageSize, pageIndex },
+            params: { dateRequestStart, dateRequestEnd, PageSize: pageSize, PageIndex: pageIndex },
           }
         );
         const data = Array.isArray(response.data)
           ? response.data
           : response.data?.items || [];
         setAppointments(data);
-        setTotal(response.data?.total || 0);
+        setTotal(response.data?.count || 0);
       } catch {
         setAppointments([]);
       } finally {
