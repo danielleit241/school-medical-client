@@ -11,6 +11,7 @@ import {
   Card,
   Avatar,
   Badge,
+  Pagination,
 } from "antd";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
@@ -66,10 +67,13 @@ const AppointmentList = () => {
   const [step, setStep] = useState(1);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [dateRequest, setDateRequest] = useState(dayjs().format("YYYY-MM-DD"));
+  const [dateRequestStart, setDateRequestStart] = useState(dayjs().format("YYYY-MM-DD"));
+  const [dateRequestEnd, setDateRequestEnd] = useState(dayjs().add(1, 'day').format("YYYY-MM-DD"));
   const [pageIndex, setPageIndex] = useState(1);
+  const pageSize = 3;
   const [parentId, setParentId] = useState(null);
   const [parentInfo, setParentInfo] = useState(null);
+  const [total, setTotal] = useState(0);
 
   const formatPhone = (phone) => {
     if (!phone) return "";
@@ -91,13 +95,14 @@ const AppointmentList = () => {
         const response = await axiosInstance.get(
           `/api/nurses/${staffNurseId}/appointments`,
           {
-            params: { dateRequest, PageSize: 3, PageIndex: pageIndex },
+            params: { dateRequestStart, dateRequestEnd, pageSize, pageIndex },
           }
         );
         const data = Array.isArray(response.data)
           ? response.data
           : response.data?.items || [];
         setAppointments(data);
+        setTotal(response.data?.total || 0);
       } catch {
         setAppointments([]);
       } finally {
@@ -105,7 +110,7 @@ const AppointmentList = () => {
       }
     };
     fetchAppointments();
-  }, [staffNurseId, dateRequest, pageIndex, step]);
+  }, [staffNurseId, dateRequestStart, dateRequestEnd, pageIndex, step]);
 
   const updateStatus = async (
     appointmentId,
@@ -879,7 +884,7 @@ const AppointmentList = () => {
           Manage student health appointments with ease and efficiency
         </p>
         {step === 1 && (
-          <div
+           <div
             style={{
               display: "flex",
               justifyContent: "center",
@@ -891,10 +896,23 @@ const AppointmentList = () => {
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {/* <FilterOutlined style={{fontSize: 15}} /> */}
+              <span>Start Date:</span>
               <DatePicker
-                value={dayjs(dateRequest)}
+                value={dayjs(dateRequestStart)}
                 format="YYYY-MM-DD"
-                onChange={(_, dateString) => setDateRequest(dateString)}
+                onChange={(_, dateString) => setDateRequestStart(dateString)}
+                allowClear={false}
+                size="middle"
+                style={{
+                  width: 160,
+                  borderRadius: 8,
+                }}
+              />
+              <span>End Date:</span>
+              <DatePicker
+                value={dayjs(dateRequestEnd)}
+                format="YYYY-MM-DD"
+                onChange={(_, dateString) => setDateRequestEnd(dateString)}
                 allowClear={false}
                 size="middle"
                 style={{
@@ -903,20 +921,7 @@ const AppointmentList = () => {
                 }}
               />
             </div>
-            <Input
-              type="number"
-              min={1}
-              value={pageIndex}
-              onChange={(e) => setPageIndex(Number(e.target.value))}
-              size="middle"
-              style={{
-                width: 90,
-                borderRadius: 8,
-              }}
-              placeholder="Page #"
-              prefix="📄"
-            />
-          </div>
+          </div>      
         )}
       </div>
 
@@ -1050,6 +1055,8 @@ const AppointmentList = () => {
                   Cancelled
                 </p>
               </div>
+              
+              
             </div>
 
             {/* Appointments List */}
@@ -1069,6 +1076,7 @@ const AppointmentList = () => {
                   Loading appointments...
                 </p>
               </div>
+              
             ) : appointments.length === 0 ? (
               <div
                 style={{
@@ -1090,8 +1098,9 @@ const AppointmentList = () => {
                       }}
                     >
                       No appointments found for{" "}
-                      {dayjs(dateRequest).format("MMMM DD, YYYY")}
+                      {dayjs(dateRequestStart).format("MMMM DD, YYYY")} - {dayjs(dateRequestEnd).format("MMMM DD, YYYY")}
                     </span>
+                    
                   }
                   style={{ fontSize: 18 }}
                 />
@@ -1157,7 +1166,17 @@ const AppointmentList = () => {
           </div>
         )}
       </div>
-    </div>
+        <div style={{textAlign: "center", marginTop: 24, padding: "0 32px"}}>
+          <Pagination
+            current={pageIndex}
+            pageSize={pageSize}
+            total={total}
+            onChange={(page) => {
+              setPageIndex(page);
+            }}
+          />
+        </div>
+      </div>
   );
 };
 
