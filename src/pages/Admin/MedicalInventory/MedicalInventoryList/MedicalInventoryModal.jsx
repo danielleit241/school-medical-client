@@ -123,12 +123,6 @@ const MedicalInventoryModal = ({ open, itemId, onClose, onSaved }) => {
           <Form.Item label="Expiry Date" name="expiryDate">
             <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
           </Form.Item>
-          <Form.Item label="Last Import Date" name="lastImportDate">
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
-          </Form.Item>
-          <Form.Item label="Last Export Date" name="lastExportDate">
-            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
-          </Form.Item>
           <Form.Item label="Maximum Stock Level" name="maximumStockLevel" rules={[{ required: true }]}>
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
