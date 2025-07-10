@@ -582,6 +582,9 @@ const CreateMedicalResForm = () => {
                           "Working hours are over, please select the next day."
                         );
                       }
+                      if (value.isBefore(now, "day")) {
+                        return Promise.reject("Date cannot be in the past.");
+                      }
                       return Promise.resolve();
                     },
                   },
