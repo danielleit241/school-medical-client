@@ -1005,13 +1005,13 @@ const AppointmentList = () => {
                     margin: "0 0 8px 0",
                     fontSize: 24, // giảm từ 28
                     fontWeight: 700,
-                    color: "#059669",
+                    color: "#f59e0b",
                   }}
                 >
-                  {appointments.filter((apt) => apt.completionStatus === true).length}
+                  {appointments.filter((apt) => !apt.confirmationStatus).length}
                 </h3>
                 <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
-                  Completed
+                  Pending
                 </p>
               </div>
               <div
@@ -1041,6 +1041,7 @@ const AppointmentList = () => {
                   Confirmed
                 </p>
               </div>
+             
               <div
                 style={{
                   backgroundColor: "white",
@@ -1057,15 +1058,16 @@ const AppointmentList = () => {
                     margin: "0 0 8px 0",
                     fontSize: 24, // giảm từ 28
                     fontWeight: 700,
-                    color: "#f59e0b",
+                    color: "#059669",
                   }}
                 >
-                  {appointments.filter((apt) => !apt.confirmationStatus).length}
+                  {appointments.filter((apt) => apt.completionStatus === true).length}
                 </h3>
                 <p style={{ margin: 0, color: "#6b7280", fontWeight: 600 }}>
-                  Pending
+                  Completed
                 </p>
               </div>
+             
               <div
                 style={{
                   backgroundColor: "white",
