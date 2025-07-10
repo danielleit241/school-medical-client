@@ -317,18 +317,19 @@ const MedicalReceivedDetail = () => {
       <div
         style={{
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "16px 0 8px 0", // giảm padding dọc
-          marginBottom: "20px", // giảm margin dưới
+          padding: "20px 0 10px 0", // giảm padding dọc
+          marginBottom: "18px", // giảm margin dưới
           color: "white",
           textAlign: "center",
           boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+          borderRadius: "20px 20px 0 0 ", // bo góc dưới
         }}
       >
         <h1
           style={{
-            fontSize: 20, // giảm font size
+            fontSize: 38, // giảm font size
             fontWeight: 800,
-            margin: "0 0 6px 0",
+            margin: "0 0 4px 0",
             textShadow: "2px 2px 4px rgba(0,0,0,0.13)",
             letterSpacing: "1px",
           }}
@@ -337,7 +338,7 @@ const MedicalReceivedDetail = () => {
         </h1>
         <p
           style={{
-            fontSize: 13,
+            fontSize: 16,
             fontWeight: 500,
             margin: "0 0 8px 0",
             opacity: 0.9,
@@ -346,7 +347,7 @@ const MedicalReceivedDetail = () => {
             marginRight: "auto",
           }}
         >
-          View and manage details of a student's medication registration
+          Manage details of a student's medication registration
         </p>
       </div>
 
