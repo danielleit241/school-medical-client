@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
 import Swal from "sweetalert2";
 import {
   Card,
@@ -10,10 +10,17 @@ import {
   Avatar,
   Divider,
   Modal,
-  Tooltip
+  Tooltip,
 } from "antd";
-import { UserOutlined, CalendarOutlined, FileTextOutlined, EnvironmentOutlined, ArrowLeftOutlined, PictureOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
+import {
+  UserOutlined,
+  CalendarOutlined,
+  FileTextOutlined,
+  EnvironmentOutlined,
+  ArrowLeftOutlined,
+  PictureOutlined,
+} from "@ant-design/icons";
+import {useSelector} from "react-redux";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
 
@@ -32,22 +39,27 @@ const MedicalReceivedDetail = () => {
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [parentInfo, setParentInfo] = useState(null);
 
-  
   // Thêm states cho modal
   const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
   const [nurseNote, setNurseNote] = useState("");
-  const [actionType, setActionType] = useState(""); 
+  const [actionType, setActionType] = useState("");
 
   const formatPhone = (phone) => {
     if (!phone) return "";
-      const digits = phone.replace(/\D/g, "");
-      if (digits.length === 10) {
-        return `${digits.slice(0,4)}.${digits.slice(4,7)}.${digits.slice(7,10)}`;
-      }
-      if (digits.length === 11) {
-        return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}.${digits.slice(9,11)}`;
-      }
-        return phone; // fallback
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `${digits.slice(0, 4)}.${digits.slice(4, 7)}.${digits.slice(
+        7,
+        10
+      )}`;
+    }
+    if (digits.length === 11) {
+      return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(
+        6,
+        9
+      )}.${digits.slice(9, 11)}`;
+    }
+    return phone; // fallback
   };
 
   useEffect(() => {
@@ -60,7 +72,10 @@ const MedicalReceivedDetail = () => {
         setParentInfo(response.data.parent);
         setDetail(response.data);
         setParentId(response.data.parent.userId);
-        console.log("Medical Registration Details:", response.data.parent.userId);
+        console.log(
+          "Medical Registration Details:",
+          response.data.parent.userId
+        );
       } catch (error) {
         console.error("Error fetching medical registration details:", error);
         Swal.fire({
@@ -100,24 +115,26 @@ const MedicalReceivedDetail = () => {
           notes: doseNotes[doseIdx] ?? "Medication administered on time.",
         }
       );
-      const {notificationTypeId, receiverId, senderId} = res.data
-      await axiosInstance.post(`/api/notifications/medical-registrations/completed/to-parent`,{
-        notificationTypeId,
-        senderId,
-        receiverId,
-      });
+      const {notificationTypeId, receiverId, senderId} = res.data;
+      await axiosInstance.post(
+        `/api/notifications/medical-registrations/completed/to-parent`,
+        {
+          notificationTypeId,
+          senderId,
+          receiverId,
+        }
+      );
       const response = await axiosInstance.get(
         `/api/nurses/medical-registrations/${medicalRegistrationId}`
       );
       Swal.fire({
-          icon: "success",
-          title: "Dose completed!",
-          showConfirmButton: false,
-          timer: 1200,
-        });
-        setDetail(response.data);
-        setDoseNotes((prev) => ({ ...prev, [doseIdx]: "" }));
-   
+        icon: "success",
+        title: "Dose completed!",
+        showConfirmButton: false,
+        timer: 1200,
+      });
+      setDetail(response.data);
+      setDoseNotes((prev) => ({...prev, [doseIdx]: ""}));
     } catch (error) {
       setTimeout(async () => {
         const response = await axiosInstance.get(
@@ -132,7 +149,7 @@ const MedicalReceivedDetail = () => {
             showConfirmButton: false,
             timer: 1200,
           });
-          setDoseNotes((prev) => ({ ...prev, [doseIdx]: "" }));
+          setDoseNotes((prev) => ({...prev, [doseIdx]: ""}));
         } else {
           Swal.fire({
             icon: "error",
@@ -163,7 +180,7 @@ const MedicalReceivedDetail = () => {
       });
       return;
     }
-    
+
     if (actionType === "approve") {
       await handleApprove();
     } else if (actionType === "cancel") {
@@ -182,7 +199,7 @@ const MedicalReceivedDetail = () => {
   const handleApprove = async () => {
     setApproving(true);
     setIsNoteModalVisible(false); // Đóng modal
-    
+
     try {
       const requestData = {
         staffNurseId: nurseId,
@@ -190,33 +207,36 @@ const MedicalReceivedDetail = () => {
         status: true,
         nurseNotes: nurseNote.trim(),
       };
-      
+
       console.log("Approve Request data:", requestData);
-      
+
       const response = await axiosInstance.put(
         `/api/nurses/medical-registrations/${medicalRegistrationId}/approved`,
         requestData
       );
-      
+
       console.log("Approve API response:", response.data);
-      
-      await axiosInstance.post(`/api/notifications/medical-registrations/approved/to-parent`,{
-        notificationTypeId: medicalRegistrationId,
-        senderId: nurseId,
-        receiverId: parentId,
-      });
-      
+
+      await axiosInstance.post(
+        `/api/notifications/medical-registrations/approved/to-parent`,
+        {
+          notificationTypeId: medicalRegistrationId,
+          senderId: nurseId,
+          receiverId: parentId,
+        }
+      );
+
       Swal.fire({
         icon: "success",
         title: "Registration approved!",
         showConfirmButton: false,
         timer: 1200,
       });
-      
+
       const refreshResponse = await axiosInstance.get(
         `/api/nurses/medical-registrations/${medicalRegistrationId}`
       );
-      
+
       setDetail(refreshResponse.data);
     } catch (error) {
       console.error("Error approving registration:", error);
@@ -233,11 +253,10 @@ const MedicalReceivedDetail = () => {
     }
   };
 
-  
   const handleCancel = async () => {
     setCancelling(true);
-    setIsNoteModalVisible(false); 
-    
+    setIsNoteModalVisible(false);
+
     try {
       const requestData = {
         staffNurseId: nurseId,
@@ -245,33 +264,36 @@ const MedicalReceivedDetail = () => {
         status: false,
         nurseNotes: nurseNote.trim(),
       };
-      
+
       console.log("Cancel Request data:", requestData);
-      
+
       const response = await axiosInstance.put(
         `/api/nurses/medical-registrations/${medicalRegistrationId}/approved`,
         requestData
       );
-      
+
       console.log("Cancel API response:", response.data);
-      
-      await axiosInstance.post(`/api/notifications/medical-registrations/approved/to-parent`,{
-        notificationTypeId: medicalRegistrationId,
-        senderId: nurseId,
-        receiverId: parentId,
-      });
-      
+
+      await axiosInstance.post(
+        `/api/notifications/medical-registrations/approved/to-parent`,
+        {
+          notificationTypeId: medicalRegistrationId,
+          senderId: nurseId,
+          receiverId: parentId,
+        }
+      );
+
       Swal.fire({
         icon: "success",
         title: "Registration cancelled!",
         showConfirmButton: false,
         timer: 1200,
       });
-      
+
       const refreshResponse = await axiosInstance.get(
         `/api/nurses/medical-registrations/${medicalRegistrationId}`
       );
-      
+
       setDetail(refreshResponse.data);
     } catch (error) {
       console.error("Error cancelling registration:", error);
@@ -289,7 +311,7 @@ const MedicalReceivedDetail = () => {
   };
 
   if (loading || !detail) {
-    return <Spin style={{ marginTop: 40 }} />;
+    return <Spin style={{marginTop: 40}} />;
   }
 
   const {
@@ -298,7 +320,7 @@ const MedicalReceivedDetail = () => {
     student,
     medicalRegistrationDetails,
   } = detail;
-  console.log ("Medical Registration Details:", detail);
+  console.log("Medical Registration Details:", detail);
 
   const allDoseCompleted =
     medicalRegistrationDetails &&
@@ -317,17 +339,17 @@ const MedicalReceivedDetail = () => {
       <div
         style={{
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-          padding: "20px 0 10px 0", // giảm padding dọc
-          marginBottom: "18px", // giảm margin dưới
+          padding: "20px 0 10px 0",
+          marginBottom: "18px", 
           color: "white",
           textAlign: "center",
           boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-          borderRadius: "20px 20px 0 0 ", // bo góc dưới
+          borderRadius: "20px 20px 0 0 ",
         }}
       >
         <h1
           style={{
-            fontSize: 38, // giảm font size
+            fontSize: 38, 
             fontWeight: 800,
             margin: "0 0 4px 0",
             textShadow: "2px 2px 4px rgba(0,0,0,0.13)",
@@ -412,7 +434,7 @@ const MedicalReceivedDetail = () => {
             margin: 0,
             border: "2px solid #2B5DC4",
           }}
-          bodyStyle={{ padding: "16px 16px" }}
+          bodyStyle={{padding: "16px 16px"}}
         >
           {/* Student Header */}
           <div
@@ -433,7 +455,7 @@ const MedicalReceivedDetail = () => {
                 boxShadow: "0 2px 8px rgba(79, 70, 229, 0.18)",
               }}
             />
-            <div style={{ flex: 1 }}>
+            <div style={{flex: 1}}>
               <h1
                 style={{
                   margin: 0,
@@ -458,22 +480,24 @@ const MedicalReceivedDetail = () => {
             </div>
             <div
               style={{
-                backgroundColor: medicalRegistration.status === false 
-                  ? "#fef2f2"  
-                  : medicalRegistration.status === true 
-                  ? "#f0f9ff"  
-                  : "#fff7ed", 
-                color: medicalRegistration.status === false 
-                  ? "#dc2626"  
-                  : medicalRegistration.status === true 
-                  ? "#2563eb"  
-                  : "#ea580c", 
+                backgroundColor:
+                  medicalRegistration.status === false
+                    ? "#fef2f2"
+                    : medicalRegistration.status === true
+                    ? "#f0f9ff"
+                    : "#fff7ed",
+                color:
+                  medicalRegistration.status === false
+                    ? "#dc2626"
+                    : medicalRegistration.status === true
+                    ? "#2563eb"
+                    : "#ea580c",
                 border: `2px solid ${
-                  medicalRegistration.status === false 
-                    ? "#dc2626"  
-                    : medicalRegistration.status === true 
-                    ? "#2563eb"  
-                    : "#ea580c"  
+                  medicalRegistration.status === false
+                    ? "#dc2626"
+                    : medicalRegistration.status === true
+                    ? "#2563eb"
+                    : "#ea580c"
                 }`,
                 borderRadius: 18,
                 padding: "7px 16px",
@@ -484,8 +508,11 @@ const MedicalReceivedDetail = () => {
                 gap: 8,
               }}
             >
-              {medicalRegistration.status === true ? "Approved" : 
-              medicalRegistration.status === false ? "Cancelled" : "Pending"}
+              {medicalRegistration.status === true
+                ? "Approved"
+                : medicalRegistration.status === false
+                ? "Cancelled"
+                : "Pending"}
             </div>
           </div>
 
@@ -499,7 +526,7 @@ const MedicalReceivedDetail = () => {
             }}
           >
             {/* Left: Info Grid */}
-            <div style={{ flex: 2, minWidth: 220 }}>
+            <div style={{flex: 2, minWidth: 220}}>
               <div
                 style={{
                   display: "grid",
@@ -515,11 +542,35 @@ const MedicalReceivedDetail = () => {
                     border: "1.5px solid #e2e8f0",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
-                    <CalendarOutlined style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }} />
-                    <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Date Submitted</h4>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 6,
+                    }}
+                  >
+                    <CalendarOutlined
+                      style={{color: "#4f46e5", fontSize: 16, marginRight: 8}}
+                    />
+                    <h4
+                      style={{
+                        margin: 0,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "#374151",
+                      }}
+                    >
+                      Date Submitted
+                    </h4>
                   </div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "#1f2937",
+                    }}
+                  >
                     {medicalRegistration?.dateSubmitted || ""}
                   </p>
                 </div>
@@ -531,11 +582,35 @@ const MedicalReceivedDetail = () => {
                     border: "1.5px solid #e2e8f0",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
-                    <FileTextOutlined style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }} />
-                    <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Medication Name</h4>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 6,
+                    }}
+                  >
+                    <FileTextOutlined
+                      style={{color: "#4f46e5", fontSize: 16, marginRight: 8}}
+                    />
+                    <h4
+                      style={{
+                        margin: 0,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "#374151",
+                      }}
+                    >
+                      Medication Name
+                    </h4>
                   </div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "#1f2937",
+                    }}
+                  >
                     {medicalRegistration?.medicationName || ""}
                   </p>
                 </div>
@@ -547,11 +622,35 @@ const MedicalReceivedDetail = () => {
                     border: "1.5px solid #e2e8f0",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
-                    <EnvironmentOutlined style={{ color: "#4f46e5", fontSize: 16, marginRight: 8 }} />
-                    <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Total Dosages (per day)</h4>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 6,
+                    }}
+                  >
+                    <EnvironmentOutlined
+                      style={{color: "#4f46e5", fontSize: 16, marginRight: 8}}
+                    />
+                    <h4
+                      style={{
+                        margin: 0,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "#374151",
+                      }}
+                    >
+                      Total Dosages (per day)
+                    </h4>
                   </div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "#1f2937",
+                    }}
+                  >
                     {medicalRegistration?.totalDosages || ""}
                   </p>
                 </div>
@@ -566,17 +665,42 @@ const MedicalReceivedDetail = () => {
                     justifyContent: "center",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
-                    <UserOutlined style={{ color: "#0ea5e9", fontSize: 16, marginRight: 8 }} />
-                    <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#374151" }}>Parent Info</h4>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 6,
+                    }}
+                  >
+                    <UserOutlined
+                      style={{color: "#0ea5e9", fontSize: 16, marginRight: 8}}
+                    />
+                    <h4
+                      style={{
+                        margin: 0,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "#374151",
+                      }}
+                    >
+                      Parent Info
+                    </h4>
                   </div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#1f2937" }}>
-                    {parentInfo?.userFullName || "N/A"} - {formatPhone(parentInfo?.userPhoneNumber)}
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "#1f2937",
+                    }}
+                  >
+                    {parentInfo?.userFullName || "N/A"} -{" "}
+                    {formatPhone(parentInfo?.userPhoneNumber)}
                   </p>
                 </div>
               </div>
               {/* Parent Notes & Consent */}
-              <div style={{ marginTop: 12 }}>
+              <div style={{marginTop: 12}}>
                 <div
                   style={{
                     backgroundColor: "#f0f9ff",
@@ -586,9 +710,27 @@ const MedicalReceivedDetail = () => {
                     marginBottom: 8,
                   }}
                 >
-                  <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#0c4a6e" }}>Parent Notes</h4>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: "#0c4a6e" }}>
-                    {medicalRegistration?.notes || <span style={{ color: "#aaa" }}>No notes</span>}
+                  <h4
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "#0c4a6e",
+                    }}
+                  >
+                    Parent Notes
+                  </h4>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: "#0c4a6e",
+                    }}
+                  >
+                    {medicalRegistration?.notes || (
+                      <span style={{color: "#aaa"}}>No notes</span>
+                    )}
                   </p>
                 </div>
                 <div
@@ -656,10 +798,10 @@ const MedicalReceivedDetail = () => {
                 <Tooltip
                   title={
                     medicalRegistration?.pictureUrl
-                    ? "Click to view full screen"
-                    : "No image available"
+                      ? "Click to view full screen"
+                      : "No image available"
                   }
-                      placement="top"
+                  placement="top"
                 >
                   <div
                     style={{
@@ -672,47 +814,50 @@ const MedicalReceivedDetail = () => {
                       setIsImageModalVisible(true)
                     }
                   >
-                {medicalRegistration?.pictureUrl ? (
-                  <img
-                    src={medicalRegistration.pictureUrl}
-                    alt="Medicine"
-                    style={{
-                      width: 90,
-                      height: 90,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                      border: "1px solid #e5e7eb",
-                      background: "#fafafa",
-                      display: "block",
-                    }}
-                  />
-                ) : (
-                  <PictureOutlined style={{ fontSize: 32, color: "#bbb" }} />
-                )}
-                </div>
+                    {medicalRegistration?.pictureUrl ? (
+                      <img
+                        src={medicalRegistration.pictureUrl}
+                        alt="Medicine"
+                        style={{
+                          width: 90,
+                          height: 90,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                          border: "1px solid #e5e7eb",
+                          background: "#fafafa",
+                          display: "block",
+                        }}
+                      />
+                    ) : (
+                      <PictureOutlined style={{fontSize: 32, color: "#bbb"}} />
+                    )}
+                  </div>
                 </Tooltip>
               </div>
-              <span style={{ fontSize: 12, color: "#888" }}>Medicine Picture</span>
+              <span style={{fontSize: 12, color: "#888"}}>
+                Medicine Picture
+              </span>
             </div>
           </div>
           <div
-              style={{
-                minWidth: 180,
-                maxWidth: 240,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-end",
-                gap: 16,
-                marginTop: 8,
-              }}
-            >
-              {medicalRegistration.status === null && (
-                <>
+            style={{
+              minWidth: 180,
+              maxWidth: 240,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 16,
+              marginTop: 8,
+            }}
+          >
+            {medicalRegistration.status === null && (
+              <>
                 <Button
                   type="primary"
                   loading={approving}
                   style={{
-                    background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+                    background:
+                      "linear-gradient(135deg, #059669 0%, #10b981 100%)",
                     borderRadius: 10,
                     fontWeight: 700,
                     fontSize: 14,
@@ -721,7 +866,7 @@ const MedicalReceivedDetail = () => {
                     boxShadow: "0 2px 8px rgba(16,185,129,0.12)",
                     width: "100%",
                   }}
-                  onClick={() => showNoteModal("approve")} // Thay đổi ở đây
+                  onClick={() => showNoteModal("approve")}
                 >
                   Approve Registration
                 </Button>
@@ -729,7 +874,8 @@ const MedicalReceivedDetail = () => {
                   type="primary"
                   loading={cancelling}
                   style={{
-                    background: "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)",
+                    background:
+                      "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)",
                     borderRadius: 10,
                     fontWeight: 700,
                     fontSize: 14,
@@ -742,9 +888,9 @@ const MedicalReceivedDetail = () => {
                 >
                   Cancel Registration
                 </Button>
-                </>            
-              )}
-            </div>
+              </>
+            )}
+          </div>
 
           {/* Dose Confirmation */}
           <div
@@ -757,143 +903,183 @@ const MedicalReceivedDetail = () => {
             }}
           >
             {/* Left: Action Buttons + Medicine Picture */}
-            
+
             {/* Right: Dose Information */}
             {medicalRegistration.status === true && (
-              <div style={{ flex: 2, minWidth: 220 }}>
-              <Divider orientation="left" style={{ marginTop: 12, fontWeight: 700, fontSize: 15 }}>
-                Dose Information
-              </Divider>
-              {nurseApproved?.dateApproved ? (
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                    gap: 14,
-                  }}
+              <div style={{flex: 2, minWidth: 220}}>
+                <Divider
+                  orientation="left"
+                  style={{marginTop: 12, fontWeight: 700, fontSize: 15}}
                 >
-                  {medicalRegistrationDetails && medicalRegistrationDetails.length > 0 ? (
-                    [...medicalRegistrationDetails]
-                      .sort((a, b) => Number(a.doseNumber) - Number(b.doseNumber))
-                      .map((dose, idx) => (
-                        <div
-                          key={dose.doseNumber + idx}
-                          style={{
-                            background: "#f8fafc",
-                            border: "1.5px solid #e2e8f0",
-                            borderRadius: 10,
-                            padding: 14,
-                            minHeight: 120,
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            boxShadow: "0 1px 4px rgba(53,93,196,0.06)",
-                          }}
-                        >
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                            <span style={{ color: "#2B5DC4", fontWeight: 700, fontSize: 15 }}>
-                              Dose #{dose.doseNumber}
-                            </span>
-                            {dose.isCompleted ? (
+                  Dose Information
+                </Divider>
+                {nurseApproved?.dateApproved ? (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(auto-fit, minmax(220px, 1fr))",
+                      gap: 14,
+                    }}
+                  >
+                    {medicalRegistrationDetails &&
+                    medicalRegistrationDetails.length > 0 ? (
+                      [...medicalRegistrationDetails]
+                        .sort(
+                          (a, b) => Number(a.doseNumber) - Number(b.doseNumber)
+                        )
+                        .map((dose, idx) => (
+                          <div
+                            key={dose.doseNumber + idx}
+                            style={{
+                              background: "#f8fafc",
+                              border: "1.5px solid #e2e8f0",
+                              borderRadius: 10,
+                              padding: 14,
+                              minHeight: 120,
+                              minWidth: "100%", 
+                              maxWidth: "100%", 
+                              width: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between",
+                              boxShadow: "0 1px 4px rgba(53,93,196,0.06)",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                marginBottom: 6,
+                              }}
+                            >
                               <span
                                 style={{
-                                  background: "#f0f9ff",
-                                  color: "#2563eb",
-                                  border: "2px solid #2563eb",
-                                  borderRadius: 18,
-                                  padding: "4px 14px",
-                                  fontSize: 13,
+                                  color: "#2B5DC4",
                                   fontWeight: 700,
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: 6,
+                                  fontSize: 15,
                                 }}
                               >
-                                <span style={{ fontSize: 13, marginRight: 4 }}>✔</span>
-                                Completed
+                                Dose #{dose.doseNumber}
                               </span>
-                            ) : (
-                              <Tag color="orange">Not Completed</Tag>
+                              {dose.isCompleted ? (
+                                <span
+                                  style={{
+                                    background: "#f0f9ff",
+                                    color: "#2563eb",
+                                    border: "2px solid #2563eb",
+                                    borderRadius: 18,
+                                    padding: "4px 14px",
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 6,
+                                  }}
+                                >
+                                  <span style={{fontSize: 13, marginRight: 4}}>
+                                    ✔
+                                  </span>
+                                  Completed
+                                </span>
+                              ) : (
+                                <Tag color="orange">Not Completed</Tag>
+                              )}
+                            </div>
+                            <div style={{fontSize: 13, marginBottom: 2}}>
+                              <b>Dose Time:</b> {dose.doseTime}
+                            </div>
+                            <div style={{fontSize: 13, marginBottom: 2}}>
+                              <b>Notes:</b>{" "}
+                              {dose.notes || (
+                                <span style={{color: "#aaa"}}>No notes</span>
+                              )}
+                            </div>
+                            {dose.isCompleted && dose.dateCompleted && (
+                              <div style={{fontSize: 13, marginBottom: 2}}>
+                                <b>Date Completed:</b> {dose.dateCompleted}
+                              </div>
+                            )}
+                            {!dose.isCompleted && (
+                              <div style={{marginTop: 6}}>
+                                <Button
+                                  type="primary"
+                                  loading={confirmingDose === idx}
+                                  style={{
+                                    background:
+                                      "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+                                    borderRadius: 8,
+                                    fontWeight: 600,
+                                    fontSize: 13,
+                                    padding: "2px 16px",
+                                    marginTop: 2,
+                                    border: "none",
+                                    boxShadow: "0 1px 4px rgba(53,93,196,0.08)",
+                                  }}
+                                  onClick={() => handleCompleteDose(idx, dose)}
+                                >
+                                  Mark as Completed
+                                </Button>
+                              </div>
                             )}
                           </div>
-                          <div style={{ fontSize: 13, marginBottom: 2 }}>
-                            <b>Dose Time:</b> {dose.doseTime}
-                          </div>
-                          <div style={{ fontSize: 13, marginBottom: 2 }}>
-                            <b>Notes:</b>{" "}
-                            {dose.notes || <span style={{ color: "#aaa" }}>No notes</span>}
-                          </div>
-                          {dose.isCompleted && dose.dateCompleted && (
-                            <div style={{ fontSize: 13, marginBottom: 2 }}>
-                              <b>Date Completed:</b> {dose.dateCompleted}
-                            </div>
-                          )}
-                          {!dose.isCompleted && (
-                            <div style={{ marginTop: 6 }}>
-                              <Button
-                                type="primary"
-                                loading={confirmingDose === idx}
-                                style={{
-                                  background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-                                  borderRadius: 8,
-                                  fontWeight: 600,
-                                  fontSize: 13,
-                                  padding: "2px 16px",
-                                  marginTop: 2,
-                                  border: "none",
-                                  boxShadow: "0 1px 4px rgba(53,93,196,0.08)",
-                                }}
-                                onClick={() => handleCompleteDose(idx, dose)}
-                              >
-                                Mark as Completed
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      ))
-                  ) : (
-                    <div style={{ color: "#aaa" }}>No dose details available.</div>
-                  )}
-                  {nurseApproved?.dateApproved && allDoseCompleted && (
-                    <div
+                        ))
+                    ) : (
+                      <div style={{color: "#aaa"}}>
+                        No dose details available.
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{color: "#aaa"}}>
+                    Please approve the registration before confirming doses.
+                  </div>
+                )}
+                {nurseApproved?.dateApproved && allDoseCompleted && (
+                  <div
+                    style={{
+                      marginTop: 20,
+                      minWidth: 260, 
+                      maxWidth: 320,
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    <span
                       style={{
-                        gridColumn: "1/-1",
-                        marginTop: 6,
-                        display: "flex",
-                        justifyContent: "flex-start",
+                        background: "#f0f9ff",
+                        color: "#2563eb",
+                        border: "2px solid #2563eb",
+                        borderRadius: 18,
+                        padding: "7px 18px",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        width: "100%",
+                        justifyContent: "center",
                       }}
                     >
-                      <span
-                        style={{
-                          background: "#f0f9ff",
-                          color: "#2563eb",
-                          border: "2px solid #2563eb",
-                          borderRadius: 18,
-                          padding: "7px 18px",
-                          fontSize: 14,
-                          fontWeight: 700,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <span style={{ fontSize: 15, marginRight: 4 }}>✔</span>
-                        All Doses Completed
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ color: "#aaa" }}>
-                  Please approve the registration before confirming doses.
-                </div>
-              )}
-            </div>
+                      <span style={{fontSize: 15, marginRight: 4}}>✔</span>
+                      All Doses Completed
+                    </span>
+                  </div>
+                )}
+              </div>
             )}
             {medicalRegistration.status === false && (
-              <div style={{ flex: 2, minWidth: 220 }}>
-                <Divider orientation="left" style={{ marginTop: 12, fontWeight: 700, fontSize: 15 }}>
-                  Nurse Notes: <span style={{ color: "#dc2626" }}>{medicalRegistration.nurseNotes}</span>
+              <div style={{flex: 2, minWidth: 220}}>
+                <Divider
+                  orientation="left"
+                  style={{marginTop: 12, fontWeight: 700, fontSize: 15}}
+                >
+                  Nurse Notes:{" "}
+                  <span style={{color: "#dc2626"}}>
+                    {medicalRegistration.nurseNotes}
+                  </span>
                 </Divider>
               </div>
             )}
@@ -904,8 +1090,10 @@ const MedicalReceivedDetail = () => {
       {/* Nurse Note Modal */}
       <Modal
         title={
-          <span style={{ fontSize: 18, fontWeight: 700, color: "#1f2937" }}>
-            {actionType === "approve" ? "Approve Registration" : "Cancel Registration"}
+          <span style={{fontSize: 18, fontWeight: 700, color: "#1f2937"}}>
+            {actionType === "approve"
+              ? "Approve Registration"
+              : "Cancel Registration"}
           </span>
         }
         open={isNoteModalVisible}
@@ -916,21 +1104,21 @@ const MedicalReceivedDetail = () => {
         confirmLoading={approving || cancelling}
         okButtonProps={{
           style: {
-            background: actionType === "approve" 
-              ? "linear-gradient(135deg, #059669 0%, #10b981 100%)"
-              : "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)",
+            background:
+              actionType === "approve"
+                ? "linear-gradient(135deg, #059669 0%, #10b981 100%)"
+                : "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)",
             border: "none",
             fontWeight: 600,
           },
         }}
         width={500}
       >
-        <div style={{ padding: "16px 0" }}>
-          <p style={{ marginBottom: 16, color: "#6b7280", fontSize: 14 }}>
-            {actionType === "approve" 
+        <div style={{padding: "16px 0"}}>
+          <p style={{marginBottom: 16, color: "#6b7280", fontSize: 14}}>
+            {actionType === "approve"
               ? "Please provide a note for approving this medical registration:"
-              : "Please provide a reason for cancelling this medical registration:"
-            }
+              : "Please provide a reason for cancelling this medical registration:"}
           </p>
           <Input.TextArea
             value={nurseNote}
@@ -949,22 +1137,22 @@ const MedicalReceivedDetail = () => {
             }}
           />
           {nurseNote.trim() && (
-            <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280" }}>
+            <div style={{marginTop: 8, fontSize: 12, color: "#6b7280"}}>
               Preview: "{nurseNote.trim()}"
             </div>
           )}
         </div>
       </Modal>
-       <Modal
+      <Modal
         open={isImageModalVisible}
         onCancel={() => setIsImageModalVisible(false)}
         footer={null}
         centered
         width="100%"
-        style={{ maxWidth: 1000 }}
-        bodyStyle={{ padding: 0 }}
+        style={{maxWidth: 1000}}
+        bodyStyle={{padding: 0}}
       >
-        <div style={{ textAlign: "center", padding: "20px" }}>
+        <div style={{textAlign: "center", padding: "20px"}}>
           <img
             src={medicalRegistration?.pictureUrl}
             alt="Medicine Full View"

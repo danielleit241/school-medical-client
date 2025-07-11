@@ -70,7 +70,6 @@ const DetailCampaign = () => {
   const [classes, setClasses] = useState([]); // Thêm state để lưu danh sách lớp
   const [roundsWithStudents, setRoundsWithStudents] = useState(new Set());
 
-
   // Edit round modal state
   const [editRoundModalVisible, setEditRoundModalVisible] = useState(false);
   const [editRoundLoading, setEditRoundLoading] = useState(false);
@@ -368,7 +367,6 @@ const DetailCampaign = () => {
         JSON.stringify(toNurse)
       );
 
-      
       Swal.fire({
         icon: "success",
         title: "Students added!",
@@ -478,18 +476,17 @@ const DetailCampaign = () => {
 
   // Handle open edit round modal
   const handleEditRound = async (round) => {
-     
     setEditRoundData(round);
-       
+
     const hasStudents = await checkRoundHasStudents(round.roundId);
-    
+
     if (hasStudents) {
-      setRoundsWithStudents(prev => {
+      setRoundsWithStudents((prev) => {
         const newSet = new Set([...prev, round.roundId]);
         return newSet;
       });
     }
-    
+
     setEditRoundModalVisible(true);
 
     // Lấy lại danh sách nurse mới nhất trước khi setFieldsValue
@@ -513,23 +510,25 @@ const DetailCampaign = () => {
     }, 0);
   };
 
-const checkRoundHasStudents = async (roundId) => {
-  try {
-    const response = await axiosInstance.get(`/api/managers/vaccination-rounds/${roundId}/students`);
-    const data = response.data;
-        
-    const hasStudents = data && data.count > 0;
-    
-    return hasStudents;
-  } catch (error) {
-    console.error(`Error checking students in round ${roundId}:`, error);
-    return false;
-  }
-};
+  const checkRoundHasStudents = async (roundId) => {
+    try {
+      const response = await axiosInstance.get(
+        `/api/managers/vaccination-rounds/${roundId}/students`
+      );
+      const data = response.data;
 
-const isRoundHasStudents = (roundId) => {
-  return roundsWithStudents.has(roundId);
-};
+      const hasStudents = data && data.count > 0;
+
+      return hasStudents;
+    } catch (error) {
+      console.error(`Error checking students in round ${roundId}:`, error);
+      return false;
+    }
+  };
+
+  const isRoundHasStudents = (roundId) => {
+    return roundsWithStudents.has(roundId);
+  };
 
   // Handle submit edit round
   const handleSubmitEditRound = async () => {
@@ -747,7 +746,7 @@ const isRoundHasStudents = (roundId) => {
           <span>Vaccination Campaign Details</span>
         </div>
       }
-      style={{maxWidth: 1200, margin: "32px auto"}}
+      style={{margin: 24}}
       extra={
         <Space>
           <Button
@@ -1298,7 +1297,11 @@ const isRoundHasStudents = (roundId) => {
                 <Select
                   placeholder="Select class"
                   showSearch
-                  disabled={editRoundData ? isRoundHasStudents(editRoundData.roundId) : false}
+                  disabled={
+                    editRoundData
+                      ? isRoundHasStudents(editRoundData.roundId)
+                      : false
+                  }
                   filterOption={(input, option) =>
                     (option?.value ?? "")
                       .toLowerCase()
@@ -1313,9 +1316,17 @@ const isRoundHasStudents = (roundId) => {
                 </Select>
               </Form.Item>
               {editRoundData && isRoundHasStudents(editRoundData.roundId) && (
-                <div style={{ fontSize: 12, color: '#d4380d', marginTop: -20, marginBottom: 16 }}>
-                  <ExclamationCircleOutlined style={{ marginRight: 4 }} />
-                  Target Grade cannot be changed - this round already has students
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#d4380d",
+                    marginTop: -20,
+                    marginBottom: 16,
+                  }}
+                >
+                  <ExclamationCircleOutlined style={{marginRight: 4}} />
+                  Target Grade cannot be changed - this round already has
+                  students
                 </div>
               )}
             </Col>

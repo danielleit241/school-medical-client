@@ -1,4 +1,3 @@
-
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../../../api/axios";
@@ -17,17 +16,21 @@ const DetailMedicalRes = () => {
 
   const formatPhone = (phone) => {
     if (!phone) return "";
-      const digits = phone.replace(/\D/g, "");
-      if (digits.length === 10) {
-        return `${digits.slice(0,4)}.${digits.slice(4,7)}.${digits.slice(7,10)}`;
-      }
-      if (digits.length === 11) {
-        return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}.${digits.slice(9,11)}`;
-      }
-        return phone; // fallback
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `${digits.slice(0, 4)}.${digits.slice(4, 7)}.${digits.slice(
+        7,
+        10
+      )}`;
+    }
+    if (digits.length === 11) {
+      return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(
+        6,
+        9
+      )}.${digits.slice(9, 11)}`;
+    }
+    return phone; // fallback
   };
-
-
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -71,8 +74,6 @@ const DetailMedicalRes = () => {
     return <div>No medical registration data available.</div>;
   }
 
-  
-
   if (loading || !detail) {
     return (
       <div
@@ -107,9 +108,12 @@ const DetailMedicalRes = () => {
         showNurseNotes: true,
       };
     }
-    
+
     // Nếu chưa được approve
-    if (medicalRegistration.status === null || medicalRegistration.status === undefined) {
+    if (
+      medicalRegistration.status === null ||
+      medicalRegistration.status === undefined
+    ) {
       return {
         text: "Pending",
         color: "#f59e0b",
@@ -118,7 +122,7 @@ const DetailMedicalRes = () => {
         showNurseNotes: false,
       };
     }
-    
+
     // Nếu đã approve
     if (medicalRegistration.status === true) {
       return {
@@ -129,7 +133,7 @@ const DetailMedicalRes = () => {
         showNurseNotes: true,
       };
     }
-    
+
     return {
       text: "Unknown",
       color: "#6b7280",
@@ -329,8 +333,8 @@ const DetailMedicalRes = () => {
                   </td>
                 </tr>
                 <tr style={{borderBottom: "1px solid #eee"}}>
-                <td
-                  style={{
+                  <td
+                    style={{
                       padding: "12px 16px",
                       background: "#f9f9f9",
                       height: "80px",
@@ -338,32 +342,33 @@ const DetailMedicalRes = () => {
                       width: "40%",
                       fontSize: "16px",
                       borderRight: "2px solid #eee", // Thêm dòng này
-                  }}
-                >
-                  Nurse
-                </td>
-                <td
-                  style={{
-                    padding: "12px 16px",
-                    width: "250px",
-                    fontSize: "16px",
-                    borderRight: "2px solid #eee", // Thêm dòng này
-                  }}
-                >
-                  {nurseInfo.fullName || "N/A"}
-                </td>
-                <td
-                  style={{
-                    display: "flex",
-                    gap: "8px",
-                    padding: "12px 16px",
-                    fontSize: "16px",
-                    marginTop: "16px",
-                  }}
-                >
-                  <p style={{fontWeight: 600}}> Phone:</p> {formatPhone(nurseInfo.phoneNumber) }
-                </td>
-              </tr>
+                    }}
+                  >
+                    Nurse
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px 16px",
+                      width: "250px",
+                      fontSize: "16px",
+                      borderRight: "2px solid #eee", // Thêm dòng này
+                    }}
+                  >
+                    {nurseInfo.fullName || "N/A"}
+                  </td>
+                  <td
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      padding: "12px 16px",
+                      fontSize: "16px",
+                      marginTop: "16px",
+                    }}
+                  >
+                    <p style={{fontWeight: 600}}> Phone:</p>{" "}
+                    {formatPhone(nurseInfo.phoneNumber)}
+                  </td>
+                </tr>
                 <tr style={{borderBottom: "1px solid #eee"}}>
                   <td
                     style={{
@@ -522,36 +527,38 @@ const DetailMedicalRes = () => {
                   </td>
                 </tr>
                 {/* Thêm Nurse Notes row nếu có */}
-                {status.showNurseNotes && medicalRegistration?.nurseNotes && medicalRegistration.status === true && (
-                  <tr style={{borderBottom: "1px solid #eee"}}>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        background: "#f9f9f9",
-                        height: "80px",
-                        fontWeight: "600",
-                        width: "40%",
-                        fontSize: "16px",
-                      }}
-                    >
-                      Nurse Notes
-                    </td>
-                    <td style={{padding: "8px 16px", fontSize: "16px"}}>
-                      <div
+                {status.showNurseNotes &&
+                  medicalRegistration?.nurseNotes &&
+                  medicalRegistration.status === true && (
+                    <tr style={{borderBottom: "1px solid #eee"}}>
+                      <td
                         style={{
-                          backgroundColor: "#f0f9ff",
-                          padding: "12px",
-                          borderRadius: "8px",
-                          border: "1px solid #bae6fd",
-                          fontStyle: "italic",
-                          color: "#0c4a6e",
+                          padding: "12px 16px",
+                          background: "#f9f9f9",
+                          height: "80px",
+                          fontWeight: "600",
+                          width: "40%",
+                          fontSize: "16px",
                         }}
                       >
-                        {medicalRegistration.nurseNotes}
-                      </div>
-                    </td>
-                  </tr>
-                )}
+                        Nurse Notes
+                      </td>
+                      <td style={{padding: "8px 16px", fontSize: "16px"}}>
+                        <div
+                          style={{
+                            backgroundColor: "#f0f9ff",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #bae6fd",
+                            fontStyle: "italic",
+                            color: "#0c4a6e",
+                          }}
+                        >
+                          {medicalRegistration.nurseNotes}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 <tr style={{borderBottom: "1px solid #eee"}}>
                   <td
                     style={{
@@ -625,7 +632,7 @@ const DetailMedicalRes = () => {
                           />
                         ) : (
                           <PictureOutlined
-                            style={{ fontSize: 36, color: "#bbb" }}
+                            style={{fontSize: 36, color: "#bbb"}}
                           />
                         )}
                       </div>
@@ -673,77 +680,81 @@ const DetailMedicalRes = () => {
               medicalRegistrationDetails &&
               medicalRegistrationDetails.length > 0 ? (
                 <>
-                  {medicalRegistrationDetails.map((dose, idx) => (
-                    <div
-                      key={dose.doseNumber + idx}
-                      style={{
-                        marginBottom: "20px",
-                        borderRadius: "6px",
-                        border: "1px solid #f0f0f0",
-                        padding: "20px",
-                        background: "#fff",
-                      }}
-                    >
-                      <div style={{marginBottom: "10px"}}>
-                        <span style={{fontWeight: "600", fontSize: "16px"}}>
-                          Dose {dose.doseNumber}
-                        </span>{" "}
-                        <span style={{color: "#666", fontSize: "16px"}}>
-                          ({dose.doseTime})
-                        </span>
-                      </div>
-
-                      <div style={{marginBottom: "10px", fontSize: "15px"}}>
-                        <span style={{fontWeight: "500"}}>Parent Notes:</span>{" "}
-                        {dose.notes || (
-                          <span style={{color: "#999"}}>No notes</span>
-                        )}
-                      </div>
-
-                      <div style={{marginBottom: 6}}>
-                        <b>Status:</b>{" "}
-                        {dose.isCompleted ? (
-                          <span
-                            style={{
-                              background: "#ecfdf5",
-                              color: "#10b981",
-                              border: "none",
-                              borderRadius: "16px",
-                              padding: "4px 16px",
-                              fontWeight: "600",
-                              fontSize: "14px",
-                              display: "inline-block",
-                            }}
-                          >
-                            Completed
+                  {medicalRegistrationDetails
+                    .sort((a, b) => Number(a.doseNumber) - Number(b.doseNumber))
+                    .map((dose, idx) => (
+                      <div
+                        key={dose.doseNumber + idx}
+                        style={{
+                          marginBottom: "20px",
+                          borderRadius: "6px",
+                          border: "1px solid #f0f0f0",
+                          padding: "20px",
+                          background: "#fff",
+                        }}
+                      >
+                        <div style={{marginBottom: "10px"}}>
+                          <span style={{fontWeight: "600", fontSize: "16px"}}>
+                            Dose {dose.doseNumber}
+                          </span>{" "}
+                          <span style={{color: "#666", fontSize: "16px"}}>
+                            ({dose.doseTime})
                           </span>
-                        ) : (
-                          <span
-                            style={{
-                              background: "#fffbeb",
-                              color: "#f59e0b",
-                              border: "none",
-                              borderRadius: "16px",
-                              padding: "4px 16px",
-                              fontWeight: "600",
-                              fontSize: "14px",
-                              display: "inline-block",
-                            }}
-                          >
-                            Not Completed
-                          </span>
-                        )}
-                      </div>
-
-                      {dose.isCompleted && dose.dateCompleted && (
-                        <div style={{fontSize: "15px", color: "#6b7280"}}>
-                          <span style={{fontWeight: "500"}}>Date Completed:</span>{" "}
-                          {dose.dateCompleted}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                  
+
+                        <div style={{marginBottom: "10px", fontSize: "15px"}}>
+                          <span style={{fontWeight: "500"}}>Parent Notes:</span>{" "}
+                          {dose.notes || (
+                            <span style={{color: "#999"}}>No notes</span>
+                          )}
+                        </div>
+
+                        <div style={{marginBottom: 6}}>
+                          <b>Status:</b>{" "}
+                          {dose.isCompleted ? (
+                            <span
+                              style={{
+                                background: "#ecfdf5",
+                                color: "#10b981",
+                                border: "none",
+                                borderRadius: "16px",
+                                padding: "4px 16px",
+                                fontWeight: "600",
+                                fontSize: "14px",
+                                display: "inline-block",
+                              }}
+                            >
+                              Completed
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                background: "#fffbeb",
+                                color: "#f59e0b",
+                                border: "none",
+                                borderRadius: "16px",
+                                padding: "4px 16px",
+                                fontWeight: "600",
+                                fontSize: "14px",
+                                display: "inline-block",
+                              }}
+                            >
+                              Not Completed
+                            </span>
+                          )}
+                        </div>
+
+                        {dose.isCompleted && dose.dateCompleted && (
+                          <div style={{fontSize: "15px", color: "#6b7280"}}>
+                            <span style={{fontWeight: "500"}}>
+                              Date Completed:
+                            </span>{" "}
+                            {dose.dateCompleted}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
                   {/* All doses completed indicator */}
                   {isAllDoseCompleted() && (
                     <div
@@ -767,7 +778,7 @@ const DetailMedicalRes = () => {
                           gap: 8,
                         }}
                       >
-                        <span style={{ fontSize: 18 }}>✔</span>
+                        <span style={{fontSize: 18}}>✔</span>
                         All Doses Completed
                       </div>
                     </div>
@@ -807,7 +818,7 @@ const DetailMedicalRes = () => {
                     gap: 8,
                   }}
                 >
-                  <span style={{ fontSize: 18 }}>❌</span>
+                  <span style={{fontSize: 18}}>❌</span>
                   Registration Cancelled
                 </div>
                 <div
@@ -849,7 +860,8 @@ const DetailMedicalRes = () => {
                 Need Help?
               </div>
               <div style={{marginBottom: 14, color: "#888"}}>
-                Our support team is here to assist you with your medication registration.
+                Our support team is here to assist you with your medication
+                registration.
               </div>
               <Button
                 style={{
@@ -867,17 +879,17 @@ const DetailMedicalRes = () => {
           </div>
         </div>
       </div>
-      
+
       <Modal
         open={isImageModalVisible}
         onCancel={() => setIsImageModalVisible(false)}
         footer={null}
         centered
         width="100%"
-        style={{ maxWidth: 1000 }}
-        bodyStyle={{ padding: 0 }}
+        style={{maxWidth: 1000}}
+        bodyStyle={{padding: 0}}
       >
-        <div style={{ textAlign: "center", padding: "20px" }}>
+        <div style={{textAlign: "center", padding: "20px"}}>
           <img
             src={medicalRegistration?.pictureUrl}
             alt="Medicine Full View"
