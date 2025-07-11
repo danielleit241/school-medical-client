@@ -337,25 +337,6 @@ const Sidebar = () => {
         link: "/parent/timetable",
       },
       {
-        label: "Appointment",
-        key: "appointment",
-        icon: <SolutionOutlined />,
-        dropdown: [
-          {
-            label: "Appointment Booking",
-            key: "/parent/appointments-list",
-            link: "/parent/appointments-list",
-            icon: <FileTextOutlined />,
-          },
-          {
-            label: "Appointment History",
-            key: "/parent/appointment-history",
-            link: "/parent/appointment-history",
-            icon: <FileDoneOutlined />,
-          },
-        ],
-      },
-      {
         label: (
           <span style={{position: "relative", display: "inline-block"}}>
             Health Profile
@@ -390,6 +371,25 @@ const Sidebar = () => {
             key: "/parent/health-declaration/my-children",
             link: "/parent/health-declaration/my-children",
             icon: <TeamOutlined />,
+          },
+        ],
+      },
+      {
+        label: "Appointment",
+        key: "appointment",
+        icon: <SolutionOutlined />,
+        dropdown: [
+          {
+            label: "Appointment Booking",
+            key: "/parent/appointments-list",
+            link: "/parent/appointments-list",
+            icon: <FileTextOutlined />,
+          },
+          {
+            label: "Appointment History",
+            key: "/parent/appointment-history",
+            link: "/parent/appointment-history",
+            icon: <FileDoneOutlined />,
           },
         ],
       },
