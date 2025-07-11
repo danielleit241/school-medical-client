@@ -18,13 +18,14 @@ import {
   Steps,
   message,
   Select,
-  Collapse
+  Collapse,
 } from "antd";
-import {Syringe} from "lucide-react"
+import {ArrowDown, ChevronDown, Syringe} from "lucide-react";
 import {MedicineBoxOutlined} from "@ant-design/icons";
 import axiosInstance from "../../../../api/axios";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
+import "./record.scss";
 
 const {Title, Text} = Typography;
 
@@ -40,7 +41,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
   console.log("RecordFormModal student:", student?.vaccineId);
 
   useEffect(() => {
-    if(!student?.vaccineId) return;
+    if (!student?.vaccineId) return;
     const fetchVaccineDetails = async () => {
       try {
         const response = await axiosInstance.get(
@@ -57,20 +58,19 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
   }, [student?.vaccineId]);
 
   useEffect(() => {
-      if (open) {
-        form.setFieldsValue({
-          status:
-            student && typeof student.status !== "string"
-              ? student.status === true
-                ? "Completed"
-                : student.status === false
-                ? "Pending"
-                : "Completed"
-              : "Completed",
-        });
-      }
-    }, [open, student, form]);
-
+    if (open) {
+      form.setFieldsValue({
+        status:
+          student && typeof student.status !== "string"
+            ? student.status === true
+              ? "Completed"
+              : student.status === false
+              ? "Pending"
+              : "Completed"
+            : "Completed",
+      });
+    }
+  }, [open, student, form]);
 
   useEffect(() => {
     const fetchHealthDeclaration = async () => {
@@ -166,11 +166,14 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
         message.info("Student is not qualified for vaccination.");
         if (onReload) await onReload();
         const {notificationTypeId, senderId, receiverId} = res.data;
-        await axiosInstance.post(`/api/notifications/vaccinations/results/to-parent`, {
-          notificationTypeId,
-          senderId,
-          receiverId,
-        });
+        await axiosInstance.post(
+          `/api/notifications/vaccinations/results/to-parent`,
+          {
+            notificationTypeId,
+            senderId,
+            receiverId,
+          }
+        );
         onCancel();
 
         return;
@@ -247,17 +250,17 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
         icon: "warning",
         title: "Save with vaccination status 'Failed'?",
         text: "Vaccination status is missing. Are you sure you want to save?",
-      showCancelButton: true,
-      confirmButtonText: "OK",
-      cancelButtonText: "Back",
-      confirmButtonColor: "#2563eb",
-      cancelButtonColor: "#aaa",
-    });
-    if (!result.isConfirmed) {
-      setLoading(false);
-      return;
+        showCancelButton: true,
+        confirmButtonText: "OK",
+        cancelButtonText: "Back",
+        confirmButtonColor: "#2563eb",
+        cancelButtonColor: "#aaa",
+      });
+      if (!result.isConfirmed) {
+        setLoading(false);
+        return;
+      }
     }
-  }
     setLoading(true);
     try {
       const vaccinationResultId = student?.vaccinationResultId;
@@ -280,18 +283,21 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
         vaccinated: values.vaccinated,
         injectionSite: values.injectionSite,
         notes: values.notes,
-        status: values.vaccinated ? "Completed" : "Failed", 
+        status: values.vaccinated ? "Completed" : "Failed",
       };
 
-      const res = await axiosInstance.post("/api/vaccination-results", payload);    
-        form.resetFields();
-        onOk();
-        const {notificationTypeId, senderId, receiverId} = res.data;
-        await axiosInstance.post(`/api/notifications/vaccinations/results/to-parent`, {
+      const res = await axiosInstance.post("/api/vaccination-results", payload);
+      form.resetFields();
+      onOk();
+      const {notificationTypeId, senderId, receiverId} = res.data;
+      await axiosInstance.post(
+        `/api/notifications/vaccinations/results/to-parent`,
+        {
           notificationTypeId,
           senderId,
           receiverId,
-        });
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -325,17 +331,30 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   minHeight: 220,
                   boxShadow: "0 2px 12px #e6f7ff",
                 }}
-                bodyStyle={{ padding: 28 }}
+                bodyStyle={{padding: 28}}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
-                  <MedicineBoxOutlined style={{ color: "#1677ff", fontSize: 22 }} />
-                  <span style={{ color: "#1677ff", fontWeight: 600, fontSize: 17 }}>Health Declaration</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 18,
+                  }}
+                >
+                  <MedicineBoxOutlined
+                    style={{color: "#1677ff", fontSize: 22}}
+                  />
+                  <span
+                    style={{color: "#1677ff", fontWeight: 600, fontSize: 17}}
+                  >
+                    Health Declaration
+                  </span>
                 </div>
                 {healthLoading ? (
                   <Spin />
                 ) : healthDeclaration && healthDeclaration.healthDeclaration ? (
                   <div>
-                    <div style={{ fontSize: 15 }}>
+                    <div style={{fontSize: 15}}>
                       <div
                         style={{
                           display: "grid",
@@ -345,8 +364,15 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                           borderBottom: "1px solid #f0f0f0",
                         }}
                       >
-                        <Text strong style={{ color: "#64748b" }}>Chronic Diseases:</Text>
-                        <Text style={{ color: "#444" }}>{healthDeclaration.healthDeclaration.chronicDiseases || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                        <Text strong style={{color: "#64748b"}}>
+                          Chronic Diseases:
+                        </Text>
+                        <Text style={{color: "#444"}}>
+                          {healthDeclaration.healthDeclaration
+                            .chronicDiseases || (
+                            <span style={{color: "#aaa"}}>N/A</span>
+                          )}
+                        </Text>
                       </div>
                       <div
                         style={{
@@ -357,8 +383,15 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                           borderBottom: "1px solid #f0f0f0",
                         }}
                       >
-                        <Text strong style={{ color: "#64748b" }}>Drug Allergies:</Text>
-                        <Text style={{ color: "#444" }}>{healthDeclaration.healthDeclaration.drugAllergies || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                        <Text strong style={{color: "#64748b"}}>
+                          Drug Allergies:
+                        </Text>
+                        <Text style={{color: "#444"}}>
+                          {healthDeclaration.healthDeclaration
+                            .drugAllergies || (
+                            <span style={{color: "#aaa"}}>N/A</span>
+                          )}
+                        </Text>
                       </div>
                       <div
                         style={{
@@ -369,8 +402,15 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                           borderBottom: "1px solid #f0f0f0",
                         }}
                       >
-                        <Text strong style={{ color: "#64748b" }}>Food Allergies:</Text>
-                        <Text style={{ color: "#444" }}>{healthDeclaration.healthDeclaration.foodAllergies || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                        <Text strong style={{color: "#64748b"}}>
+                          Food Allergies:
+                        </Text>
+                        <Text style={{color: "#444"}}>
+                          {healthDeclaration.healthDeclaration
+                            .foodAllergies || (
+                            <span style={{color: "#aaa"}}>N/A</span>
+                          )}
+                        </Text>
                       </div>
                       <div
                         style={{
@@ -380,68 +420,122 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                           padding: "8px 0",
                         }}
                       >
-                        <Text strong style={{ color: "#64748b" }}>Additional Notes:</Text>
-                        <Text style={{ color: "#444" }}>{healthDeclaration.healthDeclaration.notes || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                        <Text strong style={{color: "#64748b"}}>
+                          Additional Notes:
+                        </Text>
+                        <Text style={{color: "#444"}}>
+                          {healthDeclaration.healthDeclaration.notes || (
+                            <span style={{color: "#aaa"}}>N/A</span>
+                          )}
+                        </Text>
                       </div>
                     </div>
-                    <Row style={{ marginBottom: 12 }}>
+                    <Divider style={{margin: "12px 0"}} />
+                    <Row style={{marginBottom: 12}}>
                       <Col flex="auto">
-                        {Array.isArray(healthDeclaration.vaccinations) && healthDeclaration.vaccinations.length > 0 ? (
+                        {Array.isArray(healthDeclaration.vaccinations) &&
+                        healthDeclaration.vaccinations.length > 0 ? (
                           <Collapse
                             bordered={false}
-                            style={{ marginBottom: 12, borderRadius: 8,  overflowY: "auto", maxHeight: 200, background: "#F9FBFD" }}
-                            expandIconPosition="start"
+                            expandIcon={({isActive}) => (
+                              <span
+                                style={{
+                                  transition: "transform 0.2s",
+                                  display: "inline-block",
+                                  transform: isActive
+                                    ? "rotate(0deg)"
+                                    : "rotate(90deg)",
+                                }}
+                              >
+                                <ChevronDown size={18} />
+                              </span>
+                            )}
+                            style={{
+                              marginBottom: 12,
+                              padding: "0 !important",
+                              borderRadius: 8,
+                              background: "#F9FBFD",
+                            }}
+                            expandIconPosition="right"
                           >
                             <Collapse.Panel
                               key="1"
+                              style={{padding: "0 !important"}}
                               header={
-                                <span style={{ fontWeight: 600, color: "#1677ff", fontSize: 17, marginRight: 8 }}>
+                                <span
+                                  style={{
+                                    padding: "0",
+                                    fontWeight: 600,
+                                    color: "#64748B",
+                                    fontSize: 14,
+                                    marginRight: 8,
+                                  }}
+                                >
                                   View Vaccination History
                                 </span>
                               }
                             >
-                              {healthDeclaration.vaccinations.map((v, idx) => (
-                                <div
-                                  key={v.vaccinationId || idx}
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    padding: "10px 0",
-                                    borderBottom:
-                                      idx < healthDeclaration.vaccinations.length - 1
-                                        ? "1px solid #f0f0f0"
-                                        : "none",
-                                    
-                                    background: idx % 2 === 0 ? "#f7faff" : "#fff",
-                                    borderRadius: 6,
-                                    marginBottom: 4,
-                                  }}
-                                >
-                                  <div style={{ flex: 2 }}>
-                                    <span style={{ fontWeight: 600 }}>{v.vaccineName}</span>
-                                  </div>
-                                  <div style={{ flex: 1, textAlign: "center" }}>
-                                    <span style={{ fontWeight: 500 }}>
-                                      {v.vaccinatedDate
-                                        ? dayjs(v.vaccinatedDate).format("DD/MM/YYYY")
-                                        : "N/A"}
-                                    </span>
-                                  </div>
-                                  <div style={{ flex: 1, textAlign: "center" }}>
-                                    <span style={{
-                                      background: "#e0e7ff",
-                                      color: "#3730a3",
-                                      borderRadius: 12,
-                                      padding: "2px 12px",
-                                      fontWeight: 600,
-                                      fontSize: 14,
-                                    }}>
-                                      Dose {v.doseNumber}
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
+                              <div style={{maxHeight: 200, overflowY: "auto"}}>
+                                {healthDeclaration.vaccinations.map(
+                                  (v, idx) => (
+                                    <div
+                                      key={v.vaccinationId || idx}
+                                      style={{
+                                        display: "flex",
+                                        fontSize: 13,
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        padding: "10px 0",
+                                        borderBottom:
+                                          idx <
+                                          healthDeclaration.vaccinations
+                                            .length -
+                                            1
+                                            ? "1px solid #f0f0f0"
+                                            : "none",
+
+                                        background:
+                                          idx % 2 === 0 ? "#f7faff" : "#fff",
+                                        borderRadius: 6,
+                                        marginBottom: 4,
+                                      }}
+                                    >
+                                      <div style={{flex: 2}}>
+                                        <span style={{fontWeight: 600}}>
+                                          {v.vaccineName}
+                                        </span>
+                                      </div>
+                                      <div
+                                        style={{flex: 1, textAlign: "center"}}
+                                      >
+                                        <span style={{fontWeight: 500}}>
+                                          {v.vaccinatedDate
+                                            ? dayjs(v.vaccinatedDate).format(
+                                                "DD/MM/YYYY"
+                                              )
+                                            : "N/A"}
+                                        </span>
+                                      </div>
+                                      <div
+                                        style={{flex: 1, textAlign: "center"}}
+                                      >
+                                        <span
+                                          style={{
+                                            background: "#e6f0fd",
+                                            color: "#2563eb",
+                                            borderRadius: 12,
+                                            padding: "2px 12px",
+                                            fontWeight: 600,
+                                            fontSize: 13,
+                                          }}
+                                        >
+                                          Dose {v.doseNumber}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+                              </div>
                             </Collapse.Panel>
                           </Collapse>
                         ) : (
@@ -465,14 +559,32 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   minHeight: 220,
                   boxShadow: "0 2px 12px #e6f7ff",
                 }}
-                bodyStyle={{ padding: 28 }}
+                bodyStyle={{padding: 28}}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 15 }}>
-                  <Syringe style={{ color: "#1677ff", width: 20, height: 20, verticalAlign: "middle" }} />
-                  <span style={{ color: "#1677ff", fontWeight: 600, fontSize: 17 }}>Vaccine Details</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 15,
+                  }}
+                >
+                  <Syringe
+                    style={{
+                      color: "#1677ff",
+                      width: 20,
+                      height: 20,
+                      verticalAlign: "middle",
+                    }}
+                  />
+                  <span
+                    style={{color: "#1677ff", fontWeight: 600, fontSize: 17}}
+                  >
+                    Vaccine Details
+                  </span>
                 </div>
                 {vaccineDetails ? (
-                  <div style={{ fontSize: 15 }}>
+                  <div style={{fontSize: 15}}>
                     <div
                       style={{
                         display: "grid",
@@ -482,8 +594,14 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                         borderBottom: "1px solid #f0f0f0",
                       }}
                     >
-                      <Text strong style={{ color: "#64748b" }}>Vaccine Code:</Text>
-                      <Text style={{ color: "#222" }}>{vaccineDetails.vaccineCode || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      <Text strong style={{color: "#64748b"}}>
+                        Vaccine Code:
+                      </Text>
+                      <Text style={{color: "#222"}}>
+                        {vaccineDetails.vaccineCode || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
                     <div
                       style={{
@@ -494,8 +612,14 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                         borderBottom: "1px solid #f0f0f0",
                       }}
                     >
-                      <Text strong style={{ color: "#64748b" }}>Vaccine Name:</Text>
-                      <Text style={{ color: "#222" }}>{vaccineDetails.vaccineName || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      <Text strong style={{color: "#64748b"}}>
+                        Vaccine Name:
+                      </Text>
+                      <Text style={{color: "#222"}}>
+                        {vaccineDetails.vaccineName || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
                     <div
                       style={{
@@ -506,8 +630,14 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                         borderBottom: "1px solid #f0f0f0",
                       }}
                     >
-                      <Text strong style={{ color: "#64748b" }}>Manufacturer:</Text>
-                      <Text style={{ color: "#222" }}>{vaccineDetails.manufacturer || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      <Text strong style={{color: "#64748b"}}>
+                        Manufacturer:
+                      </Text>
+                      <Text style={{color: "#222"}}>
+                        {vaccineDetails.manufacturer || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
                     <div
                       style={{
@@ -518,17 +648,31 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                         borderBottom: "1px solid #f0f0f0",
                       }}
                     >
-                      <Text strong style={{ color: "#64748b" }}>Age Recommendation:</Text>
-                      <Text style={{ color: "#222" }}>{vaccineDetails.ageRecommendation || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      <Text strong style={{color: "#64748b"}}>
+                        Age Recommendation:
+                      </Text>
+                      <Text style={{color: "#222"}}>
+                        {vaccineDetails.ageRecommendation || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
-                    <div 
+                    <div
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        padding: "8px 0"
-                      }}>
-                        <Text strong style={{ color: "#64748b" }}>Contraindication Notes:   <Text style={{ color: "#222" }}>{vaccineDetails.contraindicationNotes || <span style={{ color: "#aaa" }}>N/A</span>}</Text></Text>
+                        padding: "8px 0",
+                      }}
+                    >
+                      <Text strong style={{color: "#64748b"}}>
+                        Contraindication Notes:{" "}
+                        <Text style={{color: "#222"}}>
+                          {vaccineDetails.contraindicationNotes || (
+                            <span style={{color: "#aaa"}}>N/A</span>
+                          )}
+                        </Text>
+                      </Text>
                     </div>
                   </div>
                 ) : (
@@ -538,13 +682,13 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
             </Col>
           </Row>
           {/* Nút Cancel/Confirm ra ngoài, căn phải */}
-          <Row justify="end" style={{ marginTop: 40 }}>
+          <Row justify="end" style={{marginTop: 40}}>
             <Space size={16}>
               <Button
                 danger
                 loading={loading}
                 onClick={() => handleQualified(false)}
-                style={{ minWidth: 110, fontWeight: 500 }}
+                style={{minWidth: 110, fontWeight: 500}}
               >
                 Not Qualified
               </Button>
@@ -552,7 +696,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 type="primary"
                 loading={loading}
                 onClick={() => handleQualified(true)}
-                style={{ minWidth: 110, fontWeight: 500 }}
+                style={{minWidth: 110, fontWeight: 500}}
               >
                 Qualified
               </Button>
@@ -576,14 +720,14 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 label="Vaccinated Date"
                 name="vaccinatedDate"
                 rules={[
-                  { required: true, message: "Please select date" },
-                  { validator: validateVaccinatedDate },
+                  {required: true, message: "Please select date"},
+                  {validator: validateVaccinatedDate},
                 ]}
                 initialValue={vaccinationDate}
               >
                 <DatePicker
                   disabled
-                  style={{ width: "100%" }}
+                  style={{width: "100%"}}
                   value={vaccinationDate}
                 />
               </Form.Item>
@@ -591,12 +735,12 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 label="Vaccinated Time"
                 name="vaccinatedTime"
                 rules={[
-                  { required: true, message: "Please select time" },
-                  { validator: validateVaccinatedTime },
+                  {required: true, message: "Please select time"},
+                  {validator: validateVaccinatedTime},
                 ]}
               >
                 <TimePicker
-                  style={{ width: "100%" }}
+                  style={{width: "100%"}}
                   format="HH:mm"
                   minuteStep={5}
                   allowClear={false}
@@ -618,13 +762,15 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                     name="injectionSite"
                     initialValue="None"
                     rules={[
-                      { required: true, message: "Please enter injection site" },
-                      ({ getFieldValue }) => ({
+                      {required: true, message: "Please enter injection site"},
+                      ({getFieldValue}) => ({
                         validator(_, value) {
                           const vaccinated = getFieldValue("vaccinated");
                           if (vaccinated && value === "None") {
                             return Promise.reject(
-                              new Error("Injection site is required if vaccinated is checked.")
+                              new Error(
+                                "Injection site is required if vaccinated is checked."
+                              )
                             );
                           }
                           return Promise.resolve();
@@ -633,27 +779,37 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                     ]}
                   >
                     <Select placeholder="Select injection site">
-                      <Select.Option value="Left Deltoid">Left Deltoid</Select.Option>
-                      <Select.Option value="Right Deltoid">Right Deltoid</Select.Option>
-                      <Select.Option value="Right Thigh">Right Thigh</Select.Option>
-                      <Select.Option value="Left Thigh">Left Thigh</Select.Option>
+                      <Select.Option value="Left Deltoid">
+                        Left Deltoid
+                      </Select.Option>
+                      <Select.Option value="Right Deltoid">
+                        Right Deltoid
+                      </Select.Option>
+                      <Select.Option value="Right Thigh">
+                        Right Thigh
+                      </Select.Option>
+                      <Select.Option value="Left Thigh">
+                        Left Thigh
+                      </Select.Option>
                       <Select.Option value="None">None</Select.Option>
                     </Select>
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item label="Notes" name="notes"
-               rules={[
-                      { required: true, message: "Please enter notes" },
-                    ]}
+              <Form.Item
+                label="Notes"
+                name="notes"
+                rules={[{required: true, message: "Please enter notes"}]}
               >
                 <Input.TextArea rows={3} />
               </Form.Item>
               <Form.Item
                 label="Status"
-                shouldUpdate={(prev, curr) => prev.vaccinated !== curr.vaccinated}
+                shouldUpdate={(prev, curr) =>
+                  prev.vaccinated !== curr.vaccinated
+                }
               >
-                {({ getFieldValue }) => {
+                {({getFieldValue}) => {
                   const vaccinated = getFieldValue("vaccinated");
                   const status = vaccinated ? "Completed" : "Failed";
                   return (
@@ -673,7 +829,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   type="primary"
                   htmlType="submit"
                   loading={loading}
-                  style={{ width: "100%" }}
+                  style={{width: "100%"}}
                 >
                   Save
                 </Button>
@@ -691,64 +847,121 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 minHeight: 320,
                 marginBottom: 18,
               }}
-              bodyStyle={{ padding: 24 }}
+              bodyStyle={{padding: 24}}
             >
-              <Space direction="vertical" style={{ width: "100%" }} size={16}>
+              <Space direction="vertical" style={{width: "100%"}} size={16}>
                 {/* Vaccine Details */}
-                <Title level={5} style={{ margin: "18px 0 0 0", color: "#1677ff", display: "flex", alignItems: "center", gap: 8 }}>
-                  <Syringe style={{ color: "#1677ff", width: 20, height: 20, verticalAlign: "middle" }} />
+                <Title
+                  level={5}
+                  style={{
+                    margin: "18px 0 0 0",
+                    color: "#1677ff",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <Syringe
+                    style={{
+                      color: "#1677ff",
+                      width: 20,
+                      height: 20,
+                      verticalAlign: "middle",
+                    }}
+                  />
                   Vaccine Details
                 </Title>
-                <Divider style={{ margin: "8px 0" }} />
+                <Divider style={{margin: "8px 0"}} />
                 {vaccineDetails ? (
-                  <div style={{ fontSize: 15 }}>
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "170px 1fr",
-                      alignItems: "start",
-                      padding: "8px 0",
-                      borderBottom: "1px solid #f0f0f0"
-                    }}>
-                      <Text strong style={{ color: "#64748b" }}>Vaccine Code:</Text>
-                      <Text style={{ color: "#222" }}>{vaccineDetails.vaccineCode || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                  <div style={{fontSize: 15}}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "170px 1fr",
+                        alignItems: "start",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <Text strong style={{color: "#64748b"}}>
+                        Vaccine Code:
+                      </Text>
+                      <Text style={{color: "#222"}}>
+                        {vaccineDetails.vaccineCode || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "170px 1fr",
-                      alignItems: "start",
-                      padding: "8px 0",
-                      borderBottom: "1px solid #f0f0f0"
-                    }}>
-                      <Text strong style={{ color: "#64748b" }}>Vaccine Name:</Text>
-                      <Text style={{ color: "#222" }}>{vaccineDetails.vaccineName || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "170px 1fr",
+                        alignItems: "start",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <Text strong style={{color: "#64748b"}}>
+                        Vaccine Name:
+                      </Text>
+                      <Text style={{color: "#222"}}>
+                        {vaccineDetails.vaccineName || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "170px 1fr",
-                      alignItems: "start",
-                      padding: "8px 0",
-                      borderBottom: "1px solid #f0f0f0"
-                    }}>
-                      <Text strong style={{ color: "#64748b" }}>Manufacturer:</Text>
-                      <Text style={{ color: "#222" }}>{vaccineDetails.manufacturer || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "170px 1fr",
+                        alignItems: "start",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <Text strong style={{color: "#64748b"}}>
+                        Manufacturer:
+                      </Text>
+                      <Text style={{color: "#222"}}>
+                        {vaccineDetails.manufacturer || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "170px 1fr",
-                      alignItems: "start",
-                      padding: "8px 0",
-                      borderBottom: "1px solid #f0f0f0"
-                    }}>
-                      <Text strong style={{ color: "#64748b" }}>Age Recommendation:</Text>
-                      <Text style={{ color: "#222" }}>{vaccineDetails.ageRecommendation || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "170px 1fr",
+                        alignItems: "start",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <Text strong style={{color: "#64748b"}}>
+                        Age Recommendation:
+                      </Text>
+                      <Text style={{color: "#222"}}>
+                        {vaccineDetails.ageRecommendation || (
+                          <span style={{color: "#aaa"}}>N/A</span>
+                        )}
+                      </Text>
                     </div>
-                    <div style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "8px 0"
-                    }}>
-                      <Text strong style={{ color: "#64748b" }}>Contraindication Notes:   <Text style={{ color: "#222" }}>{vaccineDetails.contraindicationNotes || <span style={{ color: "#aaa" }}>N/A</span>}</Text></Text>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "8px 0",
+                      }}
+                    >
+                      <Text strong style={{color: "#64748b"}}>
+                        Contraindication Notes:{" "}
+                        <Text style={{color: "#222"}}>
+                          {vaccineDetails.contraindicationNotes || (
+                            <span style={{color: "#aaa"}}>N/A</span>
+                          )}
+                        </Text>
+                      </Text>
                     </div>
                   </div>
                 ) : (
