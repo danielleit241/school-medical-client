@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal, Spin, Typography, Tag, Card, Table } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import axiosInstance from '../../../../api/axios';
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 
@@ -109,7 +110,8 @@ const DetailModal = ({ open, onCancel, student, roundId }) => {
     }
     return value;
   };
-
+  const formatDateTime = (value) =>
+    value ? dayjs(value).format("HH:mm DD/MM/YYYY") : null;
   // Table data
   const healthProfileData = [
     {
@@ -130,6 +132,7 @@ const DetailModal = ({ open, onCancel, student, roundId }) => {
   ];
 
   const vaccinationResult = detailData?.resultResponse || {};
+  console.log("Vaccination result:", vaccinationResult);
   const vaccinationResultData = [
     {
       key: "nurseName",
@@ -137,9 +140,9 @@ const DetailModal = ({ open, onCancel, student, roundId }) => {
       value: showValue(nurseName),
     },
     {
-      key: "vaccinatedDate",
-      label: "Vaccinated Date",
-      value: showValue(vaccinationResult.vaccinatedDate),
+      key: "vaccinatedTime",
+      label: "Vaccinated Time",
+      value: showValue(formatDateTime(vaccinationResult.vaccinatedTime)),
     },
     {
       key: "notes",
@@ -186,22 +189,23 @@ const DetailModal = ({ open, onCancel, student, roundId }) => {
     },
   ];
 
+  
   const observation = detailData?.vaccinationObservation;
   const observationData = [
     {
       key: "observationStartTime",
       label: "Observation Start Time",
-      value: showValue(observation?.observationStartTime),
+      value: showValue(formatDateTime(observation?.observationStartTime)),
     },
     {
       key: "observationEndTime",
       label: "Observation End Time",
-      value: showValue(observation?.observationEndTime),
+      value: showValue(formatDateTime(observation?.observationEndTime)),
     },
     {
       key: "reactionStartTime",
       label: "Reaction Start Time",
-      value: showValue(observation?.reactionStartTime),
+      value: showValue(formatDateTime(observation?.reactionStartTime)),
     },
     {
       key: "reactionType",

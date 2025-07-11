@@ -301,7 +301,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
       title="Record Vaccination"
       onCancel={onCancel}
       footer={null}
-      width={900}
+      width={990}
       styles={{body: {padding: 32}}}
       destroyOnClose
     >
@@ -357,7 +357,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                         </Text>                       
                       </Col>
                     </Row>
-                    <Row>
+                    <Row style={{ marginBottom: 30 }}>
                       <Col flex="auto"><Text strong>Additional Notes:</Text></Col>
                       <Col>
                         <Text style={{ color: "#444" }}>
@@ -383,7 +383,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 }}
                 bodyStyle={{ padding: 28 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 15 }}>
                   <Syringe style={{ color: "#1677ff", width: 20, height: 20, verticalAlign: "middle" }} />
                   <span style={{ color: "#1677ff", fontWeight: 600, fontSize: 17 }}>Vaccine Details</span>
                 </div>
@@ -402,8 +402,12 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                       <Col><Text>{vaccineDetails.manufacturer || "N/A"}</Text></Col>
                     </Row>
                     <Row>
-                      <Col flex="auto"><Text strong>Age Recommendation:</Text></Col>
+                      <Col flex="auto" style={{ marginBottom: 12 }}><Text strong>Age Recommendation:</Text></Col>
                       <Col><Text>{vaccineDetails.ageRecommendation || "N/A"}</Text></Col>
+                    </Row>
+                    <Row>
+                      <Col flex="auto"><Text strong>Contraindication Notes:</Text></Col>
+                      <Col><Text>{vaccineDetails.contraindicationNotes || "N/A"}</Text></Col>
                     </Row>
                   </div>
                 ) : (
@@ -510,6 +514,8 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                     <Select placeholder="Select injection site">
                       <Select.Option value="Left Deltoid">Left Deltoid</Select.Option>
                       <Select.Option value="Right Deltoid">Right Deltoid</Select.Option>
+                      <Select.Option value="Right Thigh">Right Thigh</Select.Option>
+                      <Select.Option value="Left Thigh">Left Thigh</Select.Option>
                       <Select.Option value="None">None</Select.Option>
                     </Select>
                   </Form.Item>
@@ -653,6 +659,10 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                     <div>
                       <Text strong>Age Recommendation:</Text>{" "}
                       <Text>{vaccineDetails.ageRecommendation || "N/A"}</Text>
+                    </div>
+                    <div>
+                      <Text strong>Contraindication Notes:</Text>{" "}
+                      <Text>{vaccineDetails.contraindicationNotes || "N/A"}</Text>
                     </div>
                   </div>
                 ) : (
