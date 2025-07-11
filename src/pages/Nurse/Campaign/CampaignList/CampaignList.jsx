@@ -144,7 +144,7 @@ const CampaignList = () => {
   const handleComplete = async (roundId) => {
     setLoadingComplete((prev) => ({...prev, [roundId]: true}));
     try {
-      await axiosInstance.put(
+      const res = await axiosInstance.put(
         `/api/vaccination-rounds/${roundId}/finished`,
         true
       );
@@ -153,6 +153,12 @@ const CampaignList = () => {
         text: "Round completed successfully!",
         icon: "success",
         confirmButtonText: "OK",
+      });
+      const {notificationTypeId, senderId, receiverId} = res.data;
+      await axiosInstance.post(`/api/notifications/vaccinations/rounds/to-admin`, {
+        notificationTypeId,
+        senderId,
+        receiverId,
       });
       setRounds((prev) =>
         prev.map((r) => (r.roundId === roundId ? {...r, status: true} : r))
