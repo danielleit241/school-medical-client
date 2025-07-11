@@ -66,7 +66,7 @@ const HealthCheckList = () => {
   const handleComplete = async (roundId) => {
     setLoadingComplete((prev) => ({...prev, [roundId]: true}));
     try {
-      await axiosInstance.put(
+      const res = await axiosInstance.put(
         `/api/health-check-rounds/${roundId}/finished`,
         true
       );
@@ -75,6 +75,12 @@ const HealthCheckList = () => {
         text: "Round completed successfully!",
         icon: "success",
         confirmButtonText: "OK",
+      });
+      const {notificationTypeId, senderId, receiverId} = res.data;
+      await axiosInstance.post(`/api/notifications/health-checks/rounds/to-admin`, {
+        notificationTypeId,
+        senderId,
+        receiverId,
       });
 
       setRounds((prev) =>
