@@ -10,6 +10,7 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [vaccinatedDate, setVaccinatedDate] = useState(null);
+  const [vaccinatedTime, setVaccinatedTime] = useState(null);
   const [nurseName, setNurseName] = useState("");
   const [reactionTypeModalOpen, setReactionTypeModalOpen] = useState(false);
   const [reactionTypeValue, setReactionTypeValue] = useState("");
@@ -58,13 +59,36 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
     if (open) fetchVaccinatedDate();
   }, [open, student]);
 
+  // Lấy vaccinatedTime từ API
   useEffect(() => {
-      if (open) {
-        form.resetFields();
-        form.setFieldsValue({ vaccinatedDate });
+    const fetchVaccinatedTime = async () => {
+      if (!student?.vaccinationResultId) {
+        setVaccinatedTime(null);
+        return;
       }
-      //eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open, student]);
+      try {
+        const res = await axiosInstance.get(`/api/vaccination-results/${student.vaccinationResultId}`);
+        // Giả sử vaccinatedTime là trường trả về từ API, có dạng ISO string hoặc "YYYY-MM-DDTHH:mm:ss"
+        setVaccinatedTime(res.data?.resultResponse?.vaccinatedTime || null);
+      } catch (error) {
+        console.error("Error fetching vaccinated time:", error);
+        setVaccinatedTime(null);
+      }
+    };
+    if (open) fetchVaccinatedTime();
+  }, [open, student]);
+
+  // Set observationStartTime và observationEndTime dựa trên vaccinatedTime
+  useEffect(() => {
+    if (open && vaccinatedTime) {
+      const vaxTime = dayjs(vaccinatedTime);
+      form.setFieldsValue({
+        observationStartTime: vaxTime,
+        observationEndTime: vaxTime.add(30, "minute"),
+      });
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, vaccinatedTime]);
 
   const handleFinish = async (values) => {
     setLoading(true);
@@ -133,13 +157,11 @@ const ObservationModal = ({ open, onCancel, student, onOk, initialValues }) => {
 };
 
 
- // Validate reactionStartTime phải cùng ngày và nằm trong khoảng observationStartTime và observationEndTime
 const validateReactionStartTime = (_, value) => {
   const obsStart = form.getFieldValue("observationStartTime");
   const obsEnd = form.getFieldValue("observationEndTime");
   if (!obsStart || !obsEnd || !value) return Promise.resolve();
 
-  // Nếu value chỉ là giờ, phút (không có ngày), thì phải gán ngày của obsStart
   const reactionDateTime = obsStart
     .clone()
     .hour(value.hour())
@@ -200,6 +222,7 @@ const validateReactionStartTime = (_, value) => {
                 showTime={{ format: "HH:mm" }}
                 format="YYYY-MM-DD HH:mm"
                 style={{ width: "100%" }}
+                disabled
                 onChange={handleObservationStartTimeChange}
               />
             </Form.Item>
