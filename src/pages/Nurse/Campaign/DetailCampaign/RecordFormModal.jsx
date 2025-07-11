@@ -357,7 +357,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                         </Text>                       
                       </Col>
                     </Row>
-                    <Row style={{ marginBottom: 30 }}>
+                    <Row style={{ marginBottom: 15 }}>
                       <Col flex="auto"><Text strong>Additional Notes:</Text></Col>
                       <Col>
                         <Text style={{ color: "#444" }}>
