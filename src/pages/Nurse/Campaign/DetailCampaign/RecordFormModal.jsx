@@ -17,7 +17,8 @@ import {
   Space,
   Steps,
   message,
-  Select
+  Select,
+  Collapse
 } from "antd";
 import {Syringe} from "lucide-react"
 import {MedicineBoxOutlined} from "@ant-design/icons";
@@ -80,6 +81,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
             `/api/students/${student.studentsOfRoundResponse.studentId}/health-declarations`
           );
           setHealthDeclaration(response.data);
+          console.log("Fetched health declaration:", response.data);
         } catch (error) {
           console.error("Error fetching health declaration:", error);
           setHealthDeclaration(null);
@@ -301,7 +303,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
       title="Record Vaccination"
       onCancel={onCancel}
       footer={null}
-      width={990}
+      width={1200}
       styles={{body: {padding: 32}}}
       destroyOnClose
     >
@@ -333,36 +335,118 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   <Spin />
                 ) : healthDeclaration && healthDeclaration.healthDeclaration ? (
                   <div>
+                    <div style={{ fontSize: 15 }}>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "170px 1fr",
+                          alignItems: "start",
+                          padding: "8px 0",
+                          borderBottom: "1px solid #f0f0f0",
+                        }}
+                      >
+                        <Text strong style={{ color: "#64748b" }}>Chronic Diseases:</Text>
+                        <Text style={{ color: "#444" }}>{healthDeclaration.healthDeclaration.chronicDiseases || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      </div>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "170px 1fr",
+                          alignItems: "start",
+                          padding: "8px 0",
+                          borderBottom: "1px solid #f0f0f0",
+                        }}
+                      >
+                        <Text strong style={{ color: "#64748b" }}>Drug Allergies:</Text>
+                        <Text style={{ color: "#444" }}>{healthDeclaration.healthDeclaration.drugAllergies || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      </div>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "170px 1fr",
+                          alignItems: "start",
+                          padding: "8px 0",
+                          borderBottom: "1px solid #f0f0f0",
+                        }}
+                      >
+                        <Text strong style={{ color: "#64748b" }}>Food Allergies:</Text>
+                        <Text style={{ color: "#444" }}>{healthDeclaration.healthDeclaration.foodAllergies || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      </div>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "170px 1fr",
+                          alignItems: "start",
+                          padding: "8px 0",
+                        }}
+                      >
+                        <Text strong style={{ color: "#64748b" }}>Additional Notes:</Text>
+                        <Text style={{ color: "#444" }}>{healthDeclaration.healthDeclaration.notes || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                      </div>
+                    </div>
                     <Row style={{ marginBottom: 12 }}>
-                      <Col flex="auto"><Text strong>Chronic Diseases:</Text></Col>
-                      <Col>
-                        <Text style={{ color: "#444" }}>
-                          {healthDeclaration.healthDeclaration.chronicDiseases || "N/A"}
-                        </Text>
-                      </Col>
-                    </Row>
-                    <Row style={{ marginBottom: 12 }}>
-                      <Col flex="auto"><Text strong>Drug Allergies:</Text></Col>
-                      <Col>
-                        <Text style={{ color: "#444" }}>
-                          {healthDeclaration.healthDeclaration.drugAllergies || "N/A"}
-                        </Text>
-                      </Col>
-                    </Row>
-                    <Row style={{ marginBottom: 12 }}>
-                      <Col flex="auto"><Text strong>Food Allergies:</Text></Col>
-                      <Col>
-                        <Text style={{ color: "#444" }}>
-                          {healthDeclaration.healthDeclaration.foodAllergies || "N/A"}
-                        </Text>                       
-                      </Col>
-                    </Row>
-                    <Row style={{ marginBottom: 15 }}>
-                      <Col flex="auto"><Text strong>Additional Notes:</Text></Col>
-                      <Col>
-                        <Text style={{ color: "#444" }}>
-                          {healthDeclaration.healthDeclaration.notes || "N/A"}
-                        </Text>
+                      <Col flex="auto">
+                        {Array.isArray(healthDeclaration.vaccinations) && healthDeclaration.vaccinations.length > 0 ? (
+                          <Collapse
+                            bordered={false}
+                            style={{ marginBottom: 12, borderRadius: 8,  overflowY: "auto", maxHeight: 200, background: "#F9FBFD" }}
+                            expandIconPosition="start"
+                          >
+                            <Collapse.Panel
+                              key="1"
+                              header={
+                                <span style={{ fontWeight: 600, color: "#1677ff", fontSize: 17, marginRight: 8 }}>
+                                  View Vaccination History
+                                </span>
+                              }
+                            >
+                              {healthDeclaration.vaccinations.map((v, idx) => (
+                                <div
+                                  key={v.vaccinationId || idx}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    padding: "10px 0",
+                                    borderBottom:
+                                      idx < healthDeclaration.vaccinations.length - 1
+                                        ? "1px solid #f0f0f0"
+                                        : "none",
+                                    
+                                    background: idx % 2 === 0 ? "#f7faff" : "#fff",
+                                    borderRadius: 6,
+                                    marginBottom: 4,
+                                  }}
+                                >
+                                  <div style={{ flex: 2 }}>
+                                    <span style={{ fontWeight: 600 }}>{v.vaccineName}</span>
+                                  </div>
+                                  <div style={{ flex: 1, textAlign: "center" }}>
+                                    <span style={{ fontWeight: 500 }}>
+                                      {v.vaccinatedDate
+                                        ? dayjs(v.vaccinatedDate).format("DD/MM/YYYY")
+                                        : "N/A"}
+                                    </span>
+                                  </div>
+                                  <div style={{ flex: 1, textAlign: "center" }}>
+                                    <span style={{
+                                      background: "#e0e7ff",
+                                      color: "#3730a3",
+                                      borderRadius: 12,
+                                      padding: "2px 12px",
+                                      fontWeight: 600,
+                                      fontSize: 14,
+                                    }}>
+                                      Dose {v.doseNumber}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </Collapse.Panel>
+                          </Collapse>
+                        ) : (
+                          <Text type="secondary">No vaccination history.</Text>
+                        )}
                       </Col>
                     </Row>
                   </div>
@@ -388,27 +472,64 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                   <span style={{ color: "#1677ff", fontWeight: 600, fontSize: 17 }}>Vaccine Details</span>
                 </div>
                 {vaccineDetails ? (
-                  <div>
-                    <Row style={{ marginBottom: 12 }}>
-                      <Col flex="auto"><Text strong>Vaccine Code:</Text></Col>
-                      <Col><Text>{vaccineDetails.vaccineCode || "N/A"}</Text></Col>
-                    </Row>
-                    <Row style={{ marginBottom: 12 }}>
-                      <Col flex="auto"><Text strong>Vaccine Name:</Text></Col>
-                      <Col><Text>{vaccineDetails.vaccineName || "N/A"}</Text></Col>
-                    </Row>
-                    <Row style={{ marginBottom: 12 }}>
-                      <Col flex="auto"><Text strong>Manufacturer:</Text></Col>
-                      <Col><Text>{vaccineDetails.manufacturer || "N/A"}</Text></Col>
-                    </Row>
-                    <Row>
-                      <Col flex="auto" style={{ marginBottom: 12 }}><Text strong>Age Recommendation:</Text></Col>
-                      <Col><Text>{vaccineDetails.ageRecommendation || "N/A"}</Text></Col>
-                    </Row>
-                    <Row>
-                      <Col flex="auto"><Text strong>Contraindication Notes:</Text></Col>
-                      <Col><Text>{vaccineDetails.contraindicationNotes || "N/A"}</Text></Col>
-                    </Row>
+                  <div style={{ fontSize: 15 }}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "160px 1fr",
+                        alignItems: "start",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <Text strong style={{ color: "#64748b" }}>Vaccine Code:</Text>
+                      <Text style={{ color: "#222" }}>{vaccineDetails.vaccineCode || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "160px 1fr",
+                        alignItems: "start",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <Text strong style={{ color: "#64748b" }}>Vaccine Name:</Text>
+                      <Text style={{ color: "#222" }}>{vaccineDetails.vaccineName || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "160px 1fr",
+                        alignItems: "start",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <Text strong style={{ color: "#64748b" }}>Manufacturer:</Text>
+                      <Text style={{ color: "#222" }}>{vaccineDetails.manufacturer || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "160px 1fr",
+                        alignItems: "start",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      <Text strong style={{ color: "#64748b" }}>Age Recommendation:</Text>
+                      <Text style={{ color: "#222" }}>{vaccineDetails.ageRecommendation || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
+                    </div>
+                    <div 
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "8px 0"
+                      }}>
+                        <Text strong style={{ color: "#64748b" }}>Contraindication Notes:   <Text style={{ color: "#222" }}>{vaccineDetails.contraindicationNotes || <span style={{ color: "#aaa" }}>N/A</span>}</Text></Text>
+                    </div>
                   </div>
                 ) : (
                   <Text type="secondary">No vaccine details available.</Text>
@@ -573,69 +694,6 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
               bodyStyle={{ padding: 24 }}
             >
               <Space direction="vertical" style={{ width: "100%" }} size={16}>
-                {/* Health Declaration */}
-                <Title level={5} style={{ margin: 0, color: "#1677ff", display: "flex", alignItems: "center", gap: 8 }}>
-                  <MedicineBoxOutlined /> Health Declaration
-                </Title>
-                <Divider style={{ margin: "8px 0" }} />
-                {healthLoading ? (
-                  <Spin />
-                ) : healthDeclaration && healthDeclaration.healthDeclaration ? (
-                  <div style={{ lineHeight: 2, fontSize: 15 }}>
-                    <div>
-                      <Text strong>Chronic Diseases:</Text>{" "}
-                      <Tag
-                        color={
-                          healthDeclaration.healthDeclaration
-                            .chronicDiseases === "no"
-                            ? "green"
-                            : "red"
-                        }
-                        style={{ minWidth: 38, textAlign: "center" }}
-                      >
-                        {healthDeclaration.healthDeclaration.chronicDiseases || "N/A"}
-                      </Tag>
-                    </div>
-                    <div>
-                      <Text strong>Drug Allergies:</Text>{" "}
-                      <Tag
-                        color={
-                          healthDeclaration.healthDeclaration.drugAllergies ===
-                          "no"
-                            ? "green"
-                            : "red"
-                        }
-                        style={{ minWidth: 38, textAlign: "center" }}
-                      >
-                        {healthDeclaration.healthDeclaration.drugAllergies || "N/A"}
-                      </Tag>
-                    </div>
-                    <div>
-                      <Text strong>Food Allergies:</Text>{" "}
-                      <Tag
-                        color={
-                          healthDeclaration.healthDeclaration.foodAllergies ===
-                          "no"
-                            ? "green"
-                            : "red"
-                        }
-                        style={{ minWidth: 38, textAlign: "center" }}
-                      >
-                        {healthDeclaration.healthDeclaration.foodAllergies || "N/A"}
-                      </Tag>
-                    </div>
-                    <div>
-                      <Text strong>Additional Notes:</Text>{" "}
-                      <Text>
-                        {healthDeclaration.healthDeclaration.notes || (
-                          <span style={{ color: "#aaa" }}>N/A</span>
-                        )}
-                      </Text>
-                    </div>
-                  </div>
-                ) : (
-                  <Text type="secondary">No health declaration data.</Text>
-                )}
                 {/* Vaccine Details */}
                 <Title level={5} style={{ margin: "18px 0 0 0", color: "#1677ff", display: "flex", alignItems: "center", gap: 8 }}>
                   <Syringe style={{ color: "#1677ff", width: 20, height: 20, verticalAlign: "middle" }} />
@@ -644,25 +702,53 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
                 <Divider style={{ margin: "8px 0" }} />
                 {vaccineDetails ? (
                   <div style={{ fontSize: 15 }}>
-                    <div>
-                      <Text strong>Vaccine Code:</Text>{" "}
-                      <Text>{vaccineDetails.vaccineCode || "N/A"}</Text>
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: "170px 1fr",
+                      alignItems: "start",
+                      padding: "8px 0",
+                      borderBottom: "1px solid #f0f0f0"
+                    }}>
+                      <Text strong style={{ color: "#64748b" }}>Vaccine Code:</Text>
+                      <Text style={{ color: "#222" }}>{vaccineDetails.vaccineCode || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
                     </div>
-                    <div>
-                      <Text strong>Vaccine Name:</Text>{" "}
-                      <Text>{vaccineDetails.vaccineName || "N/A"}</Text>
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: "170px 1fr",
+                      alignItems: "start",
+                      padding: "8px 0",
+                      borderBottom: "1px solid #f0f0f0"
+                    }}>
+                      <Text strong style={{ color: "#64748b" }}>Vaccine Name:</Text>
+                      <Text style={{ color: "#222" }}>{vaccineDetails.vaccineName || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
                     </div>
-                    <div>
-                      <Text strong>Manufacturer:</Text>{" "}
-                      <Text>{vaccineDetails.manufacturer || "N/A"}</Text>
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: "170px 1fr",
+                      alignItems: "start",
+                      padding: "8px 0",
+                      borderBottom: "1px solid #f0f0f0"
+                    }}>
+                      <Text strong style={{ color: "#64748b" }}>Manufacturer:</Text>
+                      <Text style={{ color: "#222" }}>{vaccineDetails.manufacturer || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
                     </div>
-                    <div>
-                      <Text strong>Age Recommendation:</Text>{" "}
-                      <Text>{vaccineDetails.ageRecommendation || "N/A"}</Text>
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: "170px 1fr",
+                      alignItems: "start",
+                      padding: "8px 0",
+                      borderBottom: "1px solid #f0f0f0"
+                    }}>
+                      <Text strong style={{ color: "#64748b" }}>Age Recommendation:</Text>
+                      <Text style={{ color: "#222" }}>{vaccineDetails.ageRecommendation || <span style={{ color: "#aaa" }}>N/A</span>}</Text>
                     </div>
-                    <div>
-                      <Text strong>Contraindication Notes:</Text>{" "}
-                      <Text>{vaccineDetails.contraindicationNotes || "N/A"}</Text>
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "8px 0"
+                    }}>
+                      <Text strong style={{ color: "#64748b" }}>Contraindication Notes:   <Text style={{ color: "#222" }}>{vaccineDetails.contraindicationNotes || <span style={{ color: "#aaa" }}>N/A</span>}</Text></Text>
                     </div>
                   </div>
                 ) : (

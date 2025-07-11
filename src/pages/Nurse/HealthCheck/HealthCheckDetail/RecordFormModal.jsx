@@ -62,8 +62,8 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
         weight: Number(values.weight),
         visionLeft: Number(values.visionLeft),
         visionRight: Number(values.visionRight),
-        hearing: values.hearing === "order" ? values.hearingOrderDetail : values.hearing,
-        nose: values.nose === "order" ? values.noseOrderDetail : values.nose,
+        hearing: values.hearing === "other" ? values.hearingOrderDetail : values.hearing,
+        nose: values.nose === "other" ? values.noseOrderDetail : values.nose,
         bloodPressure, 
         status: values.status, 
         notes: values.notes,
@@ -267,7 +267,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                     <Select
                       value={hearingOrderValue ? hearingOrderValue : form.getFieldValue("hearing")}
                       onSelect={val => {
-                        if (val === "order") {
+                        if (val === "other") {
                           setHearingModalOpen(true);
                         } else {
                           setHearingOrderValue("");
@@ -277,13 +277,13 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                       options={[
                         { label: "None", value: "no" },
                         { label: "Normal", value: "normal" },
-                        { label: hearingOrderValue || "Order", value: "order" },
+                        { label: hearingOrderValue || "Other", value: "other" },
                       ]}
                     />
                   </Form.Item>
                   <Modal
                     open={hearingModalOpen}
-                    title="Enter Hearing Order Detail"
+                    title="Enter Hearing Other Detail"
                     onCancel={() => setHearingModalOpen(false)}
                     footer={null}
                     destroyOnClose
@@ -316,7 +316,7 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                     <Select
                       value={noseOrderValue ? noseOrderValue : form.getFieldValue("nose")}
                       onSelect={val => {
-                        if (val === "order") {
+                        if (val === "other") {
                           setNoseModalOpen(true);
                         } else {
                           setNoseOrderValue("");
@@ -326,14 +326,14 @@ const RecordFormModal = ({ open, onCancel, student, onOk }) => {
                       options={[
                         { label: "None", value: "no" },
                         { label: "Normal", value: "normal" },
-                        { label: noseOrderValue || "Order", value: "order" },
+                        { label: noseOrderValue || "Other", value: "other" },
                       ]}
                     />
                   </Form.Item>
                   {/* Modal nhập chi tiết Nose */}
                   <Modal
                     open={noseModalOpen}
-                    title="Enter Nose Order Detail"
+                    title="Enter Nose Other Detail"
                     onCancel={() => setNoseModalOpen(false)}
                     footer={null}
                     destroyOnClose
