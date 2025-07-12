@@ -30,6 +30,7 @@ import {
   DownOutlined,
   EditOutlined,
   ExclamationCircleOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import axiosInstance from "../../../../api/axios";
@@ -63,6 +64,7 @@ const HealthCheckDetail = () => {
   const [toNurseData, setToNurseData] = useState([]);
   const [nurses, setNurses] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [notiToParent, setNotiToParent] = useState(false);
 
   const [roundsWithStudents, setRoundsWithStudents] = useState(new Set());
 
@@ -176,6 +178,7 @@ const HealthCheckDetail = () => {
         });
 
         setToParentData([]);
+        setNotiToParent(true);
         localStorage.removeItem(`toParentData_${scheduleId}`);
       }
     } catch (err) {
@@ -749,9 +752,37 @@ const HealthCheckDetail = () => {
               background: toParentData.length === 0 ? "#d9d9d9" : "#355383",
               color: toParentData.length === 0 ? "#00000040" : "#fff",
             }}
+            loading={notiToParent}
+            icon={notiToParent ? <LoadingOutlined /> : null}
             type="primary"
-            onClick={handleSendNotiParent}
-            disabled={toParentData.length === 0}
+                  disabled={
+              toParentData.length === 0 &&
+              !localStorage.getItem(`toParentData_${scheduleId}`)
+            }
+            onClick={async () => {
+              if (notiToParent) return; // Đang gửi thì không cho bấm tiếp
+              let dataToSend = toParentData;
+              if (toParentData.length === 0) {
+                try {
+                  const savedData = localStorage.getItem(`toParentData_${scheduleId}`);
+                  if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    setToParentData(parsedData);
+                    dataToSend = parsedData;
+                  }
+                } catch (error) {
+                  console.error("Error parsing parent data:", error);
+                }
+              }
+              if (dataToSend && dataToSend.length > 0) {
+                setNotiToParent(true);
+                try {
+                  await handleSendNotiParent(dataToSend);
+                } finally {
+                  setNotiToParent(false);
+                }
+              }
+            }}
           >
             Send to Parent
           </Button>
