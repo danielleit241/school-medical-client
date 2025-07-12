@@ -98,7 +98,7 @@ const MedicalInventoryModal = ({ open, itemId, onClose, onSaved }) => {
   return (
     <Modal
       open={open}
-      title="Edit Medical Inventory"
+      title={itemId ? "Edit Medical Inventory" : "Create Medical Inventory"}
       onCancel={onClose}
       onOk={handleSave}
       okText="Save"

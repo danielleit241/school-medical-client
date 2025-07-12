@@ -98,7 +98,7 @@ const VaccineModal = ({ open, vaccineId, onClose, onSaved }) => {
   return (
     <Modal
       open={open}
-      title="Edit Medical Inventory"
+      title={vaccineId ? "Edit Vaccine" : "Create Vaccine"}
       onCancel={onClose}
       onOk={handleSave}
       okText="Save"
