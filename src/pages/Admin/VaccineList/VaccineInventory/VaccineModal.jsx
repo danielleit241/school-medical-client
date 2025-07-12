@@ -108,7 +108,7 @@ const VaccineModal = ({ open, vaccineId, onClose, onSaved }) => {
     >
       <Spin spinning={loading}>
         <Form form={form} layout="vertical">
-          <Form.Item label="vaccineCode" name="vaccineCode" rules={[{ required: true }]}>
+          <Form.Item label="Vaccine Code" name="vaccineCode" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Vaccine Name" name="vaccineName" rules={[{ required: true }]}>

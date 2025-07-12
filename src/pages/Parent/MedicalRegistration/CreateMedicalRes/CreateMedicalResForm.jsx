@@ -459,7 +459,6 @@ const CreateMedicalResForm = () => {
               layout="vertical"
               onFinish={onFinish}
               initialValues={{
-                dateSubmitted: dayjs(),
                 parentConsent: false,
                 totalDosages: "1",
               }}
@@ -568,6 +567,12 @@ const CreateMedicalResForm = () => {
               <Form.Item
                 label="Date Submitted"
                 name="dateSubmitted"
+                initialValue={
+                  (() => {
+                    const now = dayjs();
+                    return now.hour() >= 17 ? now.add(1, "day") : now;
+                  })()
+                }                 
                 rules={[
                   { required: true, message: "Please select date" },
                   {
