@@ -36,7 +36,7 @@ A modern web application designed to manage school medical records, health data,
 
 ---
 
-MIT License
+## MIT License
 
 Copyright (c) 2025 Ngô Thành Đạt, Trần Phú Thịnh
 
