@@ -645,7 +645,7 @@ const AppointmentList = () => {
                     letterSpacing: 0.2,
                   }}
                 >
-                  *You already booked tomorrow
+                  You already booked tomorrow
                 </span>
               )}
 

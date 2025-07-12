@@ -39,6 +39,7 @@ import {
   ExclamationCircleOutlined,
   ApartmentOutlined,
   ClockCircleOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import {useSelector} from "react-redux";
 import Swal from "sweetalert2";
@@ -52,6 +53,7 @@ const DetailCampaign = () => {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [supplementStudents, setSupplementStudents] = useState(null);
+  const [sendNotiToParent, setSendNotiToParent] = useState(false);
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
@@ -440,6 +442,7 @@ const DetailCampaign = () => {
           timer: 1800,
         });
         setToParentData([]);
+        setSendNotiToParent(true);
         // Xóa khỏi localStorage sau khi gửi thành công
         localStorage.removeItem(`toParentData_${scheduleId}`);
       }
@@ -849,30 +852,37 @@ const DetailCampaign = () => {
               background: toParentData.length === 0 ? "#d9d9d9" : "#355383",
               color: toParentData.length === 0 ? "#00000040" : "#fff",
             }}
+            loading={sendNotiToParent}
+            icon={sendNotiToParent ? <LoadingOutlined /> : null}
             type="primary"
-            onClick={() => {
-              // Đọc dữ liệu từ localStorage nếu state rỗng
+            disabled={
+              toParentData.length === 0 &&
+              !localStorage.getItem(`toParentData_${scheduleId}`)
+            }
+            onClick={async () => {
+              if (sendNotiToParent) return; // Đang gửi thì không cho bấm tiếp
+              let dataToSend = toParentData;
               if (toParentData.length === 0) {
                 try {
-                  const savedData = localStorage.getItem(
-                    `toParentData_${scheduleId}`
-                  );
+                  const savedData = localStorage.getItem(`toParentData_${scheduleId}`);
                   if (savedData) {
                     const parsedData = JSON.parse(savedData);
                     setToParentData(parsedData);
-                    handleSendNotiParent(parsedData);
-                    return;
+                    dataToSend = parsedData;
                   }
                 } catch (error) {
                   console.error("Error parsing parent data:", error);
                 }
               }
-              handleSendNotiParent(toParentData);
+              if (dataToSend && dataToSend.length > 0) {
+                setSendNotiToParent(true);
+                try {
+                  await handleSendNotiParent(dataToSend);
+                } finally {
+                  setSendNotiToParent(false);
+                }
+              }
             }}
-            disabled={
-              toParentData.length === 0 &&
-              !localStorage.getItem(`toParentData_${scheduleId}`)
-            }
           >
             Send to Parent
           </Button>
