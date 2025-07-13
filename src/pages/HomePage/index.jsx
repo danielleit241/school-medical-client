@@ -17,10 +17,25 @@ import {UserProfile} from "../../services/User";
 import {setUserProfile} from "../../redux/feature/userProfileSlice";
 import {Link} from "react-router-dom";
 import Chatbox from "../../components/Chatbox/Chatbox";
+import Swal from "sweetalert2";
 
 function HomePage() {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.userId);
+  useEffect(() => {
+  if (localStorage.getItem("showLoginSuccess") === "1") {
+    Swal.fire({
+      icon: "success",
+      title: "Login successful!",
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    });
+    localStorage.removeItem("showLoginSuccess");
+  }
+}, []);
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {

@@ -21,6 +21,7 @@ import {
   Legend,
 } from "chart.js";
 import { Divider, Tag, Modal, Table, Button } from "antd";
+import Swal from "sweetalert2";
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const TABS = [
@@ -455,6 +456,21 @@ const Dashboard = () => {
   const [modalLoading, setModalLoading] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalColumns, setModalColumns] = useState([]);
+
+  useEffect(() => {
+  if (localStorage.getItem("showLoginSuccess") === "1") {
+    Swal.fire({
+      icon: "success",
+      title: "Login successful!",
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 1200,
+      timerProgressBar: true,
+    });
+    localStorage.removeItem("showLoginSuccess");
+  }
+}, []);
 
   // Fetch summary cards
   useEffect(() => {

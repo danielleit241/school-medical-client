@@ -724,9 +724,15 @@ const AppointmentList = () => {
                 type="primary"
                 size="large"
                 icon={<CheckCircleOutlined />}
-                onClick={() =>
+                onClick={() => {
                   updateStatus(selectedAppointment.appointmentId, true, null)
-                }
+                  Swal.fire({
+                    title: "Appointment Confirmed!",
+                    text: "The appointment has been confirmed successfully.",
+                    icon: "success",
+                    confirmButtonColor: "#10b981",
+                  });
+                }}
                 style={{
                   borderRadius: 12,
                   fontWeight: 600,
@@ -743,13 +749,29 @@ const AppointmentList = () => {
                 Confirm Appointment
               </Button>
             )}
+            {selectedAppointment.confirmationStatus &&
+              selectedAppointment.completionStatus === null &&
+              !dayjs().isSame(dayjs(selectedAppointment.appointmentDate), "day") && (
+                <span
+                  style={{
+                    color: "red",
+                    fontWeight: 600,
+                    fontSize: 15,
+                    padding: "12px 0",
+                    display: "inline-block",
+                  }}
+                >
+                  You can only Complete or Cancel on the Appointment Date.
+                </span>
+              )}
 
             {selectedAppointment.confirmationStatus &&
-              selectedAppointment.completionStatus === null && (
+              selectedAppointment.completionStatus === null &&
+              dayjs().isSame(dayjs(selectedAppointment.appointmentDate), "day") && (
                 <Button
                   type="primary"
                   size="large"
-                  icon={<CheckCircleOutlined />}
+                  icon={<CheckCircleOutlined />}                
                   onClick={async () => {
                     const result = await Swal.fire({
                       title: "Mark as Complete?",
@@ -790,7 +812,8 @@ const AppointmentList = () => {
               )}
 
             {selectedAppointment.confirmationStatus &&
-              selectedAppointment.completionStatus === null && (
+              selectedAppointment.completionStatus === null &&
+              dayjs().isSame(dayjs(selectedAppointment.appointmentDate), "day") && (
                 <Button
                   type="primary"
                   size="large"
