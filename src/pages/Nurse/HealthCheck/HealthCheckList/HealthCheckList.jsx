@@ -109,7 +109,6 @@ const HealthCheckList = () => {
             );
             const students = Array.isArray(res.data) ? res.data : [];
 
-            // Lọc bỏ những student chưa được phụ huynh xác nhận
             const filteredStudents = students.filter(
               (student) => student.parentOfStudent?.parentConfirm !== null
             );
@@ -272,6 +271,9 @@ const HealthCheckList = () => {
                     ) {
                       statusLabel = "In Progress";
                       statusBg = "#f59e42";
+                    } else if (now.isAfter(endTime, "day")) {
+                      statusLabel = "Expired";
+                      statusBg = "#ef4444";
                     } else {
                       statusLabel = "Not Active";
                       statusBg = "#ef4444";
@@ -478,8 +480,8 @@ const HealthCheckList = () => {
                           marginTop: 10,
                           display: "flex",
                           gap: 8,
-                          justifyContent: "space-between", // Thay đổi từ flex-end thành space-between
-                          alignItems: "center", // Thêm để căn giữa theo chiều dọc
+                          justifyContent: "space-between", 
+                          alignItems: "center", 
                           width: "100%",
                           boxSizing: "border-box",
                         }}
@@ -489,8 +491,8 @@ const HealthCheckList = () => {
                           style={{
                             color: "#666",
                             fontSize: 13,
-                            flex: 1, // Cho phép mở rộng
-                            marginRight: 16, // Khoảng cách với buttons
+                            flex: 1, 
+                            marginRight: 16, 
                           }}
                         >
                           <span style={{fontWeight: 600}}>Description:</span>{" "}
@@ -526,7 +528,12 @@ const HealthCheckList = () => {
                           >
                             Details
                           </Button>
-                          {!round.status && percent === 100 && (
+                          {!round.status && 
+                            percent === 100 && 
+                            startTime &&
+                            endTime &&
+                            now.isSameOrAfter(startTime, "day") &&
+                            now.isSameOrBefore(endTime, "day") && (
                             <Button
                               type="primary"
                               loading={loadingComplete[round.roundId]}
@@ -545,6 +552,23 @@ const HealthCheckList = () => {
                               Complete
                             </Button>
                           )}
+                          {!round.status &&                            
+                            endTime &&                           
+                            now.isAfter(endTime, "day") && (
+                              <span
+                              style={{
+                                marginLeft: 8,
+                                color: "#ef4444",
+                                fontWeight: 600,
+                                fontSize: 13,
+                                borderRadius: 8,
+                                background: "#fee2e2",
+                                padding: "4px 12px",
+                              }}
+                            >
+                              Expired
+                            </span>
+                            )}
                           {round.status && (
                             <span
                               style={{
