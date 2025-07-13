@@ -7,6 +7,7 @@ import {Eye, EyeOff} from "lucide-react";
 import {authenticationAPI} from "../../services/authentication";
 import {useDispatch} from "react-redux";
 import {setUserInfo} from "../../redux/feature/userSlice";
+import { Spin } from "antd";
 import axiosInstance from "../../api/axios";
 
 const Login = () => {
@@ -20,6 +21,7 @@ const Login = () => {
   });
   // const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const {name, value} = e.target;
@@ -94,13 +96,11 @@ const Login = () => {
       localStorage.setItem("userId", userId);
       localStorage.setItem("role", role);
 
-      Swal.fire({
-        icon: "success",
-        title: "Login Successful",
-        text: "Welcome back!",
-        timer: 1500,
-        showConfirmButton: false,
-      }).then(() => {
+      setLoading(true);
+      localStorage.setItem("showLoginSuccess", "1");
+
+      setTimeout(() => {
+        setLoading(false);
         if (role === "admin") {
           navigate("/admin");
         } else if (role === "manager") {
@@ -110,9 +110,9 @@ const Login = () => {
         } else if (role === "parent") {
           navigate("/");
         } else {
-          navigate("/");
+           navigate("/");
         }
-      });
+      }, 1200);    
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -124,6 +124,7 @@ const Login = () => {
   };
   return (
     <>
+    
       <div className="login_main animate__animated animate__fadeIn">
         <div className="login_form">
           <h1 className="login_form_name ">Log in</h1>
@@ -207,7 +208,11 @@ const Login = () => {
               </div>
             </div>
             <button type="submit" className="login_button">
-              Login
+              {loading ? (
+              <Spin size="small" style={{ color: "#fff" }} />
+                ) : (
+                  "Login"
+                )}
             </button>
           </form>
         </div>

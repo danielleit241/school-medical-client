@@ -53,6 +53,7 @@ import {useSelector} from "react-redux";
 import HealthCheckupChart from "./HealthCheckupChart";
 import VaccinationChart from "./VaccinationChart";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 
 const {Title, Text} = Typography;
 const {TabPane} = Tabs;
@@ -98,6 +99,21 @@ const ManagerDashboard = () => {
   const [dateRange, setDateRange] = useState([null, null]);
   // const [showDateFilter, setShowDateFilter] = useState(false);
 
+  useEffect(() => {
+    if (localStorage.getItem("showLoginSuccess") === "1") {
+      Swal.fire({
+        icon: "success",
+        title: "Login successful!",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+      localStorage.removeItem("showLoginSuccess");
+    }
+  }, []);
+  
   // Styling constants
   const cardHeadStyle = {
     padding: "12px 16px",
