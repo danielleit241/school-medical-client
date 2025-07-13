@@ -71,7 +71,6 @@ const CampaignList = () => {
             totalObj[round.roundId] = students.length;
 
             let completed = 0;
-            // Lấy tất cả vaccinationResultId
             const vaccinationResultIds = students
               .map(
                 (student) =>
@@ -227,7 +226,7 @@ const CampaignList = () => {
                 setPageIndex(1);
               }}
               style={{
-                width: 260, // giảm width
+                width: 260, 
                 background: "#fff",
                 borderRadius: 8,
                 boxShadow: "0 2px 2px #e6f7ff",
@@ -250,7 +249,7 @@ const CampaignList = () => {
           <div
             style={{
               width: "100%",
-              padding: "0 16px", // giảm padding ngang
+              padding: "0 16px", 
             }}
           >
             {!loading && rounds && rounds.length > 0 ? (
@@ -283,6 +282,9 @@ const CampaignList = () => {
                     ) {
                       statusLabel = "In Progress";
                       statusBg = "#f59e42";
+                    } else if (endTime && now.isAfter(endTime, "day")) {
+                      statusLabel = "Expired";
+                      statusBg = "#ef4444";
                     } else {
                       statusLabel = "Not Active";
                       statusBg = "#ef4444";
@@ -318,9 +320,7 @@ const CampaignList = () => {
                           marginBottom: 2,
                         }}
                       >
-                        {/* <CalendarOutlined
-                          style={{color: "#3058A4", fontSize: 22}}
-                        /> */}
+                        
                         <span
                           style={{
                             fontWeight: 700,
@@ -484,8 +484,8 @@ const CampaignList = () => {
                           marginTop: 10,
                           display: "flex",
                           gap: 8,
-                          justifyContent: "space-between", // Thay đổi từ flex-end thành space-between
-                          alignItems: "center", // Thêm để căn giữa theo chiều dọc
+                          justifyContent: "space-between", 
+                          alignItems: "center", 
                           width: "100%",
                           boxSizing: "border-box",
                         }}
@@ -495,8 +495,8 @@ const CampaignList = () => {
                           style={{
                             color: "#666",
                             fontSize: 13,
-                            flex: 1, // Cho phép mở rộng
-                            marginRight: 16, // Khoảng cách với buttons
+                            flex: 1, 
+                            marginRight: 16, 
                           }}
                         >
                           <span style={{fontWeight: 600}}>Description:</span>{" "}
@@ -532,7 +532,10 @@ const CampaignList = () => {
                           >
                             Details
                           </Button>
-                          {!round.status && percent === 100 && (
+                          {!round.status &&
+                            percent === 100 &&
+                            endTime &&
+                            now.isSameOrBefore(endTime, "day") && (
                             <Button
                               type="primary"
                               loading={loadingComplete[round.roundId]}
@@ -566,6 +569,23 @@ const CampaignList = () => {
                               Completed
                             </span>
                           )}
+                          {!round.status && 
+                            endTime &&
+                            now.isAfter(endTime, "day") && (
+                              <span
+                              style={{
+                                marginLeft: 8,
+                                color: "#ef4444",
+                                fontWeight: 600,
+                                fontSize: 13,
+                                borderRadius: 8,
+                                background: "#fee2e2",
+                                padding: "4px 12px",
+                              }}
+                            >
+                              Expired
+                            </span>
+                            )}
                         </div>
                       </div>
                     </div>
