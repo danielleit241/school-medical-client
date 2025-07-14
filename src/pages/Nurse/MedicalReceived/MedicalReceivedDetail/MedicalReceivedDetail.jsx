@@ -320,7 +320,20 @@ const MedicalReceivedDetail = () => {
     student,
     medicalRegistrationDetails,
   } = detail;
-  console.log("Medical Registration Details:", detail);
+
+  const getDoseTimeAsDate = (doseTime) => {
+  const now = dayjs();
+  switch (doseTime) {
+    case "Morning":
+      return now.hour(7).minute(0).second(0); 
+    case "Afternoon":
+      return now.hour(11).minute(0).second(0); 
+    case "Evening":
+      return now.hour(13).minute(0).second(0); 
+    default:
+      return null;
+  }
+};
 
   const allDoseCompleted =
     medicalRegistrationDetails &&
@@ -923,108 +936,113 @@ const MedicalReceivedDetail = () => {
                     }}
                   >
                     {medicalRegistrationDetails &&
-                    medicalRegistrationDetails.length > 0 ? (
+                      medicalRegistrationDetails.length > 0 ? (
                       [...medicalRegistrationDetails]
                         .sort(
                           (a, b) => Number(a.doseNumber) - Number(b.doseNumber)
                         )
-                        .map((dose, idx) => (
-                          <div
-                            key={dose.doseNumber + idx}
-                            style={{
-                              background: "#f8fafc",
-                              border: "1.5px solid #e2e8f0",
-                              borderRadius: 10,
-                              padding: 14,
-                              minHeight: 120,
-                              minWidth: "100%", 
-                              maxWidth: "100%", 
-                              width: "100%",
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "space-between",
-                              boxShadow: "0 1px 4px rgba(53,93,196,0.06)",
-                            }}
-                          >
+                        .map((dose, idx) => {
+                          const doseDateTime = getDoseTimeAsDate(dose.doseTime); // <-- Thêm dòng này ở đây
+
+                          return (
                             <div
+                              key={dose.doseNumber + idx}
                               style={{
+                                background: "#f8fafc",
+                                border: "1.5px solid #e2e8f0",
+                                borderRadius: 10,
+                                padding: 14,
+                                minHeight: 120,
+                                minWidth: "100%",
+                                maxWidth: "100%",
+                                width: "100%",
                                 display: "flex",
-                                alignItems: "center",
+                                flexDirection: "column",
                                 justifyContent: "space-between",
-                                marginBottom: 6,
+                                boxShadow: "0 1px 4px rgba(53,93,196,0.06)",
                               }}
                             >
-                              <span
+                              <div
                                 style={{
-                                  color: "#2B5DC4",
-                                  fontWeight: 700,
-                                  fontSize: 15,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  marginBottom: 6,
                                 }}
                               >
-                                Dose #{dose.doseNumber}
-                              </span>
-                              {dose.isCompleted ? (
                                 <span
                                   style={{
-                                    background: "#f0f9ff",
-                                    color: "#2563eb",
-                                    border: "2px solid #2563eb",
-                                    borderRadius: 18,
-                                    padding: "4px 14px",
-                                    fontSize: 13,
+                                    color: "#2B5DC4",
                                     fontWeight: 700,
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: 6,
+                                    fontSize: 15,
                                   }}
                                 >
-                                  <span style={{fontSize: 13, marginRight: 4}}>
-                                    ✔
-                                  </span>
-                                  Completed
+                                  Dose #{dose.doseNumber}
                                 </span>
-                              ) : (
-                                <Tag color="orange">Not Completed</Tag>
-                              )}
-                            </div>
-                            <div style={{fontSize: 13, marginBottom: 2}}>
-                              <b>Dose Time:</b> {dose.doseTime}
-                            </div>
-                            <div style={{fontSize: 13, marginBottom: 2}}>
-                              <b>Notes:</b>{" "}
-                              {dose.notes || (
-                                <span style={{color: "#aaa"}}>No notes</span>
-                              )}
-                            </div>
-                            {dose.isCompleted && dose.dateCompleted && (
+                                {dose.isCompleted ? (
+                                  <span
+                                    style={{
+                                      background: "#f0f9ff",
+                                      color: "#2563eb",
+                                      border: "2px solid #2563eb",
+                                      borderRadius: 18,
+                                      padding: "4px 14px",
+                                      fontSize: 13,
+                                      fontWeight: 700,
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: 6,
+                                    }}
+                                  >
+                                    <span style={{fontSize: 13, marginRight: 4}}>
+                                      ✔
+                                    </span>
+                                    Completed
+                                  </span>
+                                ) : (
+                                  <Tag color="orange">Not Completed</Tag>
+                                )}
+                              </div>
                               <div style={{fontSize: 13, marginBottom: 2}}>
-                                <b>Date Completed:</b> {dose.dateCompleted}
+                                <b>Dose Time:</b> {dose.doseTime}
                               </div>
-                            )}
-                            {!dose.isCompleted && (
-                              <div style={{marginTop: 6}}>
-                                <Button
-                                  type="primary"
-                                  loading={confirmingDose === idx}
-                                  style={{
-                                    background:
-                                      "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
-                                    borderRadius: 8,
-                                    fontWeight: 600,
-                                    fontSize: 13,
-                                    padding: "2px 16px",
-                                    marginTop: 2,
-                                    border: "none",
-                                    boxShadow: "0 1px 4px rgba(53,93,196,0.08)",
-                                  }}
-                                  onClick={() => handleCompleteDose(idx, dose)}
-                                >
-                                  Mark as Completed
-                                </Button>
+                              <div style={{fontSize: 13, marginBottom: 2}}>
+                                <b>Notes:</b>{" "}
+                                {dose.notes || (
+                                  <span style={{color: "#aaa"}}>No notes</span>
+                                )}
                               </div>
-                            )}
-                          </div>
-                        ))
+                              {dose.isCompleted && dose.dateCompleted && (
+                                <div style={{fontSize: 13, marginBottom: 2}}>
+                                  <b>Date Completed:</b> {dose.dateCompleted}
+                                </div>
+                              )}
+
+                              {!dose.isCompleted && doseDateTime && dayjs().isAfter(doseDateTime) && (
+                                <div style={{marginTop: 6}}>
+                                  <Button
+                                    type="primary"
+                                    loading={confirmingDose === idx}
+                                    style={{
+                                      background:
+                                        "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
+                                      borderRadius: 8,
+                                      fontWeight: 600,
+                                      fontSize: 13,
+                                      padding: "2px 16px",
+                                      marginTop: 2,
+                                      border: "none",
+                                      boxShadow: "0 1px 4px rgba(53,93,196,0.08)",
+                                    }}
+                                    onClick={() => handleCompleteDose(idx, dose)}
+                                  >
+                                    Mark as Completed
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
                     ) : (
                       <div style={{color: "#aaa"}}>
                         No dose details available.
