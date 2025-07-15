@@ -1040,6 +1040,13 @@ const MedicalReceivedDetail = () => {
                                   </Button>
                                 </div>
                               )}
+                              {!dose.isCompleted && doseDateTime && !dayjs().isAfter(doseDateTime) && (
+                                <div style={{marginTop: 6}}>
+                                  <span style={{fontSize: 13, color: "red"}}>
+                                    <b>Next Dose:</b> {" After " + dayjs(doseDateTime).format("HH:mm")}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           );
                         })
