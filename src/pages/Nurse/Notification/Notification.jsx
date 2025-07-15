@@ -184,7 +184,6 @@ const Notifications = () => {
             const isRead = noti.isRead;
             const isHovered = hoveredId === notificationId;
 
-            // Lấy thời gian gửi (cộng 7 tiếng)
             const sendDate = noti.sendDate
               ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000)
               : null;

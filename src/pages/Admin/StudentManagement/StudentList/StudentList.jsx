@@ -63,7 +63,7 @@ const StudentList = () => {
         icon: "warning",
         title: "No students selected",
         toast: true,
-        position: "top-end", // Góc phải trên
+        position: "top-end", 
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
@@ -77,7 +77,7 @@ const StudentList = () => {
         icon: "success",
         title: "Accounts created successfully",
         toast: true,
-        position: "top-end", // Góc phải trên
+        position: "top-end", 
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
@@ -115,7 +115,6 @@ const StudentList = () => {
       const response = await axiosInstance.get("/api/students/export-excel", {
         responseType: "blob",
       });
-      // Tạo link download
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -125,7 +124,6 @@ const StudentList = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      // Hiển thị alert thành công
       Swal.fire({
         icon: "success",
         title: "Download successfully",
@@ -199,12 +197,10 @@ const StudentList = () => {
           return <span style={{color: "#aaa"}}>N/A</span>;
         }
 
-        // For valid string
         if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
           return value.slice(0, 10);
         }
 
-        // For Date object or timestamp
         const date = new Date(value);
         if (!isNaN(date.getTime())) {
           const yyyy = date.getFullYear();
@@ -272,7 +268,7 @@ const StudentList = () => {
           <Button
             color="#355383"
             variant="outlined"
-            onClick={() => openEditModal(item.studentId)} // Fixed: Using studentId instead of itemId
+            onClick={() => openEditModal(item.studentId)} 
             style={{marginRight: 8, color: "#355383"}}
           >
             Edit

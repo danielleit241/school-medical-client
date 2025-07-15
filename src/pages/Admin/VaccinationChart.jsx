@@ -43,17 +43,17 @@ const VaccinationChart = ({data, loading, error}) => {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false, // Ẩn legend
+          display: false, 
         },
         title: {
-          display: false, // Ẩn tiêu đề
+          display: false, 
         },
       },
       scales: {
         y: {
           beginAtZero: true,
           ticks: {
-            precision: 0, // Hiển thị số nguyên
+            precision: 0, 
           },
         },
       },

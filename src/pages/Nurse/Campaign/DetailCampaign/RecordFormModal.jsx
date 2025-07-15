@@ -143,7 +143,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
         if (!prev || !prev.isSame(today, "day")) return today;
         return prev;
       });
-    }, 60 * 1000); // kiểm tra mỗi phút
+    }, 60 * 1000); 
     return () => clearInterval(interval);
   }, []);
 
@@ -153,7 +153,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
     }
   }, [open]);
 
-  // Step 1: Xác nhận đủ điều kiện
+  
   const handleQualified = async (isQualified) => {
     if (!student?.vaccinationResultId) return;
     setLoading(true);
@@ -201,7 +201,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
             }, 1000);
           }
         }
-      }, 300); // delay 300ms
+      }, 300); 
     } finally {
       setLoading(false);
     }
@@ -266,9 +266,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
       const vaccinationResultId = student?.vaccinationResultId;
 
       const vaccinatedDate = values.vaccinatedDate;
-      const vaccinatedTime = values.vaccinatedTime;
-
-      // Gộp ngày và giờ thành 1 DateTime ISO string
+      const vaccinatedTime = values.vaccinatedTime;    
       const vaccinatedDateTime = vaccinatedDate
         .hour(vaccinatedTime.hour())
         .minute(vaccinatedTime.minute())
@@ -681,7 +679,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
               </Card>
             </Col>
           </Row>
-          {/* Nút Cancel/Confirm ra ngoài, căn phải */}
+          
           <Row justify="end" style={{marginTop: 40}}>
             <Space size={16}>
               <Button
@@ -706,7 +704,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
       )}
       {step === 1 && (
         <Row gutter={32}>
-          {/* Bên trái: Form nhập */}
+         
           <Col xs={24} md={14}>
             <Form
               form={form}
@@ -836,7 +834,7 @@ const RecordFormModal = ({open, onCancel, student, onOk, round, onReload}) => {
               </Form.Item>
             </Form>
           </Col>
-          {/* Bên phải: Health Declaration & Vaccine Details */}
+         
           <Col xs={24} md={10}>
             <Card
               bordered={false}

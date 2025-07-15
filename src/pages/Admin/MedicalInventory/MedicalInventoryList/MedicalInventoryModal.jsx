@@ -62,10 +62,8 @@ const MedicalInventoryModal = ({ open, itemId, onClose, onSaved }) => {
         status: values.status === true || values.status === "true",
       };
       if (itemId) {
-        // Edit
         await axiosInstance.put(`/api/medical-inventories/${itemId}`, payload);
       } else {
-        // Create
         await axiosInstance.post(`/api/medical-inventories`, payload);
       }
       Swal.fire({

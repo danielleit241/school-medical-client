@@ -59,7 +59,7 @@ const MedicalReceivedDetail = () => {
         9
       )}.${digits.slice(9, 11)}`;
     }
-    return phone; // fallback
+    return phone; 
   };
 
   useEffect(() => {
@@ -102,7 +102,6 @@ const MedicalReceivedDetail = () => {
     }
   }, [medicalRegistrationId, navigate]);
 
-  // Complete từng dose
   const handleCompleteDose = async (doseIdx, dose) => {
     setConfirmingDose(doseIdx);
     try {
@@ -163,14 +162,12 @@ const MedicalReceivedDetail = () => {
     }
   };
 
-  // Show modal để nhập nurse note - sửa lại để support cả approve và cancel
   const showNoteModal = (type) => {
     setActionType(type);
-    setNurseNote(""); // Reset note
+    setNurseNote(""); 
     setIsNoteModalVisible(true);
   };
 
-  // Handle khi nhấn OK trong modal - sửa lại để support cả approve và cancel
   const handleNoteModalOk = async () => {
     if (!nurseNote.trim()) {
       Swal.fire({
@@ -188,17 +185,15 @@ const MedicalReceivedDetail = () => {
     }
   };
 
-  // Handle khi nhấn Cancel trong modal
   const handleNoteModalCancel = () => {
     setIsNoteModalVisible(false);
     setNurseNote("");
     setActionType("");
   };
 
-  // Approve registration
   const handleApprove = async () => {
     setApproving(true);
-    setIsNoteModalVisible(false); // Đóng modal
+    setIsNoteModalVisible(false); 
 
     try {
       const requestData = {
@@ -915,8 +910,6 @@ const MedicalReceivedDetail = () => {
               marginTop: 8,
             }}
           >
-            {/* Left: Action Buttons + Medicine Picture */}
-
             {/* Right: Dose Information */}
             {medicalRegistration.status === true && (
               <div style={{flex: 2, minWidth: 220}}>

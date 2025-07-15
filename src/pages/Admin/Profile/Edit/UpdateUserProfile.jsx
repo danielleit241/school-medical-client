@@ -18,7 +18,6 @@ import {
   Divider,
   Form,
 } from "antd";
-// Replace Lucide icons with Ant Design icons
 import {
   PlusOutlined,
   UserOutlined,
@@ -45,7 +44,6 @@ const UpdateUserProfile = () => {
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Get user profile
   const fetchUserProfile = useCallback(async () => {
     if (!userId) {
       return;
@@ -65,7 +63,6 @@ const UpdateUserProfile = () => {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
-  // Upload image to cloud
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -77,7 +74,6 @@ const UpdateUserProfile = () => {
     const startTime = Date.now();
 
     try {
-      // Show loading indicator
       Swal.fire({
         title: "Uploading...",
         text: "Please wait while we update your profile image",
@@ -136,7 +132,6 @@ const UpdateUserProfile = () => {
     }
   };
 
-  // Validation function
   const validate = () => {
     const errors = {};
     if (!user.fullName || user.fullName.trim().length < 2) {
@@ -173,7 +168,6 @@ const UpdateUserProfile = () => {
     return errors;
   };
 
-  // Save user profile updates
   const handleSave = async () => {
     const errors = validate();
     setFormErrors(errors);
@@ -411,7 +405,7 @@ const UpdateUserProfile = () => {
                     />
                   </Form.Item>
                 </div>
-                {/* Phone Number (Read-only) */}
+
                 <div>
                   <Form.Item
                     label={
@@ -439,7 +433,6 @@ const UpdateUserProfile = () => {
                     />
                   </Form.Item>
                 </div>
-                {/* Email Address */}
                 <div>
                   <Form.Item
                     label={
@@ -467,7 +460,6 @@ const UpdateUserProfile = () => {
                   </Form.Item>
                 </div>
 
-                {/* Date of Birth */}
                 <div>
                   <Form.Item
                     label={
@@ -495,7 +487,6 @@ const UpdateUserProfile = () => {
                   </Form.Item>
                 </div>
 
-                {/* Address - Spans both columns */}
                 <div style={{gridColumn: "span 2"}}>
                   <Form.Item
                     label={

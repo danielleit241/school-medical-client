@@ -2,7 +2,6 @@ import React, {useState} from "react";
 import Swal from "sweetalert2";
 import "./index.scss";
 import axiosInstance from "../../../../api/axios";
-// Thêm icon mắt
 import {EyeOutlined, EyeInvisibleOutlined} from "@ant-design/icons";
 
 const initialState = {
@@ -22,7 +21,6 @@ const CreateUpdateUser = ({onSuccess}) => {
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
-  // State để show/hide password
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {

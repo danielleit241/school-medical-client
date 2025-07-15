@@ -11,7 +11,6 @@ import {
   CheckCircleTwoTone,
   ExclamationCircleTwoTone,
   CloseCircleTwoTone,
-  CloseSquareTwoTone, // thêm icon đỏ cho Failed
 } from "@ant-design/icons";
 
 const HealthCheckDetail = () => {
@@ -28,7 +27,7 @@ const HealthCheckDetail = () => {
   const [statusMap, setStatusMap] = useState({});
   const [selectedRound, setSelectedRound] = useState(null);
   const [loadingMap] = useState({});
-  const [status, setStatus] = useState(false); // trạng thái round
+  const [status, setStatus] = useState(false); 
   const [dateRange, setDateRange] = useState({start: null, end: null});
   const [statusFilter, setStatusFilter] = useState("all");
   const [completedCount, setCompletedCount] = useState(0);
@@ -271,7 +270,7 @@ const HealthCheckDetail = () => {
         </span>
       );
     }
-    // Not Yet
+    
     return (
       <span style={{display: "inline-flex", alignItems: "center", gap: 6}}>
         <ExclamationCircleTwoTone

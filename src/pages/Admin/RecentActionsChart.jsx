@@ -11,16 +11,13 @@ const RecentActionsChart = ({data, loading, error}) => {
       chartInstance.current.destroy();
     }
 
-    // Tạo dữ liệu và nhãn từ dữ liệu API
     const labels = data.map((item) => {
-      // Lấy phần trước "in" của tên
       const actionName = item.userRecentAction.name.split(" in ")[0];
       return actionName;
     });
 
     const values = data.map((item) => item.userRecentAction.count);
 
-    // Màu sắc cho từng loại hành động
     const backgroundColors = [
       "#52c41a", // Create - green
       "#1890ff", // Update - blue
@@ -59,7 +56,7 @@ const RecentActionsChart = ({data, loading, error}) => {
         y: {
           beginAtZero: true,
           ticks: {
-            precision: 0, // Hiển thị số nguyên
+            precision: 0, 
           },
           title: {
             display: true,

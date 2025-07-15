@@ -53,7 +53,6 @@ const AddStudent = () => {
     });
   };
 
-  //Chuyển số serial Excel sang định dạng ngày yyyy-MM-dd
   const excelDateToString = (serial) => {
     if (!serial || isNaN(serial)) return serial;
     const utc_days = Math.floor(serial - 25569);
@@ -65,7 +64,6 @@ const AddStudent = () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  // Định dạng ô trước khi upload để đảm bảo dữ liệu ngày tháng chuẩn
   const formatCellForUpload = (value, colName) => {
     const isDateCol = ["dayofbirth", "dateofbirth", "dob", "birthdate"].some(
       (keyword) => String(colName).toLowerCase().includes(keyword)
@@ -73,7 +71,6 @@ const AddStudent = () => {
 
     if (isDateCol) {
       if (!isNaN(value)) {
-        // Trường hợp serial Excel
         const date = new Date(Math.round((value - 25569) * 86400 * 1000));
         if (!isNaN(date)) {
           const yyyy = date.getFullYear();
@@ -82,7 +79,6 @@ const AddStudent = () => {
           return `${yyyy}-${mm}-${dd}`;
         }
       } else {
-        // Trường hợp chuỗi ngày hợp lệ
         const date = new Date(value);
         if (!isNaN(date)) {
           const yyyy = date.getFullYear();
@@ -102,7 +98,6 @@ const AddStudent = () => {
 
     const formData = new FormData();
 
-    // Nếu có chỉnh sửa
     if (data.length > 0 && editableData.length > 0) {
       const headers = data[0];
       const formattedEditableData = editableData.map((row) =>
@@ -119,7 +114,6 @@ const AddStudent = () => {
 
       formData.append("file", newFile);
     } else {
-      // Nếu không chỉnh sửa
       formData.append("file", fileList[0]);
     }
 
@@ -184,7 +178,6 @@ const AddStudent = () => {
         )}
       </div>
 
-      {/* Bảng chỉnh sửa dữ liệu */}
       {data.length > 0 && (
         <div style={{overflowX: "auto"}}>
           <table

@@ -38,7 +38,7 @@ const MedicaEventDetail = () => {
     if (digits.length === 11) {
       return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}.${digits.slice(9,11)}`;
     }
-      return phone; // fallback
+      return phone; 
   };
 
   useEffect(() => {
@@ -97,7 +97,7 @@ const MedicaEventDetail = () => {
           color: "white",
           textAlign: "center",
           boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-          borderRadius: "20px 20px 0 0 ", // bo góc dưới
+          borderRadius: "20px 20px 0 0 ", 
         }}
       >
         <h1
@@ -126,7 +126,7 @@ const MedicaEventDetail = () => {
         </p>
       </div>
 
-      {/* Nút Back nằm ngoài header */}
+      
       <div style={{ background: "#fff", padding: "0 16px" }}>
         <div
         style={{
@@ -174,7 +174,7 @@ const MedicaEventDetail = () => {
           width: "100%",
           margin: 0,
           maxWidth: "none",
-          padding: "10px 0", // giảm padding dọc
+          padding: "10px 0", 
           display: "flex",
           flexDirection: "column",
           alignItems: "stretch",
@@ -182,8 +182,8 @@ const MedicaEventDetail = () => {
       >
         <Card
           style={{
-            borderRadius: 10, // giảm bo góc
-            boxShadow: "0 2px 8px #f0f1f2", // giảm shadow
+            borderRadius: 10, 
+            boxShadow: "0 2px 8px #f0f1f2", 
             background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
             width: "100%",
             maxWidth: "none",
@@ -191,7 +191,7 @@ const MedicaEventDetail = () => {
             margin: 0,
             border: `2px solid ${severityColor[medicalEvent.severityLevel]}`,
           }}
-          bodyStyle={{ padding: "14px 18px" }} // giảm padding trong card
+          bodyStyle={{ padding: "14px 18px" }} 
         >
           {/* Student Header */}
           <div

@@ -48,14 +48,12 @@ const UserForm = ({userId, onSuccess}) => {
     if (!form.fullName || form.fullName.trim().length < 2) {
       errors.fullName = "Full Name is required (at least 2 characters)";
     }
-    // Email phải có @gmail.com hoặc @fpt.edu.vn
     const allowedEmailDomains = [
       "@gmail.com",
       "@fpt.edu.vn",
       "@student.fpt.edu.vn",
       "@fe.edu.vn",
       "@fpt.com.vn",
-      // Thêm các đuôi khác nếu cần
     ];
     const isValidDomain = allowedEmailDomains.some((domain) =>
       form.emailAddress.endsWith(domain)
@@ -63,7 +61,6 @@ const UserForm = ({userId, onSuccess}) => {
     if (!form.emailAddress || !isValidDomain) {
       errors.emailAddress = "Email must end with a valid domain";
     }
-    // Date of birth phải là ngày quá khứ
     if (!form.dateOfBirth) {
       errors.dateOfBirth = "Date of Birth is required";
     } else {

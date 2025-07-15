@@ -74,23 +74,18 @@ const MedicalReceived = () => {
     item.medicalRegistrationDetails.length > 0 &&
     item.medicalRegistrationDetails.every((dose) => dose.isCompleted);
 
-  // Sửa lại function để determine status
   const getRegistrationStatus = (item) => {
     const registration = item.medicalRegistration;
 
-    // Nếu bị cancelled
     if (registration.status === false) {
       return statusConfig.cancelled;
     }
 
-    // Nếu chưa được approve
     if (registration.status === null || registration.status === undefined) {
       return statusConfig.pending;
     }
 
-    // Nếu đã approve
     if (registration.status === true) {
-      // Check xem đã complete hết dose chưa
       const allDoseCompleted = isAllDoseCompleted(item);
       return allDoseCompleted ? statusConfig.completed : statusConfig.approved;
     }
@@ -144,7 +139,6 @@ const MedicalReceived = () => {
         >
           {/* Left: Student Info & Details */}
           <div style={{flex: 1}}>
-            {/* Student Info */}
             <div
               style={{
                 marginBottom: 10,
@@ -413,7 +407,6 @@ const MedicalReceived = () => {
           boxSizing: "border-box",
         }}
       >
-        {/* Stats Bar giống AppointmentList step 1 */}
         <div
           style={{
             display: "flex",
