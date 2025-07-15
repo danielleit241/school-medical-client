@@ -429,13 +429,13 @@ const AppointmentList = () => {
               borderRadius: 8,
               height: 36,
               paddingLeft: 12,
-              paddingRight: 12,
+              paddingRight: 5,
               border: "2px solid #e5e7eb",
               fontWeight: 600,
               fontSize: 14,
             }}
           >
-            Back
+          
           </Button>
           <h2
             style={{

@@ -151,7 +151,7 @@ const MedicaEventDetail = () => {
             fontSize: 14,
           }}
         >
-          Back 
+         
         </Button>
         <h2
           style={{
