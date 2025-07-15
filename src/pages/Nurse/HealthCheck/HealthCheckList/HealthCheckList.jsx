@@ -21,7 +21,7 @@ import Swal from "sweetalert2";
 const HealthCheckList = () => {
   const staffNurseId = useSelector((state) => state.user?.userId);
   const [rounds, setRounds] = useState([]);
-  const [total, setTotal] = useState(0); // total rounds for pagination
+  const [total, setTotal] = useState(0); 
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(10);
@@ -103,7 +103,6 @@ const HealthCheckList = () => {
       await Promise.all(
         rounds.map(async (round) => {
           try {
-            // Lấy danh sách students
             const res = await axiosInstance.get(
               `/api/v2/nurses/${staffNurseId}/health-check-rounds/${round.roundId}/students`
             );
@@ -313,10 +312,7 @@ const HealthCheckList = () => {
                           marginTop: 0,
                           marginBottom: 2,
                         }}
-                      >
-                        {/* <CalendarOutlined
-                          style={{color: "#3058A4", fontSize: 22}}
-                        /> */}
+                      >                       
                         <span
                           style={{
                             fontWeight: 700,
@@ -486,7 +482,7 @@ const HealthCheckList = () => {
                           boxSizing: "border-box",
                         }}
                       >
-                        {/* Description - bên trái */}
+                        {/* Description - left */}
                         <div
                           style={{
                             color: "#666",
@@ -501,7 +497,7 @@ const HealthCheckList = () => {
                           )}
                         </div>
 
-                        {/* Buttons - bên phải */}
+                        {/* Buttons - right */}
                         <div style={{display: "flex", gap: 8, flexShrink: 0}}>
                           <Button
                             type="primary"

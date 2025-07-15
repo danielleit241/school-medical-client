@@ -30,8 +30,6 @@ const MedicalEventList = () => {
   const pageSize = 3;
   const [loading, setLoading] = useState(false);
   const [severityFilter, setSeverityFilter] = useState("All");
-
-  // State cho all data (không phân trang) để dùng cho stats bar
   const [allData, setAllData] = useState([]);
 
   // Fetch paginated data
@@ -84,7 +82,6 @@ const MedicalEventList = () => {
           (item) => item.medicalEvent.severityLevel === severityFilter
         );
 
-  // Stats bar dùng allData (không phân trang)
   const statsTotal = allData.length;
   const statsLow = allData.filter(
     (item) => item.medicalEvent.severityLevel === "Low"
@@ -177,7 +174,7 @@ const MedicalEventList = () => {
           gap: 32,
         }}
       >
-        {/* Stats Bar - dùng allData */}
+        {/* Stats Bar */}
         <div
           style={{
             display: "flex",
@@ -371,8 +368,7 @@ const MedicalEventList = () => {
                     }}
                   >
                     {/* Left: Student Info & Details */}
-                    <div style={{flex: 1}}>
-                      {/* Student Info */}
+                    <div style={{flex: 1}}>                    
                       <div
                         style={{
                           marginBottom: 10,

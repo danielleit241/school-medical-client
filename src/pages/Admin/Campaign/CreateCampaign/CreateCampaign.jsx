@@ -30,7 +30,6 @@ const CreateCampaign = () => {
   const [classes, setClasses] = useState([]);
   const navigate = useNavigate();
 
-  // Lấy profile user từ API
   useEffect(() => {
     if (userId) {
       axiosInstance.get(`/api/user-profile/${userId}`).then((res) => {
@@ -38,22 +37,17 @@ const CreateCampaign = () => {
       });
     }
   }, [userId]);
-  // console.log("userId", userId);
-  // console.log("profile", profile);
-  // Lấy danh sách nurse
+  
   useEffect(() => {
     axiosInstance.get("/api/nurses").then((res) => {
       setNurses(res.data || []);
     });
   }, []);
-  // Lấy danh sách vaccine
-  // console.log("nurses", nurses);
   useEffect(() => {
     axiosInstance.get("/api/vaccination-details/all").then((res) => {
       setVaccines(res.data || []);
     });
   }, []);
-  // console.log("vaccines", vaccines);
 
   useEffect(() => {
     axiosInstance
@@ -99,7 +93,6 @@ const CreateCampaign = () => {
 
   const handleRoundChange = (index, field, value) => {
     const newRounds = [...rounds];
-    // Nếu là trường thời gian, luôn convert về dayjs hoặc null
     if (field === "startTime" || field === "endTime") {
       newRounds[index][field] = value ? dayjs(value) : null;
     } else {
@@ -130,7 +123,6 @@ const CreateCampaign = () => {
         payloadWithCheckValidation
       );
       console.log("Validation response:", res.data);
-      // Nếu đã tiêm vaccine đó cho lớp đó, trả về true
       if (res.data === true) {
         return true;
       } else {
@@ -211,12 +203,6 @@ const CreateCampaign = () => {
     }
   };
 
-  // // Đặt initialValues cho Form
-  // useEffect(() => {
-  //   form.setFieldsValue({startDate: defaultStartDate});
-  // }, [form, defaultStartDate]);
-
-  // Đảm bảo sau khi lấy profile từ API, bạn cũng set lại giá trị cho trường createdBy trong form:
   useEffect(() => {
     if (profile?.fullName) {
       form.setFieldsValue({createdBy: profile.fullName});
@@ -242,7 +228,6 @@ const CreateCampaign = () => {
         }}
       >
         <Row gutter={32}>
-          {/* Thông tin schedule */}
           <Col span={12}>
             <Form.Item
               label="Title"
@@ -303,7 +288,6 @@ const CreateCampaign = () => {
                   validator(_, value) {
                     const startDate = getFieldValue("startDate");
                     if (!value || !startDate) return Promise.resolve();
-                    // Đảm bảo value và startDate là dayjs object
                     const end = dayjs(value);
                     const start = dayjs(startDate);
                     if (!end.isValid() || !start.isValid())
@@ -322,7 +306,6 @@ const CreateCampaign = () => {
             </Form.Item>
           </Col>
 
-          {/* Phần round */}
           <Col span={12}>
             <div style={{marginBottom: 16, fontWeight: 600}}>
               Vaccination Rounds
@@ -354,11 +337,10 @@ const CreateCampaign = () => {
                     }
                     style={{marginBottom: 8}}
                   />
-                  {/* Thay thế Input bằng Select cho targetGrade */}
                   <Select
                     showSearch
                     placeholder="Select Target Grade"
-                    value={round.targetGrade || undefined} // Quan trọng: đặt undefined khi không có giá trị
+                    value={round.targetGrade || undefined} 
                     onChange={(value) =>
                       handleRoundChange(idx, "targetGrade", value)
                     }

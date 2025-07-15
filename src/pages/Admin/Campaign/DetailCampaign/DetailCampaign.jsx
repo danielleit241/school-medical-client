@@ -69,7 +69,7 @@ const DetailCampaign = () => {
   const [toParentData, setToParentData] = useState([]);
   const [toNurseData, setToNurseData] = useState([]);
   const [roundsWithNurse, setRoundsWithNurse] = useState([]);
-  const [classes, setClasses] = useState([]); // Thêm state để lưu danh sách lớp
+  const [classes, setClasses] = useState([]); 
   const [roundsWithStudents, setRoundsWithStudents] = useState(new Set());
 
   // Edit round modal state
@@ -78,7 +78,6 @@ const DetailCampaign = () => {
   const [editRoundData, setEditRoundData] = useState(null);
   const [formEditRound] = Form.useForm();
 
-  // Thêm hàm lấy profile nurse cho từng round
   const fetchRoundsWithNurse = async (rounds) => {
     const roundsData = await Promise.all(
       rounds.map(async (round) => {
@@ -98,10 +97,8 @@ const DetailCampaign = () => {
     setRoundsWithNurse(roundsData);
   };
 
-  // 1. Thêm useEffect để đọc dữ liệu từ localStorage
   useEffect(() => {
     if (scheduleId) {
-      // Load notification data from localStorage
       try {
         const savedToParent = localStorage.getItem(
           `toParentData_${scheduleId}`
@@ -122,7 +119,6 @@ const DetailCampaign = () => {
         );
       }
 
-      // Fetch schedule data
       axiosInstance
         .get(`/api/vaccinations/schedules/${scheduleId}`)
         .then(async (res) => {
@@ -134,7 +130,6 @@ const DetailCampaign = () => {
     }
   }, [scheduleId]);
 
-  // Fetch danh sách lớp khi component mount
   useEffect(() => {
     axiosInstance
       .get("/api/students/classes")
@@ -161,31 +156,26 @@ const DetailCampaign = () => {
       .get(`/api/vaccination-rounds/${roundId}`)
       .then((res) => {
         setRoundDetail(res.data);
-        // Không cần gọi API lấy profile nurse nữa vì đã có trong response
       })
       .finally(() => setRoundLoading(false));
   };
 
-  // Thêm state để quản lý loại modal
-  const [modalType, setModalType] = useState("new"); // "new" hoặc "supplement"
+  const [modalType, setModalType] = useState("new"); 
 
   // Add round
   const openAddRoundModal = async (type) => {
-    setModalType(type); // "new" hoặc "supplement"
+    setModalType(type); 
     setAddRoundModalVisible(true);
 
-    // Nếu là supplement round, tự động set targetGrade là "Supplement"
     if (type === "supplement") {
       formAddRound.setFieldsValue({
         roundName: `Supplement Round`,
         targetGrade: "Supplement",
       });
     } else {
-      // Đối với new round, chỉ cần reset form mà không cần set targetGrade
       formAddRound.resetFields();
     }
 
-    // Lấy danh sách nurse
     try {
       const res = await axiosInstance.get("/api/nurses");
       setNurses(res.data || []);
@@ -204,7 +194,6 @@ const DetailCampaign = () => {
       );
       const rounds = Array.isArray(res.data) ? res.data : [];
 
-      // Validate targetGrade trùng
       const existed = rounds.some(
         (r) =>
           r.vaccinationRoundInformation?.targetGrade?.trim().toLowerCase() ===
@@ -221,7 +210,6 @@ const DetailCampaign = () => {
         return;
       }
 
-      // Validate startTime, endTime
       let maxEndTime = null;
       if (rounds.length > 0) {
         maxEndTime = rounds
@@ -234,7 +222,6 @@ const DetailCampaign = () => {
         const newEnd = values.endTime;
 
         if (modalType === "supplement") {
-          // Supplement: chỉ được tạo sau ngày maxEndTime
           if (
             !newStart.isAfter(maxEndTime, "day") ||
             !newEnd.isAfter(maxEndTime, "day")
@@ -258,7 +245,6 @@ const DetailCampaign = () => {
           }
         }
         if (modalType === "new") {
-          // New round: cho phép cùng ngày, nhưng không cho nurse trùng nếu time giao nhau
           if (
             newStart.isSame(maxEndTime, "day") ||
             newEnd.isSame(maxEndTime, "day")
@@ -346,7 +332,6 @@ const DetailCampaign = () => {
     }
   };
 
-  // Hàm add student, chỉ lưu lại dữ liệu notification
   const handleAddStudent = async () => {
     try {
       const res = await axiosInstance.post(
@@ -355,11 +340,9 @@ const DetailCampaign = () => {
       );
       const {toParent = [], toNurse = []} = res.data || {};
 
-      // Lưu vào state
       setToParentData(toParent);
       setToNurseData(toNurse);
 
-      // Lưu vào localStorage để tránh mất dữ liệu khi refresh
       localStorage.setItem(
         `toParentData_${scheduleId}`,
         JSON.stringify(toParent)
@@ -390,7 +373,6 @@ const DetailCampaign = () => {
     }
   };
 
-  // Hàm gửi notification chung
   const sendNotification = async (type, data) => {
     if (!Array.isArray(data) || data.length === 0) return;
     const url =
@@ -400,10 +382,8 @@ const DetailCampaign = () => {
     await axiosInstance.post(url, data);
   };
 
-  // Hàm gửi notification cho nurse
   const handleSendNotiNurse = async (dataToSend = null) => {
     try {
-      // Sử dụng dữ liệu được truyền vào hoặc từ state
       const data = dataToSend || toNurseData;
 
       if (data.length > 0) {
@@ -415,7 +395,6 @@ const DetailCampaign = () => {
           timer: 1800,
         });
         setToNurseData([]);
-        // Xóa khỏi localStorage sau khi gửi thành công
         localStorage.removeItem(`toNurseData_${scheduleId}`);
       }
     } catch (err) {
@@ -427,10 +406,8 @@ const DetailCampaign = () => {
     }
   };
 
-  // Hàm gửi notification cho parent
   const handleSendNotiParent = async (dataToSend = null) => {
     try {
-      // Sử dụng dữ liệu được truyền vào hoặc từ state
       const data = dataToSend || toParentData;
 
       if (data.length > 0) {
@@ -443,7 +420,6 @@ const DetailCampaign = () => {
         });
         setToParentData([]);
         setSendNotiToParent(true);
-        // Xóa khỏi localStorage sau khi gửi thành công
         localStorage.removeItem(`toParentData_${scheduleId}`);
       }
     } catch (err) {
@@ -455,17 +431,13 @@ const DetailCampaign = () => {
     }
   };
 
-  // 3. Sửa hàm handleModalClose để không làm mất dữ liệu thông báo
   const handleModalClose = () => {
     setModalVisible(false);
     setRoundDetail(null);
-    // KHÔNG reset các state toParentData và toNurseData ở đây
   };
 
-  // 4. Khi hàm handleShowStudentList được gọi, cần đảm bảo không mất dữ liệu thông báo
   const handleShowStudentList = (roundId) => {
     localStorage.setItem("selectedVaccinationRoundId", roundId);
-    // Lưu state hiện tại của các notification trước khi chuyển trang
     localStorage.setItem(
       `toParentData_${scheduleId}`,
       JSON.stringify(toParentData)
@@ -492,7 +464,6 @@ const DetailCampaign = () => {
 
     setEditRoundModalVisible(true);
 
-    // Lấy lại danh sách nurse mới nhất trước khi setFieldsValue
     try {
       const res = await axiosInstance.get("/api/nurses");
       setNurses(res.data || []);
@@ -500,7 +471,6 @@ const DetailCampaign = () => {
       setNurses([]);
     }
 
-    // Đảm bảo setFieldsValue sau khi đã có nurses
     setTimeout(() => {
       formEditRound.setFieldsValue({
         roundName: round.roundName,
@@ -541,7 +511,6 @@ const DetailCampaign = () => {
       const isSupplementRound =
         values.roundName?.trim().toLowerCase() === "supplement round";
       if (isSupplementRound) {
-        // Lấy maxEndTime của các round khác (trừ round đang sửa)
         const maxEndTime = roundsWithNurse
           .filter((r) => r.roundId !== editRoundData.roundId)
           .map((r) =>
@@ -581,7 +550,6 @@ const DetailCampaign = () => {
         }
       }
 
-      // Validate targetGrade trùng (trừ chính round đang sửa)
       const existed = roundsWithNurse.some(
         (r) =>
           r.roundId !== editRoundData.roundId &&
@@ -599,7 +567,6 @@ const DetailCampaign = () => {
         return;
       }
 
-      // Không cho sửa thành Supplement nếu đã có Supplement Round khác
       const isEditingToSupplement =
         values.targetGrade.trim().toLowerCase() === "supplement";
       const hasOtherSupplement = roundsWithNurse.some(
@@ -620,7 +587,6 @@ const DetailCampaign = () => {
         return;
       }
 
-      // Validate nurse trùng lịch (không tính round đang sửa)
       const overlap = roundsWithNurse.some((r) => {
         if (r.roundId === editRoundData.roundId) return false;
         const rNurseId = String(r.nurseId || r.nurse?.nurseId || "");
@@ -629,7 +595,6 @@ const DetailCampaign = () => {
         const rEnd = r.endTime ? dayjs(r.endTime) : null;
         const newStart = values.startTime;
         const newEnd = values.endTime;
-        // Chỉ kiểm tra nếu cùng ngày
         const isSameDay = rStart && newStart && rStart.isSame(newStart, "day");
         return (
           rNurseId === formNurseId &&
@@ -673,7 +638,6 @@ const DetailCampaign = () => {
       message.success("Edit round successfully!");
       setEditRoundModalVisible(false);
       formEditRound.resetFields();
-      // Reload rounds
       setLoading(true);
       const scheduleRes = await axiosInstance.get(
         `/api/vaccinations/schedules/${scheduleId}`
@@ -821,7 +785,6 @@ const DetailCampaign = () => {
             }}
             type="primary"
             onClick={() => {
-              // Đọc dữ liệu từ localStorage nếu state rỗng
               if (toNurseData.length === 0) {
                 try {
                   const savedData = localStorage.getItem(
@@ -860,7 +823,7 @@ const DetailCampaign = () => {
               !localStorage.getItem(`toParentData_${scheduleId}`)
             }
             onClick={async () => {
-              if (sendNotiToParent) return; // Đang gửi thì không cho bấm tiếp
+              if (sendNotiToParent) return; 
               let dataToSend = toParentData;
               if (toParentData.length === 0) {
                 try {
@@ -1212,7 +1175,6 @@ const DetailCampaign = () => {
             <Input />
           </Form.Item>
 
-          {/* Thay đổi target grade thành Select cho new round hoặc Input disabled cho supplement round */}
           <Form.Item
             label="Target Grade"
             name="targetGrade"

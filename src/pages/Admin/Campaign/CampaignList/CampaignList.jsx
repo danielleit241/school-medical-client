@@ -131,8 +131,6 @@ const CampaignList = () => {
 
   const refreshAllRoundData = () => {
     setRefreshing(true);
-
-    // Reset state để tất cả hiển thị loading
     const initialLoadingState = {};
     data.forEach((item) => {
       const scheduleId = item.vaccinationScheduleResponseDto.scheduleId;
@@ -153,15 +151,11 @@ const CampaignList = () => {
   };
 
   const getStatusConfig = (record) => {
-    // Lấy trạng thái từ response data
     const status = record.vaccinationScheduleResponseDto.status;
-
-    // Lấy ngày hiện tại và các ngày từ response
     const now = dayjs();
     const startDate = dayjs(record.vaccinationScheduleResponseDto.startDate);
     const endDate = dayjs(record.vaccinationScheduleResponseDto.endDate);
 
-    // Nếu status là true, đây là trạng thái "Completed"
     if (status === true) {
       return {
         color: "#52c41a",
@@ -170,9 +164,7 @@ const CampaignList = () => {
         status: "completed",
       };
     }
-    // Nếu status là false, phân loại thành "In Progress" hoặc "Scheduled" dựa trên ngày
     else {
-      // Nếu ngày hiện tại nằm trong khoảng thời gian của lịch tiêm
       if (now.isAfter(startDate) && now.isBefore(endDate)) {
         return {
           color: "#1890ff",
@@ -181,7 +173,6 @@ const CampaignList = () => {
           status: "inProgress",
         };
       }
-      // Nếu chưa đến ngày bắt đầu
       else if (now.isBefore(startDate)) {
         return {
           color: "#faad14",
@@ -190,7 +181,6 @@ const CampaignList = () => {
           status: "scheduled",
         };
       }
-      // Nếu đã qua ngày kết thúc nhưng status vẫn là false
       else {
         return {
           color: "#f5222d",
@@ -207,7 +197,6 @@ const CampaignList = () => {
     axiosInstance
       .get("/api/vaccinations/schedules")
       .then((res) => {
-        // Sắp xếp dữ liệu theo createdAt (mới nhất lên đầu)
         const sortedData = [...(res.data?.items || [])].sort((a, b) => {
           const dateA = new Date(a.vaccinationScheduleResponseDto.createdAt);
           const dateB = new Date(b.vaccinationScheduleResponseDto.createdAt);
@@ -283,14 +272,12 @@ const CampaignList = () => {
   const handleCompleteSchedule = async (scheduleId) => {
     setCompleting((prev) => ({...prev, [scheduleId]: true}));
     try {
-      // Kiểm tra học sinh bổ sung
       const res = await axiosInstance.get(
         `/api/schedules/${scheduleId}/vaccination-rounds/supplementary/total-students`
       );
       const supplementStudents = res.data?.supplementStudents ?? 0;
 
       if (supplementStudents > 0) {
-        // Cảnh báo xác nhận
         await Swal.fire({
           title: "Warning",
           text: `${supplementStudents} students remain unvaccinated. Continue?`,
@@ -369,7 +356,6 @@ const CampaignList = () => {
         }}
         bodyStyle={{padding: 0}}
         onClick={(e) => {
-          // Chỉ toggle khi click vào vùng không có button
           if (
             !e.target.closest("button") &&
             !e.target.closest(".ant-progress") &&
@@ -734,7 +720,6 @@ const CampaignList = () => {
         <TabPane
           tab={
             <span>
-              {/* <ClockCircleOutlined style={{color: "#faad14", marginRight: 4}} /> */}
               <span>Scheduled</span>
             </span>
           }
@@ -743,7 +728,6 @@ const CampaignList = () => {
         <TabPane
           tab={
             <span>
-              {/* <PlayCircleOutlined style={{color: "#1890ff", marginRight: 4}} /> */}
               <span>In Progress</span>
             </span>
           }
@@ -752,7 +736,6 @@ const CampaignList = () => {
         <TabPane
           tab={
             <span>
-              {/* <CheckCircleOutlined style={{color: "#52c41a", marginRight: 4}} /> */}
               <span>Completed</span>
             </span>
           }
@@ -761,7 +744,6 @@ const CampaignList = () => {
         <TabPane
           tab={
             <span>
-              {/* <ClockCircleOutlined style={{color: "#f5222d", marginRight: 4}} /> */}
               <span>Expired</span>
             </span>
           }

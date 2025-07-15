@@ -7,15 +7,12 @@ const HealthCheckupChart = ({data, loading, error}) => {
   const chartInstance = useRef(null);
 
   useEffect(() => {
-    // Nếu đang loading hoặc có lỗi hoặc không có dữ liệu, không vẽ biểu đồ
     if (loading || error || !data) return;
 
-    // Hủy biểu đồ cũ nếu tồn tại
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
 
-    // Tạo dữ liệu cho biểu đồ
     const chartData = {
       labels: ["Completed", "Pending", "Failed", "Declined"],
       datasets: [
@@ -44,7 +41,7 @@ const HealthCheckupChart = ({data, loading, error}) => {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false, // Ẩn legend
+          display: false, 
         },
         title: {
           display: false,
@@ -54,13 +51,12 @@ const HealthCheckupChart = ({data, loading, error}) => {
         y: {
           beginAtZero: true,
           ticks: {
-            precision: 0, // Hiển thị số nguyên
+            precision: 0, 
           },
         },
       },
     };
 
-    // Tạo biểu đồ mới
     const ctx = chartRef.current.getContext("2d");
     chartInstance.current = new Chart(ctx, {
       type: "bar",

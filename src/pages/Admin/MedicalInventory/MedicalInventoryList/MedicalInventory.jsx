@@ -121,7 +121,7 @@ const MedicalInventory = () => {
         timer: 2000,
         timerProgressBar: true,
       });
-      fetchData(); // reload lại danh sách
+      fetchData(); 
     } catch (err) {
       console.error("Error deleting item:", err);
       Swal.fire({
@@ -383,7 +383,7 @@ const MedicalInventory = () => {
       )}
       <Spin spinning={loading}>
         <Table
-          dataSource={data.filter(item => item.status === true)} // chỉ hiển thị status true
+          dataSource={data.filter(item => item.status === true)} 
           columns={columns}
           rowKey="itemName"
           pagination={false}

@@ -52,7 +52,6 @@ function UsersByRole() {
       const response = await axiosInstance.get(`/api/users/roles/${roleName}`, {
         params,
       });
-      // console.log(response.data.items);
       setUsers(response.data.items || []);
       setTotalCount(response.data.count || 0);
     } catch (err) {
@@ -68,7 +67,6 @@ function UsersByRole() {
     fetchUsers();
   }, [roleName, pageIndex, pageSize, fetchUsers]);
 
-  // Lọc users theo searchText
   const filteredUsers = searchText
     ? users.filter((user) =>
         (user.fullName || "").toLowerCase().includes(searchText.toLowerCase())
@@ -76,7 +74,6 @@ function UsersByRole() {
     : users;
 
   const handleBan = async (userId) => {
-    // console.log(`Deleting user with ID: ${userId.toUpperCase()}`);
     try {
       await axiosInstance.delete(`/api/users/${userId}`, {
         data: false,
@@ -221,7 +218,6 @@ function UsersByRole() {
               variant="outlined"
               size="middle"
               color="red"
-              // icon={<StopOutlined />}
             >
               Ban
             </Button>

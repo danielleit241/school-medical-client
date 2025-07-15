@@ -36,7 +36,7 @@ import {Trash} from "lucide-react";
 const {Title, Text} = Typography;
 
 const MedicalRequest = () => {
-  const [allRequests, setAllRequests] = useState([]); // Store all data from API
+  const [allRequests, setAllRequests] = useState([]); 
   const [medicalEvents, setMedicalEvents] = useState({});
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -57,7 +57,6 @@ const MedicalRequest = () => {
     try {
       setLoading(true);
 
-      // Just get all data from API without any filters
       const response = await axiosInstance.get("/api/medical-requests");
 
       if (response.data) {
@@ -71,7 +70,6 @@ const MedicalRequest = () => {
           ),
         ];
 
-        // Fetch events data
         if (eventIds.length > 0) {
           const eventData = {};
           await Promise.all(
@@ -97,11 +95,9 @@ const MedicalRequest = () => {
     }
   }, []);
 
-  // Client-side filtering (cleaned up version)
   const filteredRequests = useMemo(() => {
     let filtered = [...allRequests];
 
-    // Filter by item name (keyword search)
     if (searchKeyword.trim()) {
       const keyword = searchKeyword.trim().toLowerCase();
       filtered = filtered.filter((request) =>
@@ -109,10 +105,8 @@ const MedicalRequest = () => {
       );
     }
 
-    // Filter by nurse
     if (selectedNurse) {
       filtered = filtered.filter((request) => {
-        // Check multiple possible paths for nurse ID
         const nurseId1 = request.nurseInfo?.staffNurseId;
         const nurseId2 = request.nurseInfo?.nurseId;
         const nurseId3 = request.nurseInfo?.id;
@@ -120,7 +114,6 @@ const MedicalRequest = () => {
         const nurseId5 = request.nurse?.id;
         const nurseId6 = request.staffNurseId;
 
-        // Check if any of these match the selected nurse
         return [
           nurseId1,
           nurseId2,
@@ -135,7 +128,6 @@ const MedicalRequest = () => {
     return filtered;
   }, [allRequests, searchKeyword, selectedNurse]);
 
-  // Debug nurses when loaded
   useEffect(() => {
     if (nurses.length > 0) {
       console.log("👩‍⚕️ Available nurses:");
@@ -149,23 +141,20 @@ const MedicalRequest = () => {
     }
   }, [nurses]);
 
-  // Paginated data for table
   const paginatedRequests = useMemo(() => {
     const startIndex = (pagination.current - 1) * pagination.pageSize;
     const endIndex = startIndex + pagination.pageSize;
     return filteredRequests.slice(startIndex, endIndex);
   }, [filteredRequests, pagination]);
 
-  // Update pagination when filtered data changes
   useEffect(() => {
     setPagination((prev) => ({
       ...prev,
-      current: 1, // Reset to first page when filters change
+      current: 1, 
       total: filteredRequests.length,
     }));
   }, [filteredRequests]);
 
-  // Handle table pagination change
   const handleTableChange = (newPagination) => {
     setPagination((prev) => ({
       ...prev,
@@ -174,9 +163,7 @@ const MedicalRequest = () => {
     }));
   };
 
-  // Apply filters (just trigger re-render, filtering is automatic via useMemo)
   const applyFilters = () => {
-    // Filters are applied automatically via useMemo
     console.log("🎯 Applying filters:", {
       searchKeyword,
       selectedNurse,
@@ -185,7 +172,6 @@ const MedicalRequest = () => {
     });
   };
 
-  // Reset all filters
   const handleReset = () => {
     setSearchKeyword("");
     setSelectedNurse(null);
@@ -195,14 +181,12 @@ const MedicalRequest = () => {
     }));
   };
 
-  // Handle search input with Enter key
   const handleSearchKeyDown = (e) => {
     if (e.key === "Enter") {
       applyFilters();
     }
   };
 
-  // Fetch nurses for filter dropdown
   const fetchNurses = async () => {
     try {
       const response = await axiosInstance.get("/api/nurses");
@@ -214,13 +198,11 @@ const MedicalRequest = () => {
     }
   };
 
-  // Load initial data
   useEffect(() => {
     fetchRequests();
     fetchNurses();
-  }, [fetchRequests]); // Empty dependency array
+  }, [fetchRequests]); 
 
-  // Fetch request details and its event
   const fetchRequestDetails = async (requestId) => {
     try {
       setDetailLoading(true);
@@ -253,7 +235,6 @@ const MedicalRequest = () => {
     }
   };
 
-  // Table columns (đã sắp xếp lại thứ tự hợp lý: Student Code, Student Name, Event Type, Location, Severity, Item Name, Quantity, Requested By, Request Date, Actions)
   const columns = [
     {
       title: "Student Code",
@@ -366,7 +347,6 @@ const MedicalRequest = () => {
               onChange={(e) => setSearchKeyword(e.target.value)}
               onKeyDown={handleSearchKeyDown}
               prefix={<SearchOutlined />}
-              // allowClear
             />
           </Col>
           <Col span={10}>
@@ -375,7 +355,6 @@ const MedicalRequest = () => {
               placeholder="Filter by nurse"
               value={selectedNurse}
               onChange={(value) => setSelectedNurse(value)}
-              // allowClear
               showSearch
               filterOption={(input, option) =>
                 (option?.label ?? "")
@@ -390,13 +369,6 @@ const MedicalRequest = () => {
           </Col>
           <Col span={6}>
             <Space>
-              {/* <Button
-                style={{backgroundColor: "#355383", color: "#fff"}}
-                type="primary"
-                onClick={applyFilters}
-              >
-                Search
-              </Button> */}
               <Button
                 icon={
                   <Trash style={{margin: 0, display: "flex", padding: 4}} />

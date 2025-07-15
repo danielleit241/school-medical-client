@@ -54,7 +54,7 @@ const HealthCheckDetail = () => {
   const [editRoundModalVisible, setEditRoundModalVisible] = useState(false);
   const [addRoundLoading, setAddRoundLoading] = useState(false);
   const [editRoundLoading, setEditRoundLoading] = useState(false);
-  const [modalType, setModalType] = useState("new"); // "new" hoặc "supplement"
+  const [modalType, setModalType] = useState("new"); 
   const [formAddRound] = Form.useForm();
   const [editRoundData, setEditRoundData] = useState(null);
   const [formEditRound] = Form.useForm();
@@ -267,7 +267,6 @@ const HealthCheckDetail = () => {
       );
       const rounds = Array.isArray(res.data) ? res.data : [];
 
-      // Validate targetGrade trùng
       const existed = rounds.some(
         (r) =>
           r.healthCheckRoundInformation?.targetGrade?.trim().toLowerCase() ===
@@ -284,7 +283,6 @@ const HealthCheckDetail = () => {
         return;
       }
 
-      // Validate startTime, endTime
       let maxEndTime = null;
       if (rounds.length > 0) {
         maxEndTime = rounds
@@ -373,7 +371,6 @@ const HealthCheckDetail = () => {
       message.success("Add round successfully!");
       setAddRoundModalVisible(false);
       formAddRound.resetFields();
-      // Reload rounds
       const updated = await axiosInstance.get(
         `/api/health-checks/schedules/${scheduleId}`
       );
@@ -386,7 +383,6 @@ const HealthCheckDetail = () => {
     }
   };
 
-  // Function kiểm tra round có students qua API
   const checkRoundHasStudents = async (roundId) => {
     try {
       const response = await axiosInstance.get(`/api/managers/health-check-rounds/${roundId}/students`);
@@ -394,7 +390,6 @@ const HealthCheckDetail = () => {
       
       console.log(`API Response for round ${roundId}:`, data);
       
-      // Kiểm tra nếu count > 0
       const hasStudents = data && data.count > 0;
       console.log(`Round ${roundId} has students (count: ${data?.count}):`, hasStudents);
       
@@ -405,7 +400,6 @@ const HealthCheckDetail = () => {
     }
   };
 
-  // Function kiểm tra từ state
   const isRoundHasStudents = (roundId) => {
     return roundsWithStudents.has(roundId);
   };
@@ -458,7 +452,6 @@ const HealthCheckDetail = () => {
       const isSupplementRound =
         values.roundName?.trim().toLowerCase() === "supplement round";
       if (isSupplementRound) {
-        // Lấy maxEndTime của các round khác (trừ round đang sửa)
         const maxEndTime = rounds
           .filter((r) => r.healthCheckRoundInformation.roundId !== editRoundData.healthCheckRoundInformation.roundId)
           .map((r) => r.healthCheckRoundInformation.endTime ? dayjs(r.healthCheckRoundInformation.endTime) : null)
@@ -487,11 +480,9 @@ const HealthCheckDetail = () => {
           }
         }
       }
-      // Chỉ validate targetGrade nếu round chưa có students
       const roundHasStudents = isRoundHasStudents(editRoundData.healthCheckRoundInformation.roundId);
       
       if (!roundHasStudents) {
-        // Validate targetGrade trùng (trừ chính round đang sửa)
         const existed = rounds.some(
           (r) =>
             r.healthCheckRoundInformation.roundId !== editRoundData.healthCheckRoundInformation.roundId &&
@@ -508,7 +499,6 @@ const HealthCheckDetail = () => {
           return;
         }
 
-        // Không cho sửa thành Supplement nếu đã có Supplement Round khác
         const isEditingToSupplement =
           values.targetGrade.trim().toLowerCase() === "supplement";
         const hasOtherSupplement = rounds.some(
@@ -618,7 +608,6 @@ const HealthCheckDetail = () => {
       });
       setEditRoundModalVisible(false);
       formEditRound.resetFields();
-      // Reload rounds
       const updated = await axiosInstance.get(
         `/api/health-checks/schedules/${scheduleId}`
       );
@@ -760,7 +749,7 @@ const HealthCheckDetail = () => {
               !localStorage.getItem(`toParentData_${scheduleId}`)
             }
             onClick={async () => {
-              if (notiToParent) return; // Đang gửi thì không cho bấm tiếp
+              if (notiToParent) return; 
               let dataToSend = toParentData;
               if (toParentData.length === 0) {
                 try {

@@ -511,7 +511,6 @@ const DetailCampaign = () => {
           );
         }
 
-        // Trường hợp qualified === true && status === "not_recorded"
         if (qualified === true && status === "not_recorded") {
           return (
             <Button
@@ -665,8 +664,7 @@ const DetailCampaign = () => {
           options={statusOptions}
           style={{width: 220}}
           onChange={setStatusFilter}
-        />
-        {/* Bỏ nút Complete, thay bằng thông báo */}
+        />      
         {!status && percent === 100 && (
           <span
             style={{

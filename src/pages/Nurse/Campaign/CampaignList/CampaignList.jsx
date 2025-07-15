@@ -490,7 +490,7 @@ const CampaignList = () => {
                           boxSizing: "border-box",
                         }}
                       >
-                        {/* Description - bên trái */}
+                        {/* Description - left */}
                         <div
                           style={{
                             color: "#666",
@@ -505,7 +505,7 @@ const CampaignList = () => {
                           )}
                         </div>
 
-                        {/* Buttons - bên phải */}
+                        {/* Buttons - right */}
                         <div style={{display: "flex", gap: 8, flexShrink: 0}}>
                           <Button
                             type="primary"

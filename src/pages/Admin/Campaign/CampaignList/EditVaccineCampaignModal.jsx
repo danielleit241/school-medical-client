@@ -172,7 +172,6 @@ const EditVaccineCampaignModal = ({open, campaign, onClose}) => {
                   const startDate = getFieldValue("startDate");
                   if (!value || !startDate) return Promise.resolve();
 
-                  // Đảm bảo value và startDate là dayjs object
                   const end = dayjs.isDayjs(value) ? value : dayjs(value);
                   const start = dayjs.isDayjs(startDate)
                     ? startDate

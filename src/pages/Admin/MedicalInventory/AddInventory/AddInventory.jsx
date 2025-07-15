@@ -45,7 +45,6 @@ const AddInventory = () => {
     setUploading(true);
     try {
       await axiosFormData.post("/medical-inventories/upload-excel", formData);
-      // console.log("Upload response:", response.data.items);
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
@@ -65,7 +64,6 @@ const AddInventory = () => {
     }
   };
 
-  // Hàm chuyển serial Excel date sang yyyy-MM-dd
   const excelDateToString = (serial) => {
     if (!serial || isNaN(serial)) return serial;
     const utc_days = Math.floor(serial - 25569);
@@ -93,7 +91,7 @@ const AddInventory = () => {
           onRemove={handleRemove}
           fileList={fileList}
           maxCount={1}
-          showUploadList={false} // Ẩn danh sách file mặc định
+          showUploadList={false} 
         >
           <Button icon={<UploadOutlined />}>Choose file Excel</Button>
         </Upload>
@@ -118,12 +116,10 @@ const AddInventory = () => {
 
       {data.length > 0 &&
         (() => {
-          // Xác định số cột lớn nhất
           const columnCount = data.reduce(
             (max, row) => Math.max(max, row.length),
             0
           );
-          // Xác định các cột hợp lệ (ít nhất một dòng có giá trị khác rỗng)
           const validColIndexes = [];
           for (let col = 0; col < columnCount; col++) {
             if (
@@ -137,13 +133,11 @@ const AddInventory = () => {
               validColIndexes.push(col);
             }
           }
-          // Tìm chỉ số cột ExpiryDate (nếu có)
           const header = data[0] || [];
           const expiryDateCol = header.findIndex((h) =>
             String(h).toLowerCase().includes("expirydate")
           );
 
-          // Lọc bỏ row mà tất cả các cột hợp lệ đều rỗng (giữ lại header)
           const filteredData = data.filter(
             (row, rowIndex) =>
               rowIndex === 0 ||

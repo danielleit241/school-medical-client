@@ -91,12 +91,10 @@ const UserProfile = () => {
       const data = await res.json();
       if (!data.secure_url) throw new Error("Upload failed");
 
-      // Update in backend
       await axiosInstance.put(`/api/user-profile/${userId}/avatar`, {
         avatarUrl: data.secure_url,
       });
 
-      // Update local state
       setUser((prev) => ({...prev, avatarUrl: data.secure_url}));
 
       const endTime = Date.now();
@@ -117,7 +115,6 @@ const UserProfile = () => {
         },
       });
 
-      // Use timeout instead of reload for better UX
       setTimeout(() => {
         window.location.reload();
       }, 2300);
@@ -268,7 +265,7 @@ const UserProfile = () => {
                     display: "block",
                     marginBottom: 8,
                     color: "#8c8c8c",
-                    fontSize: 15, // From 13px to 15px
+                    fontSize: 15, 
                   }}
                 >
                   <UserOutlined style={{marginRight: 8, color: "#1890ff"}} />
@@ -281,7 +278,7 @@ const UserProfile = () => {
                     borderRadius: 8,
                     border: "1px solid #e8e8e8",
                     backgroundColor: "#fafafa",
-                    fontSize: 16, // From 14px to 16px
+                    fontSize: 16, 
                     padding: "12px 16px",
                     color: user?.fullName ? "#000" : "#8c8c8c",
                   }}
@@ -295,7 +292,7 @@ const UserProfile = () => {
                     display: "block",
                     marginBottom: 8,
                     color: "#8c8c8c",
-                    fontSize: 15, // From 13px to 15px
+                    fontSize: 15, 
                   }}
                 >
                   <PhoneOutlined style={{marginRight: 8, color: "#1890ff"}} />
@@ -308,7 +305,7 @@ const UserProfile = () => {
                     borderRadius: 8,
                     border: "1px solid #e8e8e8",
                     backgroundColor: "#fafafa",
-                    fontSize: 16, // From 14px to 16px
+                    fontSize: 16, 
                     padding: "12px 16px",
                     color: user?.phoneNumber ? "#000" : "#8c8c8c",
                   }}
@@ -322,7 +319,7 @@ const UserProfile = () => {
                     display: "block",
                     marginBottom: 8,
                     color: "#8c8c8c",
-                    fontSize: 15, // From 13px to 15px
+                    fontSize: 15,
                   }}
                 >
                   <MailOutlined style={{marginRight: 8, color: "#1890ff"}} />
@@ -335,7 +332,7 @@ const UserProfile = () => {
                     borderRadius: 8,
                     border: "1px solid #e8e8e8",
                     backgroundColor: "#fafafa",
-                    fontSize: 16, // From 14px to 16px
+                    fontSize: 16, 
                     padding: "12px 16px",
                     color: user?.emailAddress ? "#000" : "#8c8c8c",
                   }}
@@ -349,7 +346,7 @@ const UserProfile = () => {
                     display: "block",
                     marginBottom: 8,
                     color: "#8c8c8c",
-                    fontSize: 15, // From 13px to 15px
+                    fontSize: 15, 
                   }}
                 >
                   <CalendarOutlined
@@ -364,7 +361,7 @@ const UserProfile = () => {
                     borderRadius: 8,
                     border: "1px solid #e8e8e8",
                     backgroundColor: "#fafafa",
-                    fontSize: 16, // From 14px to 16px
+                    fontSize: 16, 
                     padding: "12px 16px",
                     color: user?.dateOfBirth ? "#000" : "#8c8c8c",
                   }}
@@ -378,7 +375,7 @@ const UserProfile = () => {
                     display: "block",
                     marginBottom: 8,
                     color: "#8c8c8c",
-                    fontSize: 15, // From 13px to 15px
+                    fontSize: 15, 
                   }}
                 >
                   <HomeOutlined style={{marginRight: 8, color: "#1890ff"}} />
@@ -391,7 +388,7 @@ const UserProfile = () => {
                     borderRadius: 8,
                     border: "1px solid #e8e8e8",
                     backgroundColor: "#fafafa",
-                    fontSize: 16, // From 14px to 16px
+                    fontSize: 16, 
                     padding: "12px 16px",
                     color: user?.address ? "#000" : "#8c8c8c",
                   }}
@@ -401,7 +398,6 @@ const UserProfile = () => {
 
             <Divider style={{margin: "24px 0"}} />
 
-            {/* Action Buttons - Updated to display side by side for wider layout */}
             <div
               style={{
                 display: "flex",
@@ -415,7 +411,7 @@ const UserProfile = () => {
                 onClick={() => navigate(`/${role}/resetpassword`)}
                 style={{
                   color: "#8c8c8c",
-                  fontSize: 16, // From 14px to 16px
+                  fontSize: 16, 
                   height: "auto",
                 }}
               >
@@ -432,7 +428,7 @@ const UserProfile = () => {
                 style={{
                   borderRadius: 8,
                   height: 48,
-                  fontSize: 16, // From 16px to 18px
+                  fontSize: 16, 
                   fontWeight: 500,
                   background:
                     "linear-gradient(90deg, #355383 0%, #355383 100%)",
@@ -451,7 +447,6 @@ const UserProfile = () => {
   );
 };
 
-// Helper function to format date nicely
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
   try {

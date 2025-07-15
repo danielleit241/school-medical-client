@@ -268,7 +268,6 @@ const CreateHealthCheck = () => {
                   validator(_, value) {
                     const startDate = getFieldValue("startDate");
                     if (!value || !startDate) return Promise.resolve();
-                    // Đảm bảo value và startDate là dayjs object
                     const end = dayjs(value);
                     const start = dayjs(startDate);
                     if (!end.isValid() || !start.isValid())
@@ -287,7 +286,6 @@ const CreateHealthCheck = () => {
             </Form.Item>
           </Col>
 
-          {/* Phần round */}
           <Col span={12}>
             <div style={{marginBottom: 16, fontWeight: 600}}>
               Health Check Rounds
@@ -322,7 +320,7 @@ const CreateHealthCheck = () => {
                   <Select
                     showSearch
                     placeholder="Select Target Grade"
-                    value={round.targetGrade || undefined} // Quan trọng: đặt undefined khi không có giá trị
+                    value={round.targetGrade || undefined} 
                     onChange={(value) =>
                       handleRoundChange(idx, "targetGrade", value)
                     }

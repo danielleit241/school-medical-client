@@ -69,7 +69,6 @@ const CreateMedicalEvent = () => {
     fetchItems();
   }, [dispatch]);
 
-  // Thêm/xóa request vật tư
   const handleAddRequest = () => {
     setMedicalRequests((prev) => [
       ...prev,
@@ -167,7 +166,7 @@ const CreateMedicalEvent = () => {
         padding: "0 0 32px 0",
       }}
     >
-      {/* Header Section - giống MedicalEventList */}
+      {/* Header Section */}
       <div
         style={{
           background: "linear-gradient(180deg, #2B5DC4 0%, #355383 100%)",
@@ -194,7 +193,7 @@ const CreateMedicalEvent = () => {
           style={{
             fontSize: 15,
             fontWeight: 500,
-            margin: "0 0 6px 0", // giảm margin dưới
+            margin: "0 0 6px 0", 
             opacity: 0.9,
             maxWidth: 480,
             marginLeft: "auto",

@@ -40,7 +40,7 @@ const StudentVaccineList = () => {
   const [resultModalVisible, setResultModalVisible] = useState(false);
   const [resultDetail, setResultDetail] = useState(null);
   const [resultLoading, setResultLoading] = useState(false);
-  const [downloading, setDownloading] = useState(false); // Thêm state cho nút tải excel
+  const [downloading, setDownloading] = useState(false); 
 
   // Function to fetch students with search
   const fetchStudents = useCallback(
@@ -86,23 +86,19 @@ const StudentVaccineList = () => {
         message.error("Failed to fetch round details");
       });
 
-    // Fetch students list
     fetchStudents();
   }, [roundId, navigate, roleName, fetchStudents]);
 
-  // Handle search
   const handleSearch = () => {
     fetchStudents(search);
   };
 
-  // Handle back button
   const handleBack = () => {
     localStorage.removeItem("selectedVaccinationRoundId");
     navigate(`/${roleName}/vaccine/vaccine-schedule`);
   };
 
 
-  // Handle view detail of vaccination result
   const handleViewResult = (resultId) => {
     if (!resultId) {
       message.error("Vaccination result ID not found");
@@ -270,7 +266,6 @@ const StudentVaccineList = () => {
           <Button
             icon={<FileExcelOutlined />}
             onClick={async () => {
-              // Nếu muốn export toàn bộ danh sách round:
               setDownloading(true);
               try {
                 const response = await axiosInstance.get(
@@ -363,7 +358,6 @@ const StudentVaccineList = () => {
               setResultDetail(null);
             }}
             footer={[
-              // XÓA nút Download ở đây, chỉ giữ nút Close
               <Button
                 key="close"
                 onClick={() => {

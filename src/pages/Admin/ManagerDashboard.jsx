@@ -90,14 +90,11 @@ const ManagerDashboard = () => {
   const [recentActionsLoading, setRecentActionsLoading] = useState(true);
   const [recentActionsError, setRecentActionsError] = useState(null);
 
-  // States mới cho phần Admin Dashboard
   const [usersData, setUsersData] = useState(null);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState(null);
 
-  // Thêm state quản lý khoảng thời gian
   const [dateRange, setDateRange] = useState([null, null]);
-  // const [showDateFilter, setShowDateFilter] = useState(false);
 
   useEffect(() => {
     if (localStorage.getItem("showLoginSuccess") === "1") {
@@ -123,18 +120,18 @@ const ManagerDashboard = () => {
     padding: "16px",
   };
   const metricTitleStyle = {
-    fontSize: "18px", // Tăng từ 14px lên 16px
+    fontSize: "18px", 
     fontWeight: 500,
     marginBottom: 0,
     color: "rgba(0, 0, 0, 0.65)",
   };
   const metricValueStyle = {
-    fontSize: "28px", // Tăng từ 24px lên 26px
+    fontSize: "28px", 
     fontWeight: 700,
     margin: "4px 0",
   };
   const metricSubtitleStyle = {
-    fontSize: "14px", // Tăng từ 12px lên 14px
+    fontSize: "14px", 
     color: "rgba(0, 0, 0, 0.45)",
   };
   const statusDotStyle = {
@@ -145,14 +142,12 @@ const ManagerDashboard = () => {
     marginRight: 8,
   };
 
-  // Cấu hình thời gian cập nhật
   // eslint-disable-next-line no-unused-vars
   const [pollingConfig, setPollingConfig] = useState({
     enabled: true,
     interval: 86400000 / 2, // 1 ngày
   });
 
-  // Hàm tạo params cho API request
   const getDateRangeParams = useCallback(() => {
     if (!dateRange[0] || !dateRange[1]) return {};
     return {
@@ -161,7 +156,6 @@ const ManagerDashboard = () => {
     };
   }, [dateRange]);
 
-  // Hàm để thiết lập khoảng thời gian cho tháng hiện tại
   const setCurrentMonth = () => {
     const now = dayjs();
     const startOfMonth = now.startOf("month");
@@ -170,7 +164,6 @@ const ManagerDashboard = () => {
     return {start: startOfMonth, end: endOfMonth};
   };
 
-  // Hàm để thiết lập khoảng thời gian cho tháng trước
   const setPreviousMonth = () => {
     const now = dayjs();
     const previousMonth = now.subtract(1, "month");
@@ -180,7 +173,6 @@ const ManagerDashboard = () => {
     return {start: startOfMonth, end: endOfMonth};
   };
 
-  // Chuyển các hàm fetch thành độc lập để có thể tái sử dụng
   const fetchTotalStudents = async () => {
     try {
       setLoading(true);
@@ -341,7 +333,6 @@ const ManagerDashboard = () => {
       setExpiringLoading(false);
     } catch (err) {
       console.error("Error fetching expiring medicals:", err);
-      // Xử lý đặc biệt cho lỗi 404 - đây là trường hợp hợp lệ, không phải lỗi thật sự
       if (err.response && err.response.status === 404) {
         setExpiringMedicals([]);
         setExpiringError(null);
@@ -352,7 +343,6 @@ const ManagerDashboard = () => {
     }
   };
 
-  // Hàm fetch dữ liệu quan trọng
   const fetchCriticalData = async () => {
     // eslint-disable-next-line no-unused-vars
     const params = getDateRangeParams();
@@ -364,7 +354,6 @@ const ManagerDashboard = () => {
     setLastUpdated(new Date());
   };
 
-  // Hàm để gọi tất cả API fetch
   const fetchData = () => {
     fetchTotalStudents();
     fetchHealthDeclarations();
@@ -374,13 +363,11 @@ const ManagerDashboard = () => {
     fetchLowStockMedicals();
     fetchExpiringMedicals();
 
-    // Gọi thêm API Admin nếu role là admin
     if (roleName === "admin") {
       fetchAdminData();
     }
   };
 
-  // Tạo hàm fetchAdminData ở ngoài useEffect để có thể gọi lại khi cần
   const fetchAdminData = async () => {
     if (roleName !== "admin") return;
 
@@ -388,10 +375,8 @@ const ManagerDashboard = () => {
       setUsersLoading(true);
       setRecentActionsLoading(true);
 
-      // Lấy tham số ngày từ bộ lọc
       const params = getDateRangeParams();
 
-      // Fetch cả 2 endpoints cùng lúc với tham số ngày tháng
       const [usersResponse, actionsResponse] = await Promise.all([
         axiosInstance.get("/api/admins/dashboards/users", {params}),
         axiosInstance.get("/api/admins/dashboards/recent-actions", {params}),
@@ -432,7 +417,6 @@ const ManagerDashboard = () => {
     }
   };
 
-  // Cập nhật useEffect để chỉ gọi lần đầu, không sử dụng dateRange làm dependency
   useEffect(() => {
     if (roleName === "admin") {
       fetchAdminData();
@@ -440,7 +424,6 @@ const ManagerDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleName]); // Chỉ phụ thuộc vào roleName, không phụ thuộc vào dateRange
 
-  // Cập nhật useEffect để sử dụng tháng hiện tại khi component mount
   useEffect(() => {
     // eslint-disable-next-line no-unused-vars
     const {start, end} = setCurrentMonth();
@@ -448,7 +431,6 @@ const ManagerDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Polling effect cho dữ liệu quan trọng
   usePollingEffect(
     () => {
       console.log("Polling critical data...", new Date().toLocaleTimeString());
@@ -458,7 +440,6 @@ const ManagerDashboard = () => {
     []
   );
 
-  // Calculate completion rate
   const getCompletionRate = () => {
     if (!healthDeclarations) return 0;
 
@@ -469,7 +450,6 @@ const ManagerDashboard = () => {
     return Math.round((submitted / total) * 100);
   };
 
-  // Get health check stats
   const getHealthCheckStats = () => {
     if (!healthChecks) return {total: 0, percentages: {}};
 
@@ -495,7 +475,6 @@ const ManagerDashboard = () => {
     return {total, percentages};
   };
 
-  // Get vaccination stats
   const getVaccinationStats = () => {
     if (!vaccinations) return {total: 0, percentages: {}};
 
@@ -526,14 +505,12 @@ const ManagerDashboard = () => {
     return {total, percentages};
   };
 
-  // Hàm để tính tổng số thiết bị/thuốc thiếu
   // eslint-disable-next-line no-unused-vars
   const getLowStockCount = () => {
     if (!lowStockMedicals || lowStockMedicals.length === 0) return 0;
     return lowStockMedicals.length;
   };
 
-  // Hàm để lấy mức cảnh báo dựa vào số lượng tồn kho
   // eslint-disable-next-line no-unused-vars
   const getStockAlertLevel = (quantity) => {
     if (quantity <= 5) return "critical";
@@ -541,7 +518,6 @@ const ManagerDashboard = () => {
     return "attention";
   };
 
-  // Hàm để xác định màu sắc dựa vào số ngày còn lại
   const getExpiryColorScheme = (daysLeft) => {
     if (daysLeft <= 7) {
       return {bgColor: "#fff1f0", tagColor: "red"};
@@ -563,13 +539,11 @@ const ManagerDashboard = () => {
     setPrevLowStockCount(currentCount);
   }, [lowStockMedicals, prevLowStockCount]);
 
-  // Hàm để viết hoa chữ cái đầu tiên
   const capitalizeFirstLetter = (string) => {
     if (!string) return "";
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   };
 
-  // Hàm tính toán phần trăm cho phần Admin Dashboard
   const getDefaultPasswordPercentage = () => {
     if (!usersData || !usersData.total.count) return 0;
     return Math.round(
@@ -584,7 +558,6 @@ const ManagerDashboard = () => {
     );
   };
 
-  // Hàm fetch dữ liệu Admin khi role là "admin"
   useEffect(() => {
     const fetchAdminData = async () => {
       if (roleName !== "admin") return;
@@ -593,10 +566,8 @@ const ManagerDashboard = () => {
         setUsersLoading(true);
         setRecentActionsLoading(true);
 
-        // Lấy tham số ngày từ bộ lọc
         const params = getDateRangeParams();
 
-        // Fetch cả 2 endpoints cùng lúc với tham số ngày tháng
         const [usersResponse, actionsResponse] = await Promise.all([
           axiosInstance.get("/api/admins/dashboards/users", {params}),
           axiosInstance.get("/api/admins/dashboards/recent-actions", {params}),
@@ -651,16 +622,13 @@ const ManagerDashboard = () => {
         chartInstance.current.destroy();
       }
 
-      // Tạo dữ liệu và nhãn từ dữ liệu API
       const labels = data.map((item) => {
-        // Lấy phần trước "in" của tên
         const actionName = item.userRecentAction.name.split(" in ")[0];
         return actionName;
       });
 
       const values = data.map((item) => item.userRecentAction.count);
 
-      // Màu sắc cho từng loại hành động
       const backgroundColors = [
         "#52c41a", // Create - green
         "#1890ff", // Update - blue
@@ -699,7 +667,7 @@ const ManagerDashboard = () => {
           y: {
             beginAtZero: true,
             ticks: {
-              precision: 0, // Hiển thị số nguyên
+              precision: 0, 
             },
             title: {
               display: true,
@@ -788,7 +756,6 @@ const ManagerDashboard = () => {
     );
   };
 
-  // Thay đổi state và hàm mở modal như sau:
   const [requestModalOpen, setRequestModalOpen] = useState(false);
   const [requestDetail, setRequestDetail] = useState([]);
   const [requestLoading, setRequestLoading] = useState(false);
@@ -797,14 +764,12 @@ const ManagerDashboard = () => {
     setRequestModalOpen(true);
     setRequestLoading(true);
     try {
-      // Lấy tất cả requestId từ medicineRequests.details
       const ids =
         medicineRequests &&
         medicineRequests.details &&
         medicineRequests.details.length > 0
           ? medicineRequests.details.map((item) => item.id)
           : [];
-      // Gọi song song tất cả API
       const results = await Promise.all(
         ids.map((id) =>
           axiosInstance
@@ -813,7 +778,6 @@ const ManagerDashboard = () => {
             .catch(() => [])
         )
       );
-      // Flatten mảng kết quả
       setRequestDetail(results.flat());
     } catch (err) {
       console.error(err);
@@ -823,7 +787,6 @@ const ManagerDashboard = () => {
     }
   };
 
-  // Thêm state cho modal health check result
   const [healthCheckModal, setHealthCheckModal] = useState({
     open: false,
     status: "",
@@ -831,7 +794,6 @@ const ManagerDashboard = () => {
     data: [],
   });
 
-  // Hàm mở modal và fetch tất cả kết quả health check theo status
   const handleOpenHealthCheckModal = async (statusKey) => {
     setHealthCheckModal({
       open: true,
@@ -840,8 +802,6 @@ const ManagerDashboard = () => {
       data: [],
     });
     try {
-      // Lấy mảng details từ healthChecks theo statusKey
-      // statusKey: "completed", "pending", "failed", "declined"
       const statusMap = {
         completed: 0,
         pending: 1,
@@ -853,7 +813,6 @@ const ManagerDashboard = () => {
       const details = apiData.details || [];
       const ids = details.map((item) => item.id);
 
-      // Gọi song song tất cả API health check result
       const results = await Promise.all(
         ids.map((id) =>
           axiosInstance
@@ -879,7 +838,6 @@ const ManagerDashboard = () => {
     }
   };
 
-  // --- Thêm state cho vaccination modal ---
   const [vaccinationModal, setVaccinationModal] = useState({
     open: false,
     status: "",
@@ -887,7 +845,6 @@ const ManagerDashboard = () => {
     data: [],
   });
 
-  // --- Hàm mở modal vaccination ---
   const handleOpenVaccinationModal = async (statusKey) => {
     setVaccinationModal({
       open: true,
@@ -1055,7 +1012,6 @@ const ManagerDashboard = () => {
       </div>
 
       {roleName === "admin" && <Divider>Account Management</Divider>}
-      {/* Admin-specific Dashboard - chỉ hiển thị khi roleName là "admin" */}
       {roleName === "admin" && (
         <>
           <Row gutter={[16, 16]} style={{marginBottom: "24px"}}>
@@ -1244,17 +1200,17 @@ const ManagerDashboard = () => {
                         item.userRecentAction.name.split(" in ")[1] || "";
                       const count = item.userRecentAction.count;
 
-                      let iconColor = "#1890ff"; // Default blue
+                      let iconColor = "#1890ff"; 
                       let IconComponent = UserOutlined;
 
                       if (actionName.toLowerCase().includes("create")) {
-                        iconColor = "#52c41a"; // Green
+                        iconColor = "#52c41a"; 
                         IconComponent = UserOutlined;
                       } else if (actionName.toLowerCase().includes("update")) {
-                        iconColor = "#1890ff"; // Blue
+                        iconColor = "#1890ff"; 
                         IconComponent = EditOutlined;
                       } else if (actionName.toLowerCase().includes("reset")) {
-                        iconColor = "#fa8c16"; // Orange
+                        iconColor = "#fa8c16"; 
                         IconComponent = KeyOutlined;
                       }
 
@@ -1317,7 +1273,6 @@ const ManagerDashboard = () => {
         </>
       )}
       <Divider>Healthcare Management</Divider>
-      {/* Key Metrics (hiển thị cho tất cả roles) */}
       <Row gutter={[16, 16]} style={{marginBottom: "24px"}}>
         {/* Total Students */}
         <Col xs={24} sm={12} md={12} lg={6}>
@@ -1955,23 +1910,21 @@ const ManagerDashboard = () => {
                 ) : lowStockMedicals && lowStockMedicals.length > 0 ? (
                   <Space direction="vertical" style={{width: "100%"}}>
                     {lowStockMedicals.map((item, index) => {
-                      // Lấy tên thuốc/thiết bị và info
                       const itemName = Object.keys(item)[0];
                       const info = item[itemName];
                       const quantity = info.quantityInStock;
                       const minLevel = info.minimumStockLevel;
 
-                      // Đánh giá mức cảnh báo
-                      let bgColor = "#fffbe6"; // Default yellow-light
+                      let bgColor = "#fffbe6"; 
                       let badgeColor = "#faad14";
                       let alertText = "Warning";
 
                       if (quantity <= minLevel) {
-                        bgColor = "#fff1f0"; // Red-light
+                        bgColor = "#fff1f0"; 
                         badgeColor = "#f5222d";
                         alertText = "Critical";
                       } else if (quantity <= minLevel + 5) {
-                        bgColor = "#fff7e6"; // Orange-light
+                        bgColor = "#fff7e6"; 
                         badgeColor = "#fa8c16";
                         alertText = "Low";
                       }
@@ -2091,40 +2044,6 @@ const ManagerDashboard = () => {
         </TabPane>
       </Tabs>
 
-      {/* Auto Refresh Switch */}
-      {/* <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: "16px",
-        }}
-      >
-        <Space>
-          <Text>Auto refresh:</Text>
-          <Switch
-            checkedChildren="On"
-            unCheckedChildren="Off"
-            checked={pollingConfig.enabled}
-            onChange={togglePolling}
-          />
-          {pollingConfig.enabled && (
-            <Select
-              value={pollingConfig.interval / 60000} // Hiển thị phút
-              onChange={(value) =>
-                setPollingConfig((prev) => ({...prev, interval: value * 60000}))
-              }
-              style={{width: 100}}
-            >
-              <Select.Option value={5}>5 min</Select.Option>
-              <Select.Option value={15}>15 min</Select.Option>
-              <Select.Option value={30}>30 min</Select.Option>
-              <Select.Option value={60}>1 hour</Select.Option>
-              <Select.Option value={120}>2 hours</Select.Option>
-            </Select>
-          )}
-        </Space>
-      </div> */}
-
       <Modal
         open={healthCheckModal.open}
         onCancel={() => setHealthCheckModal({...healthCheckModal, open: false})}
@@ -2133,7 +2052,7 @@ const ManagerDashboard = () => {
           healthCheckModal.status.charAt(0).toUpperCase() +
           healthCheckModal.status.slice(1)
         }`}
-        width={1000} // tăng chiều ngang modal
+        width={1000} 
       >
         {healthCheckModal.loading ? (
           <Spin />
@@ -2302,14 +2221,13 @@ const ManagerDashboard = () => {
         onCancel={() => setRequestModalOpen(false)}
         footer={null}
         title="Medical Request Detail"
-        width={1000} // tăng chiều ngang modal
+        width={1000} 
       >
         {requestLoading ? (
           <Spin />
         ) : (
           <div style={{maxHeight: 400, overflowY: "auto"}}>
             {(() => {
-              // Group by nurse name
               const grouped = {};
               requestDetail.forEach((item) => {
                 const nurseName = item.nurseInfo?.fullName || "Unknown Nurse";
@@ -2339,7 +2257,6 @@ const ManagerDashboard = () => {
                             "DD/MM/YYYY"
                           )
                         : "",
-                      // Add more fields if needed
                     }))}
                     columns={[
                       {
@@ -2448,11 +2365,8 @@ const ManagerDashboard = () => {
                 return val ?? "";
               };
 
-              // Map detail.id với vaccinationModal.data (dựa vào vaccinationResultId hoặc id)
-              // Tạo map để tra cứu nhanh
               const resultMap = {};
               vaccinationModal.data.forEach((item) => {
-                // Có thể là resultResponse.vaccinationResultId hoặc id
                 if (item?.resultResponse?.vaccinationResultId) {
                   resultMap[item.resultResponse.vaccinationResultId] = item;
                 } else if (item?.id) {
@@ -2460,7 +2374,6 @@ const ManagerDashboard = () => {
                 }
               });
 
-              // Group by student name
               const grouped = {};
               details.forEach((detail) => {
                 const studentName = detail.name;
@@ -2471,7 +2384,6 @@ const ManagerDashboard = () => {
               return Object.entries(grouped).map(
                 ([studentName, studentDetails], idx) => {
                   const detail = studentDetails[0];
-                  // Lấy item từ resultMap theo detail.id
                   const item = resultMap[detail.id] || {};
                   const result = item.resultResponse || {};
                   const obs = item.vaccinationObservation || {};

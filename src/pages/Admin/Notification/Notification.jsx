@@ -38,14 +38,12 @@ const Notification = () => {
     6: <BellOutlined style={{color: "#355383", fontSize: 24}} />,                    // General Notification
   };
 
-  // Cập nhật lại mỗi phút để làm mới thời gian
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // Lấy chi tiết notification
   const fetchNotificationDetail = async (notificationId) => {
     setLoadingDetail(true);
     try {
@@ -145,7 +143,6 @@ const Notification = () => {
             const isRead = noti.isRead;
             const isHovered = hoveredId === notificationId;
 
-            // Lấy thời gian gửi (cộng 7 tiếng)
             const sendDate = noti.sendDate
               ? new Date(new Date(noti.sendDate).getTime() + 7 * 60 * 60 * 1000)
               : null;
@@ -191,7 +188,6 @@ const Notification = () => {
                 onMouseEnter={() => setHoveredId(notificationId)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                {/* Icon by notification type */}
                 <div style={{marginRight: 18, marginTop: 2}}>
                   {notificationIconMap[noti.type] || (
                     <BellOutlined style={{color: "#bbb", fontSize: 24}} />

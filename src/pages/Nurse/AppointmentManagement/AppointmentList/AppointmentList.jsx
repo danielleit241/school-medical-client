@@ -22,8 +22,6 @@ import {
   FileTextOutlined,
   ArrowLeftOutlined,
   CheckCircleOutlined,
-  ExclamationCircleOutlined,
-  SyncOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
 import Swal from "sweetalert2";
@@ -33,28 +31,24 @@ const statusConfig = {
     color: "#dc2626",
     bgColor: "#fef2f2",
     borderColor: "#fed7aa",
-    icon: <ExclamationCircleOutlined />,
     text: "Cancelled",
   },
   Completed: {
     color: "#10b981",
     bgColor: "#ecfdf5",
     borderColor: "#a7f3d0",
-    icon: <CheckCircleOutlined />,
     text: "Completed",
   },
   Confirmed: {
     color: "#3b82f6",
     bgColor: "#eff6ff",
     borderColor: "#bfdbfe",
-    icon: <ExclamationCircleOutlined />,
     text: "Confirmed",
   },
   Pending: {
     color: "#f59e0b",
     bgColor: "#fffbeb",
     borderColor: "#fed7aa",
-    icon: <SyncOutlined />,
     text: "Pending",
   },
 };
@@ -84,7 +78,7 @@ const AppointmentList = () => {
       if (digits.length === 11) {
         return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}.${digits.slice(9,11)}`;
       }
-        return phone; // fallback
+        return phone; 
   };
 
   useEffect(() => {
@@ -236,7 +230,7 @@ const AppointmentList = () => {
                 <h3
                   style={{
                     margin: 0,
-                    fontSize: 16, // giảm từ 18
+                    fontSize: 16, 
                     fontWeight: 700,
                     color: "#1e293b",
                     lineHeight: 1.2,
@@ -272,7 +266,7 @@ const AppointmentList = () => {
                   gap: 8,
                   color: "#2563eb",
                   fontWeight: 600,
-                  fontSize: 13, // giảm từ 14
+                  fontSize: 13, 
                   background: "#f0f7ff",
                   borderRadius: 6,
                   padding: "4px 12px",
@@ -389,7 +383,7 @@ const AppointmentList = () => {
               style={{
                 borderRadius: 8,
                 fontWeight: 700,
-                fontSize: 15, // giảm từ 14
+                fontSize: 15, 
                 height: 36,
                 paddingLeft: 16,
                 paddingRight: 16,
@@ -423,7 +417,7 @@ const AppointmentList = () => {
           style={{
             display: "flex",
             alignItems: "center",
-            marginBottom: 24, // giảm margin
+            marginBottom: 24, 
             padding: "0 8px",
           }}
         >
@@ -431,7 +425,7 @@ const AppointmentList = () => {
             icon={<ArrowLeftOutlined />}
             onClick={() => setStep(1)}
             style={{
-              marginRight: 12, // giảm margin
+              marginRight: 12, 
               borderRadius: 8,
               height: 36,
               paddingLeft: 12,
@@ -446,7 +440,7 @@ const AppointmentList = () => {
           <h2
             style={{
               margin: 0,
-              fontSize: 18, // giảm từ 20
+              fontSize: 18, 
               fontWeight: 700,
               color: "#1f2937",
             }}
@@ -464,14 +458,14 @@ const AppointmentList = () => {
             width: "100%",
             margin: 0,
           }}
-          bodyStyle={{ padding: "20px 24px" }} // giảm padding
+          bodyStyle={{ padding: "20px 24px" }} 
         >
           {/* Student Header */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              marginBottom: 18, // giảm margin
+              marginBottom: 18, 
               paddingBottom: 14,
               borderBottom: "1.5px solid #f1f5f9",
             }}
@@ -489,7 +483,7 @@ const AppointmentList = () => {
               <h1
                 style={{
                   margin: 0,
-                  fontSize: 18, // giảm từ 20
+                  fontSize: 18, 
                   fontWeight: 700,
                   color: "#1f2937",
                   lineHeight: 1.2,
@@ -736,7 +730,7 @@ const AppointmentList = () => {
                 style={{
                   borderRadius: 12,
                   fontWeight: 600,
-                  fontSize: 15, // giảm từ 16
+                  fontSize: 15, 
                   height: 44,
                   paddingLeft: 20,
                   paddingRight: 20,
@@ -844,7 +838,7 @@ const AppointmentList = () => {
                   style={{
                     borderRadius: 12,
                     fontWeight: 600,
-                    fontSize: 15, // giảm từ 16
+                    fontSize: 15, 
                     height: 44,
                     paddingLeft: 20,
                     paddingRight: 20,
@@ -862,7 +856,6 @@ const AppointmentList = () => {
     );
   };
 
-  // Sắp xếp: Pending lên đầu
   const sortedAppointments = [...appointments].sort((a, b) => {
     const aPending = !a.confirmationStatus && a.completionStatus === null;
     const bPending = !b.confirmationStatus && b.completionStatus === null;
@@ -904,7 +897,7 @@ const AppointmentList = () => {
         </h1>
         <p
           style={{
-            fontSize: 15, // giữ nguyên
+            fontSize: 15, 
             fontWeight: 500,
             margin: "0 0 10px 0",
             opacity: 0.9,
@@ -926,8 +919,7 @@ const AppointmentList = () => {
               marginTop: 4,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {/* <FilterOutlined style={{fontSize: 15}} /> */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>             
               <span>Start Date:</span>
               <DatePicker
                 value={dayjs(dateRequestStart)}
@@ -972,7 +964,7 @@ const AppointmentList = () => {
             <div
               style={{
                 display: "flex",
-                justifyContent: "flex-start", // không căn giữa
+                justifyContent: "flex-start", 
                 marginBottom: 32,
                 gap: 20,
                 flexWrap: "wrap",
@@ -988,13 +980,13 @@ const AppointmentList = () => {
                   boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
                   textAlign: "center",
                   minWidth: 150,
-                  flex: 1, // mở rộng full chiều ngang
+                  flex: 1, 
                 }}
               >
                 <h3
                   style={{
                     margin: "0 0 8px 0",
-                    fontSize: 24, // giảm từ 28
+                    fontSize: 24, 
                     fontWeight: 700,
                     color: "#1f2937",
                   }}
@@ -1026,7 +1018,7 @@ const AppointmentList = () => {
                 <h3
                   style={{
                     margin: "0 0 8px 0",
-                    fontSize: 24, // giảm từ 28
+                    fontSize: 24, 
                     fontWeight: 700,
                     color: "#f59e0b",
                   }}
@@ -1079,7 +1071,7 @@ const AppointmentList = () => {
                 <h3
                   style={{
                     margin: "0 0 8px 0",
-                    fontSize: 24, // giảm từ 28
+                    fontSize: 24, 
                     fontWeight: 700,
                     color: "#059669",
                   }}
@@ -1105,7 +1097,7 @@ const AppointmentList = () => {
                 <h3
                   style={{
                     margin: "0 0 8px 0",
-                    fontSize: 24, // giảm từ 28
+                    fontSize: 24,
                     fontWeight: 700,
                     color: "red",
                   }}

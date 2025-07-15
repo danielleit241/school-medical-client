@@ -73,7 +73,6 @@ const HealthCheckList = () => {
         `/api/health-checks/schedules/${scheduleId}`
       );
 
-      // CHỈ lấy rounds, KHÔNG lấy status từ detail
       const rounds = Array.isArray(response.data) ? response.data : [];
 
       // Enhance rounds with student data
@@ -115,7 +114,6 @@ const HealthCheckList = () => {
         })
       );
 
-      // Lưu rounds vào roundsData, KHÔNG lưu status
       setRoundsData((prev) => ({
         ...prev,
         [scheduleId]: roundsWithProgress,
@@ -151,7 +149,6 @@ const HealthCheckList = () => {
   };
 
   const getStatusConfig = (record) => {
-    // Lấy status từ list (không lấy từ roundsData/detail)
     const status = record.healthCheckScheduleResponseDto.status;
 
     const now = dayjs();
@@ -164,7 +161,6 @@ const HealthCheckList = () => {
         bgColor: "#f6ffed",
         text: "Completed",
         status: "completed",
-        // icon: <CheckCircleOutlined />,
       };
     }
     if (now.isAfter(startDate) && now.isBefore(endDate)) {
@@ -173,7 +169,6 @@ const HealthCheckList = () => {
         bgColor: "#e6f7ff",
         text: "In Progress",
         status: "inProgress",
-        // icon: <PlayCircleOutlined />,
       };
     }
     if (now.isBefore(startDate)) {
@@ -182,7 +177,6 @@ const HealthCheckList = () => {
         bgColor: "#fff7e6",
         text: "Scheduled",
         status: "scheduled",
-        // icon: <ClockCircleOutlined />,
       };
     }
     return {
@@ -190,7 +184,6 @@ const HealthCheckList = () => {
       bgColor: "#fff1f0",
       text: "Expired",
       status: "expired",
-      // icon: <ClockCircleOutlined />,
     };
   };
 
@@ -199,11 +192,10 @@ const HealthCheckList = () => {
     axiosInstance
       .get("/api/health-checks/schedules")
       .then((res) => {
-        // Sort data by createdAt (newest first)
         const sortedData = [...(res.data?.items || [])].sort((a, b) => {
           const dateA = new Date(a.healthCheckScheduleResponseDto.createdAt);
           const dateB = new Date(b.healthCheckScheduleResponseDto.createdAt);
-          return dateB - dateA; // Sort descending (newest first)
+          return dateB - dateA; 
         });
 
         const mapSchedule = (
@@ -240,7 +232,6 @@ const HealthCheckList = () => {
     if (data.length > 0) {
       data.forEach((item) => {
         const scheduleId = item.healthCheckScheduleResponseDto.scheduleId;
-        // Có thể chỉ fetch cho status inProgress để tối ưu
         if (item.healthCheckScheduleResponseDto.status === false) {
           fetchRounds(scheduleId);
         }
@@ -281,14 +272,12 @@ const HealthCheckList = () => {
   const handleCompleteSchedule = async (scheduleId) => {
     setCompleting((prev) => ({...prev, [scheduleId]: true}));
     try {
-      // Kiểm tra học sinh bổ sung
       const res = await axiosInstance.get(
         `/api/schedules/${scheduleId}/health-check-rounds/supplementary/total-students`
       );
       const supplementStudents = res.data?.supplementStudents ?? 0;
 
       if (supplementStudents > 0) {
-        // Cảnh báo xác nhận
         await Swal.fire({
           title: "Warning",
           text: `${supplementStudents} supplementary students remain unchecked. Continue?`,
@@ -367,7 +356,6 @@ const HealthCheckList = () => {
         }}
         bodyStyle={{padding: 0}}
         onClick={(e) => {
-          // Only toggle when clicking on areas without buttons
           if (
             !e.target.closest("button") &&
             !e.target.closest(".ant-progress") &&
@@ -751,9 +739,6 @@ const HealthCheckList = () => {
                   fontWeight: activeTab === "scheduled" ? 500 : 400,
                 }}
               >
-                {/* <ClockCircleOutlined
-                  style={{color: "#faad14", marginRight: 6}}
-                /> */}
                 Scheduled
               </span>
             }
@@ -769,9 +754,6 @@ const HealthCheckList = () => {
                   fontWeight: activeTab === "inProgress" ? 500 : 400,
                 }}
               >
-                {/* <PlayCircleOutlined
-                  style={{color: "#1890ff", marginRight: 6}}
-                /> */}
                 In Progress
               </span>
             }
@@ -787,9 +769,6 @@ const HealthCheckList = () => {
                   fontWeight: activeTab === "completed" ? 500 : 400,
                 }}
               >
-                {/* <CheckCircleOutlined
-                  style={{color: "#52c41a", marginRight: 6}}
-                /> */}
                 Completed
               </span>
             }
@@ -805,9 +784,6 @@ const HealthCheckList = () => {
                   fontWeight: activeTab === "expired" ? 500 : 400,
                 }}
               >
-                {/* <ClockCircleOutlined
-                  style={{color: "#f5222d", marginRight: 6}}
-                /> */}
                 Expired
               </span>
             }

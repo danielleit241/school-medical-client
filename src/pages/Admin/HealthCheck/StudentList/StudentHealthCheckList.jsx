@@ -30,7 +30,6 @@ const StudentHealthCheckList = () => {
   const navigate = useNavigate();
   const roleName = useSelector((state) => state.user?.role);
   const roundId = localStorage.getItem("selectedHealthCheckRoundId");
-  // console.log("Current roleName:", roleName);
   console.log("Current roundId:", roundId);
   const [loading, setLoading] = useState(true);
   const [roundInfo, setRoundInfo] = useState(null);
@@ -70,7 +69,6 @@ const StudentHealthCheckList = () => {
 
   // Fetch round details and students
   useEffect(() => {
-    // Get round ID from localStorage
     const roundId = localStorage.getItem("selectedHealthCheckRoundId");
     console.log("Retrieved roundId from localStorage:", roundId);
 
@@ -91,22 +89,18 @@ const StudentHealthCheckList = () => {
         message.error("Failed to fetch round details");
       });
 
-    // Fetch students list
     fetchStudents();
   }, [roleName, navigate, fetchStudents]);
 
-  // Handle search
   const handleSearch = () => {
     fetchStudents(search);
   };
 
-  // Handle back button
   const handleBack = () => {
     localStorage.removeItem("selectedHealthCheckRoundId");
     navigate(`/${roleName}/health-check/schedules`);
   };
 
-  // Export to Excel (placeholder function)
   const handleExport = () => {
     if (!roundId) {
       message.error("Round ID not found");
@@ -115,7 +109,7 @@ const StudentHealthCheckList = () => {
     setDownloadLoading(true);
     axiosInstance
       .get(`/api/health-check-results/export-excel`, {
-        params: { roundId }, // export theo round
+        params: { roundId }, 
         responseType: "blob",
       })
       .then((res) => {
@@ -142,7 +136,6 @@ const StudentHealthCheckList = () => {
       });
   };
 
-  // Handle view detail of vaccination result
   const handleViewResult = (resultId) => {
     if (!resultId) {
       message.error("Health check result ID not found");
@@ -356,7 +349,6 @@ const StudentHealthCheckList = () => {
               setResultDetail(null);
             }}
             footer={[
-              // Chỉ giữ nút Close, bỏ nút Download
               <Button
                 key="close"
                 onClick={() => {
