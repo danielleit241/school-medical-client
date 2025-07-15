@@ -4,6 +4,7 @@ import axiosInstance from "../../../../api/axios";
 import Swal from "sweetalert2";
 import {Spin, Button, Tooltip, Modal} from "antd";
 import {PictureOutlined} from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const DetailMedicalRes = () => {
   const location = useLocation();
@@ -127,8 +128,8 @@ const DetailMedicalRes = () => {
     if (medicalRegistration.status === true) {
       return {
         text: "Approved",
-        color: "#10b981",
-        bgColor: "#ecfdf5",
+        color: "#2563eb",
+        bgColor: "#eff6ff",
         showDate: true,
         showNurseNotes: true,
       };
@@ -749,7 +750,7 @@ const DetailMedicalRes = () => {
                             <span style={{fontWeight: "500"}}>
                               Date Completed:
                             </span>{" "}
-                            {dose.dateCompleted}
+                            {dose.dateCompleted ? dayjs(dose.dateCompleted).add(7, 'hour').format("YYYY-MM-DD HH:mm") : "N/A"}
                           </div>
                         )}
                       </div>

@@ -167,21 +167,22 @@ const MedicalRegistrationList = () => {
       // Check xem đã complete hết dose chưa
       const allDoseCompleted = isAllDoseCompleted(item);
       if (allDoseCompleted) {
-        return {
+       return {
           text: "Completed",
           color: "success",
-          bgColor: "#eff6ff",
-          textColor: "#2563eb",
-          borderColor: "#bfdbfe",
+          bgColor: "#ecfdf5",
+          textColor: "#10b981",
+          borderColor: "#a7f3d0",
         };
       } else {
         return {
           text: "Approved",
           color: "processing",
-          bgColor: "#ecfdf5",
-          textColor: "#10b981",
-          borderColor: "#a7f3d0",
+          bgColor: "#eff6ff",
+          textColor: "#2563eb",
+          borderColor: "#bfdbfe",
         };
+        
       }
     }
 

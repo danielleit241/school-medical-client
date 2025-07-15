@@ -364,7 +364,7 @@ const AppointmentHistory = () => {
                           color={
                             getStatus(item).color === "blue"
                               ? "success"
-                              : getStatus(item).color === "orange"
+                              : getStatus(item).color === "green"
                               ? "processing"
                               : getStatus(item).color === "fef2f2"
                               ? "error"

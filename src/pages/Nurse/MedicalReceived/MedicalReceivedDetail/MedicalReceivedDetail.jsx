@@ -1014,7 +1014,7 @@ const MedicalReceivedDetail = () => {
                               </div>
                               {dose.isCompleted && dose.dateCompleted && (
                                 <div style={{fontSize: 13, marginBottom: 2}}>
-                                  <b>Date Completed:</b> {dose.dateCompleted}
+                                  <b>Date Completed:</b> {dose.dateCompleted? dayjs(dose.dateCompleted).add(7, 'hour').format("DD/MM/YYYY HH:mm") : ""}
                                 </div>
                               )}
 

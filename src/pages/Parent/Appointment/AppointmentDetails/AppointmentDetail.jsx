@@ -371,9 +371,9 @@ const AppointmentDetail = () => {
                         ? "success"
                         : statusInfo.color === "#fef2f2"
                         ? "error"
-                        : statusInfo.color === "#52c41a"
-                        ? "warning"
                         : statusInfo.color === "#faad14"
+                        ? "warning"
+                        : statusInfo.color === "#52c41a"
                         ? "blue"
                         : "default"
                     }
