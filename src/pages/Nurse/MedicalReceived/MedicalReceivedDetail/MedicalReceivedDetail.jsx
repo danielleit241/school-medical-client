@@ -399,13 +399,13 @@ const MedicalReceivedDetail = () => {
             borderRadius: 8,
             height: 30,
             paddingLeft: 10,
-            paddingRight: 10,
+            paddingRight: 0,
             border: "2px solid #e5e7eb",
             fontWeight: 600,
             fontSize: 13,
           }}
         >
-          Back to List
+         
         </Button>
         <h2
           style={{
