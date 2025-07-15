@@ -1018,7 +1018,8 @@ const MedicalReceivedDetail = () => {
                                 </div>
                               )}
 
-                              {!dose.isCompleted && doseDateTime && dayjs().isAfter(doseDateTime) && (
+                              {!dose.isCompleted && doseDateTime && dayjs().isAfter(doseDateTime) &&
+                                dayjs().format("YYYY-MM-DD") === dayjs(medicalRegistration?.dateSubmitted).format("YYYY-MM-DD") && (
                                 <div style={{marginTop: 6}}>
                                   <Button
                                     type="primary"
@@ -1036,14 +1037,23 @@ const MedicalReceivedDetail = () => {
                                     }}
                                     onClick={() => handleCompleteDose(idx, dose)}
                                   >
-                                    Mark as Completed
+                                    Complete Dose #{dose.doseNumber}
                                   </Button>
                                 </div>
                               )}
-                              {!dose.isCompleted && doseDateTime && !dayjs().isAfter(doseDateTime) && (
+                              {!dose.isCompleted && doseDateTime && !dayjs().isAfter(doseDateTime) &&
+                                dayjs().format("YYYY-MM-DD") === dayjs(medicalRegistration?.dateSubmitted).format("YYYY-MM-DD") && (
                                 <div style={{marginTop: 6}}>
                                   <span style={{fontSize: 13, color: "red"}}>
                                     <b>Next Dose:</b> {" After " + dayjs(doseDateTime).format("HH:mm")}
+                                  </span>
+                                </div>
+                              )}
+                              {!dose.isCompleted && doseDateTime &&
+                                dayjs().format("YYYY-MM-DD") !== dayjs(medicalRegistration?.dateSubmitted).format("YYYY-MM-DD") && (
+                                <div style={{marginTop: 6}}>
+                                  <span style={{fontSize: 13, color: "red"}}>
+                                   You can only Complete Doses on the same day as Date Submitted
                                   </span>
                                 </div>
                               )}
