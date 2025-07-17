@@ -16,6 +16,7 @@ import axiosInstance from "../../../../api/axios";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {setListStudent} from "../../../../redux/feature/studentSlice";
+import { Plus, X } from "lucide-react";
 
 const SEVERITY_OPTIONS = [
   {label: "Low", value: "Low"},
@@ -352,22 +353,25 @@ const CreateMedicalEvent = () => {
                 <div
                   style={{
                     fontWeight: 600,
-                    fontSize: 17,
+                    fontSize: 24,
                     marginBottom: 16,
                     color: "#3058A4",
+                    position: "relative",
                   }}
                 >
-                  Medical Requests
+                 {medicalRequests.length > 1 ? "Medical Requests:" : "Medical Request:"} {medicalRequests.length}
                 </div>
-                {medicalRequests.map((req, idx) => (
+                <div style={{overflowY: "auto", maxHeight: 400, scrollbarWidth: "none", marginBottom: 16}}>
+                  {medicalRequests.map((req, idx) => (  
                   <div
                     key={idx}
                     style={{
-                      background: "#f6f6f6",
+                      background: "#E6F7FF",
                       padding: 16,
                       borderRadius: 10,
                       marginBottom: 18,
                       border: "1px solid #e0e0e0",
+                      position: "relative",
                     }}
                   >
                     <Form.Item
@@ -424,22 +428,30 @@ const CreateMedicalEvent = () => {
                     </Form.Item>
                     {medicalRequests.length > 1 && (
                       <Button
-                        danger
-                        style={{marginTop: 8}}
+                        style={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          padding: "10px 10px",
+                          fontSize: 14,
+                          border: "none",
+                          background: "transparent",
+                          // hover: {background: "#ff0000ff !important"},
+                        }}
                         onClick={() => handleRemoveRequest(idx)}
                       >
-                        Remove
+                        <X size={16} />
                       </Button>
                     )}
                   </div>
                 ))}
+                </div>
                 <Button
-                  type="dashed"
+                  solid
+                  style={{ position: "absolute", top: 0, right: 24, padding: "10px 10px", fontSize: 14}}
                   onClick={handleAddRequest}
-                  block
-                  style={{fontWeight: 600}}
                 >
-                  + Add Medical Request
+                  <Plus size={15} />
                 </Button>
               </Col>
             </Row>
