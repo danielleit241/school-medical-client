@@ -424,7 +424,7 @@ const AppointmentList = () => {
         error.response?.data?.errors?.request?.[0] ||
         error.response?.data?.errors?.["$.appointmentStartTime"]?.[0] ||
         error.response?.data?.message ||
-        "Failed to book appointment!";
+        "This appointment has just been booked by someone else.";
       Swal.fire({
         toast: true,
         position: "top-end",
