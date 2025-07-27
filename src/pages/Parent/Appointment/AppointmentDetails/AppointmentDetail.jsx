@@ -16,21 +16,26 @@ const AppointmentDetail = () => {
   const userId = useSelector((state) => state.user?.userId);
   const nurseMap = JSON.parse(localStorage.getItem("nurseMap") || "{}");
 
-
   const formatPhone = (phone) => {
-  if (!phone) return "";
-  // Lấy chỉ số, bỏ ký tự không phải số
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length === 10) {
-    // 10 số: 012.345.6789
-    return `${digits.slice(0,4)}.${digits.slice(4,7)}.${digits.slice(7,10)}`;
-  }
-  if (digits.length === 11) {
-    // 11 số: 012.234.43210
-    return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}.${digits.slice(9,11)}`;
-  }
-  return phone; // fallback
-};
+    if (!phone) return "";
+    // Lấy chỉ số, bỏ ký tự không phải số
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) {
+      // 10 số: 012.345.6789
+      return `${digits.slice(0, 4)}.${digits.slice(4, 7)}.${digits.slice(
+        7,
+        10
+      )}`;
+    }
+    if (digits.length === 11) {
+      // 11 số: 012.234.43210
+      return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(
+        6,
+        9
+      )}.${digits.slice(9, 11)}`;
+    }
+    return phone; // fallback
+  };
   const getNurseName = (item) => {
     // Ưu tiên lấy từ API, nếu không có thì lấy từ localStorage
     return item.nurseName || nurseMap[item.appointmentId]?.fullName || "N/A";
@@ -44,8 +49,8 @@ const AppointmentDetail = () => {
         const res = await axiosInstance.get(
           `/api/parents/${userId}/appointments/${appointmentId}`
         );
-         console.log("Fetched Appointment Data:", res.data.staffNurse.fullName);
-         setNurseInfo(res.data.staffNurse);
+        console.log("Fetched Appointment Data:", res.data.staffNurse.fullName);
+        setNurseInfo(res.data.staffNurse);
         setAppointment(res.data);
         // console.log("Appointment Details:", res.data);
       } catch (error) {
@@ -59,8 +64,10 @@ const AppointmentDetail = () => {
   }, [appointmentId, userId]);
 
   const getStatus = (item) => {
-    if (item.completionStatus === true) return {text: "Completed", color: "#1890ff"};
-    if (item.completionStatus === false) return {text: "Cancelled", color: "#fef2f2"};
+    if (item.completionStatus === true)
+      return {text: "Completed", color: "#1890ff"};
+    if (item.completionStatus === false)
+      return {text: "Cancelled", color: "#fef2f2"};
     if (item.confirmationStatus) return {text: "Confirmed", color: "#52c41a"};
     return {text: "Pending", color: "#faad14"};
   };
@@ -340,10 +347,11 @@ const AppointmentDetail = () => {
                     gap: "8px",
                     padding: "20px 24px",
                     fontSize: "16px",
-                    marginTop: "16px", 
+                    marginTop: "16px",
                   }}
                 >
-                  <p style={{fontWeight: 600}}> Phone:</p> {formatPhone(nurseInfo.phoneNumber) }
+                  <p style={{fontWeight: 600}}> Phone:</p>{" "}
+                  {formatPhone(nurseInfo.phoneNumber)}
                 </td>
               </tr>
               <tr>
