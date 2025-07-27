@@ -22,7 +22,6 @@ import {
   MedicineBoxOutlined,
   FileTextOutlined,
   CalendarOutlined,
-  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import "./Guide.scss";
 import LoginScreen from "../../assets/images/screenshot-login.png";
@@ -268,6 +267,10 @@ export default function Guide() {
                   alt="Navigation Menu"
                   style={{
                     maxWidth: "100%",
+                    maxHeight: "285px",
+                    objectFit: "cover",
+                    width: "100%",
+                    height: "285px",
                     borderRadius: "8px",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                     border: `1px solid ${colors.primaryLight}`,
@@ -305,7 +308,7 @@ export default function Guide() {
     {
       name: "Timetable",
       icon: (
-        <HeartOutlined
+        <CalendarOutlined
           style={{display: "flex", alignItems: "center", margin: 0, padding: 4}}
         />
       ),
@@ -414,7 +417,6 @@ export default function Guide() {
                 <Button
                   onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                   disabled={currentStep === 0}
-                  icon={<ArrowLeftOutlined />}
                   style={
                     currentStep !== 0
                       ? {borderColor: colors.primary, color: colors.primary}
@@ -475,7 +477,6 @@ export default function Guide() {
                   }
                 >
                   Next Step
-                  <ArrowRightOutlined />
                 </Button>
               </div>
               <div
