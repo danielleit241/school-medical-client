@@ -96,7 +96,7 @@ const Sidebar = () => {
 
     // Websocket realtime
     const connection = new HubConnectionBuilder()
-      .withUrl("https://localhost:7009/notificationHub", {
+      .withUrl("http://localhost:5000/notificationHub", {
         accessTokenFactory: () => token,
       })
       .configureLogging(LogLevel.Information)

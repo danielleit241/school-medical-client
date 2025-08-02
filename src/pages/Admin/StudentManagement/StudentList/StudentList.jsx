@@ -83,7 +83,7 @@ const StudentList = () => {
         timerProgressBar: true,
       });
     } catch (error) {
-      console.error("Error creating accounts:", error);
+      console.error("Error crseating account:", error);
       Swal.fire({
         icon: "error",
         title: "Error creating accounts",
