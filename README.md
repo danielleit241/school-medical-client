@@ -4,13 +4,22 @@
 
 A modern web application designed to manage school medical records, health data, and communication between students, parents, and school healthcare staff.
 
+---
+
+## 📸 System Screenshots
+
+| Home Page                                                                    | Service Page                                                              | Guide Page                                                                             |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| ![Home Page](../../Frontend/school-medical-client/src/assets/images/hai.png) | ![Chatbot](../../Frontend/school-medical-client/src/assets/images/ba.png) | ![Medical Registration](../../Frontend/school-medical-client/src/assets/images/ba.png) |
+
+---
 
 ## 👥 Contributors
 
-| Member             | GitHub                                       |
-|--------------------|----------------------------------------------|
-| Ngô Thành Đạt      | [@ngothanhdat-AK](https://github.com/ngothanhdat-AK) |
-| Trần Phú Thịnh     | [@ThinhTP204](https://github.com/ThinhTP204)         |
+| Member         | GitHub                                               |
+| -------------- | ---------------------------------------------------- |
+| Ngô Thành Đạt  | [@ngothanhdat-AK](https://github.com/ngothanhdat-AK) |
+| Trần Phú Thịnh | [@ThinhTP204](https://github.com/ThinhTP204)         |
 
 ## 🚀 Features
 
@@ -21,18 +30,16 @@ A modern web application designed to manage school medical records, health data,
 - Interactive dashboards and charts
 - Secure login and session management
 
-
 ## 🛠️ Tech Stack & Skills
-|                          |                          |                          |                          |
-|--------------------------|--------------------------|--------------------------|--------------------------|
-| **React**                | **JavaScript**           | **Vite**                 | **Redux Toolkit**        |
-| **Tailwind CSS**         | **Bootstrap**            | **Material UI (MUI)**    | **Sass**                 |
-| **Ant Design (antd)**    | **Ant Design Charts**    | **Chart.js**             | **React Router DOM**     |
-| **React Redux**          | **Redux Persist**        | **React Bootstrap**      | **date-fns**             |
-| **jwt-decode**           | **swiper**               | **sweetalert2**          | **animate.css**          |
-| **lucide-react**         | **react-icons**          | **@microsoft/signalr**   | **xlsx**                 |
-| **axios**                | **React Transition Group**| **Vitest**              | **ESLint**               |
 
+|                       |                            |                        |                      |
+| --------------------- | -------------------------- | ---------------------- | -------------------- |
+| **React**             | **JavaScript**             | **Vite**               | **Redux Toolkit**    |
+| **Tailwind CSS**      | **Bootstrap**              | **Material UI (MUI)**  | **Sass**             |
+| **Ant Design (antd)** | **Ant Design Charts**      | **Chart.js**           | **React Router DOM** |
+| **React Redux**       | **Redux Persist**          | **React Bootstrap**    | **date-fns**         |
+| **jwt-decode**        | **swiper**                 | **sweetalert2**        | **animate.css**      |
+| **lucide-react**      | **react-icons**            | **@microsoft/signalr** | **xlsx**             |
+| **axios**             | **React Transition Group** | **Vitest**             | **ESLint**           |
 
 ---
-
