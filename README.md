@@ -24,6 +24,14 @@ A modern web application designed to manage school medical records, health data,
 
 ## 🚀 Features
 
+- Admin
+- Manager
+- Nurse
+- Parent
+- Student
+
+## 🚀 Features
+
 - Student medical record management
 - Health statistics and reporting
 - Real-time communication and notifications
