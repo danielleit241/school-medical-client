@@ -10,7 +10,7 @@ A modern web application designed to manage school medical records, health data,
 
 | Home Page                                                                    | Service Page                                                              | Guide Page                                                                             |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| ![Home Page]([../../Frontend/school-medical-client/src/assets/images/hai.png](https://github.com/darrenak403/school-medical-client/blob/main/screenshots/hai.png)) | ![Chatbot]([../../Frontend/school-medical-client/src/assets/images/ba.png](https://github.com/darrenak403/school-medical-client/blob/main/screenshots/ba.png)) | ![Medical Registration]([../../Frontend/school-medical-client/src/assets/images/ba.png](https://github.com/darrenak403/school-medical-client/blob/main/screenshots/mot.png)) |
+| ![Home Page]((https://github.com/darrenak403/school-medical-client/blob/main/screenshots/hai.png)) | ![Chatbot]((https://github.com/darrenak403/school-medical-client/blob/main/screenshots/ba.png)) | ![Medical Registration]((https://github.com/darrenak403/school-medical-client/blob/main/screenshots/mot.png)) |
 
 ---
 
