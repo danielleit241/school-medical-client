@@ -5,15 +5,12 @@
 A modern web application designed to manage school medical records, health data, and communication between students, parents, and school healthcare staff.
 
 ---
-
-## 📸 System Screenshots
-
 <div align="center">
-  <img src="https://github.com/darrenak403/school-medical-client/blob/main/screenshots/hai.png" alt="Home Page" width="700"/>
+  <img src="https://github.com/darrenak403/school-medical-client/blob/main/screenshots/hai.png" alt="Home Page" width="800"/>
   <br/>
-  <img src="https://github.com/darrenak403/school-medical-client/blob/main/screenshots/ba.png" alt="Service Page" width="700"/>
+  <img src="https://github.com/darrenak403/school-medical-client/blob/main/screenshots/ba.png" alt="Service Page" width="800"/>
   <br/>
-  <img src="https://github.com/darrenak403/school-medical-client/blob/main/screenshots/mot.png" alt="Guide Page" width="700"/>
+  <img src="https://github.com/darrenak403/school-medical-client/blob/main/screenshots/mot.png" alt="Guide Page" width="800"/>
 </div>
 
 ---
